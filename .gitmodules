@@ -1,3 +1,6 @@
 [submodule "headunit"]
 	path = headunit
 	url = https://github.com/gartnera/headunit.git
+[submodule "qml_gui"]
+	path = qml_gui
+	url = https://github.com/viktorgino/headunit-gui.git
