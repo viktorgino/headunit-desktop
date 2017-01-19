@@ -36,3 +36,6 @@ Makefile*
 # QtCtreator CMake
 CMakeLists.txt.user
 
+# Headunit
+/headunit/mazda/*
+

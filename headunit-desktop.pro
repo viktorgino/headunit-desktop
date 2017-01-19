@@ -13,7 +13,9 @@ SOURCES += main.cpp \
     headunit/hu/generated.x64/hu.pb.cc \
     headunit.cpp
 
-RESOURCES += qml.qrc
+RESOURCES += \
+    qml_gui/qml.qrc \
+    main.qrc
 
 PKGCONFIG += libssl libcrypto libusb-1.0 glib-2.0 gobject-2.0 gstreamer-1.0 gstreamer-app-1.0 Qt5GLib-2.0 Qt5GStreamer-1.0 Qt5GStreamerQuick-1.0 Qt5GStreamerUtils-1.0 protobuf libunwind libudev
 

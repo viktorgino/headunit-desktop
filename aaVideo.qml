@@ -20,34 +20,32 @@
 import QtQuick 2.0
 import QtGStreamer 1.0
 
-Rectangle {
-    id: window
+
+VideoItem {
+    id: aaVideo
     width: 800
     height: 480
+    surface: videoSurface1
 
-    Column {
-        width: 800
-        height: 480
+    MouseArea {
+        id: mouseArea1
+        anchors.fill: parent
+        onPressed:{
+            headunit.mouseDown(Qt.point(mouse.x, mouse.y));
+        }
+        onPositionChanged:{
+            headunit.mouseMove(Qt.point(mouse.x, mouse.y));
+        }
+        onReleased:{
+            headunit.mouseUp(Qt.point(mouse.x, mouse.y));
+        }
+    }
 
-        VideoItem {
-            id: video
-            width: 800
-            height: 480
-            surface: videoSurface1
-
-            MouseArea {
-                id: mouseArea1
-                anchors.fill: parent
-                onPressed:{
-                    headunit.mouseDown(Qt.point(mouse.x, mouse.y));
-                }
-                onPositionChanged:{
-                    headunit.mouseMove(Qt.point(mouse.x, mouse.y));
-                }
-                onReleased:{
-                    headunit.mouseUp(Qt.point(mouse.x, mouse.y));
-                }
-            }
+    Keys.onPressed: {
+        switch(event.key){
+        case Qt.Key_Left:
+            console.log("Key Left");
+            break;
         }
     }
 }
