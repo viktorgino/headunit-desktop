@@ -6,4 +6,4 @@
 	url = https://github.com/viktorgino/headunit-gui.git
 [submodule "qdevicewatcher"]
 	path = qdevicewatcher
-	url = https://github.com/akforrest/qdevicewatcher.git
+	url = https://github.com/viktorgino/qdevicewatcher.git
