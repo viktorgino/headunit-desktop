@@ -4,6 +4,3 @@
 [submodule "qml_gui"]
 	path = qml_gui
 	url = https://github.com/viktorgino/headunit-gui.git
-[submodule "qdevicewatcher"]
-	path = qdevicewatcher
-	url = https://github.com/viktorgino/qdevicewatcher.git
