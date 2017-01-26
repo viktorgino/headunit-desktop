@@ -11,7 +11,8 @@ SOURCES += main.cpp \
     headunit/hu/hu_usb.cpp \
     headunit/hu/hu_uti.cpp \
     headunit/hu/generated.x64/hu.pb.cc \
-    headunit.cpp
+    headunit.cpp \
+    usbconnectionlistener.cpp
 
 RESOURCES += \
     qml_gui/qml.qrc \
@@ -33,7 +34,8 @@ HEADERS += \
     headunit/hu/hu_usb.h \
     headunit/hu/hu_uti.h \
     headunit/hu/generated.x64/hu.pb.h \
-    headunit.h
+    headunit.h \
+    usbconnectionlistener.h
 
 INCLUDEPATH +=$$PWD/headunit/hu
 INCLUDEPATH +=$$PWD/headunit/hu/generated.x64

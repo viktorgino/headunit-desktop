@@ -6,16 +6,14 @@
 #include <QPoint>
 #include <QGst/Pipeline>
 #include <QGst/Message>
+#include <QVariant>
 #include <QGst/Utils/ApplicationSource>
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
 
 #include "hu_uti.h"
 #include "hu_aap.h"
-
-#define MOUSE_DOWN 0
-#define MOUSE_UP 1
-#define MOUSE_MOVE 2
+#include "usbconnectionlistener.h"
 
 class Headunit;
 
@@ -41,10 +39,12 @@ class Headunit : public QObject
     Q_PROPERTY(int outputHeight READ outputHeight WRITE setOutputHeight NOTIFY outputResized)
 public:
     Headunit(const QGst::ElementPtr & sink);
-    ~Headunit() { stop(); headunit.hu_aap_shutdown(); }
-    void start();
+    ~Headunit();
+    int startHU();
     void stop();
     void exit();
+    void setGstState(QString state);
+    void setUsbConnectionListener(UsbConnectionListener *m_connectionListener);
     void setOutputWidth(const int a){
         if(a != m_outputWidth){
             m_outputWidth = a;
@@ -73,17 +73,23 @@ public:
     GstAppSrc *vid_src = nullptr;
 signals:
     void outputResized();
+    void deviceConnected(QVariantMap notification);
 public slots:
     bool mouseDown(QPoint point);
     bool mouseMove(QPoint point);
     bool mouseUp(QPoint point);
     bool keyEvent(QString key);
+    void slotDeviceAdded(const QString &dev);
+    void slotAndroidDeviceAdded(const QString &dev);
+    void slotDeviceRemoved(const QString &dev);
+    void slotDeviceChanged(const QString &dev);
 private:
     IHUAnyThreadInterface* g_hu = nullptr;
     QGst::ElementPtr m_videoSink;
-    HUServer headunit;
+    HUServer *headunit;
     DesktopEventCallbacks callbacks;
     HU::TouchInfo::TOUCH_ACTION lastAction = HU::TouchInfo::TOUCH_ACTION_RELEASE;
+    UsbConnectionListener *connectionListener;
     int videoWidth = 800;
     int videoHeight = 480;
     int m_outputWidth = 800;
@@ -93,5 +99,8 @@ private:
     static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr);
     void touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point);
     static uint64_t get_cur_timestamp();
+    bool huStarted = false;
+    byte ep_in_addr = -2;
+    byte ep_out_addr = -2;
 };
 #endif // HEADUNITPLAYER_H

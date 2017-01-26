@@ -1,6 +1,7 @@
 #include "headunit.h"
 
 #include <QDebug>
+#include <QJsonObject>
 #include <QGlib/Error>
 #include <QGlib/Connect>
 #include <QGst/Init>
@@ -16,25 +17,48 @@
 #include "hu_uti.h"
 #include "hu_aap.h"
 
-Headunit::Headunit(const QGst::ElementPtr & sink):callbacks(this), headunit(callbacks)
+Headunit::Headunit(const QGst::ElementPtr & sink):callbacks(this)
 {
-
     m_videoSink = sink;
-    byte ep_in_addr = -2;
-    byte ep_out_addr = -2;
     int ret = 0;
     ret = initGst();
     if (ret < 0) {
         qDebug("STATUS:gst_pipeline_init() ret: %d\n", ret);
         return;
     }
-    ret = headunit.hu_aap_start(ep_in_addr, ep_out_addr);
-    if (ret < 0) {
-        qDebug("Phone is not connected. Connect a supported phone and restart.\n");
-        return;
+    qDebug("Phone is not connected. Connect a supported phone and restart.\n");
+    startHU();
+}
+
+Headunit::~Headunit() {
+    setGstState("");
+
+    gst_object_unref(vid_pipeline);
+    gst_object_unref(mic_pipeline);
+    gst_object_unref(aud_pipeline);
+    gst_object_unref(au1_pipeline);
+
+    gst_object_unref(vid_src);
+    gst_object_unref(mic_sink);
+    gst_object_unref(aud_src);
+    gst_object_unref(au1_src);
+    if(huStarted){
+        headunit->hu_aap_shutdown();
+        qDebug("Headunit::~Headunit() called hu_aap_shutdown()");
     }
-    g_hu = &headunit.GetAnyThreadInterface();
-    start();
+}
+int Headunit::startHU(){
+    headunit = new HUServer(callbacks);
+    int ret = headunit->hu_aap_start(ep_in_addr, ep_out_addr);
+    if ( ret >= 0) {
+        g_hu = &headunit->GetAnyThreadInterface();
+        setGstState("play");
+        return 1;
+    } else {
+        delete(headunit);
+        setGstState("");
+        return 0;
+    }
 }
 
 int Headunit::initGst(){
@@ -194,7 +218,7 @@ gboolean Headunit::bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr)
         qDebug("Error %s\n", err->message);
         g_error_free(err);
         g_free(debug);
-        hu->stop();
+        hu->setGstState("");
         break;
 
     case GST_MESSAGE_WARNING:
@@ -211,7 +235,7 @@ gboolean Headunit::bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr)
 
     case GST_MESSAGE_EOS:
         qDebug("End of stream\n");
-        hu->stop();
+        hu->setGstState("");
         break;
 
     case GST_MESSAGE_STATE_CHANGED:
@@ -220,30 +244,23 @@ gboolean Headunit::bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr)
 
     return TRUE;
 }
-void Headunit::start(){
+void Headunit::setGstState(QString state){
 
-    gst_element_set_state(vid_pipeline, GST_STATE_PLAYING);
-    gst_element_set_state(aud_pipeline, GST_STATE_PLAYING);
-    gst_element_set_state(au1_pipeline, GST_STATE_PLAYING);
+    GstState gst_state;
+    if(state == "play"){
+        gst_state = GST_STATE_PLAYING;
+        huStarted = true;
+    } else if(state == "pause") {
+        gst_state = GST_STATE_PAUSED;
+        huStarted = false;
+    } else {
+        gst_state = GST_STATE_NULL;
+        huStarted = false;
+    }
 
-}
-void Headunit::stop(){
-
-
-    gst_element_set_state(vid_pipeline, GST_STATE_NULL);
-    gst_element_set_state(mic_pipeline, GST_STATE_NULL);
-    gst_element_set_state(aud_pipeline, GST_STATE_NULL);
-    gst_element_set_state(au1_pipeline, GST_STATE_NULL);
-
-    gst_object_unref(vid_pipeline);
-    gst_object_unref(mic_pipeline);
-    gst_object_unref(aud_pipeline);
-    gst_object_unref(au1_pipeline);
-
-    gst_object_unref(vid_src);
-    gst_object_unref(mic_sink);
-    gst_object_unref(aud_src);
-    gst_object_unref(au1_src);
+    gst_element_set_state(vid_pipeline, gst_state);
+    gst_element_set_state(aud_pipeline, gst_state);
+    gst_element_set_state(au1_pipeline, gst_state);
 
 }
 
@@ -312,6 +329,40 @@ void Headunit::touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point) {
     });
 }
 
+void Headunit::setUsbConnectionListener(UsbConnectionListener *m_connectionListener){
+    connectionListener = m_connectionListener;
+    connect(connectionListener,SIGNAL(androidDeviceConnected(QString)),this,SLOT(slotAndroidDeviceAdded(QString)));
+    connect(connectionListener,SIGNAL(usbDriveConnected(QString)),this,SLOT(slotDeviceAdded(QString)));
+    connect(connectionListener,SIGNAL(deviceRemoved(QString)),this,SLOT(slotDeviceRemoved(QString)));
+}
+void Headunit::slotDeviceAdded(const QString &dev)
+{
+    emit deviceConnected(QJsonObject {{"image","icons/usb.png"},
+                                      {"title","New USB storage detected"},
+                                      {"text",QString("%1 connected").arg(dev)}}.toVariantMap());
+    qDebug("add %s", qPrintable(dev));
+}
+void Headunit::slotAndroidDeviceAdded(const QString &dev)
+{
+    startHU();
+    emit deviceConnected(QJsonObject {{"image","icons/usb.png"},
+                                      {"title","New Android device detected"},
+                                      {"text",QString("%1 connected").arg(dev)}}.toVariantMap());
+    qDebug("add %s", qPrintable(dev));
+}
+
+void Headunit::slotDeviceChanged(const QString &dev)
+{
+    qDebug("change %s", qPrintable(dev));
+    emit deviceConnected(QJsonObject {{"image","icons/refresh.png"},{"title","USB device changed"},{"text",""}}.toVariantMap());
+}
+
+void Headunit::slotDeviceRemoved(const QString &dev)
+{
+    qDebug("remove %s", qPrintable(dev));
+    emit deviceConnected(QJsonObject {{"image","icons/eject.png"},{"title","USB device removed"},{"text",""}}.toVariantMap());
+}
+
 int DesktopEventCallbacks::MediaPacket(int chan, uint64_t timestamp, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;
     GstElement* gst_pipe = nullptr;
@@ -354,8 +405,8 @@ int DesktopEventCallbacks::MediaStop(int chan) {
 }
 
 void DesktopEventCallbacks::DisconnectionOrError() {
-    qDebug("DisconnectionOrError");
-    headunit->stop();
+    qDebug("Android Device disconnected, pausing gstreamer");
+    headunit->setGstState("");
 }
 
 void DesktopEventCallbacks::CustomizeOutputChannel(int chan, HU::ChannelDescriptor::OutputStreamChannel& streamChannel) {
