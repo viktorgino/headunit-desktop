@@ -23,10 +23,9 @@ Headunit::Headunit(const QGst::ElementPtr & sink):callbacks(this)
     int ret = 0;
     ret = initGst();
     if (ret < 0) {
-        qDebug("STATUS:gst_pipeline_init() ret: %d\n", ret);
+        qDebug("STATUS:gst_pipeline_init() ret: %d", ret);
         return;
     }
-    qDebug("Phone is not connected. Connect a supported phone and restart.\n");
     startHU();
 }
 
@@ -57,6 +56,7 @@ int Headunit::startHU(){
     } else {
         delete(headunit);
         setGstState("");
+        qDebug("Phone is not connected. Connect a supported phone.");
         return 0;
     }
 }
@@ -104,7 +104,7 @@ int Headunit::initGst(){
                                     "alsasink buffer-time=400000 sync=false", &error);
 
     if (error != NULL) {
-        qDebug("could not construct pipeline: %s\n", error->message);
+        qDebug("could not construct pipeline: %s", error->message);
         g_clear_error(&error);
         return -1;
     }
@@ -122,7 +122,7 @@ int Headunit::initGst(){
                                     "alsasink buffer-time=400000  sync=false", &error);
 
     if (error != NULL) {
-        qDebug("could not construct pipeline: %s\n", error->message);
+        qDebug("could not construct pipeline: %s", error->message);
         g_clear_error(&error);
         return -1;
     }
@@ -141,7 +141,7 @@ int Headunit::initGst(){
                                     "appsink name=micsink async=false emit-signals=true blocksize=8192", &error);
 
     if (error != NULL) {
-        qDebug("could not construct pipeline: %s\n", error->message);
+        qDebug("could not construct pipeline: %s", error->message);
         g_clear_error(&error);
         return -1;
     }
@@ -169,7 +169,7 @@ void Headunit::read_mic_data(GstElement * sink) {
         GstState mic_state = GST_STATE_NULL;
         if (gst_element_get_state(mic_pipeline, &mic_state, NULL, GST_CLOCK_TIME_NONE) != GST_STATE_CHANGE_SUCCESS
                 || mic_state != GST_STATE_PLAYING) {
-            qDebug("Mic stopped.. dropping buffers \n");
+            qDebug("Mic stopped.. dropping buffers ");
             gst_buffer_unref(gstbuf);
             return;
         }
@@ -178,7 +178,7 @@ void Headunit::read_mic_data(GstElement * sink) {
         if (gst_buffer_map(gstbuf, &mapInfo, GST_MAP_READ)) {
 
             if (mapInfo.size <= 64) {
-                qDebug("Mic data < 64 \n");
+                qDebug("Mic data < 64 ");
                 gst_buffer_unref(gstbuf);
                 return;
             }
@@ -189,7 +189,7 @@ void Headunit::read_mic_data(GstElement * sink) {
                 int ret = s.hu_aap_enc_send_media_packet(1, AA_CH_MIC, HU_PROTOCOL_MESSAGE::MediaDataWithTimestamp, timestamp, mapInfo.data, mapInfo.size);
 
                 if (ret < 0) {
-                    qDebug("read_mic_data(): hu_aap_enc_send() failed with (%d)\n", ret);
+                    qDebug("read_mic_data(): hu_aap_enc_send() failed with (%d)", ret);
                 }
 
                 gst_buffer_unmap(gstbuf, const_cast<GstMapInfo*> (&mapInfo));
@@ -215,7 +215,7 @@ gboolean Headunit::bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr)
 
     case GST_MESSAGE_ERROR:
         gst_message_parse_error(message, &err, &debug);
-        qDebug("Error %s\n", err->message);
+        qDebug("Error %s", err->message);
         g_error_free(err);
         g_free(debug);
         hu->setGstState("");
@@ -223,18 +223,18 @@ gboolean Headunit::bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr)
 
     case GST_MESSAGE_WARNING:
         gst_message_parse_warning(message, &err, &debug);
-        qDebug("Warning %s\nDebug %s\n", err->message, debug);
+        qDebug("Warning %s | Debug %s", err->message, debug);
 
         name = (gchar *) GST_MESSAGE_SRC_NAME(message);
 
-        qDebug("Name of src %s\n", name ? name : "nil");
+        qDebug("Name of src %s ", name ? name : "nil");
         g_error_free(err);
         g_free(debug);
 
         break;
 
     case GST_MESSAGE_EOS:
-        qDebug("End of stream\n");
+        qDebug("End of stream");
         hu->setGstState("");
         break;
 
@@ -324,7 +324,7 @@ void Headunit::touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point) {
 
         int ret = s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
         if (ret < 0) {
-            qDebug("aa_touch_event(): hu_aap_enc_send() failed with (%d)\n", ret);
+            qDebug("aa_touch_event(): hu_aap_enc_send() failed with (%d)", ret);
         }
     });
 }
@@ -382,7 +382,7 @@ int DesktopEventCallbacks::MediaPacket(int chan, uint64_t timestamp, const byte 
         gst_buffer_fill(buffer, 0, buf, len);
         int ret = gst_app_src_push_buffer((GstAppSrc *) gst_src, buffer);
         if (ret != GST_FLOW_OK) {
-            qDebug("push buffer returned %d for %d bytes \n", ret, len);
+            qDebug("push buffer returned %d for %d bytes ", ret, len);
         }
     }
     return 0;
