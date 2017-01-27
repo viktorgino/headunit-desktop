@@ -35,6 +35,7 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("headunit", headunit);
     engine.rootContext()->setContextProperty("menuItems", menuItems);
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
+    headunit->startHU();
     UsbConnectionListener *connectionListener = new UsbConnectionListener();
     headunit->setUsbConnectionListener(connectionListener);
     QThreadPool::globalInstance()->start(connectionListener);

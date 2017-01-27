@@ -26,7 +26,6 @@ Headunit::Headunit(const QGst::ElementPtr & sink):callbacks(this)
         qDebug("STATUS:gst_pipeline_init() ret: %d", ret);
         return;
     }
-    startHU();
 }
 
 Headunit::~Headunit() {
