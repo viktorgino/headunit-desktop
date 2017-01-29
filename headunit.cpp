@@ -309,23 +309,25 @@ void Headunit::touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point) {
     unsigned int x = (unsigned int) (normx * videoWidth);
     unsigned int y = (unsigned int) (normy * videoHeight);
 
-    g_hu->hu_queue_command([action, x, y](IHUConnectionThreadInterface & s) {
-        HU::InputEvent inputEvent;
-        inputEvent.set_timestamp(Headunit::get_cur_timestamp());
-        HU::TouchInfo* touchEvent = inputEvent.mutable_touch();
-        touchEvent->set_action(action);
-        HU::TouchInfo::Location* touchLocation = touchEvent->add_location();
-        touchLocation->set_x(x);
-        touchLocation->set_y(y);
-        touchLocation->set_pointer_id(0);
+    if(huStarted){
+        g_hu->hu_queue_command([action, x, y](IHUConnectionThreadInterface & s) {
+            HU::InputEvent inputEvent;
+            inputEvent.set_timestamp(Headunit::get_cur_timestamp());
+            HU::TouchInfo* touchEvent = inputEvent.mutable_touch();
+            touchEvent->set_action(action);
+            HU::TouchInfo::Location* touchLocation = touchEvent->add_location();
+            touchLocation->set_x(x);
+            touchLocation->set_y(y);
+            touchLocation->set_pointer_id(0);
 
-        /* Send touch event */
+            /* Send touch event */
 
-        int ret = s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
-        if (ret < 0) {
-            qDebug("aa_touch_event(): hu_aap_enc_send() failed with (%d)", ret);
+            int ret = s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            if (ret < 0) {
+                qDebug("aa_touch_event(): hu_aap_enc_send() failed with (%d)", ret);
+            }
+        });
         }
-    });
 }
 
 void Headunit::setUsbConnectionListener(UsbConnectionListener *m_connectionListener){
@@ -346,7 +348,7 @@ void Headunit::slotAndroidDeviceAdded(const QString &dev)
     startHU();
     emit deviceConnected(QJsonObject {{"image","icons/usb.png"},
                                       {"title","New Android device detected"},
-                                      {"text",QString("%1 connected").arg(dev)}}.toVariantMap());
+                                      {"text",QString("%1 connected\nStarting Android Auto").arg(dev)}}.toVariantMap());
     qDebug("add %s", qPrintable(dev));
 }
 
@@ -359,7 +361,7 @@ void Headunit::slotDeviceChanged(const QString &dev)
 void Headunit::slotDeviceRemoved(const QString &dev)
 {
     qDebug("remove %s", qPrintable(dev));
-    emit deviceConnected(QJsonObject {{"image","icons/eject.png"},{"title","USB device removed"},{"text",""}}.toVariantMap());
+    //emit deviceConnected(QJsonObject {{"image","icons/eject.png"},{"title","USB device removed"},{"text",""}}.toVariantMap());
 }
 
 int DesktopEventCallbacks::MediaPacket(int chan, uint64_t timestamp, const byte * buf, int len) {

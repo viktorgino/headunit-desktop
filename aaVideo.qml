@@ -12,6 +12,8 @@ VideoItem {
         id: mouseArea1
         anchors.fill: parent
         onPressed:{
+            headunit.outputHeight = aaVideo.height
+            headunit.outputWidth = aaVideo.width
             headunit.mouseDown(Qt.point(mouse.x, mouse.y));
         }
         onPositionChanged:{
