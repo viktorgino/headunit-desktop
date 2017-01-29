@@ -100,7 +100,7 @@ int Headunit::initGst(){
 
     aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=48000, channels=2, format=S16LE ! "
-                                    "alsasink buffer-time=400000 sync=false", &error);
+                                    "alsasink", &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -118,7 +118,7 @@ int Headunit::initGst(){
 
     au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  ! "
-                                    "alsasink buffer-time=400000  sync=false", &error);
+                                    "alsasink", &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -137,7 +137,7 @@ int Headunit::initGst(){
     mic_pipeline = gst_parse_launch("alsasrc name=micsrc ! audioconvert ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000 ! "
                                     "queue ! "
-                                    "appsink name=micsink async=false emit-signals=true blocksize=8192", &error);
+                                    "appsink name=micsink emit-signals=true", &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -146,8 +146,6 @@ int Headunit::initGst(){
     }
 
     mic_sink = gst_bin_get_by_name(GST_BIN(mic_pipeline), "micsink");
-
-    g_object_set(G_OBJECT(mic_sink), "throttle-time", 3000000, NULL);
 
     g_signal_connect(mic_sink, "new-sample", G_CALLBACK(&Headunit::read_mic_data), NULL);
 
