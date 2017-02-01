@@ -74,6 +74,7 @@ public:
 signals:
     void outputResized();
     void deviceConnected(QVariantMap notification);
+    void setMenuItem(int index);
 public slots:
     bool mouseDown(QPoint point);
     bool mouseMove(QPoint point);
