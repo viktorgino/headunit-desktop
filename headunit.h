@@ -13,23 +13,33 @@
 
 #include "hu_uti.h"
 #include "hu_aap.h"
+#include "glib_utils.h"
 #include "usbconnectionlistener.h"
 
 class Headunit;
 
 class DesktopEventCallbacks : public IHUConnectionThreadEventCallbacks {
+
 private:
     Headunit * headunit;
 public:
     DesktopEventCallbacks(Headunit *hu){
         headunit = hu;
     }
-
     virtual int MediaPacket(int chan, uint64_t timestamp, const byte * buf, int len) override;
     virtual int MediaStart(int chan) override;
     virtual int MediaStop(int chan) override;
+    virtual void MediaSetupComplete(int chan) override;
     virtual void DisconnectionOrError() override;
     virtual void CustomizeOutputChannel(int chan, HU::ChannelDescriptor::OutputStreamChannel& streamChannel) override;
+    virtual void AudioFocusRequest(int chan, const HU::AudioFocusRequest& request) override;
+    virtual void VideoFocusRequest(int chan, const HU::VideoFocusRequest& request) override;
+
+    void VideoFocusHappened(bool hasFocus, bool unrequested);
+
+    std::atomic<bool> connected;
+    std::atomic<bool> videoFocus;
+    std::atomic<bool> audioFocus;
 };
 
 class Headunit : public QObject
@@ -45,24 +55,10 @@ public:
     void exit();
     void setGstState(QString state);
     void setUsbConnectionListener(UsbConnectionListener *m_connectionListener);
-    void setOutputWidth(const int a){
-        if(a != m_outputWidth){
-            m_outputWidth = a;
-            emit outputResized();
-        }
-    }
-    void setOutputHeight(const int a){
-        if(a != m_outputHeight){
-            m_outputHeight = a;
-            emit outputResized();
-        }
-    }
-    int outputWidth() const {
-        return m_outputWidth;
-    }
-    int outputHeight() const {
-        return m_outputHeight;
-    }
+    void setOutputWidth(const int a);
+    void setOutputHeight(const int a);
+    const int outputWidth();
+    const int outputHeight();
     GstElement *mic_pipeline = nullptr;
     GstElement *mic_sink = nullptr;
     GstElement *aud_pipeline = nullptr;
@@ -71,6 +67,7 @@ public:
     GstAppSrc *au1_src = nullptr;
     GstElement *vid_pipeline = nullptr;
     GstAppSrc *vid_src = nullptr;
+    IHUAnyThreadInterface* g_hu = nullptr;
 signals:
     void outputResized();
     void deviceConnected(QVariantMap notification);
@@ -85,7 +82,6 @@ public slots:
     void slotDeviceRemoved(const QString &dev);
     void slotDeviceChanged(const QString &dev);
 private:
-    IHUAnyThreadInterface* g_hu = nullptr;
     QGst::ElementPtr m_videoSink;
     HUServer *headunit;
     DesktopEventCallbacks callbacks;

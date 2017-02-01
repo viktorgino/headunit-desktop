@@ -90,7 +90,6 @@ int LIBUSB_CALL UsbConnectionListener::hotplugCallback(libusb_context *ctx, libu
 
         qDebug(deviceInfo.toLatin1());
         if(UsbConnectionListener::isAndroidDevice(handle) && !UsbConnectionListener::isOapDevice(&desc)){
-            wait_for_device_connection();//Shouldn't need this, but its still here :/ TODO:figure out why this is here
             parent->emitSignal(USB_EVENT_TYPE::ANDROID_DEVICE_CONNECTED,device);
         } else if(UsbConnectionListener::hasMassStorageInterface(dev)) {
             QList<QString> mountList;

@@ -47,7 +47,7 @@ Headunit::~Headunit() {
 }
 int Headunit::startHU(){
     headunit = new HUServer(callbacks);
-    int ret = headunit->hu_aap_start(ep_in_addr, ep_out_addr);
+    int ret = headunit->hu_aap_start(HU_TRANSPORT_TYPE::USB, false);
     if ( ret >= 0) {
         g_hu = &headunit->GetAnyThreadInterface();
         setGstState("play");
@@ -100,7 +100,7 @@ int Headunit::initGst(){
 
     aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=48000, channels=2, format=S16LE ! "
-                                    "alsasink", &error);
+                                    "alsasink buffer-time=400000 sync=false", &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -118,7 +118,7 @@ int Headunit::initGst(){
 
     au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  ! "
-                                    "alsasink", &error);
+                                    "alsasink buffer-time=400000 sync=false", &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -137,7 +137,7 @@ int Headunit::initGst(){
     mic_pipeline = gst_parse_launch("alsasrc name=micsrc ! audioconvert ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000 ! "
                                     "queue ! "
-                                    "appsink name=micsink emit-signals=true", &error);
+                                    "appsink name=micsink emit-signals=true async=false blocksize=8192", &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -361,7 +361,24 @@ void Headunit::slotDeviceRemoved(const QString &dev)
     qDebug("remove %s", qPrintable(dev));
     //emit deviceConnected(QJsonObject {{"image","icons/eject.png"},{"title","USB device removed"},{"text",""}}.toVariantMap());
 }
-
+void Headunit::setOutputWidth(const int a){
+    if(a != m_outputWidth){
+        m_outputWidth = a;
+        emit outputResized();
+    }
+}
+void Headunit::setOutputHeight(const int a){
+    if(a != m_outputHeight){
+        m_outputHeight = a;
+        emit outputResized();
+    }
+}
+const int Headunit::outputWidth() {
+    return m_outputWidth;
+}
+const int Headunit::outputHeight() {
+    return m_outputHeight;
+}
 int DesktopEventCallbacks::MediaPacket(int chan, uint64_t timestamp, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;
     GstElement* gst_pipe = nullptr;
@@ -410,4 +427,50 @@ void DesktopEventCallbacks::DisconnectionOrError() {
 
 void DesktopEventCallbacks::CustomizeOutputChannel(int chan, HU::ChannelDescriptor::OutputStreamChannel& streamChannel) {
 
+}
+void DesktopEventCallbacks::MediaSetupComplete(int chan) {
+    if (chan == AA_CH_VID) {
+        VideoFocusHappened(true, true);
+    }
+}
+void DesktopEventCallbacks::AudioFocusRequest(int chan, const HU::AudioFocusRequest &request)  {
+    run_on_main_thread([this, chan, request](){
+        HU::AudioFocusResponse response;
+        if (request.focus_type() == HU::AudioFocusRequest::AUDIO_FOCUS_RELEASE) {
+            //audioOutput.reset();
+            response.set_focus_type(HU::AudioFocusResponse::AUDIO_FOCUS_STATE_LOSS);
+            audioFocus = false;
+        } else {
+            /*if (!audioOutput) {
+                audioOutput.reset(new AudioOutput());
+            }*/
+            response.set_focus_type(HU::AudioFocusResponse::AUDIO_FOCUS_STATE_GAIN);
+            audioFocus = true;
+        }
+
+        headunit->g_hu->hu_queue_command([chan, response](IHUConnectionThreadInterface & s) {
+            s.hu_aap_enc_send_message(0, chan, HU_PROTOCOL_MESSAGE::AudioFocusResponse, response);
+        });
+        return false;
+    });
+}
+
+void DesktopEventCallbacks::VideoFocusRequest(int chan, const HU::VideoFocusRequest &request) {
+    VideoFocusHappened(request.mode() == HU::VIDEO_FOCUS_MODE_FOCUSED, false);
+}
+
+void DesktopEventCallbacks::VideoFocusHappened(bool hasFocus, bool unrequested) {
+    run_on_main_thread([this, hasFocus, unrequested](){
+        /*if ((bool)videoOutput != hasFocus) {
+            videoOutput.reset(hasFocus ? new VideoOutput(this) : nullptr);
+        }*/
+        videoFocus = hasFocus;
+        headunit->g_hu->hu_queue_command([hasFocus, unrequested](IHUConnectionThreadInterface & s) {
+            HU::VideoFocus videoFocusGained;
+            videoFocusGained.set_mode(hasFocus ? HU::VIDEO_FOCUS_MODE_FOCUSED : HU::VIDEO_FOCUS_MODE_UNFOCUSED);
+            videoFocusGained.set_unrequested(unrequested);
+            s.hu_aap_enc_send_message(0, AA_CH_VID, HU_MEDIA_CHANNEL_MESSAGE::VideoFocus, videoFocusGained);
+        });
+        return false;
+    });
 }
