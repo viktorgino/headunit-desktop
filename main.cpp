@@ -13,22 +13,24 @@
 #include <QThreadPool>
 #include "headunit.h"
 #include "usbconnectionlistener.h"
+#include "mediascanner.h"
 
 int main(int argc, char *argv[])
 {
+
     setbuf(stdout, NULL);
 
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
     QGst::init(&argc, &argv);
-    int defaultMenuItem = 0;
+    int defaultMenuItem = 3;
 
     QVariantList menuItems;
     menuItems << QJsonObject {{"source","qrc:/qml/ClimateControl/CCLayout.qml"},{"image","icons/svg/thermometer.svg"},{"text","A/C"},{"color","#d32f2f"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/Radio/RadioLayout.qml"},{"image","icons/svg/radio-waves.svg"},{"text","Radio"},{"color","#fbc02d"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/aaVideo.qml"},{"image","icons/svg/social-android.svg"},{"text","Android Auto"},{"color","#512da8"}}.toVariantMap()
-              << QJsonObject {{"source",""},{"image","icons/svg/music-note.svg"},{"text","Media player"},{"color","#388e3c"}}.toVariantMap()
+              << QJsonObject {{"source","qrc:/qml/MediaPlayer/MediaPlayerLayout.qml"},{"image","icons/svg/music-note.svg"},{"text","Media player"},{"color","#388e3c"}}.toVariantMap()
               << QJsonObject {{"source",""},{"image","icons/gear-a.png"},{"text","Settings"},{"color","#0288d1"}}.toVariantMap();
     QGst::Quick::VideoSurface surface;
     Headunit *headunit =  new Headunit(surface.videoSink());
@@ -46,4 +48,12 @@ int main(int argc, char *argv[])
     delete(headunit);
     connectionListener->stop();
     return ret;
+    /*
+    MediaScanner *mediaScanner = new MediaScanner();
+    mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/RnB");
+    mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/Drum and Bass");
+    mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/HARDSTYLE");
+    mediaScanner->scanLocation(3);
+    */
+    return 0;
 }

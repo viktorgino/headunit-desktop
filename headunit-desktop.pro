@@ -1,6 +1,6 @@
 TEMPLATE = app
 
-QT += qml quick
+QT += qml quick multimedia multimediawidgets sql
 CONFIG += c++11 link_pkgconfig
 
 SOURCES += main.cpp \
@@ -13,19 +13,15 @@ SOURCES += main.cpp \
     headunit/hu/generated.x64/hu.pb.cc \
     headunit.cpp \
     usbconnectionlistener.cpp \
-    headunit/common/glib_utils.cpp
+    headunit/common/glib_utils.cpp \
+    mediascanner.cpp \
+    mediadb.cpp
 
 RESOURCES += \
     qml_gui/qml.qrc \
     main.qrc
 
 PKGCONFIG += libssl libcrypto libusb-1.0 glib-2.0 gobject-2.0 gstreamer-1.0 gstreamer-app-1.0 Qt5GLib-2.0 Qt5GStreamer-1.0 Qt5GStreamerQuick-1.0 Qt5GStreamerUtils-1.0 protobuf libunwind libudev
-
-# Additional import path used to resolve QML modules in Qt Creator's code model
-QML_IMPORT_PATH =
-
-# Default rules for deployment.
-include(deployment.pri)
 
 HEADERS += \
     headunit/hu/hu_aad.h \
@@ -37,7 +33,9 @@ HEADERS += \
     headunit/hu/generated.x64/hu.pb.h \
     headunit.h \
     usbconnectionlistener.h \
-    headunit/common/glib_utils.h
+    headunit/common/glib_utils.h \
+    mediascanner.h \
+    mediadb.h
 
 INCLUDEPATH +=$$PWD/headunit/hu
 INCLUDEPATH +=$$PWD/headunit/hu/generated.x64

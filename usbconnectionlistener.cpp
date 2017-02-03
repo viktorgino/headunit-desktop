@@ -3,7 +3,6 @@
 #include <QDebug>
 #include <mntent.h>
 #include <unistd.h>
-#include <libudev.h>
 #include <fcntl.h>
 #include "hu_uti.h"
 UsbConnectionListener::UsbConnectionListener(){
