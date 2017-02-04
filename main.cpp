@@ -13,13 +13,12 @@
 #include <QThreadPool>
 #include "headunit.h"
 #include "usbconnectionlistener.h"
-#include "mediascanner.h"
+#include "medialibrary.h"
 
 int main(int argc, char *argv[])
 {
 
     setbuf(stdout, NULL);
-
     QGuiApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
@@ -34,9 +33,11 @@ int main(int argc, char *argv[])
               << QJsonObject {{"source",""},{"image","icons/gear-a.png"},{"text","Settings"},{"color","#0288d1"}}.toVariantMap();
     QGst::Quick::VideoSurface surface;
     Headunit *headunit =  new Headunit(surface.videoSink());
+    MediaLibrary *mediaLibrary = new MediaLibrary();
     engine.rootContext()->setContextProperty("videoSurface1", &surface);
     engine.rootContext()->setContextProperty("headunit", headunit);
     engine.rootContext()->setContextProperty("menuItems", menuItems);
+    engine.rootContext()->setContextProperty("mediaLibrary", mediaLibrary);
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     emit headunit->setMenuItem(defaultMenuItem);
     headunit->startHU();
@@ -48,12 +49,9 @@ int main(int argc, char *argv[])
     delete(headunit);
     connectionListener->stop();
     return ret;
-    /*
-    MediaScanner *mediaScanner = new MediaScanner();
-    mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/RnB");
-    mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/Drum and Bass");
-    mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/HARDSTYLE");
-    mediaScanner->scanLocation(3);
-    */
+    //mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/RnB");
+    //mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/Drum and Bass");
+    //mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/HARDSTYLE");
+
     return 0;
 }
