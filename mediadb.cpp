@@ -15,6 +15,7 @@ MediaDB::MediaDB(QObject *parent) : QObject(parent)
                                  "`filename`	TEXT,"
                                  "`folder_id`	INTEGER,"
                                  "`media_type`	INTEGER"
+                                 "PRIMARY KEY(filename,folder_id)"
                                  ")";
     QString scanned_folders_create = "CREATE TABLE \"scanned_folders\" ("
                                      "`id`	INTEGER UNIQUE,"
@@ -80,10 +81,8 @@ int MediaDB::addLocation(QString name, QString v_unique_id, QString v_path, QStr
             qDebug()<<q.lastError().text();
             return -1;
         }
-        //qDebug("Location succesfully added to database");
         return q.lastInsertId().toLongLong();
     } else {
-        //qDebug("Location is already in database");
         return -2;
     }
 }
@@ -115,30 +114,27 @@ int MediaDB::addScannedFolder(int location_id, QString relative_path, qint64 las
             qDebug()<<q.lastError().text();
             return -1;
         }
-
-        //qDebug("Folder succesfully added to database");
         return q.lastInsertId().toLongLong();
     } else {
-        //qDebug("Folder is already in database");
         return id;
     }
 }
 
-int MediaDB::updateFolderMediaType(int folder_id, bool hasAudio, bool hasVideo){
+int MediaDB::updateFolderInfo(int folder_id, bool hasAudio, bool hasVideo, QString thumbnail){
     QSqlQuery q;
-    if (!q.prepare(QLatin1String("UPDATE `scanned_folders` SET `has_audio`=?,`has_video`=? WHERE `id`=?;"))){
+    if (!q.prepare(QLatin1String("UPDATE `scanned_folders` SET `has_audio`=?,`has_video`=?,`thumbnail`=? WHERE `id`=?;"))){
         qDebug() << q.lastError().text();
         return -1;
     }
     q.addBindValue((int)hasAudio);
     q.addBindValue((int)hasVideo);
+    q.addBindValue(thumbnail);
     q.addBindValue(folder_id);
     if(!q.exec()){
         qDebug()<<q.lastError().text();
         return -1;
     }
 
-    //qDebug("Media succesfully added to database");
     return 0;
 }
 
@@ -156,7 +152,6 @@ int MediaDB::addMediaFiles(QVariantList filenames, QVariantList folder_id, QVari
         return -1;
     }
 
-    //qDebug("Media succesfully added to database");
     return 0;
 }
 QVariantMap MediaDB::getLocationInfo(int location_id){
@@ -176,4 +171,123 @@ QVariantMap MediaDB::getLocationInfo(int location_id){
     ret.insert("relative_path",q.value("relative_path"));
     ret.insert("volume_path",q.value("volume_path"));
     return ret;
+}
+QVariantList MediaDB::getLocations(bool onlyAvailable){
+    QSqlQuery q;
+    QString queryString("SELECT * FROM `locations`");
+    if(onlyAvailable)
+        queryString.append(" WHERE is_present=1");
+    queryString.append(";");
+    if (!q.prepare(queryString)){
+        qDebug() << q.lastError().text();
+        return QVariantList();
+    }
+    if(!q.exec()){
+        qDebug()<<q.lastError().text();
+        return QVariantList();
+    }
+    return getListFromQuery(q);
+}
+//TODO: Create DB view for getMediaFolders
+QVariantList MediaDB::getMediaFolders(int mediaType){
+    QSqlQuery q;
+    QString queryString("SELECT locations.relative_path || scanned_folders.relative_path AS 'path',"
+                        "   scanned_folders.id,"
+                        "   'folder' AS 'item_type',"
+                        "	CASE"
+                        "       WHEN scanned_folders.thumbnail != ''"
+                        "           THEN locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' || scanned_folders.thumbnail"
+                        "           ELSE ''"
+                        "   END AS 'thumbnail' "
+                        "FROM  scanned_folders "
+                        "LEFT JOIN locations "
+                        "ON locations.id=scanned_folders.location_id ");
+    switch(mediaType){
+    case AUDIO:
+        queryString.append("WHERE scanned_folders.has_audio = 1 ");
+        break;
+    case VIDEO:
+        queryString.append("WHERE scanned_folders.has_video = 1 ");
+        break;
+    }
+    queryString.append("AND locations.is_present=1;");
+
+    if (!q.prepare(queryString)){
+        qDebug() << q.lastError().text();
+        return QVariantList();
+    }
+    if(!q.exec()){
+        qDebug()<<q.lastError().text();
+        return QVariantList();
+    }
+    return getListFromQuery(q);
+}
+//TODO: Create DB view for getFolderContent
+QVariantList MediaDB::getFolderContent(int folder_id, int mediaType){
+    QSqlQuery q;
+    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path  AS 'path', "
+                        "	media_files.filename AS 'name' "
+                        "FROM  media_files "
+                        "LEFT JOIN scanned_folders "
+                        "ON media_files.folder_id=scanned_folders.id "
+                        "LEFT JOIN locations "
+                        "ON scanned_folders.location_id = locations.id "
+                        "WHERE scanned_folders.id = ? "
+                        "AND media_files.media_type = ?");
+
+    if (!q.prepare(queryString)){
+        qDebug() << q.lastError().text();
+        return QVariantList();
+    }
+    q.addBindValue(folder_id);
+    q.addBindValue(mediaType);
+    if(!q.exec()){
+        qDebug()<<q.lastError().text();
+        return QVariantList();
+    }
+    return getListFromQuery(q);
+}
+QVariantList MediaDB::getPlaylists(){
+    QSqlQuery q;
+    QString queryString("SELECT * FROM media_files WHERE media_type = ?;");
+
+    if (!q.prepare(queryString)){
+        qDebug() << q.lastError().text();
+        return QVariantList();
+    }
+    q.addBindValue(PLAYLIST);
+    if(!q.exec()){
+        qDebug()<<q.lastError().text();
+        return QVariantList();
+    }
+    return getListFromQuery(q);
+}
+QVariantList MediaDB::getListFromQuery(QSqlQuery q){
+    QSqlRecord record = q.record();
+
+    QVariantList rows;
+    while (q.next()){
+        QVariantMap row;
+        for(int i = 0; i<record.count(); i++){
+            row.insert(record.fieldName(i),q.value(i).toString());
+        }
+        rows.append(row);
+    }
+    return rows;
+}
+int MediaDB::setLocationAvailability(int location_id, bool isAvailable){
+    QSqlQuery q;
+    if (!q.prepare(QLatin1String("UPDATE `locations` SET `is_present`=? WHERE `id`=?;"))){
+        qDebug() << q.lastError().text();
+        return -1;
+    }
+    q.addBindValue(isAvailable);
+    q.addBindValue(location_id);
+    if(!q.exec()){
+        qDebug()<<q.lastError().text();
+        return -1;
+    }
+
+    return 0;
+
 }
