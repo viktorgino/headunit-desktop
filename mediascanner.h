@@ -21,18 +21,21 @@ public:
     QVariantList getVolumes();
     void addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path);
     void scanLocation(int location_id);
+    void updateLocationsAvailability();
+    MediaDB *mediadb;
 private:
     QList<QString> mediaDirs;
     QStringList audioFileTypes;
     QStringList videoFileTypes;
     QStringList playlistFileTypes;
+    QStringList imageFileTypes;
     QStringList mediaFileTypes;
     QList<QMap<QString, QVariant>> pathsToScan;
+    QString scanForThumbnail(QString path, bool tryParent, QString absPosition);
     void scanForMediaFiles(QString path, int folder_id);
     void scanForFolders(QString path, bool is_root, int location_id, QString current_dir, qint64 last_modified);
     bool isRunning;
     QString getStorageUUID(QString device);
-    MediaDB *mediadb;
 };
 
 #endif // MEDIASCANNER_H

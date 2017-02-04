@@ -7,11 +7,15 @@ MediaScanner::MediaScanner()
     audioFileTypes << "*.mp3" << "*.flac" << "*.wav" << "*.ogg" << "*.aac" << "*.aiff";
     videoFileTypes << "*.avi" << "*.mkv" << "*.webm" << "*.flv" << "*.mov" << "*.mp4" << "*.mpg" << "*.mpeg";
     playlistFileTypes << "*.m3u";
+    imageFileTypes << "*.png"<< "*.jpg";
     mediaFileTypes << audioFileTypes << videoFileTypes << playlistFileTypes;
-    audioFileTypes.replaceInStrings(QRegExp("\\*\\."), "");
-    videoFileTypes.replaceInStrings(QRegExp("\\*\\."), "");
-    playlistFileTypes.replaceInStrings(QRegExp("\\*\\."), "");
+    audioFileTypes.replaceInStrings("*.", "");
+    videoFileTypes.replaceInStrings("*.", "");
+    playlistFileTypes.replaceInStrings("*.", "");
+
+    updateLocationsAvailability();
 }
+//TODO: Add functionality that not just adds to the database, but compares folder contetents and structure with DB and removes non-existent files/folders from DB
 void MediaScanner::run(){
     isRunning = true;
     for (int i = 0; i < pathsToScan.size(); ++i) {
@@ -73,8 +77,27 @@ void MediaScanner::scanForMediaFiles(QString path, int folder_id){
         folder_ids<<folder_id;
     }
     mediadb->addMediaFiles(filenames,folder_ids,media_types);
-    mediadb->updateFolderMediaType(folder_id,hasAudio,hasVideo);
+    mediadb->updateFolderInfo(folder_id,hasAudio,hasVideo,scanForThumbnail(path, true, ""));
 }
+QString MediaScanner::scanForThumbnail(QString path, bool tryParent, QString absPosition){
+    QDir currentDir(path);
+    currentDir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+
+    currentDir.setNameFilters(imageFileTypes);
+    QFileInfoList list = currentDir.entryInfoList();
+    if(0 == list.size()){
+        if(tryParent){
+            currentDir.cdUp();
+            QString tmp = scanForThumbnail(currentDir.path(), false, "../");
+            return tmp;
+        } else {
+            return "";
+        }
+    }
+    QString tmp = absPosition + list.at(0).fileName();
+    return tmp;
+}
+
 /*
  * Get a list of volumes except the root partition
  */
@@ -131,4 +154,16 @@ void MediaScanner::scanLocation(int location_id){
     pathsToScan.append(info);
     if(!isRunning)
         QThreadPool::globalInstance()->start(this);
+}
+void MediaScanner::updateLocationsAvailability(){
+    QVariantList locations = mediadb->getLocations(false);
+    for(int i = 0; i < locations.size(); i++){
+        QVariantMap location = locations.at(i).toMap();
+        QString path(location["volume_path"].toString() + location["relative_path"].toString());
+        QDir currentDir(path);
+        if(currentDir.isReadable())
+            mediadb->setLocationAvailability(location["id"].toInt(),1);
+        else
+            mediadb->setLocationAvailability(location["id"].toInt(),0);
+    }
 }
