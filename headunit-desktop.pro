@@ -15,7 +15,8 @@ SOURCES += main.cpp \
     usbconnectionlistener.cpp \
     headunit/common/glib_utils.cpp \
     mediascanner.cpp \
-    mediadb.cpp
+    mediadb.cpp \
+    medialibrary.cpp
 
 RESOURCES += \
     qml_gui/qml.qrc \
@@ -35,7 +36,8 @@ HEADERS += \
     usbconnectionlistener.h \
     headunit/common/glib_utils.h \
     mediascanner.h \
-    mediadb.h
+    mediadb.h \
+    medialibrary.h
 
 INCLUDEPATH +=$$PWD/headunit/hu
 INCLUDEPATH +=$$PWD/headunit/hu/generated.x64
