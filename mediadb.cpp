@@ -233,7 +233,8 @@ QVariantList MediaDB::getFolderContent(int folder_id, int mediaType){
                         "LEFT JOIN locations "
                         "ON scanned_folders.location_id = locations.id "
                         "WHERE scanned_folders.id = ? "
-                        "AND media_files.media_type = ?");
+                        "AND media_files.media_type = ? "
+                        "ORDER BY media_files.filename ASC");
 
     if (!q.prepare(queryString)){
         qDebug() << q.lastError().text();
