@@ -38,8 +38,8 @@ int main(int argc, char *argv[])
     engine.rootContext()->setContextProperty("headunit", headunit);
     engine.rootContext()->setContextProperty("menuItems", menuItems);
     engine.rootContext()->setContextProperty("mediaLibrary", mediaLibrary);
+    engine.rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
     engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
-    emit headunit->setMenuItem(defaultMenuItem);
     headunit->startHU();
     UsbConnectionListener *connectionListener = new UsbConnectionListener();
     headunit->setUsbConnectionListener(connectionListener);
