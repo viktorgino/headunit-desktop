@@ -11,10 +11,10 @@ MediaDB::MediaDB(QObject *parent) : QObject(parent)
                               "`is_present`	INTEGER,"
                               "PRIMARY KEY(id)"
                               ");";
-    QString media_files_create = "CREATE TABLE \"media_files\" ("
+    QString media_files_create = "CREATE TABLE \"media_files\" ( "
                                  "`filename`	TEXT,"
                                  "`folder_id`	INTEGER,"
-                                 "`media_type`	INTEGER"
+                                 "`media_type`	INTEGER,"
                                  "PRIMARY KEY(filename,folder_id)"
                                  ")";
     QString scanned_folders_create = "CREATE TABLE \"scanned_folders\" ("
@@ -38,18 +38,18 @@ MediaDB::MediaDB(QObject *parent) : QObject(parent)
         QSqlQuery q;
         if (!tables.contains("locations", Qt::CaseInsensitive)){
             if (!q.exec(location_create))
-                qDebug()<< qPrintable(q.lastError().text());
+                qDebug()<< qPrintable("Error when creating locations table : " + q.lastError().text());
         }
 
         if (!tables.contains("media_files", Qt::CaseInsensitive)){
             if (!q.exec(media_files_create))
-                qDebug()<< qPrintable(q.lastError().text());
+                qDebug()<< qPrintable("Error when creating media_files table : " + q.lastError().text());
 
         }
 
         if (!tables.contains("scanned_folders", Qt::CaseInsensitive)){
             if (!q.exec(scanned_folders_create))
-                qDebug()<< qPrintable(q.lastError().text());
+                qDebug()<< qPrintable("Error when creating scanned_folders table : " + q.lastError().text());
         }
     }
 }
@@ -99,9 +99,7 @@ int MediaDB::addScannedFolder(int location_id, QString relative_path, qint64 las
         qDebug()<<q.lastError().text();
         return -1;
     }
-    q.first();
-    int id = q.value("id").toInt();
-    if(id == 0){
+    if(q.size() <= 0){
         if (!q.prepare(QLatin1String("INSERT INTO `scanned_folders`(`location_id`,`relative_path`,`last_modified`,`thumbnail`) VALUES (?,?,?,?);"))){
             qDebug() << q.lastError().text();
             return -1;
@@ -116,7 +114,8 @@ int MediaDB::addScannedFolder(int location_id, QString relative_path, qint64 las
         }
         return q.lastInsertId().toLongLong();
     } else {
-        return id;
+        q.first();
+        return q.value("id").toInt();
     }
 }
 
