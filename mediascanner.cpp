@@ -18,12 +18,14 @@ MediaScanner::MediaScanner()
 //TODO: Add functionality that not just adds to the database, but compares folder contetents and structure with DB and removes non-existent files/folders from DB
 void MediaScanner::run(){
     isRunning = true;
+    emit scanningStarted();
     for (int i = 0; i < pathsToScan.size(); ++i) {
         scanForFolders(pathsToScan.at(i)["path"].toString(),true,pathsToScan.at(i)["location_id"].toInt(), "", 0);
     }
     //getUsbBlockSerial();
     //QVariantList volumes = getVolumes();
     isRunning = false;
+    emit scanningFinished();
 }
 void MediaScanner::scanForFolders(QString path, bool is_root, int location_id, QString current_dir, qint64 last_modified){
     QDir currentDir(path);

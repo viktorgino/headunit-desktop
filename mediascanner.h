@@ -23,8 +23,10 @@ public:
     void scanLocation(int location_id);
     void updateLocationsAvailability();
     MediaDB *mediadb;
+signals:
+    void scanningStarted();
+    void scanningFinished();
 private:
-    QList<QString> mediaDirs;
     QStringList audioFileTypes;
     QStringList videoFileTypes;
     QStringList playlistFileTypes;
