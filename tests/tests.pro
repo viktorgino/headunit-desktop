@@ -2,5 +2,5 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     manual \
-    auto
-
+    auto \
+    qmllive
