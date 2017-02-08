@@ -49,9 +49,5 @@ int main(int argc, char *argv[])
     delete(headunit);
     connectionListener->stop();
     return ret;
-    //mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/RnB");
-    //mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/Drum and Bass");
-    //mediaScanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/HARDSTYLE");
-
     return 0;
 }
