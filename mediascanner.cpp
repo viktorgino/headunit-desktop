@@ -3,7 +3,7 @@
 MediaScanner::MediaScanner()
 {
     mediadb = new MediaDB();
-    mediaDirs.append("/media/gino/Gino HDD/music/Trap");
+
     audioFileTypes << "*.mp3" << "*.flac" << "*.wav" << "*.ogg" << "*.aac" << "*.aiff";
     videoFileTypes << "*.avi" << "*.mkv" << "*.webm" << "*.flv" << "*.mov" << "*.mp4" << "*.mpg" << "*.mpeg";
     playlistFileTypes << "*.m3u";
@@ -37,7 +37,7 @@ void MediaScanner::scanForFolders(QString path, bool is_root, int location_id, Q
     for (int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
         //qDebug() << qPrintable(fileInfo.fileName());
-        scanForFolders(fileInfo.filePath(),false,location_id,current_dir,fileInfo.lastModified().toSecsSinceEpoch());
+        scanForFolders(fileInfo.filePath(),false,location_id,current_dir,fileInfo.lastModified().toMSecsSinceEpoch());
     }
     int folder_id = mediadb->addScannedFolder(location_id,current_dir,last_modified,"");
     if(folder_id < 0)
@@ -137,11 +137,12 @@ QString MediaScanner::getStorageUUID(QString device){
 /*
  * Add new location to database and start scanning it
  */
-void MediaScanner::addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path){
+int MediaScanner::addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path){
     int location_id = mediadb->addLocation(name,v_unique_id,v_path,relative_path);
     if(location_id < 0)
-        return;
+        return location_id;
     scanLocation(location_id);
+    return 1;
 }
 /*
  * Scan location

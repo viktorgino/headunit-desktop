@@ -19,7 +19,7 @@ public:
     MediaScanner();
     virtual void run() override;
     QVariantList getVolumes();
-    void addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path);
+    int addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path);
     void scanLocation(int location_id);
     void updateLocationsAvailability();
     MediaDB *mediadb;
