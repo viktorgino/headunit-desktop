@@ -43,8 +43,10 @@ private slots:
     {
         if (activeWindow == 0)
             return;
-        activeWindow->setFlags(activeWindow->flags() | Qt::WindowStaysOnTopHint);
+        activeWindow->setFlags(activeWindow->flags());
         activeWindow->setColor(QColor(127,127,127));
+        activeWindow->setWidth(800);
+        activeWindow->setHeight(480);
     }
 };
 int main(int argc, char *argv[])

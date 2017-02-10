@@ -18,6 +18,12 @@ public:
     const QVariantList playlists();
     Q_INVOKABLE QVariantList audioFolderContent(int folder_id);
     Q_INVOKABLE QVariantList videoFolderContent(int folder_id);
+    Q_INVOKABLE QVariantList albumContent(QString album);
+    Q_INVOKABLE QVariantList getAlbums();
+    Q_INVOKABLE QVariantList getArtists();
+    Q_INVOKABLE QVariantList getGenres();
+    Q_INVOKABLE QVariantList getPlaylists();
+    Q_INVOKABLE QVariantList getSongs();
 private:
     MediaScanner *mediaScanner;
     QVariantList p_audioFolders;

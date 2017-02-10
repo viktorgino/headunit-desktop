@@ -45,7 +45,7 @@ void MediaScanner::scanForFolders(QString path, bool is_root, int location_id, Q
 
     scanForMediaFiles(path, folder_id);
 }
-
+//TODO:have a look at how to use UTF-8
 void MediaScanner::scanForMediaFiles(QString path, int folder_id){
     QDir currentDir(path);
     currentDir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
@@ -53,7 +53,7 @@ void MediaScanner::scanForMediaFiles(QString path, int folder_id){
     currentDir.setNameFilters(mediaFileTypes);
     bool hasAudio = false;
     bool hasVideo = false;
-    QVariantList filenames,media_types,folder_ids;
+    QVariantList filenames,media_types,folder_ids,artist,title,album,genre;
     QFileInfoList list = currentDir.entryInfoList();
     if(0 >= list.size())
         return;
@@ -61,24 +61,36 @@ void MediaScanner::scanForMediaFiles(QString path, int folder_id){
     for (int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
         int media_type = 0;
+        TagLib::FileRef f(fileInfo.absoluteFilePath().toUtf8().data());
+        TagLib::Tag *tag = f.tag();
+
         if(audioFileTypes.contains(fileInfo.suffix())){
             media_type = MediaDB::AUDIO;
             if(!hasAudio)
                 hasAudio = true;
+            artist<<tag->artist().toCString();
+            title<<tag->title().toCString();
+            album<<tag->album().toCString();
+            genre<<tag->genre().toCString();
+        } else {
+            if(videoFileTypes.contains(fileInfo.suffix())){
+                media_type = MediaDB::VIDEO;
+                if(!hasAudio)
+                    hasVideo = true;
+            } else if(playlistFileTypes.contains(fileInfo.suffix())){
+                media_type = MediaDB::PLAYLIST;
+            }
+            artist<<"";
+            title<<"";
+            album<<"";
+            genre<<"";
         }
-        if(videoFileTypes.contains(fileInfo.suffix())){
-            media_type = MediaDB::VIDEO;
-            if(!hasAudio)
-                hasVideo = true;
-        }
-        if(playlistFileTypes.contains(fileInfo.suffix())){
-            media_type = MediaDB::PLAYLIST;
-        }
+
         filenames<<fileInfo.fileName();
         media_types<<media_type;
         folder_ids<<folder_id;
     }
-    mediadb->addMediaFiles(filenames,folder_ids,media_types);
+    mediadb->addMediaFiles(filenames,folder_ids,media_types,artist,title,album,genre);
     mediadb->updateFolderInfo(folder_id,hasAudio,hasVideo,scanForThumbnail(path, true, ""));
 }
 QString MediaScanner::scanForThumbnail(QString path, bool tryParent, QString absPosition){
@@ -169,4 +181,6 @@ void MediaScanner::updateLocationsAvailability(){
         else
             mediadb->setLocationAvailability(location["id"].toInt(),0);
     }
+}
+QVariantMap MediaScanner::getMusicInfo(QString file){
 }

@@ -1,7 +1,10 @@
 #include <QString>
 #include <QtTest>
 #include <QSignalSpy>
+#include <QVariant>
+#include <QMap>
 #include "mediascanner.h"
+
 
 class TestMediaScanner : public QObject
 {
@@ -14,6 +17,7 @@ public:
 private Q_SLOTS:
     void testCase1();
     void testCase2();
+    void testCase3();
 private:
     MediaScanner *mediascanner;
 };
@@ -34,19 +38,25 @@ void TestMediaScanner::testCase1()
     QSignalSpy scanningStarted(mediascanner, SIGNAL(scanningStarted()));
     QSignalSpy scanningFinished(mediascanner, SIGNAL(scanningFinished()));
 
-    int ret = mediascanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/RnB");
+    int ret = mediascanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/BeerKey");
 
     QVERIFY2(ret, "Adding location to database and starting scanning");
-    QCOMPARE(scanningStarted.count(), 1);
-    QCOMPARE(scanningFinished.count(), 1);
 }
 
 void TestMediaScanner::testCase2()
 {
 
-    int ret = mediascanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/RnB");
+    int ret = mediascanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/BeerKey");
 
     QVERIFY2(ret == -2, "Re-adding location to database and starting scanning");
+}
+
+void TestMediaScanner::testCase3()
+{
+
+    /*QVariantMap result = mediascanner->getMusicInfo("/media/gino/Gino HDD/music/Drum and Bass/VA-DNB sound vol.21/Audio - Rogue (Original mix).mp3");
+    qDebug()<<result["artist"]<<result["title"]<<result["album"];
+    QVERIFY2(!result.isEmpty(), "Getting musicinfo is unsucessful");*/
 }
 
 QTEST_APPLESS_MAIN(TestMediaScanner)

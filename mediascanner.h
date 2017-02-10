@@ -11,6 +11,11 @@
 #include "mediadb.h"
 #include <QStorageInfo>
 #include <QVariant>
+#include <taglib/taglib.h>
+#include <taglib/tag.h>
+#include <taglib/fileref.h>
+#include <taglib/taglib_config.h>
+#include <taglib/tpropertymap.h>
 
 class MediaScanner: public QObject,public QRunnable
 {
@@ -22,6 +27,7 @@ public:
     int addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path);
     void scanLocation(int location_id);
     void updateLocationsAvailability();
+    QVariantMap getMusicInfo(QString file);
     MediaDB *mediadb;
 signals:
     void scanningStarted();
