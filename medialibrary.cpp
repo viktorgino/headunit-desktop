@@ -4,37 +4,52 @@ MediaLibrary::MediaLibrary(QObject *parent) : QObject(parent)
 {
     mediaScanner = new MediaScanner();
 }
-const QVariantList MediaLibrary::audioFolders() {
+const QVariantMap MediaLibrary::audioFolders() {
     if(p_audioFolders.isEmpty())
         p_audioFolders = mediaScanner->mediadb->getMediaFolders(MediaDB::AUDIO);
     return p_audioFolders;
 }
-const QVariantList MediaLibrary::playlists() {
+const QVariantMap MediaLibrary::playlists() {
     if(p_playlists.isEmpty())
         p_playlists = mediaScanner->mediadb->getPlaylists();
     return p_playlists;
 }
-QVariantList MediaLibrary::audioFolderContent(int folder_id) {
+QVariantMap MediaLibrary::audioFolderContent(int folder_id) {
     return mediaScanner->mediadb->getFolderContent(folder_id, MediaDB::AUDIO);
 }
-QVariantList MediaLibrary::videoFolderContent(int folder_id) {
+QVariantMap MediaLibrary::videoFolderContent(int folder_id) {
     return mediaScanner->mediadb->getFolderContent(folder_id, MediaDB::VIDEO);
 }
-QVariantList MediaLibrary::albumContent(QString album) {
+QVariantMap MediaLibrary::albumContent(QString album) {
     return mediaScanner->mediadb->getAlbumContent(album);
 }
-QVariantList MediaLibrary::getAlbums() {
+QVariantMap MediaLibrary::getAlbums() {
     return mediaScanner->mediadb->getList(mediaScanner->mediadb->albums);
 }
-QVariantList MediaLibrary::getArtists() {
+QVariantMap MediaLibrary::getArtists() {
     return mediaScanner->mediadb->getList(mediaScanner->mediadb->artists);
 }
-QVariantList MediaLibrary::getGenres() {
+QVariantMap MediaLibrary::getGenres() {
     return mediaScanner->mediadb->getList(mediaScanner->mediadb->genres);
 }
-QVariantList MediaLibrary::getPlaylists() {
+QVariantMap MediaLibrary::getPlaylists() {
     return mediaScanner->mediadb->getList(mediaScanner->mediadb->playlists);
 }
-QVariantList MediaLibrary::getSongs() {
+QVariantMap MediaLibrary::getSongs() {
     return mediaScanner->mediadb->getList(mediaScanner->mediadb->songs);
+}
+QVariantMap MediaLibrary::getAlbumContent(QString key) {
+    return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->albums, key);
+}
+QVariantMap MediaLibrary::getArtistContent(QString key) {
+    return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->artists, key);
+}
+QVariantMap MediaLibrary::getGenreContent(QString key) {
+    return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->genres, key);
+}
+QVariantMap MediaLibrary::getPlaylistContent(QString key) {
+    return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->playlists, key);
+}
+QVariantMap MediaLibrary::getSongContent(QString key) {
+    return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->songs, key);
 }
