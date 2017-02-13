@@ -11,7 +11,7 @@ const QVariantMap MediaLibrary::audioFolders() {
 }
 const QVariantMap MediaLibrary::playlists() {
     if(p_playlists.isEmpty())
-        p_playlists = mediaScanner->mediadb->getPlaylists();
+        p_playlists = getPlaylists();
     return p_playlists;
 }
 QVariantMap MediaLibrary::audioFolderContent(int folder_id) {
@@ -33,7 +33,24 @@ QVariantMap MediaLibrary::getGenres() {
     return mediaScanner->mediadb->getList(mediaScanner->mediadb->genres);
 }
 QVariantMap MediaLibrary::getPlaylists() {
-    return mediaScanner->mediadb->getList(mediaScanner->mediadb->playlists);
+    QVariantMap playlists = mediaScanner->mediadb->getPlaylists();
+    QVariantList playlist_counted;
+    foreach (QVariant item, playlists["data"].toList()) {
+        QVariantMap tmp_item = item.toMap();
+        QFile file(tmp_item["path"].toString() + "/" + tmp_item["name"].toString());
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+            return playlists;
+        QTextStream in(&file);
+        int i = 0;
+        while (!in.atEnd()) {
+            in.readLine();
+            i++;
+        }
+        tmp_item.insert("count",i);
+        playlist_counted.append(tmp_item);
+    }
+    playlists["data"] = playlist_counted;
+    return playlists;
 }
 QVariantMap MediaLibrary::getSongs() {
     return mediaScanner->mediadb->getList(mediaScanner->mediadb->songs);
@@ -52,4 +69,26 @@ QVariantMap MediaLibrary::getPlaylistContent(QString key) {
 }
 QVariantMap MediaLibrary::getSongContent(QString key) {
     return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->songs, key);
+}
+QVariantList MediaLibrary::getPlaylistContent(QString path, QString name) {
+    QVariantList ret;
+    QString filepath = path + "/" + name;
+    QFile file(filepath);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return ret;
+    QTextStream in(&file);
+    int i = 0;
+    while (!in.atEnd()) {
+        QString line  = in.readLine();
+        QVariantMap tmp;
+        TagLib::FileRef f(QString(path + "/" + line).toUtf8().data());
+        TagLib::Tag *tag = f.tag();
+        tmp.insert("name", tag->title().toCString());
+        tmp.insert("path", path + "/" + line);
+        tmp.insert("artist", tag->artist().toCString());
+        tmp.insert("album", tag->album().toCString());
+        ret.append(tmp);
+        i++;
+    }
+    return ret;
 }

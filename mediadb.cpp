@@ -201,7 +201,7 @@ QVariantList MediaDB::getLocations(bool onlyAvailable){
 //TODO: Create DB view for getMediaFolders
 QVariantMap MediaDB::getMediaFolders(int mediaType){
     QSqlQuery q;
-    QString queryString("SELECT locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name AS 'path',"
+    QString queryString("SELECT locations.relative_path || scanned_folders.relative_path AS 'path', "
                         "   scanned_folders.id,"
                         "   scanned_folders.name,"
                         "	CASE"
@@ -288,7 +288,20 @@ QVariantMap MediaDB::getAlbumContent(QString album){
 }
 QVariantMap MediaDB::getPlaylists(){
     QSqlQuery q;
-    QString queryString("SELECT * FROM media_files WHERE media_type = ?;");
+    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name AS 'path', "
+                        "	media_files.filename AS 'name', "
+                        "	CASE"
+                        "       WHEN scanned_folders.thumbnail != ''"
+                        "           THEN locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name || '/' || scanned_folders.thumbnail"
+                        "           ELSE ''"
+                        "   END AS 'thumbnail' "
+                        "FROM  media_files "
+                        "LEFT JOIN scanned_folders "
+                        "ON media_files.folder_id=scanned_folders.id "
+                        "LEFT JOIN locations "
+                        "ON scanned_folders.location_id = locations.id "
+                        "WHERE media_files.media_type = ? "
+                        "ORDER BY cast(media_files.filename as int) COLLATE NOCASE ASC");
 
     if (!q.prepare(queryString)){
         qDebug() << q.lastError().text();
@@ -324,8 +337,13 @@ QVariantMap MediaDB::getListWithFirstLetterFromQuery(QSqlQuery q){
         for(int i = 0; i<record.count(); i++){
             row.insert(record.fieldName(i),q.value(i).toString());
         }
-        if(!letters.contains(row["name"].toString().at(0)))
-            letters.insert(row["name"].toString().at(0),q.at());
+        if(row["name"].toString().isEmpty()){
+            if(!letters.contains("..."))
+                letters.insert("...",q.at());
+        } else {
+            if(!letters.contains(row["name"].toString().at(0)))
+                letters.insert(row["name"].toString().at(0),q.at());
+        }
         rows.append(row);
     }
     ret.insert("data",rows);
@@ -394,9 +412,9 @@ QVariantMap MediaDB::getListContent(ListType listType, QString key){
                         "ON media_files.folder_id=scanned_folders.id "
                         "LEFT JOIN locations "
                         "ON scanned_folders.location_id = locations.id "
-                        "WHERE "+typeString+" = ? "
-                                            "AND media_files.media_type = ? "
-                                            "ORDER BY cast(media_files.filename as int) COLLATE NOCASE ASC");
+                        "WHERE "+typeString+" = ? " +
+                        "AND media_files.media_type = ? " +
+                        "ORDER BY cast(media_files.filename as int) COLLATE NOCASE ASC");
 
     if (!q.prepare(queryString)){
         qDebug() << q.lastError().text();
