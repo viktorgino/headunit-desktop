@@ -314,6 +314,36 @@ QVariantMap MediaDB::getPlaylists(){
     }
     return getListWithFirstLetterFromQuery(q);
 }
+QVariantMap MediaDB::getAudioFiles(){
+    QSqlQuery q;
+    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name || '/' || media_files.filename AS 'path', "
+                        "	media_files.artist,"
+                        "	media_files.title AS 'name',"
+                        "	media_files.album , "
+                        "	CASE"
+                        "       WHEN scanned_folders.thumbnail != ''"
+                        "           THEN locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name || '/' || scanned_folders.thumbnail"
+                        "           ELSE ''"
+                        "   END AS 'thumbnail' "
+                        "FROM  media_files "
+                        "LEFT JOIN scanned_folders "
+                        "ON media_files.folder_id=scanned_folders.id "
+                        "LEFT JOIN locations "
+                        "ON scanned_folders.location_id = locations.id "
+                        "WHERE media_files.media_type = ? "
+                        "ORDER BY media_files.title COLLATE NOCASE ASC");
+
+    if (!q.prepare(queryString)){
+        qDebug() << q.lastError().text();
+        return QVariantMap();
+    }
+    q.addBindValue(AUDIO);
+    if(!q.exec()){
+        qDebug()<<q.lastError().text();
+        return QVariantMap();
+    }
+    return getListWithFirstLetterFromQuery(q);
+}
 QVariantList MediaDB::getListFromQuery(QSqlQuery q){
     QSqlRecord record = q.record();
 

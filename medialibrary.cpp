@@ -53,7 +53,7 @@ QVariantMap MediaLibrary::getPlaylists() {
     return playlists;
 }
 QVariantMap MediaLibrary::getSongs() {
-    return mediaScanner->mediadb->getList(mediaScanner->mediadb->songs);
+    return mediaScanner->mediadb->getAudioFiles();
 }
 QVariantMap MediaLibrary::getAlbumContent(QString key) {
     return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->albums, key);

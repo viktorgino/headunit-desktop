@@ -26,6 +26,7 @@ public:
     QVariantMap getFolderContent(int folder_id, int mediaType);
     QVariantMap getAlbumContent(QString album);
     QVariantMap getPlaylists();
+    QVariantMap getAudioFiles();
     enum ListType {albums,artists,genres,playlists,songs};
 
     QVariantMap getList(ListType listType);
