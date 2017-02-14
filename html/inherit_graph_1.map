@@ -1,0 +1,7 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node2" href="$classHeadunit.html" title="Headunit" alt="" coords="182,5,257,32"/>
+<area shape="rect" id="node3" href="$classMediaDB.html" title="Database abstraction class, used to fetch and insert/update data to/from the media library&#39;s SQLITE d..." alt="" coords="181,56,257,83"/>
+<area shape="rect" id="node4" href="$classMediaLibrary.html" title="MediaLibrary" alt="" coords="171,107,267,133"/>
+<area shape="rect" id="node5" href="$classMediaScanner.html" title="MediaScanner" alt="" coords="167,208,272,235"/>
+<area shape="rect" id="node6" href="$classUsbConnectionListener.html" title="UsbConnectionListener" alt="" coords="140,157,299,184"/>
+</map>
