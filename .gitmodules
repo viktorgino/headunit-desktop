@@ -4,3 +4,6 @@
 [submodule "qml_gui"]
 	path = qml_gui
 	url = https://github.com/viktorgino/headunit-gui.git
+[submodule "doxygen-bootstrapped"]
+	path = doxygen-bootstrapped
+	url = ../../Velron/doxygen-bootstrapped.git

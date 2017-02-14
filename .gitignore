@@ -40,3 +40,5 @@ CMakeLists.txt.user
 # Headunit
 /headunit/mazda/*
 
+/html/
+/latex/
