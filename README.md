@@ -15,14 +15,13 @@ Proposed features:
 The GUI for some of the proposed features is already there. For screenshots of the current state of the GUI [go to the screenshots page.](http://headunit.viktorgino.me/SCREENSHOTS)
 
 ----------
+
 API documentation
 ----------------------------
-
 There is an API documentation available at [http://headunit.viktorgino.me/html/index.html](http://headunit.viktorgino.me/html/index.html) within the docs you will find more information about the implementation details of this project. 
 
 How to get the code working?
 ----------------------------
-
 For instruction on to get it setup on a Raspberry Pi and Raspbian [click here](https://github.com/viktorgino/headunit/blob/master/RPi_instructions.md).
 Install QT5 and you will probably want to install QT Creator with it as well. You can get it with apt-get:
 
