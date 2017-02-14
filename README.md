@@ -10,6 +10,10 @@ HeadUnit Desktop is a free and open source software that is intended to be run o
 For screenshots see the [http://headunit.viktorgino.me/SCREENSHOTS](http://headunit.viktorgino.me/SCREENSHOTS)
 
 ----------
+API documentation
+----------------------------
+There is an API documentation available at [http://headunit.viktorgino.me/html/index.html](http://headunit.viktorgino.me/html/index.html) within the docs you will find more information about the implementation details of this project. 
+
 How to get the code working?
 ----------------------------
 For instruction on to get it setup on a Raspberry Pi and Raspbian [click here](https://github.com/viktorgino/headunit/blob/master/RPi_instructions.md).
