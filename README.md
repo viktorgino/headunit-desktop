@@ -2,12 +2,17 @@
 
 What is this?
 -------------
-HeadUnit Desktop is a free and open source software that is intended to be run on computers built into cars. This software is currently under active development and lot of the features are experimental. As of now there are two main features: 
+HeadUnit Desktop is a based free and open source software that is intended to be run on computers built into cars. This software is currently under active development and lot of the features are experimental. As of now there are two main features: 
 
  - Media player with a media library and media scanner
  - Android Auto™ client
 
-For screenshots see the [http://headunit.viktorgino.me/SCREENSHOTS](http://headunit.viktorgino.me/SCREENSHOTS)
+Proposed features:
+
+ - FM and DAB radio
+ - CAN bus sniffer (depending on how much control different modules of the car allow and how much information, such as A/C steering wheel controls, different gauges and sensor data) with a customizable profile for each car.
+
+The GUI for some of the proposed features is already there. For screenshots of the current state of the GUI [go to the screenshots page.](http://headunit.viktorgino.me/SCREENSHOTS)
 
 ----------
 API documentation
@@ -22,9 +27,9 @@ Install QT5 and you will probably want to install QT Creator with it as well. Yo
     sudo apt-get install qtcreator
 
 This should install all the files required to get started with developing QT, but it is very likely, that you will get an outdated version of it so get it from the official site [https://www.qt.io/download-open-source](https://www.qt.io/download-open-source)
-After you've installed Qt add its libraries to the library load path. On Ubuntu/Debian x64 just add the following line to /etc/ld.so.conf/x86_64-linux-gnu.conf :
+After you've installed Qt add its libraries to the library load path to make things easier. On Ubuntu/Debian x64 just add the following line to /etc/ld.so.conf/x86_64-linux-gnu.conf :
 
-    /home/YOUR_USERNAME/Qt/5.7/gcc_64/lib
+    /DIR_TO_QT/Qt/5.x/gcc_64/lib
 
 Install the following packages:
 
@@ -45,4 +50,4 @@ With the cmake gui installed just open the folder where you've cloned the qt-gst
 After completing the above steps you should be able to build the code with QT Creator an run it. If you have any problem, then reach out to me on XDA Developers [http://forum.xda-developers.com/member.php?u=6642908](http://forum.xda-developers.com/member.php?u=6642908) or drop me an email on [me@viktorgino.me](me@viktorgino.me)
 
 ----------
-Android and Android Auto is a trademark of Google Inc.
+*Android and Android Auto is a trademark of Google Inc.*
