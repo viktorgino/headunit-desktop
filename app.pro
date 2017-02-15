@@ -10,13 +10,13 @@ SOURCES += main.cpp \
     headunit/hu/hu_tcp.cpp \
     headunit/hu/hu_usb.cpp \
     headunit/hu/hu_uti.cpp \
-    headunit/hu/generated.x64/hu.pb.cc \
     headunit.cpp \
     usbconnectionlistener.cpp \
     headunit/common/glib_utils.cpp \
     mediascanner.cpp \
     mediadb.cpp \
-    medialibrary.cpp
+    medialibrary.cpp \
+    headunit/hu/generated.x64/hu.pb.cc
 
 RESOURCES += \
     qml_gui/qml.qrc \
