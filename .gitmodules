@@ -7,3 +7,6 @@
 [submodule "doxygen-bootstrapped"]
 	path = doxygen-bootstrapped
 	url = ../../Velron/doxygen-bootstrapped.git
+[submodule "welle.io"]
+	path = welle.io
+	url = https://github.com/viktorgino/welle.io.git
