@@ -10,6 +10,7 @@ Setup up the image for the Pi
 Mount the SD card/USB drive on a PC which has an OS that supports ext4 filesystems. The commands here are for Debian, Ubuntu ...etc
 
 ###Setup the WiFi  ###
+
 Edit the the /etc/wpa_supplicant/wpa_supplicant.conf file in Raspbian's root:
 
 	sudo nano /MOUNTING_POINT/etc/wpa_supplicant/wpa_supplicant.conf
@@ -22,22 +23,26 @@ and add the following to it:
 	}
 
 ####*Optional: Rotate the screen* ####
+
 If you are using the official LCD screen with the case then your screen will be upside down, so also add the following to the /boot/config.txt
 
 	#Rotate screen
 	display_rotate=2
 
 ###Increase the GPU memory to 128MB###
+
 Add the following line to /boot/config.txt
 
 	gpu_mem=256
 
 ###Enable SSH access to the PI###
+
 Create a file in the /MOUNTING_POINT/boot dir named ssh
 
 	echo "" > /MOUNTING_POINT/boot/ssh
 
 ### Update the kernel to 4.9.9 ###
+
 You will also need to update the Pi's kernel to the latest version (the current kernel version is 4.8.0) to get the Pi LCD on the DSI working with the vc4 driver. If you use a display connected through the HDMI port, then you can skip this steps.
  Get rpi-update and do an offline update of the Raspbian kernel on your Linux machine. Install rpi-update on a Linux PC with the following:
 
@@ -56,6 +61,7 @@ Setup boot from USB
 
 Update Raspbian to Stretch
 --------------------------
+
 *To have Qt5.7 you either need to cross-compile it or update Raspbian from Jessie to Stretch and install it from the Raspbian package repository. Here I'll explain how to get Raspbian Stretch running on your Pi. If you'd rather cross-compile Qt5.7 then follow the steps from the [Qt Wiki](https://wiki.qt.io/RaspberryPi2EGLFS), but please beware that it takes hours (even on a decent PC with 100% CPU utilisation) to compile qtbase plus all the needed modules.*
 
 When done unmount your USB drive / SD card insert it into the PI then boot it up. Login into the PI using SSH (either by using the ssh command or using PuTTy). The default username is pi the password is raspberry
@@ -121,6 +127,7 @@ Change device permission for all devices that are made by known Android vendors 
 
 Build and install QtGstreamer
 -----------------------------
+
 Clone QtGstreamer
 
 	git clone git://anongit.freedesktop.org/gstreamer/qt-gstreamer
@@ -151,6 +158,7 @@ If the output is something similar, then it is installed properly:
 
 Build headunit
 --------------
+
 Clone this repo
 
 	git clone --recursive --depth 1 -j6 https://github.com/viktorgino/headunit-desktop.git && cd headunit-desktop
