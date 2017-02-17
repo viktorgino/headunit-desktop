@@ -1,4 +1,5 @@
 #Setting up the PI #
+
 *Follow these steps to setup the necessary packages and make the necessary changes to Raspbian in order to run the code in this repo. These steps were reproduced on a Raspberry PI 3 using the official LCD screen.*
 
 Grab the latest Raspbian Jessie Lite image from : https://www.raspberrypi.org/downloads/raspbian/ . Unzip it and write it to an SD Card and extend the root partition of the SD card to fill out the empty space. (either with gparted, resize2fs or when Raspbian booted with raspi-config)
