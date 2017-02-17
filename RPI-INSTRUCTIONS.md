@@ -1,4 +1,5 @@
-#Setting up the PI #
+Setting up the PI
+-----------------------------------------------
 
 *Follow these steps to setup the necessary packages and make the necessary changes to Raspbian in order to run the code in this repo. These steps were reproduced on a Raspberry PI 3 using the official LCD screen.*
 
