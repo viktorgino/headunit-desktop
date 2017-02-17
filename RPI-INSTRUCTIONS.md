@@ -123,7 +123,7 @@ Install Git:
 
 Change device permission for all devices that are made by known Android vendors and are connected through USB, so libusb can access them. Download and copy the `51-android.rules` file from https://github.com/snowdream/51-android to /etc/udev/rules.dev/:
 
-	sudo wget -P /etc/udev/rules.dev/ https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules
+	sudo wget -P /etc/udev/rules.d https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules
 
 Build and install QtGstreamer
 -----------------------------
