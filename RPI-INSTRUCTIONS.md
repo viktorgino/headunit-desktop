@@ -8,6 +8,7 @@ Grab the latest Raspbian Jessie Lite image from : https://www.raspberrypi.org/do
 Setup up the image for the Pi
 -----------------------------------------------
 Mount the SD card/USB drive on a PC which has an OS that supports ext4 filesystems. The commands here are for Debian, Ubuntu ...etc
+
 ###Setup the WiFi  ###
 Edit the the /etc/wpa_supplicant/wpa_supplicant.conf file in Raspbian's root:
 
@@ -19,11 +20,13 @@ and add the following to it:
 	     ssid="Your Wifi's ESSID"
 	     psk="Your wifi's password"
 	}
+
 ####*Optional: Rotate the screen* ####
 If you are using the official LCD screen with the case then your screen will be upside down, so also add the following to the /boot/config.txt
 
 	#Rotate screen
 	display_rotate=2
+
 ###Increase the GPU memory to 128MB###
 Add the following line to /boot/config.txt
 
@@ -33,6 +36,7 @@ Add the following line to /boot/config.txt
 Create a file in the /MOUNTING_POINT/boot dir named ssh
 
 	echo "" > /MOUNTING_POINT/boot/ssh
+
 ### Update the kernel to 4.9.9 ###
 You will also need to update the Pi's kernel to the latest version (the current kernel version is 4.8.0) to get the Pi LCD on the DSI working with the vc4 driver. If you use a display connected through the HDMI port, then you can skip this steps.
  Get rpi-update and do an offline update of the Raspbian kernel on your Linux machine. Install rpi-update on a Linux PC with the following:
