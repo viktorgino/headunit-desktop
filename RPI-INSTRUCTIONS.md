@@ -9,7 +9,7 @@ Setup up the image for the Pi
 -----------------------------------------------
 Mount the SD card/USB drive on a PC which has an OS that supports ext4 filesystems. The commands here are for Debian, Ubuntu ...etc
 
-###Setup the WiFi  ###
+### Setup the WiFi ###
 
 Edit the the /etc/wpa_supplicant/wpa_supplicant.conf file in Raspbian's root:
 
@@ -22,20 +22,20 @@ and add the following to it:
 	     psk="Your wifi's password"
 	}
 
-####*Optional: Rotate the screen* ####
+#### *Optional: Rotate the screen* ####
 
 If you are using the official LCD screen with the case then your screen will be upside down, so also add the following to the /boot/config.txt
 
 	#Rotate screen
 	display_rotate=2
 
-###Increase the GPU memory to 128MB###
+### Increase the GPU memory to 128MB ###
 
 Add the following line to /boot/config.txt
 
 	gpu_mem=256
 
-###Enable SSH access to the PI###
+### Enable SSH access to the PI ###
 
 Create a file in the /MOUNTING_POINT/boot dir named ssh
 
