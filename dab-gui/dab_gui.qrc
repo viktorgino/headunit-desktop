@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>dab_gui.qml</file>
+        <file>welleIO.qml</file>
+    </qresource>
+</RCC>
