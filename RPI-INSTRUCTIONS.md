@@ -29,7 +29,7 @@ If you are using the official LCD screen with the case then your screen will be 
 	#Rotate screen
 	display_rotate=2
 
-### Increase the GPU memory to 128MB ###
+### Increase the GPU memory to 256MB ###
 
 Add the following line to /boot/config.txt
 
