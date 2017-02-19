@@ -1,4 +1,4 @@
-#include <QGuiApplication>
+#include <QApplication>
 #include <QQmlApplicationEngine>
 #include <QtQuick/QQuickView>
 #include <QtQml/QQmlContext>
@@ -17,6 +17,7 @@
 #include "headunit.h"
 #include "usbconnectionlistener.h"
 #include "medialibrary.h"
+#ifdef HAVE_WELLEIO
 #include "dab-constants.h"
 #include "gui.h"
 
@@ -46,6 +47,7 @@ RadioInterface *loadWelleIO(){
                                dabBand);
 }
 
+#endif
 int main(int argc, char *argv[])
 {
 
@@ -60,16 +62,20 @@ int main(int argc, char *argv[])
     QVariantList menuItems;
     menuItems << QJsonObject {{"source","qrc:/qml/ClimateControl/CCLayout.qml"},{"image","icons/svg/thermometer.svg"},{"text","A/C"},{"color","#d32f2f"}}.toVariantMap()
               //<< QJsonObject {{"source","qrc:/qml/Radio/RadioLayout.qml"},{"image","icons/svg/radio-waves.svg"},{"text","Radio"},{"color","#fbc02d"}}.toVariantMap()
+             #ifdef HAVE_WELLEIO
               << QJsonObject {{"source","qrc:/welleIO.qml"},{"image","icons/svg/radio-waves.svg"},{"text","Radio"},{"color","#fbc02d"}}.toVariantMap()
+             #endif
               << QJsonObject {{"source","qrc:/aaVideo.qml"},{"image","icons/svg/social-android.svg"},{"text","Android Auto"},{"color","#512da8"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/MediaPlayer/MediaPlayerLayout.qml"},{"image","icons/svg/music-note.svg"},{"text","Media player"},{"color","#388e3c"}}.toVariantMap()
               << QJsonObject {{"source",""},{"image","icons/gear-a.png"},{"text","Settings"},{"color","#0288d1"}}.toVariantMap();
     QGst::Quick::VideoSurface surface;
     Headunit *headunit =  new Headunit(surface.videoSink());
     MediaLibrary *mediaLibrary = new MediaLibrary();
+#ifdef HAVE_WELLEIO
     RadioInterface *MyRadioInterface = loadWelleIO();
     engine.rootContext()->setContextProperty("cppGUI", MyRadioInterface);
     engine.addImageProvider(QLatin1String("motslideshow"), MyRadioInterface->MOTImage);
+#endif
     engine.rootContext()->setContextProperty("videoSurface1", &surface);
     engine.rootContext()->setContextProperty("headunit", headunit);
     engine.rootContext()->setContextProperty("menuItems", menuItems);
@@ -82,7 +88,9 @@ int main(int argc, char *argv[])
     QThreadPool::globalInstance()->start(connectionListener);
 
     int ret = app.exec();
+#ifdef HAVE_WELLEIO
     MyRadioInterface->~RadioInterface ();
+#endif
     delete(headunit);
     connectionListener->stop();
     return ret;
