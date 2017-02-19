@@ -115,7 +115,7 @@ Install the mesa driver
 
 Install all the requirements:
 
-	sudo apt-get install libusb-1.0-0-dev libssl-dev=1.0.1t-1+deb8u5 openssl libglib2.0-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libboost-dev libgstreamer-plugins-base1.0-dev qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins qml-module-qtquick2 qml-module-qtquick-controls2 qml-module-qtquick-templates2 qml-module-qtquick-controls qml-module-qtmultimedia qml-module-qt-labs-settings libudev-dev libtag1-dev libprotobuf-dev libunwind-dev
+	sudo apt-get install libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libboost-dev libgstreamer-plugins-base1.0-dev qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins qml-module-qtquick* qml-module-qtmultimedia qml-module-qt-labs-settings libudev-dev libtag1-dev libprotobuf-dev libunwind-dev
 
 Install Git:
 
