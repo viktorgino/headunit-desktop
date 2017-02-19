@@ -1,5 +1,19 @@
 # HeadUnit Desktop
 
+**Table of Contents**
+
+- [HeadUnit Desktop](#)
+	- [What is this?](#)
+	- [API documentation](#)
+	- [Build targets](#)
+	- [Setting the Raspberry Pi up](#)
+- [How to get the code working?](#)
+	- [Install the latest version of Qt from the official site](#)
+	- [Install the prerequisites for building and running headunit](#)
+	- [Build and install QtGstreamer](#)
+	- [Build headunit](#)
+	- [Contributing to this project](#)
+
 What is this?
 -------------
 HeadUnit Desktop is a based free and open source software that is intended to be run on computers built into cars. This software is currently under active development and lot of the features are experimental. As of now there are two main features: 
