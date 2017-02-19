@@ -2,17 +2,17 @@
 
 **Table of Contents**
 
-- [HeadUnit Desktop](#)
-	- [What is this?](#)
-	- [API documentation](#)
-	- [Build targets](#)
-	- [Setting the Raspberry Pi up](#)
-- [How to get the code working?](#)
-	- [Install the latest version of Qt from the official site](#)
-	- [Install the prerequisites for building and running headunit](#)
-	- [Build and install QtGstreamer](#)
-	- [Build headunit](#)
-	- [Contributing to this project](#)
+- [HeadUnit Desktop](#headunit-desktop)
+	- [What is this?](#what-is-this)
+	- [API documentation](#api-documentation)
+	- [Build targets](#build-targets)
+	- [Setting the Raspberry Pi up](#setting-the-raspberry-pi-up)
+- [How to get the code working?](#how-to-get-the-code-working)
+	- [Install Qt](#install-qt)
+	- [Install the prerequisites for building and running headunit](#install-the-prerequisites-for-building-and-running-headunit)
+	- [Build and install QtGstreamer](#build-and-install-qtgstreamer)
+	- [Build headunit](#build-headunit)
+	- [Contributing to this project](#contributing-to-this-project)
 
 What is this?
 -------------
@@ -55,8 +55,13 @@ For instructions on how to set a Raspberry Pi before compiling [go to the RPI-IN
 #How to get the code working? #
 
 
-Install the latest version of Qt from the official site
+Install Qt
 ----------------------------
+
+If Qt 5.7 or higher is avaialable through your distro then install it and the required QML modules using the apt package manager:
+
+	sudo apt-get install qt5-default qml-module-qtquick2 qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins qml-module-qtquick* qml-module-qtmultimedia qml-module-qt-labs-settings
+
 If Qt 5.7 or newer is not available through your operating system's package manager then you can get the x86 and x64 binaries from the Qt website. If it is available through your distro then you can skip to the next step.
 Get the installer from Qt's official website and install it: [https://www.qt.io/download-open-source](https://www.qt.io/download-open-source)
 
@@ -67,11 +72,7 @@ Install the prerequisites for building and running headunit
 
 Install the neccesarry build tools:
 
-	sudo apt-get install build-essential qt5-default qml-module-qtquick2 cmake protobuf-compiler
-
-If you haven't installed Qt from their website then install it and the required QML modules using the apt package manager:
-
-	sudo apt-get install qt5-default qml-module-qtquick2 qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins qml-module-qtquick* qml-module-qtmultimedia qml-module-qt-labs-settings
+	sudo apt-get install build-essential cmake protobuf-compiler
 
 Install all the other dependencies:
 
