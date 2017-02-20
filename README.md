@@ -12,6 +12,8 @@
 	- [Install the prerequisites for building and running headunit](#install-the-prerequisites-for-building-and-running-headunit)
 	- [Build and install QtGstreamer](#build-and-install-qtgstreamer)
 	- [Build headunit](#build-headunit)
+	- [Building headunit with welle.io](#building-headunit-with-welle.io)
+		- [Make and install QtCharts](#make-and-install-qtcharts)
 	- [Contributing to this project](#contributing-to-this-project)
 
 What is this?
@@ -135,17 +137,36 @@ And compile headunit-dekstop
 
 If the program compiles without error then run it with `./app`
 
-**Building with welle.io **
+Building headunit with welle.io
+--------------
 
 To get DAB on the headunit you can build headunit desktop with welle.io integrated for more details on welle.io see [AlbrechtL/welle.io](https://github.com/AlbrechtL/welle.io). Please note that you'll need a RTL2832U based DVB-T/DAB adapter for it to work.
 
 Install the following packages:
 
-	sudo apt install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev git
+	sudo apt-get install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev  portaudio19-dev libsndfile1-dev libsamplerate0-dev 
 
-And run qmake with the following argument:
+***Make and install QtCharts ***
 
-	make clean && qmake && make -j4 sub-app-with-welleio-pro
+Download QtCharts into your home directory
+
+	cd ~ && git clone https://github.com/qt/qtcharts.git -b 5.7
+
+Change 5.7 to the major and minor version of Qt you have. After cloning chekout the exact version you have:
+
+	cd qtcharts && git checkout tags/v5.7.1
+
+Then build QtCharts:
+
+	qmake CONFIG+=release && make -j4
+
+Then install it:
+
+	sudo make install
+
+Finally build headunit-desktop with welle.io:
+
+	cd ~/headunit-desktop && make clean && qmake && make -j4 sub-app-with-welleio-pro
 
 
 ----------
