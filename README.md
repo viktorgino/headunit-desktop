@@ -39,13 +39,14 @@ Build targets
 
 There are for sub projects in the headunit-dekstop.pro file and five build targets. The build targets are:
 
-| name         | make target                  | makefile                            | description                                                                                                                                                                          |
-|--------------|------------------------------|-------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| app          | sub-app-pro                  | /Makefile.app                       |  The main project, QML files from headunit-gui, C++ files and QML files from dab-gui are included here.                                                                              |
-| dab-gui      | sub-dab-gui                  | /Makefile.dab-gui                   | A project to provide the embedding of welle.io into the main GUI                                                                                                                     |
-| headunit-gui | sub-qml_gui-headunit-gui-pro | /qml_gui/Makefile.headunit-gui      | The GUI for the headunit, this is mainly a QML project the C++ is there so it can be developed independently. The project can be found at https://github.com/viktorgino/headunit-gui |
-| mediascanner | sub-mediascanner             | /tests/manual/mediascanner/Makefile | Tests for the MediaScanner and MediaDB classes.                                                                                                                                      |
-| qmllive      | sub-qmllive                  | /test/qmllive/Makefile              | This is a project setup for easier developement of the GUI with QML Live. For building and installing see: http://doc.qt.io/QtQmlLive/index.html                                     |
+| name             | make target                  | makefile               | description                                                                                                                                                                          |
+|------------------|------------------------------|------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| app              | sub-app-pro                  | ./Makefile             |  The main project, QML files from headunit-gui, C++ files and QML files from dab-gui are included here.                                                                              |
+| app-with-welleio | sub-app-with-welleio-pro     | ./Makefile             | Builds the app with welleio included                                                                                                                                                 |
+| dab-gui          | sub-dab-gui                  | ./Makefile             | A project to provide the embedding of welle.io into the main GUI                                                                                                                     |
+| headunit-gui     | sub-qml_gui-headunit-gui-pro | ./Makefile             | The GUI for the headunit, this is mainly a QML project the C++ is there so it can be developed independently. The project can be found at https://github.com/viktorgino/headunit-gui |
+| mediascanner     | sub-mediascanner             | /tests/manual/Makefile | Tests for the MediaScanner and MediaDB classes.                                                                                                                                      |
+| qmllive          | sub-qmllive                  | /test/Makefile         | This is a project setup for easier developement of the GUI with QML Live. For building and installing see: http://doc.qt.io/QtQmlLive/index.html                                     |                                    |
 
 Setting the Raspberry Pi up
 ----------------------------
@@ -144,7 +145,7 @@ Install the following packages:
 
 And run qmake with the following argument:
 
-	qmake CONFIG+=welleio
+	make clean && qmake && make -j4 sub-app-with-welleio-pro
 
 
 ----------
