@@ -52,7 +52,7 @@ Setting the Raspberry Pi up
 
 For instructions on how to set a Raspberry Pi before compiling [go to the RPI-INSTRUCTIONS page](http://headunit.viktorgino.me/RPI-INSTRUCTIONS).
 
-#How to get the code working? #
+# How to get the code working? #
 
 
 Install Qt
