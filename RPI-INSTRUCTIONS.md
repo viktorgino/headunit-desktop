@@ -27,7 +27,7 @@ and add the following to it:
 If you are using the official LCD screen with the case then your screen will be upside down, so also add the following to the /boot/config.txt
 
 	#Rotate screen
-	display_rotate=2
+	lcd_rotate=2
 
 ### Increase the GPU memory to 256MB ###
 
