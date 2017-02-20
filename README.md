@@ -12,7 +12,7 @@
 	- [Install the prerequisites for building and running headunit](#install-the-prerequisites-for-building-and-running-headunit)
 	- [Build and install QtGstreamer](#build-and-install-qtgstreamer)
 	- [Build headunit](#build-headunit)
-	- [Building headunit with welle.io](#building-headunit-with-welle.io)
+	- [Building headunit with welle.io](#building-headunit-with-welleio)
 		- [Make and install QtCharts](#make-and-install-qtcharts)
 	- [Contributing to this project](#contributing-to-this-project)
 
@@ -146,7 +146,7 @@ Install the following packages:
 
 	sudo apt-get install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev  portaudio19-dev libsndfile1-dev libsamplerate0-dev 
 
-***Make and install QtCharts ***
+***Make and install QtCharts***
 
 Download QtCharts into your home directory
 
