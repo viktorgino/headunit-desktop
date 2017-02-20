@@ -72,7 +72,7 @@ To update to stretch add the following line top the /etc/apt/sources.list file:
 
 Run the update
 
-	sudo apt-get update && sudo apt-get dist-upgrade
+	sudo apt-get update && sudo apt-get -y dist-upgrade
 
 Remove libnettle4:
 
