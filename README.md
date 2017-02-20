@@ -146,7 +146,7 @@ Install the following packages:
 
 	sudo apt-get install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev  portaudio19-dev libsndfile1-dev libsamplerate0-dev 
 
-***Make and install QtCharts***
+**Make and install QtCharts**
 
 Download QtCharts into your home directory
 
