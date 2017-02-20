@@ -2,4 +2,5 @@ TEMPLATE = subdirs
 SUBDIRS = app.pro \
           qml_gui/headunit-gui.pro \
           tests \
-          dab-gui
+          dab-gui \
+          app-with-welleio.pro
