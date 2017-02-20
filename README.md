@@ -13,7 +13,6 @@
 	- [Build and install QtGstreamer](#build-and-install-qtgstreamer)
 	- [Build headunit](#build-headunit)
 	- [Building headunit with welle.io](#building-headunit-with-welleio)
-		- [Make and install QtCharts](#make-and-install-qtcharts)
 	- [Contributing to this project](#contributing-to-this-project)
 
 What is this?
