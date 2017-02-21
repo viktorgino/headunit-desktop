@@ -103,25 +103,4 @@ Reboot the PI
 
 	sudo reboot
 
-Install the prerequisites for building and running headunit
----------------------------------------------------------------
-
-Install the neccesarry build tools:
-
-	sudo apt-get install build-essential qt5-default qml-module-qtquick2 cmake protobuf-compiler
-	
-Install the mesa driver
-
-	sudo apt-get install libgl1-mesa-dri
-
-Install all the requirements:
-
-	sudo apt-get install libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libboost-dev libgstreamer-plugins-base1.0-dev qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins qml-module-qtquick* qml-module-qtmultimedia qml-module-qt-labs-settings libudev-dev libtag1-dev libprotobuf-dev libunwind-dev
-
-Install Git:
-
-	sudo apt-get install git
-
-Change device permission for all devices that are made by known Android vendors and are connected through USB, so libusb can access them. Download and copy the `51-android.rules` file from https://github.com/snowdream/51-android to /etc/udev/rules.dev/:
-
-	sudo wget -P /etc/udev/rules.d https://raw.githubusercontent.com/snowdream/51-android/master/51-android.rules
+Follow the steps under [How to get the code working? in README.md](http://headunit.viktorgino.me/#how-to-get-the-code-working)
