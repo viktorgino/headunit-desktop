@@ -41,23 +41,24 @@ Create a file in the /MOUNTING_POINT/boot dir named ssh
 
 	echo "" > /MOUNTING_POINT/boot/ssh
 
-### Update the kernel to 4.9.9 ###
-
-You will also need to update the Pi's kernel to the latest version (the current kernel version is 4.8.0) to get the Pi LCD on the DSI working with the vc4 driver. If you use a display connected through the HDMI port, then you can skip this steps.
- Get rpi-update and do an offline update of the Raspbian kernel on your Linux machine. Install rpi-update on a Linux PC with the following:
-
-	sudo curl -L --output /usr/bin/rpi-update https://raw.githubusercontent.com/Hexxeh/rpi-update/master/rpi-update && sudo chmod +x /usr/bin/rpi-update
-
-Then run it with the following arguments:
-
-	sudo ROOT_PATH=/MOUNTING_POINT/root BOOT_PATH=/MOUNTING_POING/boot BRANCH=next rpi-update
-
 Setup boot from USB
 -----------------------------------------------
 
 >*This step is optional, but booting from USB makes it easier to access the Pi's filesystem if something goes wrong*
 
 >To enable USB boot mode follow the steps from here: https://github.com/raspberrypi/documentation/blob/master/hardware/raspberrypi/bootmodes/msd.md
+
+Update the firmware and kernel to the 'next' branch
+--------------------------
+
+You will also need to update the Pi's kernel to the latest version (the current kernel version is 4.4.x) to get the Pi LCD on the DSI port working properly with the VC4 driver.
+
+	sudo apt-get install rpi-update
+
+Then run it with the following arguments:
+
+	sudo BRANCH=next rpi-update
+
 
 Update Raspbian to Stretch
 --------------------------
