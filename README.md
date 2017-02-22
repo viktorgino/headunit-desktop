@@ -165,7 +165,7 @@ Then install it:
 
 Finally build headunit-desktop with welle.io:
 
-	cd ~/headunit-desktop && make sub-app-pro-clean && qmake && make -j4 sub-app-with-welleio-pro
+	cd ~/headunit-desktop && make clean && qmake CONFIG+=welleio && make -j4 sub-app-with-welleio-pro
 
 
 ----------
