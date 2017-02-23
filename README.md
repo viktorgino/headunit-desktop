@@ -134,7 +134,7 @@ And compile headunit-dekstop
 
 	qmake && make -j4 sub-app-pro
 
-If the program compiles without error then run it with `./app`
+If the program compiles without error then run it with `./headunit-app`
 
 Building headunit with welle.io
 --------------
