@@ -19,8 +19,9 @@ MediaScanner::MediaScanner()
 void MediaScanner::run(){
     isRunning = true;
     emit scanningStarted();
-    for (int i = 0; i < pathsToScan.size(); ++i) {
-        scanForFolders(pathsToScan.at(i)["path"].toString(),true,pathsToScan.at(i)["location_id"].toInt(), "", 0);
+    while (!pathsToScan.isEmpty()){
+        QMap<QString, QVariant> path = pathsToScan.dequeue();
+        scanForFolders(path["path"].toString(),true,path["location_id"].toInt(), "", 0);
     }
     //getUsbBlockSerial();
     //QVariantList volumes = getVolumes();
@@ -173,9 +174,9 @@ void MediaScanner::scanLocation(int location_id){
 
     info.insert("location_id",location_id);
     info.insert("path",path);
-    pathsToScan.append(info);
+    pathsToScan.enqueue(info);
     if(!isRunning)
-        QThreadPool::globalInstance()->start(this);
+        this->start();
 }
 void MediaScanner::updateLocationsAvailability(){
     QVariantList locations = mediadb->getLocations(false);

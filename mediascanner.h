@@ -3,7 +3,7 @@
 
 #include <QObject>
 #include <QString>
-#include <QRunnable>
+#include <QThread>
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
@@ -11,13 +11,14 @@
 #include "mediadb.h"
 #include <QStorageInfo>
 #include <QVariant>
+#include <QQueue>
 #include <taglib/taglib.h>
 #include <taglib/tag.h>
 #include <taglib/fileref.h>
 #include <taglib/taglib_config.h>
 #include <taglib/tpropertymap.h>
 
-class MediaScanner: public QObject,public QRunnable
+class MediaScanner: public QThread
 {
 Q_OBJECT
 public:
@@ -38,7 +39,7 @@ private:
     QStringList playlistFileTypes;
     QStringList imageFileTypes;
     QStringList mediaFileTypes;
-    QList<QMap<QString, QVariant>> pathsToScan;
+    QQueue<QMap<QString, QVariant>> pathsToScan;
     QString scanForThumbnail(QString path, bool tryParent, QString absPosition);
     void scanForMediaFiles(QString path, int folder_id);
     void scanForFolders(QString path, bool is_root, int location_id, QString current_dir, qint64 last_modified);
