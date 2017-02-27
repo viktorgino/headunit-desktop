@@ -62,7 +62,7 @@ Install Qt
 
 If Qt 5.7 or higher is avaialable through your distro then install it and the required QML modules using the apt package manager:
 
-	sudo apt-get install qt5-default qml-module-qtquick2 qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins qml-module-qtquick* qml-module-qtmultimedia qml-module-qt-labs-settings
+	sudo apt-get install qt5-default qml-module-qtquick2 qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins qml-module-qtquick* qml-module-qtmultimedia qml-module-qt-labs-settings qml-module-qt-labs-folderlistmodel
 
 If Qt 5.7 or newer is not available through your operating system's package manager then you can get the x86 and x64 binaries from the Qt website. If it is available through your distro then you can skip to the next step.
 Get the installer from Qt's official website and install it: [https://www.qt.io/download-open-source](https://www.qt.io/download-open-source)
