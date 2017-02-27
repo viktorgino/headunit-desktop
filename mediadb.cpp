@@ -188,11 +188,8 @@ QVariantList MediaDB::getLocations(bool onlyAvailable){
     if(onlyAvailable)
         queryString.append(" WHERE is_present=1");
     queryString.append(";");
-    if (!q.prepare(queryString)){
-        qDebug() << q.lastError().text();
-        return QVariantList();
-    }
-    if(!q.exec()){
+
+    if(!q.exec(queryString)){
         qDebug()<<q.lastError().text();
         return QVariantList();
     }
@@ -222,11 +219,7 @@ QVariantMap MediaDB::getMediaFolders(int mediaType){
     }
     queryString.append("AND locations.is_present=1;");
 
-    if (!q.prepare(queryString)){
-        qDebug() << q.lastError().text();
-        return QVariantMap();
-    }
-    if(!q.exec()){
+    if(!q.exec(queryString)){
         qDebug()<<q.lastError().text();
         return QVariantMap();
     }
