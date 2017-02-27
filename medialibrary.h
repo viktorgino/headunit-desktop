@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QQmlListProperty>
 #include <QVariant>
+#include <QDebug>
 #include <taglib/taglib.h>
 #include <taglib/tag.h>
 #include <taglib/fileref.h>
@@ -24,6 +25,7 @@ public:
     Q_INVOKABLE QVariantMap audioFolderContent(int folder_id);
     Q_INVOKABLE QVariantMap videoFolderContent(int folder_id);
     Q_INVOKABLE QVariantMap albumContent(QString album);
+    Q_INVOKABLE QVariantList getLocations();
     Q_INVOKABLE QVariantMap getAlbums();
     Q_INVOKABLE QVariantMap getArtists();
     Q_INVOKABLE QVariantMap getGenres();
@@ -34,6 +36,12 @@ public:
     Q_INVOKABLE QVariantMap getPlaylistContent(QString key);
     Q_INVOKABLE QVariantMap getSongContent(QString key);
     Q_INVOKABLE QVariantList getPlaylistContent(QString path, QString name);
+    Q_INVOKABLE QVariantList getMountedVolumes();
+    Q_INVOKABLE void addLocation(QString path);
+signals:
+    void mediaScanningFinished();
+public slots:
+    void scanningFinished();
 private:
     MediaScanner *mediaScanner;
     QVariantMap p_audioFolders;

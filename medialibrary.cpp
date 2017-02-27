@@ -3,6 +3,7 @@
 MediaLibrary::MediaLibrary(QObject *parent) : QObject(parent)
 {
     mediaScanner = new MediaScanner();
+    connect(mediaScanner,SIGNAL(scanningFinished()),this,SLOT(scanningFinished()));
 }
 const QVariantMap MediaLibrary::audioFolders() {
     if(p_audioFolders.isEmpty())
@@ -22,6 +23,9 @@ QVariantMap MediaLibrary::videoFolderContent(int folder_id) {
 }
 QVariantMap MediaLibrary::albumContent(QString album) {
     return mediaScanner->mediadb->getAlbumContent(album);
+}
+QVariantList MediaLibrary::getLocations() {
+    return mediaScanner->mediadb->getLocations(false);
 }
 QVariantMap MediaLibrary::getAlbums() {
     return mediaScanner->mediadb->getList(mediaScanner->mediadb->albums);
@@ -92,3 +96,27 @@ QVariantList MediaLibrary::getPlaylistContent(QString path, QString name) {
     }
     return ret;
 }
+QVariantList MediaLibrary::getMountedVolumes(){
+    QVariantList ret;
+    foreach (const QStorageInfo &storage, QStorageInfo::mountedVolumes()) {
+        if (storage.isValid() && storage.isReady()) {
+            if (!storage.isReadOnly() && storage.fileSystemType() != "tmpfs" && storage.fileSystemType() != "squashfs") {
+                QVariantMap volume;
+                qDebug()<<storage.displayName();
+                volume.insert("name", storage.displayName());
+                volume.insert("path",storage.rootPath());
+                ret.append(volume);
+            }
+        }
+    }
+    return ret;
+}
+void MediaLibrary::addLocation(QString path){
+    mediaScanner->addLocation(path.remove("file://",Qt::CaseInsensitive));
+}
+void MediaLibrary::scanningFinished(){
+    p_audioFolders = mediaScanner->mediadb->getMediaFolders(MediaDB::AUDIO);
+    p_playlists = getPlaylists();
+    emit mediaScanningFinished();
+}
+

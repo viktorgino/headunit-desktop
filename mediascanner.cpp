@@ -150,8 +150,14 @@ QString MediaScanner::getStorageUUID(QString device){
 /*
  * Add new location to database and start scanning it
  */
-int MediaScanner::addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path){
-    int location_id = mediadb->addLocation(name,v_unique_id,v_path,relative_path);
+//int MediaScanner::addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path){
+int MediaScanner::addLocation(QString path){
+    QStorageInfo volume(path);
+    QString uuid = getStorageUUID(volume.device());
+    QDir volume_dir(volume.rootPath());
+    QString relative_path = volume_dir.relativeFilePath(path);
+    QString rootPath = volume.rootPath();
+    int location_id = mediadb->addLocation(volume.displayName(),uuid,rootPath,"/"+relative_path);
     if(location_id < 0)
         return location_id;
     scanLocation(location_id);

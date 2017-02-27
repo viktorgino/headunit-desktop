@@ -24,7 +24,7 @@ public:
     MediaScanner();
     virtual void run() override;
     QVariantList getVolumes();
-    int addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path);
+    int addLocation(QString path);
     void scanLocation(int location_id);
     void updateLocationsAvailability();
     QVariantMap getMusicInfo(QString file);

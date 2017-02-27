@@ -46,6 +46,8 @@ INCLUDEPATH +=$$PWD/headunit/hu
 INCLUDEPATH +=$$PWD/headunit/hu/generated.x64
 INCLUDEPATH +=$$PWD/headunit/common
 
+include("qml_gui/quickcross/quickcross.pri")
+
 welleio {
     DEFINES += HAVE_WELLEIO
     DEFINES	+= MOT_BASICS__ # Not necessary after code clean up
