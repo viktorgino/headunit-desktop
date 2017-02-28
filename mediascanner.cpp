@@ -31,7 +31,7 @@ void MediaScanner::run(){
 void MediaScanner::scanForFolders(QString path, bool is_root, int location_id, QString current_dir, qint64 last_modified){
     QDir currentDir(path);
     currentDir.setFilter(QDir::NoSymLinks | QDir::NoDotAndDotDot | QDir::Dirs);
-    QString abs_path = current_dir;
+    QString relative_path = current_dir;
     if(!is_root)
         current_dir = current_dir + "/" + currentDir.dirName();
 
@@ -41,7 +41,7 @@ void MediaScanner::scanForFolders(QString path, bool is_root, int location_id, Q
         //qDebug() << qPrintable(fileInfo.fileName());
         scanForFolders(fileInfo.filePath(),false,location_id,current_dir,fileInfo.lastModified().toMSecsSinceEpoch());
     }
-    int folder_id = mediadb->addScannedFolder(location_id,currentDir.dirName(),abs_path,last_modified,"");
+    int folder_id = mediadb->addScannedFolder(location_id,currentDir.dirName(),current_dir,last_modified,"");
     if(folder_id < 0)
         return;
 

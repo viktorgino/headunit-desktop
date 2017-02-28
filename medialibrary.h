@@ -43,6 +43,7 @@ signals:
 public slots:
     void scanningFinished();
 private:
+    //TODO: Consider only creating mediaScanner when needed
     MediaScanner *mediaScanner;
     QVariantMap p_audioFolders;
     QVariantMap p_playlists;
