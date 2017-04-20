@@ -1,6 +1,7 @@
 #ifndef HEADUNITPLAYER_H
 #define HEADUNITPLAYER_H
 
+#include <atomic>
 #include <QObject>
 #include <QString>
 #include <QPoint>
