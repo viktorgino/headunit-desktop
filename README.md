@@ -1,5 +1,7 @@
 # HeadUnit Desktop
 
+[![Gitter chat](https://badges.gitter.im/viktorgino/headunit-desktop.png)](https://gitter.im/headunit-desktop)
+
 **Table of Contents**
 
 - [HeadUnit Desktop](#headunit-desktop)
@@ -170,12 +172,13 @@ Finally build headunit-desktop with welle.io:
 
 ----------
 
-After completing the above steps you should be able to build the code with QT Creator an run it. If you have any problem, then reach out to me on XDA Developers [http://forum.xda-developers.com/member.php?u=6642908](http://forum.xda-developers.com/member.php?u=6642908) or drop me an email on [me@viktorgino.me](me@viktorgino.me)
+After completing the above steps you should be able to build the code with Qt Creator an run it. If you have any problem, then reach out to me on XDA Developers [http://forum.xda-developers.com/member.php?u=6642908](http://forum.xda-developers.com/member.php?u=6642908) or drop me an email on [me@viktorgino.me](me@viktorgino.me)
 
 Contributing to this project
 ----------------------------
 If you like this project and you'd like to contribute to it, then I'm more than happy to merge pull requests.
-If you would like to see a feature implemented or have some ideas you can open an issue here. You can also reach out to me on [me@viktorgino.me](me@viktorgino.me)
+If you would like to see a feature implemented or have some ideas you can open an issue here. You can also reach out to me on [me@viktorgino.me](me@viktorgino.me) or 
+[![Gitter chat](https://badges.gitter.im/viktorgino/headunit-desktop.png)](https://gitter.im/headunit-desktop)
 
 ----------
 This projects is licensed under GNU GENERAL PUBLIC LICENSE Version 3
