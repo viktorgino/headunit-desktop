@@ -19,8 +19,9 @@ MediaScanner::MediaScanner()
 void MediaScanner::run(){
     isRunning = true;
     emit scanningStarted();
-    for (int i = 0; i < pathsToScan.size(); ++i) {
-        scanForFolders(pathsToScan.at(i)["path"].toString(),true,pathsToScan.at(i)["location_id"].toInt(), "", 0);
+    while (!pathsToScan.isEmpty()){
+        QMap<QString, QVariant> path = pathsToScan.dequeue();
+        scanForFolders(path["path"].toString(),true,path["location_id"].toInt(), "", 0);
     }
     //getUsbBlockSerial();
     //QVariantList volumes = getVolumes();
@@ -30,7 +31,7 @@ void MediaScanner::run(){
 void MediaScanner::scanForFolders(QString path, bool is_root, int location_id, QString current_dir, qint64 last_modified){
     QDir currentDir(path);
     currentDir.setFilter(QDir::NoSymLinks | QDir::NoDotAndDotDot | QDir::Dirs);
-    QString abs_path = current_dir;
+    QString relative_path = current_dir;
     if(!is_root)
         current_dir = current_dir + "/" + currentDir.dirName();
 
@@ -40,7 +41,7 @@ void MediaScanner::scanForFolders(QString path, bool is_root, int location_id, Q
         //qDebug() << qPrintable(fileInfo.fileName());
         scanForFolders(fileInfo.filePath(),false,location_id,current_dir,fileInfo.lastModified().toMSecsSinceEpoch());
     }
-    int folder_id = mediadb->addScannedFolder(location_id,currentDir.dirName(),abs_path,last_modified,"");
+    int folder_id = mediadb->addScannedFolder(location_id,currentDir.dirName(),current_dir,last_modified,"");
     if(folder_id < 0)
         return;
 
@@ -150,8 +151,14 @@ QString MediaScanner::getStorageUUID(QString device){
 /*
  * Add new location to database and start scanning it
  */
-int MediaScanner::addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path){
-    int location_id = mediadb->addLocation(name,v_unique_id,v_path,relative_path);
+//int MediaScanner::addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path){
+int MediaScanner::addLocation(QString path){
+    QStorageInfo volume(path);
+    QString uuid = getStorageUUID(volume.device());
+    QDir volume_dir(volume.rootPath());
+    QString relative_path = volume_dir.relativeFilePath(path);
+    QString rootPath = volume.rootPath();
+    int location_id = mediadb->addLocation(volume.displayName(),uuid,rootPath,"/"+relative_path);
     if(location_id < 0)
         return location_id;
     scanLocation(location_id);
@@ -167,9 +174,9 @@ void MediaScanner::scanLocation(int location_id){
 
     info.insert("location_id",location_id);
     info.insert("path",path);
-    pathsToScan.append(info);
+    pathsToScan.enqueue(info);
     if(!isRunning)
-        QThreadPool::globalInstance()->start(this);
+        this->start();
 }
 void MediaScanner::updateLocationsAvailability(){
     QVariantList locations = mediadb->getLocations(false);

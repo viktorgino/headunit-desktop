@@ -38,7 +38,7 @@ void TestMediaScanner::testCase1()
     QSignalSpy scanningStarted(mediascanner, SIGNAL(scanningStarted()));
     QSignalSpy scanningFinished(mediascanner, SIGNAL(scanningFinished()));
 
-    int ret = mediascanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/BeerKey");
+    int ret = mediascanner->addLocation("/media/gino/Gino HDD/music/BeerKey");
 
     QVERIFY2(ret, "Adding location to database and starting scanning");
 }
@@ -46,7 +46,7 @@ void TestMediaScanner::testCase1()
 void TestMediaScanner::testCase2()
 {
 
-    int ret = mediascanner->addLocation("Gino HDD", "280CC3BC0CC382F4", "/media/gino/Gino HDD","/music/BeerKey");
+    int ret = mediascanner->addLocation("/media/gino/Gino HDD/music/BeerKey");
 
     QVERIFY2(ret == -2, "Re-adding location to database and starting scanning");
 }

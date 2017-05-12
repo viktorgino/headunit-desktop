@@ -188,11 +188,8 @@ QVariantList MediaDB::getLocations(bool onlyAvailable){
     if(onlyAvailable)
         queryString.append(" WHERE is_present=1");
     queryString.append(";");
-    if (!q.prepare(queryString)){
-        qDebug() << q.lastError().text();
-        return QVariantList();
-    }
-    if(!q.exec()){
+
+    if(!q.exec(queryString)){
         qDebug()<<q.lastError().text();
         return QVariantList();
     }
@@ -206,7 +203,7 @@ QVariantMap MediaDB::getMediaFolders(int mediaType){
                         "   scanned_folders.name,"
                         "	CASE"
                         "       WHEN scanned_folders.thumbnail != ''"
-                        "           THEN locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name || '/' || scanned_folders.thumbnail"
+                        "           THEN locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' || scanned_folders.thumbnail"
                         "           ELSE ''"
                         "   END AS 'thumbnail' "
                         "FROM  scanned_folders "
@@ -222,11 +219,7 @@ QVariantMap MediaDB::getMediaFolders(int mediaType){
     }
     queryString.append("AND locations.is_present=1;");
 
-    if (!q.prepare(queryString)){
-        qDebug() << q.lastError().text();
-        return QVariantMap();
-    }
-    if(!q.exec()){
+    if(!q.exec(queryString)){
         qDebug()<<q.lastError().text();
         return QVariantMap();
     }
@@ -235,7 +228,7 @@ QVariantMap MediaDB::getMediaFolders(int mediaType){
 //TODO: Create DB view for getFolderContent
 QVariantMap MediaDB::getFolderContent(int folder_id, int mediaType){
     QSqlQuery q;
-    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name || '/' || media_files.filename AS 'path', "
+    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' || media_files.filename AS 'path', "
                         "	media_files.artist,"
                         "	media_files.title AS 'name',"
                         "	media_files.album "
@@ -263,7 +256,7 @@ QVariantMap MediaDB::getFolderContent(int folder_id, int mediaType){
 //TODO: Create DB view for getAlbumContent
 QVariantMap MediaDB::getAlbumContent(QString album){
     QSqlQuery q;
-    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name || '/' || media_files.filename AS 'path', "
+    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' || media_files.filename AS 'path', "
                         "	media_files.artist,"
                         "	media_files.title,"
                         "	media_files.album "
@@ -288,11 +281,11 @@ QVariantMap MediaDB::getAlbumContent(QString album){
 }
 QVariantMap MediaDB::getPlaylists(){
     QSqlQuery q;
-    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name AS 'path', "
+    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || AS 'path', "
                         "	media_files.filename AS 'name', "
                         "	CASE"
                         "       WHEN scanned_folders.thumbnail != ''"
-                        "           THEN locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name || '/' || scanned_folders.thumbnail"
+                        "           THEN locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' || scanned_folders.thumbnail"
                         "           ELSE ''"
                         "   END AS 'thumbnail' "
                         "FROM  media_files "
@@ -316,13 +309,13 @@ QVariantMap MediaDB::getPlaylists(){
 }
 QVariantMap MediaDB::getAudioFiles(){
     QSqlQuery q;
-    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name || '/' || media_files.filename AS 'path', "
+    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' || media_files.filename AS 'path', "
                         "	media_files.artist,"
                         "	media_files.title AS 'name',"
                         "	media_files.album , "
                         "	CASE"
                         "       WHEN scanned_folders.thumbnail != ''"
-                        "           THEN locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name || '/' || scanned_folders.thumbnail"
+                        "           THEN locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' || scanned_folders.thumbnail"
                         "           ELSE ''"
                         "   END AS 'thumbnail' "
                         "FROM  media_files "
@@ -433,7 +426,7 @@ QVariantMap MediaDB::getListContent(ListType listType, QString key){
     default: return QVariantMap();
     }
     QSqlQuery q;
-    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' ||  scanned_folders.name || '/' || media_files.filename AS 'path', "
+    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' || media_files.filename AS 'path', "
                         "	media_files.artist,"
                         "	media_files.title AS 'name',"
                         "	media_files.album "

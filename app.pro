@@ -1,7 +1,7 @@
 TEMPLATE = app
 TARGET=headunit-app
 QT += qml quick multimedia multimediawidgets sql
-CONFIG += c++11 link_pkgconfig welleio
+CONFIG += c++11 link_pkgconfig
 
 SOURCES += main.cpp \
     headunit/hu/hu_aad.cpp \
@@ -45,6 +45,8 @@ HEADERS += \
 INCLUDEPATH +=$$PWD/headunit/hu
 INCLUDEPATH +=$$PWD/headunit/hu/generated.x64
 INCLUDEPATH +=$$PWD/headunit/common
+
+include("qml_gui/quickcross/quickcross.pri")
 
 welleio {
     DEFINES += HAVE_WELLEIO
