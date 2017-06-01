@@ -118,11 +118,6 @@ Item {
                         }
                         return tmp;
                     }
-                    transform: Rotation {
-                        axis { x: 0; y: 1; z: 0 }
-                        angle: - (45/rep1.count * index)
-                        Behavior on angle { PropertyAnimation {easing.type: Easing.Linear; duration: 250} }
-                    }
                     Rectangle {
                         id: rectangle
                         color:index<0?colors.get(0).color:colors.get(index % 10).color
