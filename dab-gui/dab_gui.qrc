@@ -1,6 +1,12 @@
 <RCC>
     <qresource prefix="/">
-        <file>dab_gui.qml</file>
-        <file>welleIO.qml</file>
+        <file>main.qml</file>
+        <file>qtquickcontrols2.conf</file>
+        <file>DABLayout.qml</file>
+        <file>Style.qml</file>
+        <file>style/Style.qml</file>
+        <file>style/TouchSlider.qml</file>
+        <file>style/TouchSwitch.qml</file>
+        <file>style/ErrorMessagePopup.qml</file>
     </qresource>
 </RCC>
