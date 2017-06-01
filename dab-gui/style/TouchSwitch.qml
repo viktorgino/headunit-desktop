@@ -48,7 +48,7 @@ Item {
                     color: control.checked ? "#468bb7" : "#222"
                     Behavior on color {ColorAnimation {}}
                     Text {
-                        font.pixelSize: 1
+                        font.pixelSize: 14
                         color: "white"
                         anchors.centerIn: parent
                         text: qsTr("ON")
@@ -59,7 +59,7 @@ Item {
                     height: parent.height
                     anchors.right: parent.right
                     Text {
-                        font.pixelSize: 1
+                        font.pixelSize: 14
                         color: "white"
                         anchors.centerIn: parent
                         text: qsTr("OFF")

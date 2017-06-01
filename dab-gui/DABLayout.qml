@@ -86,9 +86,9 @@ Item {
         id:channels
         height: parent.height*0.4
         anchors.left: parent.left
-        anchors.leftMargin: 0
+        anchors.leftMargin: 8
         anchors.right: parent.right
-        anchors.rightMargin: 0
+        anchors.rightMargin: 8
         anchors.verticalCenter: parent.verticalCenter
         Item {
             id: channelsWrapper
@@ -224,7 +224,6 @@ Item {
                 Text {
                     id: bitrateText
                     color: "#ffffff"
-                    text: qsTr("128 kbps")
                     anchors.right: dabTypeText.left
                     anchors.rightMargin: 16
                     font.pixelSize: 22
@@ -234,7 +233,6 @@ Item {
                 Text {
                     id: dabTypeText
                     color: "#ffffff"
-                    text: qsTr("DAB+")
                     anchors.horizontalCenter: parent.horizontalCenter
                     font.pixelSize: 22
                 }
@@ -242,7 +240,6 @@ Item {
                 Text {
                     id: audioTypeText
                     color: "#ffffff"
-                    text: qsTr("STEREO")
                     anchors.left: dabTypeText.right
                     anchors.leftMargin: 16
                     font.pixelSize: 22
@@ -285,7 +282,7 @@ Item {
             Text {
                 id: currentStation
                 color: "#ffffff"
-                text: qsTr("Sub Focus - Love Divine")
+                text: qsTr("")
                 wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                 verticalAlignment: Text.AlignVCenter
                 anchors.bottom: stationText.top
@@ -298,6 +295,27 @@ Item {
                 anchors.right: parent.right
                 anchors.rightMargin: 0
                 font.pixelSize: 41
+
+                Timer {
+                    id:scanningTimer
+                    interval: 500; running: false; repeat: true
+                    onTriggered:{
+                        switch(currentStation.text){
+                        case "Scanning":
+                            currentStation.text = "Scanning."
+                            break;
+                        case "Scanning.":
+                            currentStation.text = "Scanning.."
+                            break;
+                        case "Scanning..":
+                            currentStation.text = "Scanning..."
+                            break;
+                        default :
+                            currentStation.text = "Scanning"
+                            break;
+                        }
+                    }
+                }
             }
 
 
@@ -329,7 +347,6 @@ Item {
                     id: languageTypeText
                     width: parent.width/2
                     color: "#ffffff"
-                    text: qsTr("English")
                     anchors.leftMargin: 0
                     font.pixelSize: 22
                     anchors.left: parent.left
@@ -338,7 +355,6 @@ Item {
                 Text {
                     id: stationTypeText
                     color: "#ffffff"
-                    text: qsTr("Pop Music")
                     horizontalAlignment: Text.AlignRight
                     anchors.left: languageTypeText.right
                     anchors.leftMargin: 0
@@ -394,7 +410,8 @@ Item {
 
         onSetGUIData:{
             // Station
-            currentStation.text = GUIData.Station
+            if(!scanningTimer.running)
+                currentStation.text = GUIData.Station
 
             // Label
             stationText.text = GUIData.Label
@@ -447,6 +464,7 @@ Item {
         }
 
         onStationModelChanged: {
+            dabModel.clear();
             dabModel.fill(cppGUI.stationModel);
         }
         onChannelScanStopped:{
@@ -490,52 +508,21 @@ Item {
                 switch(text){
                 case"Start scanning":
                     text = "Stop scanning"
-                    scanText.text="Scanning"
                     scanningTimer.start();
                     cppGUI.startChannelScanClick();
                     break;
                 case"Stop scanning":
                     text = "Start scanning"
                     scanningTimer.stop();
-                    scanText.text=""
                     cppGUI.stopChannelScanClick();
                     break;
-                }
-            }
-        }
-
-        Text {
-            id: scanText
-            color: "#ffffff"
-            anchors.verticalCenter: scanButton.verticalCenter
-            anchors.left: scanButton.right
-            anchors.leftMargin: 8
-            font.pixelSize: 20
-            Timer {
-                id:scanningTimer
-                interval: 500; running: false; repeat: true
-                onTriggered:{
-                    switch(scanText.text){
-                    case "Scanning":
-                        scanText.text = "Scanning."
-                        break;
-                    case "Scanning.":
-                        scanText.text = "Scanning.."
-                        break;
-                    case "Scanning..":
-                        scanText.text = "Scanning..."
-                        break;
-                    case "Scanning...":
-                        scanText.text = "Scanning"
-                        break;
-                    }
                 }
             }
         }
         ProgressBar{
             id: channelScanProgressBar
             property alias text: textView.text
-            height: 20
+            height: 28
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             anchors.rightMargin: 0
@@ -562,7 +549,7 @@ Item {
             implicitWidth: parent.width
             Text {
                 id: textView
-                font.pixelSize: 22
+                font.pixelSize: 18
                 color: "#ffffff"
                 anchors.centerIn: parent
                 text: qsTr("Found channels") + ": 0"
@@ -571,6 +558,7 @@ Item {
     }
 
     Item {
+        id: item2
         anchors.bottom: channels.top
         anchors.bottomMargin: 0
         anchors.top: scanWrapper.bottom
@@ -579,41 +567,53 @@ Item {
         anchors.leftMargin: 8
         anchors.right: parent.right
         anchors.rightMargin: 8
-        Layout.fillWidth: true
-        ColumnLayout{
-            anchors.fill: parent
-            spacing: 20
 
-            TouchSwitch {
-                id: enableAGC
-                name: qsTr("Automatic RF gain")
-                height: 24
-                Layout.fillWidth: true
-                Layout.fillHeight: true
-                objectName: "enableAGC"
-                checked: true
-                onChanged: {
-                    cppGUI.inputEnableAGCChanged(valueChecked)
+        TouchSwitch {
+            id: enableAGC
+            name: qsTr("Automatic RF gain")
+            height: 24
+            anchors.top: parent.top
+            anchors.topMargin: 0
+            anchors.right: parent.right
+            anchors.rightMargin: 0
+            anchors.left: parent.left
+            anchors.leftMargin: 0
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            objectName: "enableAGC"
+            checked: true
+            onChanged: {
+                cppGUI.inputEnableAGCChanged(valueChecked)
 
-                    if(valueChecked == false)
-                        cppGUI.inputGainChanged(manualGain.currentValue)
-                }
-            }
-
-            TouchSlider {
-                id: manualGain
-                enabled: !enableAGC.checked
-                name: qsTr("Manual gain")
-                Layout.fillWidth: true
-                maximumValue: cppGUI.gainCount
-                showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
-                Layout.fillHeight: true
-                onValueChanged: {
-                    if(enableAGC.checked == false)
-                        cppGUI.inputGainChanged(valueGain)
-                }
+                if(valueChecked == false)
+                    cppGUI.inputGainChanged(manualGain.currentValue)
             }
         }
+
+        TouchSlider {
+            id: manualGain
+            enabled: !enableAGC.checked
+            name: qsTr("Manual gain")
+            anchors.top: enableAGC.bottom
+            anchors.topMargin: 8
+            anchors.right: parent.right
+            anchors.rightMargin: 0
+            anchors.left: parent.left
+            anchors.leftMargin: 0
+            Layout.fillWidth: true
+            maximumValue: cppGUI.gainCount
+            showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
+            Layout.fillHeight: true
+            visible: !enableAGC.checked
+            onValueChanged: {
+                if(enableAGC.checked == false)
+                    cppGUI.inputGainChanged(valueGain)
+            }
+        }
+    }
+
+    ErrorMessagePopup {
+      id: errorMessagePopup
     }
     states: [
         State {
