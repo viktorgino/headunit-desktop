@@ -10,16 +10,16 @@ Popup {
     id: popup
     width: textView.width + 65
     height: 50
-    x: mainWindow.width/2 - width/2
-    y: mainWindow.height  - toolBar_.height - height
+    x: parent.width/2 - width/2
+    y: 0
     //modal: true
     //focus: true
     closePolicy: Popup.NoAutoClose
     enter:  Transition {
-            NumberAnimation { property: "y"; from: mainWindow.height ; to: mainWindow.height - toolBar.height - popup.height;}
+            NumberAnimation { property: "y"; from: -height ; to: 0;}
         }
     exit: Transition {
-            NumberAnimation { property: "y"; from: mainWindow.height - toolBar.height - popup.height ; to: mainWindow.height;}
+            NumberAnimation { property: "y"; from: 0 ; to: -height;}
         }
     //onOpened: closeTimer.running = true;
 
@@ -37,26 +37,16 @@ Popup {
         anchors.verticalCenter: parent.verticalCenter
         Image {
             anchors.verticalCenter: parent.verticalCenter
-            source: "../images/icon-exit.png"
+            source: "qrc:/qml/icons/android-close.png"
             height: 25
             fillMode: Image.PreserveAspectFit
-        }
-        MouseArea {
-            scale: 1
-            anchors.fill: parent
-            anchors.margins: 20
-            onClicked: popup.close()
         }
     }
 
     background: Rectangle {color: "darkRed"}
 
-    /*Timer {
-        id: closeTimer
-        interval: 1 * 1000 // 10 s
-        repeat: false
-        onTriggered: {
-           popup.close()
-        }
-    }*/
+    MouseArea {
+        anchors.fill: parent
+        onClicked: popup.close()
+    }
 }
