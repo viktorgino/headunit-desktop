@@ -24,5 +24,5 @@ For building your own Raspbian images see: [viktorgino/pi-gen](https://github.co
 
 There aren't any packages available for other platforms, but it is in the making.
 
-For more details and install instructions see: [http://headunit.viktorgino.me/](http://headunit.viktorgino.me/)
+For more details and install instructions see: [headunit.viktorgino.me/](http://headunit.viktorgino.me/)
 
