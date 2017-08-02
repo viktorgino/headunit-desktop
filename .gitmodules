@@ -1,12 +1,12 @@
 [submodule "headunit"]
 	path = headunit
-	url = https://github.com/gartnera/headunit.git
+	url = https://github.com/viktorgino/libheadunit.git
 [submodule "qml_gui"]
 	path = qml_gui
 	url = https://github.com/viktorgino/headunit-gui.git
 [submodule "doxygen-bootstrapped"]
 	path = doxygen-bootstrapped
-	url = ../../Velron/doxygen-bootstrapped.git
+	url = https://github.com/Velron/doxygen-bootstrapped.git
 [submodule "welle.io"]
 	path = welle.io
 	url = https://github.com/AlbrechtL/welle.io.git
