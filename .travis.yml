@@ -1,0 +1,30 @@
+language: none
+compiler: gcc
+sudo: require
+dist: trusty
+
+before_install:
+    - sudo add-apt-repository ppa:beineri/opt-qt59-trusty -y
+    - sudo apt-get update -qq
+    
+install: 
+    - sudo apt-get -q -y install qt59base qt59declarative qt59quickcontrols2 qt59multimedia
+    - sudo apt-get -q -y install build-essential cmake protobuf-compiler
+    - sudo apt-get -q -y install libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libboost-dev libgstreamer-plugins-base1.0-dev libudev-dev libtag1-dev libprotobuf-dev libunwind-dev
+    - sudo apt-get -q -y install git
+    - source /opt/qt59/bin/qt59-env.sh
+
+script:
+  - git clone git://anongit.freedesktop.org/gstreamer/qt-gstreamer
+  - cd qt-gstreamer
+  - mkdir build
+  - cd build
+  - cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) -DCMAKE_INSTALL_INCLUDEDIR=include -DQT_VERSION=5 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11
+  - make -j4
+  - sudo make install
+  - sudo ldconfig
+  - cd ..
+  - protoc --proto_path=headunit/hu/ --cpp_out=headunit/hu/generated.x64/ headunit/hu/hu.proto
+  - qmake -config release
+  - make -j4
+  
