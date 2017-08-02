@@ -58,8 +58,8 @@ public:
     void setUsbConnectionListener(UsbConnectionListener *m_connectionListener);
     void setOutputWidth(const int a);
     void setOutputHeight(const int a);
-    const int outputWidth();
-    const int outputHeight();
+    int outputWidth();
+    int outputHeight();
     GstElement *mic_pipeline = nullptr;
     GstElement *mic_sink = nullptr;
     GstElement *aud_pipeline = nullptr;

@@ -34,7 +34,7 @@ UsbConnectionListener::~UsbConnectionListener(){
     libusb_exit(hotplug_context);
 }
 
-int LIBUSB_CALL UsbConnectionListener::hotplugCallback(libusb_context *ctx, libusb_device *dev, libusb_hotplug_event event, void *user_data) {
+int LIBUSB_CALL UsbConnectionListener::hotplugCallback(libusb_context */* unused */, libusb_device *dev, libusb_hotplug_event event, void *user_data) {
     struct libusb_device_descriptor desc;
     int rc;
 

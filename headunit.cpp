@@ -62,7 +62,6 @@ int Headunit::startHU(){
 
 int Headunit::initGst(){
     GstBus *bus;
-    GstStateChangeReturn state_ret;
 
     GError *error = NULL;
 
@@ -202,7 +201,7 @@ uint64_t Headunit::get_cur_timestamp() {
 
     return tp.tv_sec * 1000000 + tp.tv_nsec / 1000;
 }
-gboolean Headunit::bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr) {
+gboolean Headunit::bus_callback(GstBus */* unused*/, GstMessage *message, gpointer *ptr) {
     Headunit *hu = (Headunit *) ptr;
     gchar *debug;
     GError *err;
@@ -236,6 +235,8 @@ gboolean Headunit::bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr)
         break;
 
     case GST_MESSAGE_STATE_CHANGED:
+        break;
+    default:
         break;
     }
 
@@ -296,8 +297,8 @@ bool Headunit::mouseUp(QPoint point){
     return true;
 }
 
-bool Headunit::keyEvent(QString key){
-
+bool Headunit::keyEvent(QString /*key*/){
+    return true;
 }
 
 void Headunit::touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point) {
@@ -373,24 +374,24 @@ void Headunit::setOutputHeight(const int a){
         emit outputResized();
     }
 }
-const int Headunit::outputWidth() {
+int Headunit::outputWidth() {
     return m_outputWidth;
 }
-const int Headunit::outputHeight() {
+int Headunit::outputHeight() {
     return m_outputHeight;
 }
-int DesktopEventCallbacks::MediaPacket(int chan, uint64_t timestamp, const byte * buf, int len) {
+int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;
-    GstElement* gst_pipe = nullptr;
+    //GstElement* gst_pipe = nullptr;
     if (chan == AA_CH_VID) {
         gst_src = headunit->vid_src;
-        gst_pipe = headunit->vid_pipeline;
+        //gst_pipe = headunit->vid_pipeline;
     } else if (chan == AA_CH_AUD) {
         gst_src = headunit->aud_src;
-        gst_pipe = headunit->aud_pipeline;
+        //gst_pipe = headunit->aud_pipeline;
     } else if (chan == AA_CH_AU1) {
         gst_src = headunit->au1_src;
-        gst_pipe = headunit->au1_pipeline;
+        //gst_pipe = headunit->au1_pipeline;
     }
 
     if (gst_src) {
@@ -425,7 +426,7 @@ void DesktopEventCallbacks::DisconnectionOrError() {
     headunit->setGstState("");
 }
 
-void DesktopEventCallbacks::CustomizeOutputChannel(int chan, HU::ChannelDescriptor::OutputStreamChannel& streamChannel) {
+void DesktopEventCallbacks::CustomizeOutputChannel(int /* unused */, HU::ChannelDescriptor::OutputStreamChannel& /* unused */) {
 
 }
 void DesktopEventCallbacks::MediaSetupComplete(int chan) {
@@ -455,7 +456,7 @@ void DesktopEventCallbacks::AudioFocusRequest(int chan, const HU::AudioFocusRequ
     });
 }
 
-void DesktopEventCallbacks::VideoFocusRequest(int chan, const HU::VideoFocusRequest &request) {
+void DesktopEventCallbacks::VideoFocusRequest(int /* unused */, const HU::VideoFocusRequest &request) {
     VideoFocusHappened(request.mode() == HU::VIDEO_FOCUS_MODE_FOCUSED, false);
 }
 

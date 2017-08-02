@@ -2,6 +2,7 @@ TEMPLATE = app
 TARGET=headunit-app
 QT += qml quick multimedia multimediawidgets sql
 CONFIG += c++11 link_pkgconfig
+QMAKE_CXXFLAGS += -Wno-unused-parameter
 
 SOURCES += main.cpp \
     headunit/hu/hu_aad.cpp \

@@ -28,7 +28,6 @@ public:
     int addLocation(QString path);
     void scanLocation(int location_id);
     void updateLocationsAvailability();
-    QVariantMap getMusicInfo(QString file);
     MediaDB *mediadb;
 signals:
     void scanningStarted();

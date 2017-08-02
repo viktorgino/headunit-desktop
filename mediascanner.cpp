@@ -139,14 +139,15 @@ QVariantList MediaScanner::getVolumes(){
 QString MediaScanner::getStorageUUID(QString device){
     QDir currentDir("/dev/disk/by-uuid");
     currentDir.setFilter(QDir::NoDotAndDotDot);
-
+    QString UUID = "";
     QFileInfoList list = currentDir.entryInfoList();
     for (int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
         if(fileInfo.isSymLink() && fileInfo.symLinkTarget() == device){
-            return fileInfo.fileName();
+            UUID = fileInfo.fileName();
         }
     }
+    return UUID;
 }
 /*
  * Add new location to database and start scanning it
@@ -189,6 +190,4 @@ void MediaScanner::updateLocationsAvailability(){
         else
             mediadb->setLocationAvailability(location["id"].toInt(),0);
     }
-}
-QVariantMap MediaScanner::getMusicInfo(QString file){
 }
