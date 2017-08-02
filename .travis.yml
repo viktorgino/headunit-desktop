@@ -26,5 +26,5 @@ script:
   - cd ../../
   - protoc --proto_path=headunit/hu/ --cpp_out=headunit/hu/generated.x64/ headunit/hu/hu.proto
   - qmake -config release
-  - make -j4
+  - make
   
