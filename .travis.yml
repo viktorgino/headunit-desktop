@@ -23,8 +23,7 @@ script:
   - make -j4
   - sudo make install
   - sudo ldconfig
-  - cd ..
-  - ls
+  - cd ../../
   - protoc --proto_path=headunit/hu/ --cpp_out=headunit/hu/generated.x64/ headunit/hu/hu.proto
   - qmake --config release
   - make -j4
