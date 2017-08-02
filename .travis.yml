@@ -24,7 +24,7 @@ script:
   - sudo make install
   - sudo ldconfig
   - cd ..
-  - cd viktorgino/headunit-desktop
+  - ls
   - protoc --proto_path=headunit/hu/ --cpp_out=headunit/hu/generated.x64/ headunit/hu/hu.proto
   - qmake --config release
   - make -j4
