@@ -18,8 +18,7 @@ The GUI for some of the proposed features is already there. For screenshots of t
 
 Getting started
 -------------------
-Download the Raspberry Pi image which is based on Raspbian Stretch Lite: [image_2017-08-01-Raspbian-viktorginos-headunit-lite.zip](http://files.headunit.viktorgino.me/image_2017-08-01-Raspbian-viktorginos-headunit-lite.zip)
-
+Download the Raspberry Pi image which is based on Raspbian Stretch Lite from here: http://files.headunit.viktorgino.me/index.html
 For building your own Raspbian images see: [viktorgino/pi-gen](https://github.com/viktorgino/pi-gen)
 
 There aren't any packages available for other platforms, but it is in the making.
