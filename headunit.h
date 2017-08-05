@@ -8,6 +8,7 @@
 #include <QGst/Pipeline>
 #include <QGst/Message>
 #include <QVariant>
+#include <QSettings>
 #include <QGst/Utils/ApplicationSource>
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
@@ -99,5 +100,6 @@ private:
     bool huStarted = false;
     byte ep_in_addr = -2;
     byte ep_out_addr = -2;
+    QSettings *settings;
 };
 #endif // HEADUNITPLAYER_H

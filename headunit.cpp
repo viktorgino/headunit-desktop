@@ -11,6 +11,11 @@
 #include <QGst/Message>
 #include <QGst/Utils/ApplicationSink>
 #include <QGst/Utils/ApplicationSource>
+#include <QFile>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <QSettings>
+#include <QFileInfo>
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
 #include <gst/app/gstappsink.h>
@@ -23,8 +28,14 @@ Headunit::Headunit(const QGst::ElementPtr & sink):callbacks(this)
     int ret = 0;
     ret = initGst();
     if (ret < 0) {
-        qDebug("STATUS:gst_pipeline_init() ret: %d", ret);
+        qDebug("STATUS:initGst() ret: %d", ret);
         return;
+    }
+    QFileInfo ini_file("aa_settings.ini");
+    if (ini_file.exists() && ini_file.isFile()) {
+        settings = new QSettings("aa_settings.ini", QSettings::IniFormat);
+    } else {
+        settings = new QSettings();
     }
 }
 
@@ -45,9 +56,22 @@ Headunit::~Headunit() {
         qDebug("Headunit::~Headunit() called hu_aap_shutdown()");
     }
 }
+
 int Headunit::startHU(){
-    headunit = new HUServer(callbacks);
-    int ret = headunit->hu_aap_start(HU_TRANSPORT_TYPE::USB, false);
+    std::map<std::string, std::string> aa_settings;
+
+    if(settings->childGroups().contains("aa_settings")){
+        settings->beginGroup("aa_settings");
+        QStringList keys = settings->childKeys();
+
+        for (int i = 0; i < keys.size(); ++i){
+            aa_settings[keys.at(i).toStdString()] = settings->value(keys.at(i)).toString().toStdString();
+        }
+    }
+
+    headunit = new HUServer(callbacks, aa_settings);
+
+    int ret = headunit->hu_aap_start(false);
     if ( ret >= 0) {
         g_hu = &headunit->GetAnyThreadInterface();
         setGstState("play");
@@ -71,7 +95,7 @@ int Headunit::initGst(){
      * Initialize Video pipeline
      */
 
-    const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100000 do-timestamp=true stream-type=stream typefind=true ! "
+    const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100000 do-timestamp=true stream-type=stream ! "
                                  "queue ! "
                                  "h264parse ! "
                                  "avdec_h264 ! "

@@ -34,6 +34,10 @@ int main(int argc, char *argv[])
 
     setbuf(stdout, NULL);
 
+    QCoreApplication::setOrganizationName("viktorgino");
+    QCoreApplication::setOrganizationDomain("https://github.com/viktorgino/headunit-desktop");
+    QCoreApplication::setApplicationName("viktorgino's HeadUnit Desktop");
+
     QApplication app(argc, argv);
     QQmlApplicationEngine engine;
 
