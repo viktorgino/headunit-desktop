@@ -26,7 +26,7 @@ RESOURCES += \
 PKGCONFIG += libssl libcrypto libusb-1.0 glib-2.0 gobject-2.0
 PKGCONFIG += gstreamer-1.0 gstreamer-app-1.0
 PKGCONFIG += Qt5GLib-2.0 Qt5GStreamer-1.0 Qt5GStreamerQuick-1.0 Qt5GStreamerUtils-1.0
-PKGCONFIG +=  protobuf libunwind libudev taglib
+PKGCONFIG +=  protobuf libudev taglib
 
 HEADERS += \
     headunit/hu/hu_aad.h \
@@ -59,6 +59,7 @@ welleio {
     Release: QMAKE_LFLAGS	+= -flto -O3
 
     RESOURCES += \
+        $$PWD/welle.io/resources.qrc \
         $$PWD/dab-gui/dab_gui.qrc
 
     DEPENDPATH += $$PWD/welle.io \
@@ -97,6 +98,7 @@ welleio {
                $$PWD/welle.io/src/ofdm/phasetable.h \
                $$PWD/welle.io/src/ofdm/freq-interleaver.h \
                $$PWD/welle.io/src/backend/viterbi.h \
+               $$PWD/welle.io/src/backend/viterbi_spiral.h \
                $$PWD/welle.io/src/backend/fic-handler.h \
                $$PWD/welle.io/src/backend/msc-handler.h \
                $$PWD/welle.io/src/backend/fib-processor.h  \
@@ -141,6 +143,7 @@ welleio {
                $$PWD/welle.io/src/ofdm/phasetable.cpp \
                $$PWD/welle.io/src/ofdm/freq-interleaver.cpp \
                $$PWD/welle.io/src/backend/viterbi.cpp \
+               $$PWD/welle.io/src/backend/viterbi_spiral.c \
                $$PWD/welle.io/src/backend/fic-handler.cpp \
                $$PWD/welle.io/src/backend/msc-handler.cpp \
                $$PWD/welle.io/src/backend/protection.cpp \

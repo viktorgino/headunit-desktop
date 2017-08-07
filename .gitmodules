@@ -9,4 +9,5 @@
 	url = https://github.com/Velron/doxygen-bootstrapped.git
 [submodule "welle.io"]
 	path = welle.io
-	url = https://github.com/AlbrechtL/welle.io.git
+	url = https://github.com/viktorgino/welle.io.git
+	branch = 3d-view-integration

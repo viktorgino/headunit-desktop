@@ -1,624 +1,376 @@
-import QtQuick 2.6
-import QtQuick.Controls 1.3
-import QtQuick.Controls.Styles 1.3
+/****************************************************************************
+**
+** Copyright (C) 2015 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the examples of the Qt Toolkit.
+**
+** $QT_BEGIN_LICENSE:BSD$
+** You may use this file under the terms of the BSD license as follows:
+**
+** "Redistribution and use in source and binary forms, with or without
+** modification, are permitted provided that the following conditions are
+** met:
+**   * Redistributions of source code must retain the above copyright
+**     notice, this list of conditions and the following disclaimer.
+**   * Redistributions in binary form must reproduce the above copyright
+**     notice, this list of conditions and the following disclaimer in
+**     the documentation and/or other materials provided with the
+**     distribution.
+**   * Neither the name of The Qt Company Ltd nor the names of its
+**     contributors may be used to endorse or promote products derived
+**     from this software without specific prior written permission.
+**
+**
+** THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+** "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+** LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+** A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+** OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+** SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+** LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+** DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+** THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+** (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+** OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
+import QtQuick 2.2
+import QtQuick.Controls 2.0
+import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.1
-import "style"
+import QtQuick.Window 2.2
+import QtQuick.Dialogs 1.1
+import Qt.labs.settings 1.0
+
+// Import custom styles
+import "qrc:/src/gui/QML"
+import "qrc:/src/gui/QML/style"
+
 Item {
-    id:__dablayout
-    clip: true
+    id: mainWindow
+    visible: true
+    property bool isLandscape: true
+    function getWidth() {
+        if(Screen.desktopAvailableWidth < Units.dp(700)
+                || Screen.desktopAvailableHeight < Units.dp(500)
+                || Qt.platform.os == "android") // Always full screen on Android
+            return Screen.desktopAvailableWidth
+        else
+            return Units.dp(700)
+    }
 
-    ListModel {
-        id: colors
-        ListElement {
-            color:"#F44336"
-        }
-        ListElement {
-            color:"#9C27B0"
-        }
-        ListElement {
-            color:"#3F51B5"
-        }
-        ListElement {
-            color:"#03A9F4"
-        }
-        ListElement {
-            color:"#009688"
-        }
-        ListElement {
-            color:"#8BC34A"
-        }
-        ListElement {
-            color:"#FFEB3B"
-        }
-        ListElement {
-            color:"#FF9800"
-        }
-        ListElement {
-            color:"#FF5722"
-        }
-        ListElement {
-            color:"#9E9E9E"
+    function getHeight() {
+        if(Screen.desktopAvailableHeight < Units.dp(500)
+                || Screen.desktopAvailableWidth < Units.dp(700)
+                || Qt.platform.os == "android")  // Always full screen on Android
+            return Screen.desktopAvailableHeight
+        else
+            return Units.dp(500)
+    }
+
+    width: getWidth()
+    height: getHeight()
+
+    Component.onCompleted: {
+        console.debug("os: " + Qt.platform.os)
+        console.debug("desktopAvailableWidth: " + Screen.desktopAvailableWidth)
+        console.debug("desktopAvailableHeight: " + Screen.desktopAvailableHeight)
+        console.debug("orientation: " + Screen.orientation)
+        console.debug("devicePixelRatio: " + Screen.devicePixelRatio)
+        console.debug("pixelDensity: " + Screen.pixelDensity)
+    }
+
+    property int stackViewDepth
+    signal stackViewPush(Item item)
+    signal stackViewPop()
+    signal stackViewComplete()
+    signal stationClicked()
+    property alias isExpertView: settingsPage.enableExpertModeState
+
+    Settings {
+        property alias width : mainWindow.width
+        property alias height : mainWindow.height
+    }
+
+    onIsExpertViewChanged: {
+        if(stackViewDepth > 1)
+        {
+            if(isExpertView == true)
+                infoMessagePopup.text = qsTr("Expert mode is enabled")
+            else
+                infoMessagePopup.text = qsTr("Expert mode is disabled")
+            infoMessagePopup.open()
         }
     }
-    ListModel {
-        id: dabModel
-        function fill(elements){
-            elements.forEach(function(item){
-                append(item);
-            });
-        }
-    }
-    Item {
-        id: dragger
-        width: 1
-        height: 1
+
+
+    SettingsPage{
+        id:settingsPage
         visible: false
-        property int scrollStart:0
-        onXChanged: {
-            if(x<=0){
-                dabHelper.changeMousePos(__dablayout.width,0);
-                scrollStart = x+__dablayout.width;
-            } else if(x>=__dablayout.width){
-                dabHelper.changeMousePos(-__dablayout.width,0);
-                scrollStart = x-__dablayout.width;
-            }
-
-            if(scrollStart - x >= 100){
-                __dablayout.state = "open";
-                channelCloseTimer.restart();
-                colors.move(colors.count-1,0,1);
-                dabModel.move(dabModel.count-1,0,1);
-                scrollStart = x;
-            } else if (scrollStart - x <= -100) {
-                __dablayout.state = "open";
-                channelCloseTimer.restart();
-                colors.move(0,colors.count-1,1);
-                dabModel.append(dabModel.get(0));
-                dabModel.remove(0);
-                scrollStart = x;
-            }
-        }
     }
+
 
 
 
     Item {
-        id:channels
-        height: parent.height*0.4
-        anchors.left: parent.left
-        anchors.leftMargin: 8
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-        anchors.verticalCenter: parent.verticalCenter
-        Item {
-            id: channelsWrapper
-            height: parent.height
-            width:height
-            Repeater {
-                id: rep1
-                model:dabModel
-                Item {
-                    property int itemsIndex : index
-                    id: item1
-                    clip: true
-                    z: -index
-                    y:(parent.height/2)-height/2
-                    x: __dablayout.state == "open"?(channelsWrapper.width)/rep1.count * index:0
-                    height:width
-                    width:{
-                        if(rep1.count == 1){
-                            var tmp = parent.height
-                        } else {
-                            var minp = 1;
-                            var maxp = rep1.count;
-                            var minv = Math.log(channelsWrapper.height);
-                            var maxv = Math.log(20);
-                            var scale = (maxv-minv) / (maxp-minp);
-                            var tmp = Math.exp(minv + scale*(index+1-minp));
-                        }
-                        return tmp;
-                    }
-                    Rectangle {
-                        id: rectangle
-                        color:index<0?colors.get(0).color:colors.get(index % 10).color
-                        border.width: 1
-                        border.color: "#ffffff"
-                        anchors.fill: parent
+        id: __toolBar
+        //border.bottom: Units.dp(10)
+        //source: "images/toolbar.png"
+        width: parent.width
+        height: Units.dp(40);
 
-                        Text {
-                            id: text1
-                            color: "#ffffff"
-                            text: stationName
-                            wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                            horizontalAlignment: Text.AlignHCenter
-                            elide: Text.ElideMiddle
-                            anchors.left: parent.left
-                            anchors.leftMargin: 0
-                            anchors.right: parent.right
-                            anchors.rightMargin: 0
-                            anchors.verticalCenter: parent.verticalCenter
-                            font.pixelSize: parent.height * 0.1
-                        }
-                    }
-                    Behavior on x { PropertyAnimation {easing.type: Easing.Linear; duration: 250} }
-                    Behavior on width { PropertyAnimation {easing.type: Easing.Linear; duration: 250} }
-                }
-
-            }
-            Behavior on width { PropertyAnimation {easing.type: Easing.InOutBounce; duration: 250} }
-            Timer {
-                id:channelCloseTimer
-                interval: 2000; running: false; repeat: false
-                onTriggered:{
-                    __dablayout.state = ""
-                    cppGUI.channelClick(dabModel.get(0).stationName, dabModel.get(0).channelName)
-                }
-            }
-        }
-
-        Item {
-            id: controls
-            y: 0
-            width: parent.width - parent.height
-            height: parent.height
-            anchors.left: channelsWrapper.right
-            anchors.leftMargin: 0
+        Rectangle {
+            id: backButton
+            width: Units.dp(60)
+            anchors.left: parent.left
+            anchors.leftMargin: Units.dp(20)
             anchors.verticalCenter: parent.verticalCenter
-
-            Behavior on height { PropertyAnimation {easing.type: Easing.Linear; duration: 250} }
-            Item {
-                id: signal_info
-                height: 30
-                anchors.top: parent.top
-                anchors.topMargin: 0
-                anchors.left: parent.left
-                anchors.leftMargin: 0
-                anchors.right: parent.right
-                anchors.rightMargin: 0
-
-                RowLayout{
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.leftMargin: 8
-                    anchors.left: parent.left
-                    spacing: 2
-
-                    Rectangle{
-                        id: signalBar1
-                        height: 4
-                        width: 4
-                        color: "grey"
-                    }
-                    Rectangle{
-                        id: signalBar2
-                        height: 8
-                        width: 4
-                        color: "grey"
-                    }
-                    Rectangle{
-                        id: signalBar3
-                        height: 12
-                        width: 4
-                        color: "grey"
-                    }
-                    Rectangle{
-                        id: signalBar4
-                        height: 16
-                        width: 4
-                        color: "grey"
-                    }
-
-                    Rectangle{
-                        id: signalBar5
-                        height: 20
-                        width: 4
-                        color: "grey"
-                    }
-
-                }
-
-                Text {
-                    id: bitrateText
-                    color: "#ffffff"
-                    anchors.right: dabTypeText.left
-                    anchors.rightMargin: 16
-                    font.pixelSize: 22
-                }
-
-
-                Text {
-                    id: dabTypeText
-                    color: "#ffffff"
-                    anchors.horizontalCenter: parent.horizontalCenter
-                    font.pixelSize: 22
-                }
-
-                Text {
-                    id: audioTypeText
-                    color: "#ffffff"
-                    anchors.left: dabTypeText.right
-                    anchors.leftMargin: 16
-                    font.pixelSize: 22
-                }
-
-                RowLayout{
-                    id: flags
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.right: parent.right
-                    anchors.rightMargin: 5
-                    spacing: 2
-
-                    Rectangle{
-                        id: sync
-                        height: 16
-                        width: 16
-                        color: "red"
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                    }
-                    Rectangle{
-                        id: fic
-                        height: 16
-                        width: 16
-                        color: "red"
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                    }
-                    Rectangle{
-                        id: frameSucess
-                        height: 16
-                        width: 16
-                        color: "red"
-                        Layout.fillHeight: true
-                        Layout.fillWidth: true
-                    }
+            antialiasing: true
+            radius: Units.dp(4)
+            color: backmouse.pressed ? "#222" : "transparent"
+            property bool isSettings: false
+            Behavior on opacity { NumberAnimation{} }
+            Image {
+                anchors.verticalCenter: parent.verticalCenter
+                source: parent.isSettings ? "qrc:/src/gui/QML/images/navigation_previous_item.png" : "qrc:/src/gui/QML/images/icon-settings.png"
+                height: parent.isSettings? Units.dp(20) : Units.dp(23)
+                fillMode: Image.PreserveAspectFit
+            }
+            MouseArea {
+                id: backmouse
+                scale: 1
+                anchors.fill: parent
+                anchors.margins: Units.dp(-20)
+                onClicked: {
+                    backButton.isSettings = !backButton.isSettings
                 }
             }
+        }
 
-            Text {
-                id: currentStation
-                color: "#ffffff"
-                text: qsTr("")
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                verticalAlignment: Text.AlignVCenter
-                anchors.bottom: stationText.top
-                anchors.bottomMargin: 0
-                anchors.top: signal_info.bottom
-                anchors.topMargin: 0
-                horizontalAlignment: Text.AlignHCenter
-                anchors.left: parent.left
-                anchors.leftMargin: 0
-                anchors.right: parent.right
-                anchors.rightMargin: 0
-                font.pixelSize: 41
+        TextTitle {
+            x: backButton.x + backButton.width + Units.dp(20)
+            anchors.verticalCenter: parent.verticalCenter
+            text: "welle.io"
+        }
 
-                Timer {
-                    id:scanningTimer
-                    interval: 500; running: false; repeat: true
-                    onTriggered:{
-                        switch(currentStation.text){
-                        case "Scanning":
-                            currentStation.text = "Scanning."
-                            break;
-                        case "Scanning.":
-                            currentStation.text = "Scanning.."
-                            break;
-                        case "Scanning..":
-                            currentStation.text = "Scanning..."
-                            break;
-                        default :
-                            currentStation.text = "Scanning"
-                            break;
-                        }
-                    }
-                }
+        TextStandart {
+            x: mainWindow.width - width - Units.dp(5) - infoButton.width
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.rightMargin: Units.dp(5)
+            text: "01.01.2016 00:00"
+            id: dateTimeDisplay
+        }
+
+        Rectangle {
+            id: infoButton
+            width: backButton.isSettings ? Units.dp(40) : 0
+            anchors.right: parent.right
+            anchors.verticalCenter: parent.verticalCenter
+            antialiasing: true
+            radius: Units.dp(4)
+            color: backmouse.pressed ? "#222" : "transparent"
+            property bool isInfoPage: false
+            Image {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.horizontalCenter: parent.horizontalCenter
+                source: backButton.isSettings ? "qrc:/src/gui/QML/images/icon-info.png" : ""
+                anchors.rightMargin: Units.dp(20)
+                height: Units.dp(23)
+                fillMode: Image.PreserveAspectFit
             }
-
-
-            Text {
-                id: stationText
-                color: "#ffffff"
-                text: qsTr("")
-                verticalAlignment: Text.AlignTop
-                horizontalAlignment: Text.AlignHCenter
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                anchors.topMargin: parent.height/2
-                anchors.top: parent.top
-                anchors.bottom: radio_info.top
-                anchors.bottomMargin: 0
-                anchors.right: parent.right
-                anchors.rightMargin: 0
-                anchors.left: parent.left
-                anchors.leftMargin: 0
-                font.pixelSize: 18
-            }
-
-
-            Item {
-                id: radio_info
-                height: 30
-                anchors.bottom: parent.bottom
-                anchors.bottomMargin: 0
-                Text {
-                    id: languageTypeText
-                    width: parent.width/2
-                    color: "#ffffff"
-                    anchors.leftMargin: 0
-                    font.pixelSize: 22
-                    anchors.left: parent.left
+            MouseArea {
+                id: infomouse
+                scale: 1
+                anchors.fill: parent
+                anchors.margins: Units.dp(-20)
+                onClicked: {
+                    infoButton.isInfoPage = !infoButton.isInfoPage
                 }
-
-                Text {
-                    id: stationTypeText
-                    color: "#ffffff"
-                    horizontalAlignment: Text.AlignRight
-                    anchors.left: languageTypeText.right
-                    anchors.leftMargin: 0
-                    anchors.right: parent.right
-                    anchors.rightMargin: 0
-                    font.pixelSize: 22
-                }
-                anchors.leftMargin: 0
-                anchors.right: parent.right
-                anchors.rightMargin: 0
-                anchors.left: parent.left
             }
         }
     }
 
 
 
-    MouseArea {
-        id: mouseArea
-        enabled: true
-        anchors.fill: parent
-        acceptedButtons: Qt.LeftButton;
-        onPressed: {
-            dragger.scrollStart = mouse.x
-            dragger.x = mouse.x
+    Loader {
+        id:mainViewLoader
+        anchors.top: __toolBar.bottom
+        anchors.right: parent.right
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.topMargin: 0
+        Layout.margins: Units.dp(10);
+        sourceComponent: {
+            mainWindow.isLandscape = true;
+            if(isExpertView)
+                return landscapeViewExpert3D
+            else
+                return landscapeView3D
         }
-        drag.target: dragger
-        drag.axis: Drag.XAxis
+    }
 
-        onWheel: {
-            if(rep1.count == 1){
-                var tmp = parent.height
-            } else {
-                if(wheel.angleDelta.y > 0){
-                    __dablayout.state = "open";
-                    channelCloseTimer.restart();
-                    colors.move(colors.count-1,0,1);
-                    dabModel.move(dabModel.count-1,0,1);
-                } else if (wheel.angleDelta.y < 0) {
-                    __dablayout.state = "open";
-                    channelCloseTimer.restart();
-                    colors.move(0,colors.count-1,1);
-                    dabModel.append(dabModel.get(0));
-                    dabModel.remove(0);
+    Component {
+        id:channelBrowser
+        ChannelBrowser{
+            Connections {
+                target: backmouse
+                onClicked: {
+                    if(infoPageVisible){
+                        infoPageVisible = false
+                        backButton.isSettings = true
+                    } else {
+                        settingsVisible = backButton.isSettings
+                    }
                 }
+            }
+            Connections {
+                target: infomouse
+                onClicked: {
+                    infoPageVisible = infoButton.isInfoPage
+                }
+            }
+            Component.onCompleted: {
+                settingsVisible = backButton.isSettings
+                enableFullScreenState = settingsPage.enableFullScreenState
+                enableExpertModeState = settingsPage.enableExpertModeState
+                enableAGCState = settingsPage.enableAGCState
+                manualGainState = settingsPage.manualGainState
+                is3D = settingsPage.is3D
+            }
+            onEnableAGCStateChanged: {
+                settingsPage.enableAGCState = enableAGCState
+            }
+            onEnableExpertModeStateChanged: {
+                settingsPage.enableExpertModeState = enableExpertModeState
+
+            }
+            onEnableFullScreenStateChanged: {
+                settingsPage.enableFullScreenState = enableFullScreenState
+            }
+            onManualGainStateChanged: {
+                settingsPage.manualGainState = manualGainState
+            }
+            onIs3DChanged: {
+                settingsPage.is3D = is3D
+            }
+        }
+    }
+    Component {
+        id: landscapeView3D
+
+        Loader {
+            id: stationView
+            Layout.minimumWidth: Units.dp(350)
+            Layout.margins: Units.dp(10)
+            sourceComponent: channelBrowser
+        }
+    }
+    Component {
+        id: landscapeViewExpert3D
+
+        SplitView {
+            id: splitView
+            anchors.fill: parent
+            orientation: Qt.Horizontal
+
+            Loader {
+                id: stationView
+                Layout.minimumWidth: Units.dp(350)
+                Layout.margins: Units.dp(10)
+                sourceComponent: channelBrowser
+            }
+            Loader {
+                id: expertViewLoader
+                Layout.margins: Units.dp(10)
+                Layout.fillWidth: true
+                sourceComponent: expertView
+            }
+
+            Settings {
+                property alias expertStationViewWidth: stationView.width
+                property alias expertViewWidth: expertViewLoader.width
             }
         }
     }
 
+    // expertView
+    Component {
+        id: expertView
+
+        ExpertView{
+            Layout.fillWidth: true
+            Layout.fillHeight: true
+            Layout.preferredWidth: Units.dp(400)
+            width: Units.dp(400)
+        }
+    }
+
+    MessagePopup {
+        id: errorMessagePopup
+        x: mainWindow.width/2 - width/2
+        y: mainWindow.height  - __toolBar.height - height
+        revealedY: mainWindow.height - __toolBar.height - height
+        hiddenY: mainWindow.height
+        color: "#8b0000"
+    }
+
+    MessagePopup {
+        id: infoMessagePopup
+        x: mainWindow.width/2 - width/2
+        y: mainWindow.height  - __toolBar.height - height
+        revealedY: mainWindow.height - __toolBar.height - height
+        hiddenY: mainWindow.height
+        color:  "#468bb7"
+        onOpened: closeTimer.running = true;
+        Timer {
+            id: closeTimer
+            interval: 1 * 5000 // 5 s
+            repeat: false
+            onTriggered: {
+              infoMessagePopup.close()
+            }
+        }
+    }
+
+    MessageDialog {
+        id: androidRTLSDRDialog
+        icon: StandardIcon.Warning
+        standardButtons: StandardButton.Ok | StandardButton.Cancel
+        onAccepted: {
+            Qt.openUrlExternally("https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro")
+            Qt.quit()
+        }
+    }
 
     Connections{
         target: cppGUI
 
         onSetGUIData:{
-            // Station
-            if(!scanningTimer.running)
-                currentStation.text = GUIData.Station
-
-            // Label
-            stationText.text = GUIData.Label
-
-            // Sync flag
-            if(GUIData.isSync)
-                sync.color = "green"
-            else
-                sync.color = "red"
-
-            // FIC flag
-            if(GUIData.isFICCRC)
-                fic.color = "green"
-            else
-                fic.color = "red"
-
-            // Frame errors flag
-            if(GUIData.FrameErrors === 0 && GUIData.isSync && GUIData.isFICCRC)
-                frameSucess.color = "green"
-            else
-                frameSucess.color = "red"
-
-            // SNR
-            if(GUIData.SNR > 15) signalBar5.color = "green"; else signalBar5.color = "grey"
-            if(GUIData.SNR > 11) signalBar4.color = "green"; else signalBar4.color = "grey"
-            if(GUIData.SNR > 8) signalBar3.color = "green"; else signalBar3.color = "grey"
-            if(GUIData.SNR > 5) signalBar2.color = "green"; else signalBar2.color = "grey"
-            if(GUIData.SNR > 2) signalBar1.color = "green"; else signalBar1.color = "grey"
-
-            // Bitrate
-            bitrateText.text = GUIData.BitRate + " kbps"
-
-            // DAB / DAB+
-            if(GUIData.isDAB)
-                dabTypeText.text = "DAB"
-            else
-                dabTypeText.text = "DAB+"
-
-            // Stereo / Mono
-            if(GUIData.isStereo)
-                audioTypeText.text = "Stereo"
-            else
-                audioTypeText.text = "Mono"
-
-            // Station type
-            stationTypeText.text = GUIData.StationType
-
-            // Language type
-            languageTypeText.text = GUIData.LanguageType
+            dateTimeDisplay.text = GUIData.DateTime
         }
+    }
 
-        onStationModelChanged: {
-            dabModel.clear();
-            dabModel.fill(cppGUI.stationModel);
-        }
-        onChannelScanStopped:{
-            scanButton.text = "Start scanning"
-            scanningTimer.stop();
-            scanText.text=""
-        }
-
-        onChannelScanProgress:{
-            channelScanProgressBar.value = progress
-        }
-
-        onFoundChannelCount:{
-            channelScanProgressBar.text = qsTr("Found channels") + ": " + channelCount;
-        }
+    Connections{
+        target: cppRadioController
 
         onShowErrorMessage:{
             errorMessagePopup.text = Text;
             errorMessagePopup.open();
         }
-    }
-    Component.onCompleted:{
-        dabModel.fill(cppGUI.stationModel);
-    }
 
-    Item {
-        id: scanWrapper
-        height: 40
-        anchors.top: parent.top
-        anchors.topMargin: 8
-        anchors.left: parent.left
-        anchors.leftMargin: 8
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-
-        Button {
-            id: scanButton
-            text: "Start scanning"
-            anchors.verticalCenter: parent.verticalCenter
-            onClicked: {
-                switch(text){
-                case"Start scanning":
-                    text = "Stop scanning"
-                    scanningTimer.start();
-                    cppGUI.startChannelScanClick();
-                    break;
-                case"Stop scanning":
-                    text = "Start scanning"
-                    scanningTimer.stop();
-                    cppGUI.stopChannelScanClick();
-                    break;
-                }
-            }
-        }
-        ProgressBar{
-            id: channelScanProgressBar
-            property alias text: textView.text
-            height: 28
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: scanButton.right
-            anchors.leftMargin: 0
-            minimumValue: 0
-            maximumValue: 54 // 54 channels
-
-            style:ProgressBarStyle {
-                panel: Rectangle {
-                    implicitHeight: 25
-                    implicitWidth: 400
-                    color: "#444"
-                    opacity: 0.8
-                    Rectangle {
-                        antialiasing: true
-                        radius: 1
-                        color: "#468bb7"
-                        height: parent.height
-                        width: parent.width * control.value / control.maximumValue
-                    }
-                }
-            }
-            implicitWidth: parent.width
-            Text {
-                id: textView
-                font.pixelSize: 18
-                color: "#ffffff"
-                anchors.centerIn: parent
-                text: qsTr("Found channels") + ": 0"
-            }
-        }
-    }
-
-    Item {
-        id: item2
-        anchors.bottom: channels.top
-        anchors.bottomMargin: 0
-        anchors.top: scanWrapper.bottom
-        anchors.topMargin: 0
-        anchors.left: parent.left
-        anchors.leftMargin: 8
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-
-        TouchSwitch {
-            id: enableAGC
-            name: qsTr("Automatic RF gain")
-            height: 24
-            anchors.top: parent.top
-            anchors.topMargin: 0
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 0
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            objectName: "enableAGC"
-            checked: true
-            onChanged: {
-                cppGUI.inputEnableAGCChanged(valueChecked)
-
-                if(valueChecked == false)
-                    cppGUI.inputGainChanged(manualGain.currentValue)
-            }
+        onShowInfoMessage:{
+            infoMessagePopup.text = Text;
+            infoMessagePopup.open();
         }
 
-        TouchSlider {
-            id: manualGain
-            enabled: !enableAGC.checked
-            name: qsTr("Manual gain")
-            anchors.top: enableAGC.bottom
-            anchors.topMargin: 8
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 0
-            Layout.fillWidth: true
-            maximumValue: cppGUI.gainCount
-            showCurrentValue: qsTr("Value: ") + cppGUI.currentGainValue.toFixed(2)
-            Layout.fillHeight: true
-            visible: !enableAGC.checked
-            onValueChanged: {
-                if(enableAGC.checked == false)
-                    cppGUI.inputGainChanged(valueGain)
-            }
+        onShowAndroidInstallDialog:{
+            androidRTLSDRDialog.title = Title
+            androidRTLSDRDialog.text = Text;
+            androidRTLSDRDialog.open();
         }
     }
-
-    ErrorMessagePopup {
-      id: errorMessagePopup
-    }
-    states: [
-        State {
-            name: "open"
-
-            PropertyChanges {
-                target: channelsWrapper
-                width: parent.width*1.2
-            }
-        }
-    ]
-
 }
