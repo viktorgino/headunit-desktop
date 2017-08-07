@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("viktorgino's HeadUnit Desktop");
 
     QApplication app(argc, argv);
-    QQmlApplicationEngine engine;
+    QQmlApplicationEngine *engine = new QQmlApplicationEngine;
 
     QGst::init(&argc, &argv);
 
@@ -59,36 +59,31 @@ int main(int argc, char *argv[])
 #ifdef HAVE_WELLEIO
     bool welleioError = false;
     // Default values
+    QVariantMap commandLineOptions;
     CDABParams DABParams(1);
-    QString dabDevice = "auto";
-    QString ipAddress = "127.0.0.1";
-    uint16_t ipPort = 1234;
-    QString rawFile = "";
-    QString rawFileFormat = "u8";
+    commandLineOptions["dabDevice"] = "auto";
+    commandLineOptions["ipAddress"] = "127.0.0.1";
+    commandLineOptions["ipPort"] = 1234;
+    commandLineOptions["rawFile"] =  "";
+    commandLineOptions["rawFileFormat"] = "u8";
 
-    // Init device
-    CVirtualInput* Device;
-    try {
-        Device = CInputFactory::GetDevice(dabDevice);
-    } catch (int e) {
-        qDebug()<< "DAB device not found! ";
-        welleioError = true;
-    }
-    CRadioController* RadioController;
-    CGUI *GUI;
+    CRadioController* RadioController = nullptr;
+    CGUI *GUI = nullptr;
     if(!welleioError){
         try {
 
             // Create a new radio interface instance
-            RadioController = new CRadioController(Device, DABParams);
+            RadioController = new CRadioController(commandLineOptions, DABParams);
+            QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted()));
             GUI = new CGUI(RadioController, &DABParams);
             // Load welle.io's control object to QML context
-            engine.rootContext()->setContextProperty("cppGUI", GUI);
+            engine->rootContext()->setContextProperty("cppGUI", GUI);
+            engine->rootContext()->setContextProperty("cppRadioController", RadioController);
             // Add MOT slideshow provider
-            engine.addImageProvider(QLatin1String("motslideshow"), GUI->MOTImage);
+            engine->addImageProvider(QLatin1String("motslideshow"), GUI->MOTImage);
             // Load the DAB helper class to QML context
             DABHelper *dabHelper = new DABHelper();
-            engine.rootContext()->setContextProperty("dabHelper", dabHelper);
+            engine->rootContext()->setContextProperty("dabHelper", dabHelper);
         } catch (int e) {
             qDebug()<< "Can't initialise welle.io. Exception: " << e ;
             welleioError = true;
@@ -99,12 +94,12 @@ int main(int argc, char *argv[])
     }
 #endif
 
-    engine.rootContext()->setContextProperty("videoSurface1", &surface);
-    engine.rootContext()->setContextProperty("headunit", headunit);
-    engine.rootContext()->setContextProperty("menuItems", menuItems);
-    engine.rootContext()->setContextProperty("mediaLibrary", mediaLibrary);
-    engine.rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
-    engine.load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
+    engine->rootContext()->setContextProperty("videoSurface1", &surface);
+    engine->rootContext()->setContextProperty("headunit", headunit);
+    engine->rootContext()->setContextProperty("menuItems", menuItems);
+    engine->rootContext()->setContextProperty("mediaLibrary", mediaLibrary);
+    engine->rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
+    engine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     headunit->startHU();
     UsbConnectionListener *connectionListener = new UsbConnectionListener();
     headunit->setUsbConnectionListener(connectionListener);
