@@ -53,6 +53,7 @@ public:
     Headunit(const QGst::ElementPtr & sink);
     ~Headunit();
     int startHU();
+    Q_INVOKABLE int restartHU();
     void stop();
     void exit();
     void setGstState(QString state);
@@ -100,6 +101,5 @@ private:
     bool huStarted = false;
     byte ep_in_addr = -2;
     byte ep_out_addr = -2;
-    QSettings *settings;
 };
 #endif // HEADUNITPLAYER_H

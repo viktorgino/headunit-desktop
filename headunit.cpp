@@ -31,12 +31,6 @@ Headunit::Headunit(const QGst::ElementPtr & sink):callbacks(this)
         qDebug("STATUS:initGst() ret: %d", ret);
         return;
     }
-    QFileInfo ini_file("aa_settings.ini");
-    if (ini_file.exists() && ini_file.isFile()) {
-        settings = new QSettings("aa_settings.ini", QSettings::IniFormat);
-    } else {
-        settings = new QSettings();
-    }
 }
 
 Headunit::~Headunit() {
@@ -57,15 +51,16 @@ Headunit::~Headunit() {
     }
 }
 
-int Headunit::startHU(){
+int Headunit::startHU(){    
+    QSettings settings;
     std::map<std::string, std::string> aa_settings;
 
-    if(settings->childGroups().contains("aa_settings")){
-        settings->beginGroup("aa_settings");
-        QStringList keys = settings->childKeys();
+    if(settings.childGroups().contains("AndroidAuto")){
+        settings.beginGroup("AndroidAuto");
+        QStringList keys = settings.childKeys();
 
         for (int i = 0; i < keys.size(); ++i){
-            aa_settings[keys.at(i).toStdString()] = settings->value(keys.at(i)).toString().toStdString();
+            aa_settings[keys.at(i).toStdString()] = settings.value(keys.at(i)).toString().toStdString();
         }
     }
 
@@ -84,6 +79,13 @@ int Headunit::startHU(){
     }
 }
 
+int Headunit::restartHU(){
+    if(huStarted){
+        headunit->hu_aap_shutdown();
+        qDebug("Headunit::~Headunit() called hu_aap_shutdown()");
+    }
+    startHU();
+}
 int Headunit::initGst(){
     GstBus *bus;
 
