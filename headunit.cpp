@@ -432,6 +432,14 @@ int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const by
 }
 
 int DesktopEventCallbacks::MediaStart(int chan) {
+
+    HU::SensorEvent sensorEvent;
+    sensorEvent.add_location_data()->set_speed(0);
+    headunit->g_hu->hu_queue_command([sensorEvent](IHUConnectionThreadInterface& s)
+    {
+        s.hu_aap_enc_send_message(0, AA_CH_SEN, HU_SENSOR_CHANNEL_MESSAGE::SensorEvent, sensorEvent);
+    });
+
     if (chan == AA_CH_MIC) {
         qDebug("SHAI1 : Mic Started");
         gst_element_set_state(headunit->mic_pipeline, GST_STATE_PLAYING);
