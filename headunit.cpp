@@ -19,6 +19,7 @@
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
 #include <gst/app/gstappsink.h>
+#include <gst/video/video.h>
 #include "hu_uti.h"
 #include "hu_aap.h"
 
@@ -85,7 +86,26 @@ int Headunit::restartHU(){
         qDebug("Headunit::~Headunit() called hu_aap_shutdown()");
     }
     startHU();
+    return 1;
 }
+GstPadProbeReturn Headunit::convert_probe(GstPad *pad, GstPadProbeInfo *info, void *user_data){
+    GstEvent *event = GST_PAD_PROBE_INFO_EVENT(info);
+    if (GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM) {
+        if (GST_EVENT_TYPE (event) == GST_EVENT_SEGMENT) {
+            GstCaps *caps  = gst_pad_get_current_caps(pad);
+            if(caps != NULL){
+                GstVideoInfo *vinfo = gst_video_info_new ();
+                gst_video_info_from_caps (vinfo, caps);
+                Headunit *headunit = static_cast<Headunit *>(user_data);
+                headunit->setVideoWidth(vinfo->width);
+                headunit->setVideoHeight(vinfo->height);
+            }
+            return GST_PAD_PROBE_REMOVE;
+        }
+    }
+    return GST_PAD_PROBE_OK;
+}
+
 int Headunit::initGst(){
     GstBus *bus;
 
@@ -100,9 +120,9 @@ int Headunit::initGst(){
     const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100000 do-timestamp=true stream-type=stream ! "
                                  "queue ! "
                                  "h264parse ! "
-                                 "avdec_h264 ! "
-                                 "videoscale ! "
-                                 "videoconvert name=myconvert ";
+                                 "avdec_h264 lowres=2 skip-frame=5 ! "
+                                 "videoconvert ! "
+                                 "capsfilter caps=video/x-raw,format=BGR name=mycapsfilter";
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
 
     bus = gst_pipeline_get_bus(GST_PIPELINE(vid_pipeline));
@@ -111,12 +131,12 @@ int Headunit::initGst(){
 
 
     GstElement *sink = QGlib::RefPointer<QGst::Element>(m_videoSink);
-    GstElement *convert = gst_bin_get_by_name(GST_BIN(vid_pipeline), "myconvert");
+    g_object_set (sink, "force-aspect-ratio", true, nullptr);
+    GstElement *capsfilter = gst_bin_get_by_name(GST_BIN(vid_pipeline), "mycapsfilter");
     gst_bin_add(GST_BIN(vid_pipeline), GST_ELEMENT(sink));
-    gst_element_link(convert, GST_ELEMENT(sink));
+    gst_element_link(capsfilter, GST_ELEMENT(sink));
 
     vid_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(vid_pipeline), "mysrc"));
-
     gst_app_src_set_stream_type(vid_src, GST_APP_STREAM_TYPE_STREAM);
 
     /*
@@ -274,6 +294,10 @@ void Headunit::setGstState(QString state){
     if(state == "play"){
         gst_state = GST_STATE_PLAYING;
         huStarted = true;
+        GstElement *capsfilter = gst_bin_get_by_name(GST_BIN(vid_pipeline), "mycapsfilter");
+        GstPad *convert_pad = gst_element_get_static_pad(capsfilter, "sink");
+        gst_pad_add_probe (convert_pad,GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM,convert_probe, this, NULL);
+
     } else if(state == "pause") {
         gst_state = GST_STATE_PAUSED;
         huStarted = false;
@@ -285,7 +309,6 @@ void Headunit::setGstState(QString state){
     gst_element_set_state(vid_pipeline, gst_state);
     gst_element_set_state(aud_pipeline, gst_state);
     gst_element_set_state(au1_pipeline, gst_state);
-
 }
 
 bool Headunit::mouseDown(QPoint point){
@@ -331,8 +354,8 @@ void Headunit::touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point) {
     float normx = float(point->x()) / float(m_outputWidth);
     float normy = float(point->y()) / float(m_outputHeight);
 
-    unsigned int x = (unsigned int) (normx * videoWidth);
-    unsigned int y = (unsigned int) (normy * videoHeight);
+    unsigned int x = (unsigned int) (normx * m_videoWidth);
+    unsigned int y = (unsigned int) (normy * m_videoHeight);
 
     if(huStarted){
         g_hu->hu_queue_command([action, x, y](IHUConnectionThreadInterface & s) {
@@ -352,7 +375,7 @@ void Headunit::touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point) {
                 qDebug("aa_touch_event(): hu_aap_enc_send() failed with (%d)", ret);
             }
         });
-        }
+    }
 }
 
 void Headunit::setUsbConnectionListener(UsbConnectionListener *m_connectionListener){
@@ -400,11 +423,28 @@ void Headunit::setOutputHeight(const int a){
         emit outputResized();
     }
 }
+
+void Headunit::setVideoWidth(const int a){
+    m_videoWidth = a;
+    emit videoResized();
+}
+
+void Headunit::setVideoHeight(const int a){
+    m_videoHeight = a;
+    emit videoResized();
+}
+
 int Headunit::outputWidth() {
     return m_outputWidth;
 }
 int Headunit::outputHeight() {
     return m_outputHeight;
+}
+int Headunit::videoWidth() {
+    return m_videoWidth;
+}
+int Headunit::videoHeight() {
+    return m_videoHeight;
 }
 int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;

@@ -49,6 +49,8 @@ class Headunit : public QObject
     Q_OBJECT
     Q_PROPERTY(int outputWidth READ outputWidth WRITE setOutputWidth NOTIFY outputResized)
     Q_PROPERTY(int outputHeight READ outputHeight WRITE setOutputHeight NOTIFY outputResized)
+    Q_PROPERTY(int videoWidth READ videoWidth NOTIFY videoResized)
+    Q_PROPERTY(int videoHeight READ videoHeight NOTIFY videoResized)
 public:
     Headunit(const QGst::ElementPtr & sink);
     ~Headunit();
@@ -60,8 +62,12 @@ public:
     void setUsbConnectionListener(UsbConnectionListener *m_connectionListener);
     void setOutputWidth(const int a);
     void setOutputHeight(const int a);
+    void setVideoWidth(const int a);
+    void setVideoHeight(const int a);
     int outputWidth();
     int outputHeight();
+    int videoWidth();
+    int videoHeight();
     GstElement *mic_pipeline = nullptr;
     GstElement *mic_sink = nullptr;
     GstElement *aud_pipeline = nullptr;
@@ -73,6 +79,7 @@ public:
     IHUAnyThreadInterface* g_hu = nullptr;
 signals:
     void outputResized();
+    void videoResized();
     void deviceConnected(QVariantMap notification);
 public slots:
     bool mouseDown(QPoint point);
@@ -89,8 +96,8 @@ private:
     DesktopEventCallbacks callbacks;
     HU::TouchInfo::TOUCH_ACTION lastAction = HU::TouchInfo::TOUCH_ACTION_RELEASE;
     UsbConnectionListener *connectionListener;
-    int videoWidth = 800;
-    int videoHeight = 480;
+    int m_videoWidth = 800;
+    int m_videoHeight = 480;
     int m_outputWidth = 800;
     int m_outputHeight = 480;
     int initGst();
@@ -98,6 +105,7 @@ private:
     static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr);
     void touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point);
     static uint64_t get_cur_timestamp();
+    static GstPadProbeReturn convert_probe(GstPad *pad, GstPadProbeInfo *info, void *user_data);
     bool huStarted = false;
     byte ep_in_addr = -2;
     byte ep_out_addr = -2;
