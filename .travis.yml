@@ -6,6 +6,7 @@ dist: trusty
 before_install:
     - sudo add-apt-repository ppa:beineri/opt-qt59-trusty -y
     - sudo add-apt-repository ppa:floe/libusb -y
+    - sudo add-apt-repository ppa:dan-witt/gstreamer
     - sudo apt-get update -qq
     
 install: 
