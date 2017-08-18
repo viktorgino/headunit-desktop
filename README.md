@@ -19,6 +19,14 @@ The GUI for some of the proposed features is already there. For screenshots of t
 Getting started
 -------------------
 Download the Raspberry Pi image which is based on Raspbian Stretch Lite from here: http://files.headunit.viktorgino.me/index.html
+The Pi image has all the prerequesit libraries included and a fully the built headunit-desktop with wellei.io included. You can run it with the following command:
+
+    sudo xinit /opt/headunit-desktop/headunit-app
+    
+If you'd like to run it without X11 using OpenGL change the content of /etc/environment to:
+
+    QT_QPA_PLATFORM=eglfs
+
 For building your own Raspbian images see: [viktorgino/pi-gen](https://github.com/viktorgino/pi-gen)
 
 There aren't any packages available for other platforms, but it is in the making.
