@@ -13,4 +13,4 @@
 	branch = 3d-view-integration
 [submodule "QVcf"]
 	path = QVcf
-	url = ../../labsquare/QVcf.git
+	url = https://github.com/labsquare/QVcf.git
