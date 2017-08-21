@@ -11,3 +11,6 @@
 	path = welle.io
 	url = https://github.com/viktorgino/welle.io.git
 	branch = 3d-view-integration
+[submodule "QVcf"]
+	path = QVcf
+	url = ../../labsquare/QVcf.git

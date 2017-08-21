@@ -117,7 +117,7 @@ int Headunit::initGst(){
      * Initialize Video pipeline
      */
 
-    const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100000 do-timestamp=true stream-type=stream ! "
+    const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100 do-timestamp=true stream-type=stream ! "
                                  "queue ! "
                                  "h264parse ! "
                                  "avdec_h264 lowres=2 skip-frame=5 ! "

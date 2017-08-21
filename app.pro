@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET=headunit-app
-QT += qml quick multimedia multimediawidgets sql
+QT += qml quick multimedia multimediawidgets sql bluetooth dbus
 CONFIG += c++11 link_pkgconfig
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 
@@ -17,7 +17,10 @@ SOURCES += main.cpp \
     mediascanner.cpp \
     mediadb.cpp \
     medialibrary.cpp \
-    headunit/hu/generated.x64/hu.pb.cc
+    headunit/hu/generated.x64/hu.pb.cc \
+    addressbook.cpp \
+    QVcf/vcfreader.cpp \
+    telephonymanager.cpp
 
 RESOURCES += \
     qml_gui/qml.qrc \
@@ -26,7 +29,8 @@ RESOURCES += \
 PKGCONFIG += libssl libcrypto libusb-1.0 glib-2.0 gobject-2.0
 PKGCONFIG += gstreamer-1.0 gstreamer-app-1.0 gstreamer-video-1.0
 PKGCONFIG += Qt5GLib-2.0 Qt5GStreamer-1.0 Qt5GStreamerQuick-1.0 Qt5GStreamerUtils-1.0
-PKGCONFIG +=  protobuf libudev taglib
+PKGCONFIG += protobuf libudev taglib
+PKGCONFIG += qofono-qt5
 
 HEADERS += \
     headunit/hu/hu_aad.h \
@@ -41,7 +45,10 @@ HEADERS += \
     headunit/common/glib_utils.h \
     mediascanner.h \
     mediadb.h \
-    medialibrary.h
+    medialibrary.h \
+    addressbook.h \
+    QVcf/vcfreader.h \
+    telephonymanager.h
 
 INCLUDEPATH +=$$PWD/headunit/hu
 INCLUDEPATH +=$$PWD/headunit/hu/generated.x64

@@ -18,6 +18,7 @@
 #include "headunit.h"
 #include "usbconnectionlistener.h"
 #include "medialibrary.h"
+#include "telephonymanager.h"
 
 #ifdef HAVE_WELLEIO
 #include <unistd.h>
@@ -44,16 +45,18 @@ int main(int argc, char *argv[])
     QGst::init(&argc, &argv);
 
 
-    int defaultMenuItem = 2;
+    int defaultMenuItem = 4;
     QVariantList menuItems;
     menuItems << QJsonObject {{"source","qrc:/qml/ClimateControl/CCLayout.qml"},{"image","icons/svg/thermometer.svg"},{"text","A/C"},{"color","#f44336"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/Radio/RadioLayout.qml"},{"image","icons/svg/radio-waves.svg"},{"text","Radio"},{"color","#E91E63"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/aaVideo.qml"},{"image","icons/svg/social-android.svg"},{"text","Android Auto"},{"color","#673AB7"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/MediaPlayer/MediaPlayerLayout.qml"},{"image","icons/svg/music-note.svg"},{"text","Media player"},{"color","#3F51B5"}}.toVariantMap()
-              << QJsonObject {{"source","qrc:/qml/SettingsPage/SettingsPage.qml"},{"image","icons/gear-a.png"},{"text","Settings"},{"color","#2196F3"}}.toVariantMap();
+              << QJsonObject {{"source","qrc:/qml/Phone/Phone.qml"},{"image","icons/svg/android-call.svg"},{"text","Phone"},{"color","#00BCD4"}}.toVariantMap()
+              << QJsonObject {{"source","qrc:/qml/SettingsPage/SettingsPage.qml"},{"image","icons/svg/gear-a.svg"},{"text","Settings"},{"color","#4CAF50"}}.toVariantMap();
     QGst::Quick::VideoSurface surface;
     Headunit *headunit =  new Headunit(surface.videoSink());
     MediaLibrary *mediaLibrary = new MediaLibrary();
+    TelephonyManager *telephonyManager = new TelephonyManager();
 
     //Load welle.io
 #ifdef HAVE_WELLEIO
@@ -99,6 +102,7 @@ int main(int argc, char *argv[])
     engine->rootContext()->setContextProperty("menuItems", menuItems);
     engine->rootContext()->setContextProperty("mediaLibrary", mediaLibrary);
     engine->rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
+    engine->rootContext()->setContextProperty("telephonyManager", telephonyManager);
     engine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     headunit->startHU();
     UsbConnectionListener *connectionListener = new UsbConnectionListener();
