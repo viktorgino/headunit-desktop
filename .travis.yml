@@ -32,7 +32,7 @@ script:
   - qmake -config release
   - make -j4
   - sudo make install
-  - cd ../plugins
+  - cd ../plugin
   - qmake -config release
   - make -j4
   - sudo make install
