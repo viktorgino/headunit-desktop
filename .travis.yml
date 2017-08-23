@@ -10,9 +10,9 @@ before_install:
     - sudo apt-get update -qq
     
 install: 
-    - sudo apt-get -q -y install qt59base qt59declarative qt59quickcontrols2 qt59multimedia
+    - sudo apt-get -q -y install qt57base qt57declarative qt57quickcontrols2 qt57multimedia qt57connectivity qt57xmlpatterns
     - sudo apt-get -q -y install build-essential cmake protobuf-compiler
-    - sudo apt-get -q -y install ofono ofono-dev ofono-phonesim pulseaudio bluez pulseaudio-module-bluetooth libqt5xmlpatterns5-dev libqt5bluetooth5 qtconnectivity5-dev
+    - sudo apt-get -q -y install ofono ofono-dev ofono-phonesim pulseaudio bluez pulseaudio-module-bluetooth
     - sudo apt-get -q -y install libpulse-dev libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libboost-dev libgstreamer-plugins-base1.0-dev libudev-dev libtag1-dev libprotobuf-dev libunwind8-dev
     - sudo apt-get -q -y install git
     - source /opt/qt59/bin/qt59-env.sh
