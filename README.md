@@ -80,7 +80,7 @@ Install the neccesarry build tools:
 
 Install all the other dependencies:
 
-	sudo apt-get install libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libboost-dev libgstreamer-plugins-base1.0-dev libudev-dev libtag1-dev libprotobuf-dev libunwind-dev
+	sudo apt-get install libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libboost-dev libgstreamer-plugins-base1.0-dev libgstreamer-plugins-bad1.0-dev libudev-dev libtag1-dev libprotobuf-dev libunwind-dev
 
 Install Git:
 
