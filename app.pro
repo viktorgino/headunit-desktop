@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET=headunit-app
-QT += qml quick multimedia multimediawidgets sql bluetooth dbus
+QT += qml quick multimedia multimediawidgets sql bluetooth dbus BluezQt
 CONFIG += c++11 link_pkgconfig
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 

@@ -13,6 +13,7 @@ TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent)
         manager = new QOfonoManager;
         connect(manager, &QOfonoManager::availableChanged, this, &TelephonyManager::initHFP);
     }
+    //initBluez();
 }
 TelephonyManager::~TelephonyManager(){
     qDebug() << "Destroying TelephonyManager";
@@ -104,8 +105,6 @@ void TelephonyManager::setupService(){
                 SLOT(pairingDisplayPinCode(const QBluetoothAddress, QString)));
         connect(localAdapter, SIGNAL(pairingDisplayConfirmation(const QBluetoothAddress, QString)), this,
                 SLOT(pairingDisplayPinCode(const QBluetoothAddress, QString)));
-        connect(localAdapter, &QBluetoothLocalDevice::hostModeStateChanged,
-                this, &TelephonyManager::btStateChanged);
         connect(localAdapter, &QBluetoothLocalDevice::pairingFinished,
                 this, &TelephonyManager::pairingFinished);
 
@@ -125,25 +124,7 @@ void TelephonyManager::deviceDisconnected(const QBluetoothAddress &address){
     emit deviceListChanged();
 }
 void TelephonyManager::pairingDisplayPinCode(const QBluetoothAddress &address, QString pin){
-    qDebug() << "Pairing confirmation pin: " << pin;
-}
-void TelephonyManager::btStateChanged(QBluetoothLocalDevice::HostMode state){
-    emit bluetoothStateChanged();
-}
-void TelephonyManager::connectToBtDevice(QString address){
-    QBluetoothAddress btAddress(address);
-    //QBluetoothLocalDevice::Pairing pairingStatus = localAdapter->pairingStatus(btAddress);
-    //localAdapter->requestPairing(btAddress, QBluetoothLocalDevice::AuthorizedPaired);
-    //QBluetoothServiceInfo serviceInfo;
-    //serviceInfo.registerService(address);
-}
-void TelephonyManager::disconnectBtDevice(QString address){
-    QBluetoothAddress btAddress(address);
-    localAdapter->requestPairing(btAddress, QBluetoothLocalDevice::Paired);
-}
-void TelephonyManager::forgetBtDevice(QString address){
-    QBluetoothAddress btAddress(address);
-    localAdapter->requestPairing(btAddress, QBluetoothLocalDevice::Unpaired);
+    qDebug() << "Pairing confirmation "  << address.toString() << " pin: " << pin;
 }
 
 void TelephonyManager::initHFP(bool available){
@@ -175,9 +156,6 @@ void TelephonyManager::initHFP2(bool available){
         else
             qWarning() << "[ofono] voiceCallManager is not valid";
         connect(&voiceCallManager, &QOfonoVoiceCallManager::callAdded, this, &TelephonyManager::callAdded);
-
-        phonebook = new QOfonoPhonebook;
-        loadAddressBook();
     }
 }
 
@@ -210,62 +188,4 @@ void TelephonyManager::answerCall(QString call_path){
 void TelephonyManager::declineCall(QString call_path){
     voiceCall->setVoiceCallPath(call_path);
     voiceCall->hangup();
-}
-
-void TelephonyManager::loadAddressBook(){
-    qDebug() << "[ofono] : Starting phonebook import";
-    qDebug() << "[ofono] Modem Path: " << modem->modemPath();
-    phonebook->setModemPath(modem->modemPath());
-    if(phonebook->isValid())
-        qDebug() << "[ofono] Phonebook is valid";
-    else
-        qWarning() << "[ofono] Phonebook is not valid";
-    phonebook->beginImport();
-    connect(phonebook,&QOfonoPhonebook::importReady,this,&TelephonyManager::vCardImportReady);
-    connect(phonebook,&QOfonoPhonebook::importFailed,this,&TelephonyManager::vCardImportFailed);
-    connect(phonebook,&QOfonoPhonebook::importingChanged,this,&TelephonyManager::vCardImportChanged);
-}
-void TelephonyManager::vCardImportFailed(){
-    qWarning() << "[ofono] : Phonebook import failed";
-}
-void TelephonyManager::vCardImportChanged(){
-    qWarning() << "[ofono] : Phonebook import changed";
-}
-
-void TelephonyManager::vCardImportReady(const QString vcardData){
-    qDebug() << "[ofono] : Phonebook import ready";
-    QByteArray byteArray = vcardData.toLocal8Bit();
-    QBuffer buffer(&byteArray);
-    vcf::VcfReader reader(&buffer);
-    if (reader.open())
-    {
-        qDebug()<<reader.infos().keys();
-        qDebug()<<reader.metadata().keys();
-        qDebug()<<reader.samples();
-
-        while (reader.next())
-        {
-            qDebug()<<reader.record().alt();
-        }
-    }
-}
-QVariantList TelephonyManager::getConnectedDevices(){
-    QVariantList deviceList;
-
-    QList<QBluetoothAddress> devices = localAdapter->connectedDevices();
-    for(int i = 0; i < devices.size(); i++){
-        deviceList.append(devices.at(i).toString());
-    }
-    return deviceList;
-}
-
-void TelephonyManager::setBtConnectionState(const int state){
-    if(state > 3 || state < 0)
-        qWarning() << "error TelephonyManager::setBtConnectionState state unknown";
-    else
-        localAdapter->setHostMode(QBluetoothLocalDevice::HostMode(state));
-}
-
-int TelephonyManager::getBtConnectionState(){
-    return localAdapter->hostMode();
 }
