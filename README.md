@@ -46,3 +46,6 @@ There aren't any packages available for other platforms, but it is in the making
 
 For more details and install instructions see: [headunit.viktorgino.me/](http://headunit.viktorgino.me/)
 
+-------------------
+
+If you like this project and would like to support me, then buy me a beer or something [here](http://amzn.eu/3FbYXDC)
