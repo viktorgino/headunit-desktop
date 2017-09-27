@@ -549,3 +549,13 @@ void DesktopEventCallbacks::VideoFocusHappened(bool hasFocus, bool unrequested) 
         return false;
     });
 }
+std::string DesktopEventCallbacks::GetCarBluetoothAddress(){
+    QList<QBluetoothHostInfo> localAdapters = QBluetoothLocalDevice::allDevices();
+    if(localAdapters.size() > 0){
+        return localAdapters.at(0).address().toString().toStdString();
+    }
+    return std::string();
+}
+void DesktopEventCallbacks::PhoneBluetoothReceived(std::string address){
+    emit headunit->btConnectionRequest(QString::fromStdString(address));
+}

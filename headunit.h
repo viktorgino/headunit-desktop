@@ -9,6 +9,7 @@
 #include <QGst/Message>
 #include <QVariant>
 #include <QSettings>
+#include <QBluetoothLocalDevice>
 #include <QGst/Utils/ApplicationSource>
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
@@ -36,6 +37,8 @@ public:
     virtual void CustomizeOutputChannel(int chan, HU::ChannelDescriptor::OutputStreamChannel& streamChannel) override;
     virtual void AudioFocusRequest(int chan, const HU::AudioFocusRequest& request) override;
     virtual void VideoFocusRequest(int chan, const HU::VideoFocusRequest& request) override;
+    virtual std::string GetCarBluetoothAddress() override;
+    virtual void PhoneBluetoothReceived(std::string address) override;
 
     void VideoFocusHappened(bool hasFocus, bool unrequested);
 
@@ -81,6 +84,7 @@ signals:
     void outputResized();
     void videoResized();
     void deviceConnected(QVariantMap notification);
+    void btConnectionRequest(QString address);
 public slots:
     bool mouseDown(QPoint point);
     bool mouseMove(QPoint point);
