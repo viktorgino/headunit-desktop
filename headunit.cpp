@@ -120,7 +120,7 @@ int Headunit::initGst(){
     const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100 do-timestamp=true stream-type=stream ! "
                                  "queue ! "
                                  "h264parse ! "
-                                 "avdec_h264 lowres=2 skip-frame=5 ! "
+                                 "avdec_h264 lowres=1 skip-frame=2 ! "
                                  "videoconvert ! "
                                  "capsfilter caps=video/x-raw,format=BGR name=mycapsfilter";
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
@@ -132,6 +132,9 @@ int Headunit::initGst(){
 
     GstElement *sink = QGlib::RefPointer<QGst::Element>(m_videoSink);
     g_object_set (sink, "force-aspect-ratio", true, nullptr);
+    g_object_set (sink, "max-lateness", 1000000000, nullptr);
+    g_object_set (sink, "sync", false, nullptr);
+    g_object_set (sink, "async", false, nullptr);
     GstElement *capsfilter = gst_bin_get_by_name(GST_BIN(vid_pipeline), "mycapsfilter");
     gst_bin_add(GST_BIN(vid_pipeline), GST_ELEMENT(sink));
     gst_element_link(capsfilter, GST_ELEMENT(sink));
