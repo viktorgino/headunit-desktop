@@ -37,6 +37,13 @@ script:
   - make -j4
   - sudo make install
   - cd ../../
+  - git clone https://anongit.kde.org/bluez-qt.git
+  - cd bluez-qt/src
+  - cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) -DCMAKE_INSTALL_INCLUDEDIR=include -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11
+  - make -j4
+  - sudo make install
+  - sudo ldconfig
+  - cd ../../
   - protoc --proto_path=headunit/hu/ --cpp_out=headunit/hu/generated.x64/ headunit/hu/hu.proto
   - qmake -config release
   - make -j4
