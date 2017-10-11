@@ -145,7 +145,8 @@ int Headunit::initGst(){
 
     aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=48000, channels=2, format=S16LE ! "
-                                    "alsasink buffer-time=400000 sync=false", &error);
+                                    "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Music\""
+                                    , &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -163,7 +164,7 @@ int Headunit::initGst(){
 
     au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  ! "
-                                    "alsasink buffer-time=400000 sync=false", &error);
+                                    "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Voice\"", &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -179,7 +180,7 @@ int Headunit::initGst(){
      * Initialize Microphone pipeline
      */
 
-    mic_pipeline = gst_parse_launch("alsasrc name=micsrc ! audioconvert ! "
+    mic_pipeline = gst_parse_launch("pulsesrc name=micsrc client-name=\"Android Auto Voice\" ! audioconvert ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000 ! "
                                     "queue ! "
                                     "appsink name=micsink emit-signals=true async=false blocksize=8192", &error);
