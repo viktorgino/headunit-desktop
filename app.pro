@@ -3,6 +3,7 @@ TARGET=headunit-app
 QT += qml quick multimedia multimediawidgets sql bluetooth dbus BluezQt
 CONFIG += c++11 link_pkgconfig
 QMAKE_CXXFLAGS += -Wno-unused-parameter
+QMAKE_LIBS += -lKF5BluezQt
 
 SOURCES += main.cpp \
     headunit/hu/hu_aad.cpp \
@@ -51,6 +52,12 @@ HEADERS += \
 INCLUDEPATH +=$$PWD/headunit/hu
 INCLUDEPATH +=$$PWD/headunit/hu/generated.x64
 INCLUDEPATH +=$$PWD/headunit/common
+
+#QDBUSXML2CPP_INTERFACE_HEADER_FLAGS += -i dbus_types.h
+DBUS_INTERFACES += org.bluez.obex.PhonebookAccess1.xml
+
+#QDBUSXML2CPP_ADAPTOR_HEADER_FLAGS += -i dbus_types.h
+#DBUS_ADAPTORS += org.bluez.obex.PhonebookAccess1.xml
 
 include("qml_gui/quickcross/quickcross.pri")
 
