@@ -2,7 +2,6 @@
 #define ADDRESSBOOK_H
 
 #include <QObject>
-#include "QVcf/vcfreader.h"
 
 class AddressBook : public QObject
 {

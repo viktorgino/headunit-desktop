@@ -19,7 +19,6 @@ SOURCES += main.cpp \
     medialibrary.cpp \
     headunit/hu/generated.x64/hu.pb.cc \
     addressbook.cpp \
-    QVcf/vcfreader.cpp \
     telephonymanager.cpp
 
 RESOURCES += \
@@ -47,7 +46,6 @@ HEADERS += \
     mediadb.h \
     medialibrary.h \
     addressbook.h \
-    QVcf/vcfreader.h \
     telephonymanager.h
 
 INCLUDEPATH +=$$PWD/headunit/hu
