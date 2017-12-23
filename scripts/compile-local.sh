@@ -16,7 +16,7 @@ if [ "$COPYFOLDER" == "" ]; then
         git submodule update --init --recursive
     else
         echo "Cloning headunit-desktop from https://github.com/viktorgino/headunit-desktop.git"
-        git clone --recursive --depth 1 -j6 https://github.com/viktorgino/headunit-desktop.git
+        git clone --recursive --depth 1 https://github.com/viktorgino/headunit-desktop.git
     fi
 fi
 
