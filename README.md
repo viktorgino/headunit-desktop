@@ -126,7 +126,7 @@ Build headunit
 
 Clone this repo
 
-	git clone --recursive --depth 1 -j6 https://github.com/viktorgino/headunit-desktop.git && cd headunit-desktop
+	git clone --recursive --depth 1 https://github.com/viktorgino/headunit-desktop.git && cd headunit-desktop
 
 Generate protobuf with protoc
 
