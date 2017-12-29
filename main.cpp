@@ -14,6 +14,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QtDebug>
+#include <QLoggingCategory>
 #include <unistd.h>
 #include "headunit.h"
 #include "usbconnectionlistener.h"
@@ -30,9 +31,11 @@
 #include "CGUI.h"
 #include "dab-gui/dabHelper.h"
 #endif
+
+Q_DECLARE_LOGGING_CATEGORY(HEADUNIT)
+
 int main(int argc, char *argv[])
 {
-
     setbuf(stdout, NULL);
 
     QCoreApplication::setOrganizationName("viktorgino");
@@ -40,6 +43,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("viktorgino's HeadUnit Desktop");
 
     QApplication app(argc, argv);
+    QLoggingCategory::setFilterRules("");
     QQmlApplicationEngine *engine = new QQmlApplicationEngine;
 
     QGst::init(&argc, &argv);

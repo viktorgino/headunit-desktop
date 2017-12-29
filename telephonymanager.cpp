@@ -2,13 +2,16 @@
 #include  "qofonovoicecallmanager.h"
 #include  "qofonovoicecall.h"
 
-
+Q_LOGGING_CATEGORY(HEADUNIT, "telephony")
 TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent)
 {
     BluezQt::Manager *manager = new BluezQt::Manager();
     BluezQt::InitManagerJob *job = manager->init();
     job->start();
     connect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::bluezManagerStartResult);
+
+    m_contactsFolder = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/contacts";
+    emit contactsFolderChanged();
 }
 TelephonyManager::~TelephonyManager(){
     delete modem;
@@ -19,7 +22,7 @@ TelephonyManager::~TelephonyManager(){
 
 void TelephonyManager::obexManagerStartResult (BluezQt::InitObexManagerJob *job){
     if(job->error() != 0){
-        qWarning() << "[BluezQt] obexManagerStartResult : "<< job->error() << job->errorText();
+        qCWarning(HEADUNIT)  << "[BluezQt] obexManagerStartResult : "<< job->error() << job->errorText();
         return;
     }
 }
@@ -31,7 +34,7 @@ void TelephonyManager::bluezManagerStartResult (BluezQt::InitManagerJob *job){
         connect(obexjob, &BluezQt::InitObexManagerJob::result, this, &TelephonyManager::obexManagerStartResult);
         connect(obexManager, &BluezQt::ObexManager::sessionAdded, this, &TelephonyManager::obexSessionAdded);
     } else {
-        qWarning() << "[BluezQt] obexManagerStartResult : " << job->errorText();
+        qCWarning(HEADUNIT)  << "[BluezQt] obexManagerStartResult : " << job->errorText();
         return;
     }
 }
@@ -46,7 +49,7 @@ void TelephonyManager::initHFP(bool available){
             modem->setPowered(true);
             connect(modem, &QOfonoModem::poweredChanged, this, &TelephonyManager::initHFP2);
         } else {
-            qDebug() << "[ofono] : No modem found";
+            qCDebug(HEADUNIT)  << "[ofono] : No modem found";
         }
     }
 }
@@ -56,9 +59,9 @@ void TelephonyManager::initHFP2(bool available){
         voiceCallManager.setModemPath(modem->modemPath());
 
         if(voiceCallManager.isValid())
-            qDebug() << "[ofono] voiceCallManager is valid";
+            qCDebug(HEADUNIT)  << "[ofono] voiceCallManager is valid";
         else
-            qWarning() << "[ofono] voiceCallManager is not valid";
+            qCWarning(HEADUNIT)  << "[ofono] voiceCallManager is not valid";
         connect(&voiceCallManager, &QOfonoVoiceCallManager::callAdded, this, &TelephonyManager::callAdded);
     }
 }
@@ -70,9 +73,9 @@ void TelephonyManager::callAdded(const QString &call)
     connect(voiceCall, &QOfonoVoiceCall::stateChanged, this, &TelephonyManager::voiceCallStateChanged);
 }
 void TelephonyManager::voiceCallStateChanged(const QString &state){
-    qDebug()<< "voiceCallStateChanged : " << state;
+    qCDebug(HEADUNIT) << "voiceCallStateChanged : " << state;
     if(state == "incoming"){
-        qDebug()<< "Incoming call from name:" << voiceCall->name()
+        qCDebug(HEADUNIT) << "Incoming call from name:" << voiceCall->name()
                 << " | information:"<< voiceCall->information()
                 << " | voiceCallPath:"<< voiceCall->voiceCallPath()
                 << " | lineIdentification:"<< voiceCall->lineIdentification()
@@ -99,8 +102,6 @@ void TelephonyManager::obexSessionAdded (BluezQt::ObexSessionPtr session){
 }
 
 void TelephonyManager::pullPhonebooks(){
-    contactsFolder = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/contacts";
-
     QString path = pbapSession.data()->objectPath().path();
 
     qDBusRegisterMetaType<QPair<QString,QString>>();
@@ -114,31 +115,31 @@ void TelephonyManager::pullPhonebooks(){
     pcall.waitForFinished();
 
     if(pcall.isError()){
-        qWarning() << "[Bluez] Phonebook Select:"<< pcall.error().message();
+        qCWarning(HEADUNIT)  << "[Bluez] Phonebook Select:"<< pcall.error().message();
         return;
     }
 
     //Delete and recreate contact dir to avoid conflicts
-    QDir dir(contactsFolder);
+    QDir dir(m_contactsFolder);
     if(dir.exists())
         dir.removeRecursively();
-    dir.mkpath(contactsFolder);
+    dir.mkpath(m_contactsFolder);
 
     //Pull all entries from the phone's internal phonebook
-    pcall = pbapAccess->PullAll(contactsFolder + "/contacts.vcf", QVariantMap());
+    pcall = pbapAccess->PullAll(m_contactsFolder + "/contacts.vcf", QVariantMap());
     pcall.waitForFinished();
     if(pcall.isError()){
-        qWarning() << "[Bluez] Phonebook Pull:"<< pcall.error().message();
+        qCWarning(HEADUNIT)  << "[Bluez] Phonebook Pull:"<< pcall.error().message();
         return;
     }
-    emit phonebookChanged(contactsFolder);
+    emit phonebookChanged();
 }
 void TelephonyManager::getPhonebooks(QString destination){
     if(obexManager->isOperational()){
         BluezQt::PendingCall * obexServiceStart = obexManager->startService();
         obexServiceStart->waitForFinished();
         if(obexServiceStart->error() != BluezQt::PendingCall::NoError){
-            qWarning() << "[BluezQt] obexServiceStart  : " << obexServiceStart->errorText();
+            qCWarning(HEADUNIT)  << "[BluezQt] obexServiceStart  : " << obexServiceStart->errorText();
             return;
         }
         if(obexManager->sessions().size() == 0){
@@ -148,15 +149,15 @@ void TelephonyManager::getPhonebooks(QString destination){
             obexSessionRegisterPC->waitForFinished();
         } else {
             QList<BluezQt::ObexSessionPtr> sessions = obexManager->sessions();
-            qDebug() << "[BluezQt] Session already exists";
+            qCDebug(HEADUNIT)  << "[BluezQt] Session already exists";
             for(int i=0; i < sessions.size(); i++){
-                qWarning() << "    " << sessions.at(i).data()->objectPath().path();
+                qCWarning(HEADUNIT)  << "    " << sessions.at(i).data()->objectPath().path();
             }
             pbapSession = obexManager->sessions().at(0);
             pullPhonebooks();
         }
     } else {
-        qWarning() << "[BluezQt] obexManager is not operational";
+        qCWarning(HEADUNIT)  << "[BluezQt] obexManager is not operational";
         return;
     }
 }

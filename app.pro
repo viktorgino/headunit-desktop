@@ -1,7 +1,7 @@
 TEMPLATE = app
-TARGET=headunit-app
+TARGET = headunit-app
 QT += qml quick multimedia multimediawidgets sql bluetooth dbus BluezQt
-CONFIG += c++11 link_pkgconfig
+CONFIG += c++11 link_pkgconfig welleio
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 QMAKE_LIBS += -lKF5BluezQt
 

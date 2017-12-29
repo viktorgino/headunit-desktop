@@ -17,20 +17,27 @@
 #include <BluezQt/ObexFileTransferEntry>
 #include "phonebookaccess1_interface.h"
 #include <QStandardPaths>
+#include <QLoggingCategory>
+
+
 
 class TelephonyManager : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QString contactsFolder READ getContactsFolder NOTIFY contactsFolderChanged)
 public:
     explicit TelephonyManager(QObject *parent = nullptr);
     ~TelephonyManager();
     Q_INVOKABLE void getPhonebooks(QString destination);
-
+    QString getContactsFolder() const {
+        return m_contactsFolder;
+    }
 Q_SIGNALS:
     void messageReceived(const QString &sender, const QString &message);
     void incomingCall(QString caller, QString caller_number, QString call_path);
     void deviceListChanged();
-    void phonebookChanged(QString path);
+    void phonebookChanged();
+    void contactsFolderChanged();
 
 public slots:
     void answerCall(QString call_path);
@@ -52,7 +59,7 @@ private:
     QOfonoVoiceCallManager voiceCallManager;
     QOfonoVoiceCall *voiceCall;
     QString modemPath = "";
-    QString contactsFolder = "contacts/";
+    QString m_contactsFolder = "contacts/";
 
     BluezQt::ObexManager* obexManager;
     BluezQt::ObexAgent* obexAgent;
