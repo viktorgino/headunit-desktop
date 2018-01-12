@@ -1,0 +1,53 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN" "http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+
+<node>
+  <interface name="org.bluez.obex.PhonebookAccess1">
+        <method name="Select">
+            <arg name="location" type="s" direction="in"/>
+            <arg name="phonebook" type="s" direction="in"/>
+        </method>
+        <method name="PullAll">
+            <arg name="targetfile" type="s" direction="in"/>
+            <arg name="filters" type="a{sv}" direction="in"/>
+            <arg name="transfer" type="o" direction="out"/>
+            <arg name="properties" type="a{sv}" direction="out"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QVariantMap" />
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out1" value="QVariantMap" />
+        </method>
+        <method name="Pull">
+            <arg name="vcard" type="s" direction="in"/>
+            <arg name="targetfile" type="s" direction="in"/>
+            <arg name="filters" type="a{sv}" direction="in"/>
+            <arg name="transfer" type="o" direction="out"/>
+            <arg name="properties" type="a{sv}" direction="out"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In2" value="QVariantMap" />
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out1" value="QVariantMap" />
+        </method>
+        <method name="List">
+            <arg name="filters" type="a{sv}" direction="in"/>
+            <arg name="vcard_listing" type="a(ss)" direction="out"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In0" value="QVariantMap" />
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QList&lt;QPair&lt;QString,QString&gt;&gt;"/>
+        </method>
+        <method name="Search">
+            <arg name="field" type="s" direction="in"/>
+            <arg name="value" type="s" direction="in"/>
+            <arg name="filters" type="a{sv}" direction="in"/>
+            <arg name="vcard_listing" type="a(ss)" direction="out"/>
+            <annotation name="org.qtproject.QtDBus.QtTypeName.In2" value="QVariantMap" />
+            <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap" />
+        </method>
+        <method name="GetSize">
+            <arg name="size" type="q" direction="out"/>
+        </method>
+        <method name="ListFilterFields">
+            <arg name="fields" type="as" direction="out"/>
+        </method>
+        <method name="UpdateVersion"></method>
+        <property name="Folder" type="s" access="read"></property>
+        <property name="DatabaseIdentifier" type="s" access="read"></property>
+        <property name="PrimaryCounter" type="s" access="read"></property>
+        <property name="SecondaryCounter" type="s" access="read"></property>
+        <property name="FixedImageSize" type="b" access="read"></property>
+  </interface>
+</node>

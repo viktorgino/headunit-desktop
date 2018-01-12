@@ -10,19 +10,32 @@ before_install:
     - sudo apt-get update -qq
     
 install: 
-    - sudo apt-get -q -y install qt59base qt59declarative qt59quickcontrols2 qt59multimedia
+    - sudo apt-get -q -y install qt59base qt59declarative qt59quickcontrols2 qt59multimedia qt59connectivity qt59xmlpatterns
     - sudo apt-get -q -y install build-essential cmake protobuf-compiler
-    - sudo apt-get -q -y install ofono ofono-dev ofono-phonesim pulseaudio bluez pulseaudio-module-bluetooth libqt5xmlpatterns5-dev libqt5bluetooth5 qtconnectivity5-dev
+    - sudo apt-get -q -y install ofono ofono-dev ofono-phonesim pulseaudio bluez pulseaudio-module-bluetooth
     - sudo apt-get -q -y install libpulse-dev libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libboost-dev libgstreamer-plugins-base1.0-dev libudev-dev libtag1-dev libprotobuf-dev libunwind8-dev
     - sudo apt-get -q -y install git
     - source /opt/qt59/bin/qt59-env.sh
 
 script:
+  - git clone https://anongit.kde.org/extra-cmake-modules.git
+  - cd extra-cmake-modules
+  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) -DCMAKE_INSTALL_INCLUDEDIR=include -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11
+  - make -j4
+  - sudo make install
+  - cd ../
+  - git clone https://anongit.kde.org/bluez-qt.git
+  - cd bluez-qt
+  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) -DCMAKE_INSTALL_INCLUDEDIR=include -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11 -DKDE_INSTALL_QMLDIR=/opt/qt57/qml -DECM_MKSPECS_INSTALL_DIR=/opt/qt57/mkspecs/modules
+  - make -j4
+  - sudo make install
+  - cd ../
   - git clone git://anongit.freedesktop.org/gstreamer/qt-gstreamer
   - cd qt-gstreamer
   - mkdir build
   - cd build
   - cmake .. -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) -DCMAKE_INSTALL_INCLUDEDIR=include -DQT_VERSION=5 -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11
+  - cd src
   - make -j4
   - sudo make install
   - sudo ldconfig

@@ -117,10 +117,10 @@ int Headunit::initGst(){
      * Initialize Video pipeline
      */
 
-    const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100000 do-timestamp=true stream-type=stream ! "
+    const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100 do-timestamp=true stream-type=stream ! "
                                  "queue ! "
                                  "h264parse ! "
-                                 "avdec_h264 lowres=2 skip-frame=5 ! "
+                                 "avdec_h264 lowres=1 skip-frame=2 ! "
                                  "videoconvert ! "
                                  "capsfilter caps=video/x-raw,format=BGR name=mycapsfilter";
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
@@ -132,6 +132,9 @@ int Headunit::initGst(){
 
     GstElement *sink = QGlib::RefPointer<QGst::Element>(m_videoSink);
     g_object_set (sink, "force-aspect-ratio", true, nullptr);
+    g_object_set (sink, "max-lateness", 1000000000, nullptr);
+    g_object_set (sink, "sync", false, nullptr);
+    g_object_set (sink, "async", false, nullptr);
     GstElement *capsfilter = gst_bin_get_by_name(GST_BIN(vid_pipeline), "mycapsfilter");
     gst_bin_add(GST_BIN(vid_pipeline), GST_ELEMENT(sink));
     gst_element_link(capsfilter, GST_ELEMENT(sink));
@@ -145,7 +148,8 @@ int Headunit::initGst(){
 
     aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=48000, channels=2, format=S16LE ! "
-                                    "alsasink buffer-time=400000 sync=false", &error);
+                                    "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Music\""
+                                    , &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -163,7 +167,7 @@ int Headunit::initGst(){
 
     au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  ! "
-                                    "alsasink buffer-time=400000 sync=false", &error);
+                                    "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Voice\"", &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -179,7 +183,7 @@ int Headunit::initGst(){
      * Initialize Microphone pipeline
      */
 
-    mic_pipeline = gst_parse_launch("alsasrc name=micsrc ! audioconvert ! "
+    mic_pipeline = gst_parse_launch("pulsesrc name=micsrc client-name=\"Android Auto Voice\" ! audioconvert ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000 ! "
                                     "queue ! "
                                     "appsink name=micsink emit-signals=true async=false blocksize=8192", &error);
@@ -548,4 +552,14 @@ void DesktopEventCallbacks::VideoFocusHappened(bool hasFocus, bool unrequested) 
         });
         return false;
     });
+}
+std::string DesktopEventCallbacks::GetCarBluetoothAddress(){
+    QList<QBluetoothHostInfo> localAdapters = QBluetoothLocalDevice::allDevices();
+    if(localAdapters.size() > 0){
+        return localAdapters.at(0).address().toString().toStdString();
+    }
+    return std::string();
+}
+void DesktopEventCallbacks::PhoneBluetoothReceived(std::string address){
+    emit headunit->btConnectionRequest(QString::fromStdString(address));
 }
