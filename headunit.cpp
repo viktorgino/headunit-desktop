@@ -132,7 +132,6 @@ int Headunit::initGst(){
 
     GstElement *sink = QGlib::RefPointer<QGst::Element>(m_videoSink);
     g_object_set (sink, "force-aspect-ratio", true, nullptr);
-    g_object_set (sink, "max-lateness", 1000000000, nullptr);
     g_object_set (sink, "sync", false, nullptr);
     g_object_set (sink, "async", false, nullptr);
     GstElement *capsfilter = gst_bin_get_by_name(GST_BIN(vid_pipeline), "mycapsfilter");
