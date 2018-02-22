@@ -5,11 +5,10 @@
 Q_LOGGING_CATEGORY(HEADUNIT, "telephony")
 TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent)
 {
-    BluezQt::Manager *manager = new BluezQt::Manager();
-    BluezQt::InitManagerJob *job = manager->init();
+    bluez_manager = new BluezQt::Manager();
+    BluezQt::InitManagerJob *job = bluez_manager->init();
     job->start();
     connect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::bluezManagerStartResult);
-
     m_contactsFolder = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/contacts";
     emit contactsFolderChanged();
 }
@@ -18,23 +17,51 @@ TelephonyManager::~TelephonyManager(){
     delete manager;
     delete phonebook;
     delete voiceCall;
+
+    delete bluez_manager;
+    delete m_activeDevice;
+    delete obexManager;
+    delete obexAgent;
+    delete obexSessionRegisterPC;
 }
 
 void TelephonyManager::obexManagerStartResult (BluezQt::InitObexManagerJob *job){
-    if(job->error() != 0){
+    if(job->error() == BluezQt::Job::Error::NoError){
+        qCWarning(HEADUNIT)  << "[BluezQt] obex manager started";
+        for(int i = 0; bluez_manager->devices().size() > i; i++){
+            if(bluez_manager->devices().at(i).data()->isConnected()){
+                setBluezDevice(bluez_manager->devices().at(i).data());
+                getPhonebooks(m_activeDevice->address());
+                break;
+            }
+        }
+    } else {
         qCWarning(HEADUNIT)  << "[BluezQt] obexManagerStartResult : "<< job->error() << job->errorText();
-        return;
     }
 }
 void TelephonyManager::bluezManagerStartResult (BluezQt::InitManagerJob *job){
     if(job->error() == BluezQt::Job::Error::NoError){
+        qCWarning(HEADUNIT)  << "[BluezQt] bluez manager started";
+
+        BluezQt::PendingCall * obexServiceStart = BluezQt::ObexManager::startService();
+        obexServiceStart->waitForFinished();
+        if(obexServiceStart->error() != BluezQt::PendingCall::NoError){
+            qCWarning(HEADUNIT)  << "[BluezQt] obexServiceStart  : " << obexServiceStart->errorText();
+        } else {
+            qCWarning(HEADUNIT)  << "[BluezQt] obex service started";
+        }
+
         obexManager = new BluezQt::ObexManager();
         BluezQt::InitObexManagerJob *obexjob = obexManager->init();
         obexjob->start();
         connect(obexjob, &BluezQt::InitObexManagerJob::result, this, &TelephonyManager::obexManagerStartResult);
         connect(obexManager, &BluezQt::ObexManager::sessionAdded, this, &TelephonyManager::obexSessionAdded);
+
+        connect(bluez_manager, &BluezQt::Manager::deviceAdded, this, &TelephonyManager::deviceAdded);
+        connect(bluez_manager, &BluezQt::Manager::deviceRemoved, this, &TelephonyManager::deviceRemoved);
+        connect(bluez_manager, &BluezQt::Manager::deviceChanged, this, &TelephonyManager::deviceChanged);
     } else {
-        qCWarning(HEADUNIT)  << "[BluezQt] obexManagerStartResult : " << job->errorText();
+        qCWarning(HEADUNIT)  << "[BluezQt] bluezManagerStartResult : " << job->errorText();
         return;
     }
 }
@@ -76,12 +103,12 @@ void TelephonyManager::voiceCallStateChanged(const QString &state){
     qCDebug(HEADUNIT) << "voiceCallStateChanged : " << state;
     if(state == "incoming"){
         qCDebug(HEADUNIT) << "Incoming call from name:" << voiceCall->name()
-                << " | information:"<< voiceCall->information()
-                << " | voiceCallPath:"<< voiceCall->voiceCallPath()
-                << " | lineIdentification:"<< voiceCall->lineIdentification()
-                << " | incomingLine:"<< voiceCall->incomingLine()
-                << " | state:"<< voiceCall->state()
-                << " | startTime:"<< voiceCall->startTime();
+                          << " | information:"<< voiceCall->information()
+                          << " | voiceCallPath:"<< voiceCall->voiceCallPath()
+                          << " | lineIdentification:"<< voiceCall->lineIdentification()
+                          << " | incomingLine:"<< voiceCall->incomingLine()
+                          << " | state:"<< voiceCall->state()
+                          << " | startTime:"<< voiceCall->startTime();
         emit incomingCall(voiceCall->name(), voiceCall->lineIdentification(), voiceCall->voiceCallPath());
     } else if(state == "disconnected"){
 
@@ -97,11 +124,13 @@ void TelephonyManager::declineCall(QString call_path){
     voiceCall->hangup();
 }
 void TelephonyManager::obexSessionAdded (BluezQt::ObexSessionPtr session){
+    qCDebug(HEADUNIT) << "[BluezQt] obex session added";
     pbapSession = session;
     pullPhonebooks();
 }
 
 void TelephonyManager::pullPhonebooks(){
+    qCWarning(HEADUNIT)  << "[BluezQt] Pulling phonebook";
     QString path = pbapSession.data()->objectPath().path();
 
     qDBusRegisterMetaType<QPair<QString,QString>>();
@@ -132,32 +161,63 @@ void TelephonyManager::pullPhonebooks(){
         qCWarning(HEADUNIT)  << "[Bluez] Phonebook Pull:"<< pcall.error().message();
         return;
     }
+    qCWarning(HEADUNIT)  << "[BluezQt] Got phonebook";
     emit phonebookChanged();
 }
+
 void TelephonyManager::getPhonebooks(QString destination){
     if(obexManager->isOperational()){
-        BluezQt::PendingCall * obexServiceStart = obexManager->startService();
-        obexServiceStart->waitForFinished();
-        if(obexServiceStart->error() != BluezQt::PendingCall::NoError){
-            qCWarning(HEADUNIT)  << "[BluezQt] obexServiceStart  : " << obexServiceStart->errorText();
-            return;
-        }
-        if(obexManager->sessions().size() == 0){
-            QVariantMap args;
-            args.insert("Target", "PBAP");
-            obexSessionRegisterPC = obexManager->createSession(destination, args);
-            obexSessionRegisterPC->waitForFinished();
-        } else {
-            QList<BluezQt::ObexSessionPtr> sessions = obexManager->sessions();
-            qCDebug(HEADUNIT)  << "[BluezQt] Session already exists";
-            for(int i=0; i < sessions.size(); i++){
-                qCWarning(HEADUNIT)  << "    " << sessions.at(i).data()->objectPath().path();
-            }
-            pbapSession = obexManager->sessions().at(0);
-            pullPhonebooks();
-        }
+        QVariantMap args;
+        args.insert("Target", "PBAP");
+        obexSessionRegisterPC = obexManager->createSession(destination, args);
+        obexSessionRegisterPC->waitForFinished();
     } else {
         qCWarning(HEADUNIT)  << "[BluezQt] obexManager is not operational";
         return;
+    }
+}
+void TelephonyManager::setBluezDevice(BluezQt::Device* device) {
+    m_deviceIndex = -1;
+    if(device){
+        for(int i=0; bluez_manager->devices().size() > i; i++){
+            if(bluez_manager->devices().at(i).data()->address() == device->address()){
+                m_deviceIndex = i;
+                break;
+            }
+        }
+    } else {
+        for(int i=0; bluez_manager->devices().size() > i; i++){
+            if(bluez_manager->devices().at(i).data()->isConnected()){
+                m_deviceIndex = i;
+                break;
+            }
+        }
+    }
+    emit deviceIndexChanged();
+    m_activeDevice = device;
+}
+void TelephonyManager::deviceAdded(BluezQt::DevicePtr device){
+    qCWarning(HEADUNIT)  << "[Bluez] Device added";
+    if(device.data()->isConnected() && (!m_activeDevice || device.data()->address() != m_activeDevice->address())){
+        setBluezDevice(device.data());
+        getPhonebooks(m_activeDevice->address());
+    }
+}
+
+void TelephonyManager::deviceRemoved(BluezQt::DevicePtr device){
+    if(m_activeDevice && device.data()->address() == m_activeDevice->address()){
+        setBluezDevice(NULL);
+    }
+}
+
+void TelephonyManager::deviceChanged(BluezQt::DevicePtr device){
+    //If new device connected
+    if(device.data()->isConnected() && (!m_activeDevice || device.data()->address() != m_activeDevice->address())){
+        setBluezDevice(device.data());
+        getPhonebooks(m_activeDevice->address());
+    }
+    //If current device disconnected
+    if(!device.data()->isConnected() && m_activeDevice && device.data()->address() == m_activeDevice->address()){
+        setBluezDevice(NULL);
     }
 }

@@ -7,6 +7,8 @@
 #include "qofonovoicecall.h"
 #include "qofonomodem.h"
 #include <BluezQt/Manager>
+#include <BluezQt/Device>
+#include <BluezQt/MediaPlayer>
 #include <BluezQt/ObexManager>
 #include <BluezQt/ObexSession>
 #include <BluezQt/PendingCall>
@@ -25,19 +27,24 @@ class TelephonyManager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString contactsFolder READ getContactsFolder NOTIFY contactsFolderChanged)
+    Q_PROPERTY(int deviceIndex READ getDeviceIndex NOTIFY deviceIndexChanged)
 public:
     explicit TelephonyManager(QObject *parent = nullptr);
     ~TelephonyManager();
-    Q_INVOKABLE void getPhonebooks(QString destination);
+
     QString getContactsFolder() const {
         return m_contactsFolder;
+    }
+
+    int getDeviceIndex(){
+        return m_deviceIndex;
     }
 Q_SIGNALS:
     void messageReceived(const QString &sender, const QString &message);
     void incomingCall(QString caller, QString caller_number, QString call_path);
-    void deviceListChanged();
     void phonebookChanged();
     void contactsFolderChanged();
+    void deviceIndexChanged();
 
 public slots:
     void answerCall(QString call_path);
@@ -52,6 +59,10 @@ private slots:
     void obexManagerStartResult (BluezQt::InitObexManagerJob *job);
     void bluezManagerStartResult (BluezQt::InitManagerJob *job);
     void obexSessionAdded (BluezQt::ObexSessionPtr session);
+    void deviceAdded(BluezQt::DevicePtr device);
+    void deviceRemoved(BluezQt::DevicePtr device);
+    void deviceChanged(BluezQt::DevicePtr device);
+
 private:
     QOfonoModem *modem;
     QOfonoManager *manager;
@@ -60,13 +71,18 @@ private:
     QOfonoVoiceCall *voiceCall;
     QString modemPath = "";
     QString m_contactsFolder = "contacts/";
+    int m_deviceIndex = -1;
 
+    BluezQt::Manager *bluez_manager;
+    BluezQt::Device *m_activeDevice = NULL;
     BluezQt::ObexManager* obexManager;
     BluezQt::ObexAgent* obexAgent;
     BluezQt::PendingCall* obexSessionRegisterPC;
     BluezQt::ObexSessionPtr pbapSession;
 
     void pullPhonebooks();
+    void getPhonebooks(QString destination);
+    void setBluezDevice(BluezQt::Device* device);
 };
 
 #endif // TelephonyManager_H
