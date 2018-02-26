@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=headunit-desktop
+Exec=headunit-app
+Icon=headunit-app
+Comment=HeadUnit Desktop is a car PC software built with Qt 5 and QML
