@@ -39,7 +39,7 @@ script:
   - make -j4
   - sudo make install
   - sudo ldconfig
-  - cd ../../
+  - cd ../../../
   - git clone https://git.merproject.org/mer-core/libqofono.git
   - cd libqofono/src
   - qmake -config release
