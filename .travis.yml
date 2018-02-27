@@ -10,7 +10,7 @@ before_install:
     - sudo apt-get update -qq
     
 install: 
-    - sudo apt-get -q -y install qt59base qt59declarative qt59quickcontrols2 qt59multimedia qt59connectivity qt59xmlpatterns
+    - sudo apt-get -q -y install qt59base qt59declarative qt59quickcontrols2 qt59multimedia qt59connectivity qt59xmlpatterns qt59charts-no-lgpl
     - sudo apt-get -q -y install build-essential cmake protobuf-compiler
     - sudo apt-get -q -y install ofono ofono-dev ofono-phonesim pulseaudio bluez pulseaudio-module-bluetooth
     - sudo apt-get -q -y install libpulse-dev libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libboost-dev libgstreamer-plugins-base1.0-dev libudev-dev libtag1-dev libprotobuf-dev libunwind8-dev
@@ -49,6 +49,14 @@ script:
   - qmake -config release
   - make -j4
   - sudo make install
+  - cd ../../
+  - git clone git://anongit.kde.org/bluez-qt.git
+  - cd bluez-qt
+  - git checkout  v5.38.0
+  - mkdir build && cd build
+  - cmake ..
+  - make
+  - make install
   - cd ../../
   - protoc --proto_path=headunit/hu/ --cpp_out=headunit/hu/generated.x64/ headunit/hu/hu.proto
   - qmake -config release
