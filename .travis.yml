@@ -55,9 +55,10 @@ script:
   - git checkout  v5.38.0
   - mkdir build && cd build
   - cmake ..
-  - make
+  - cd ..
+  - make -j4
   - make install
-  - cd ../../
+  - cd ..
   - protoc --proto_path=headunit/hu/ --cpp_out=headunit/hu/generated.x64/ headunit/hu/hu.proto
   - qmake -config release
   - make -j4
