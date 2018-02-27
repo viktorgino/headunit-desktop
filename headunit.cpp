@@ -125,7 +125,7 @@ int Headunit::initGst(){
                        #else
                                  "avdec_h264 lowres=1 skip-frame=2 ! "
                        #endif
-                                 "capsfilter caps=video/x-rawname=mycapsfilter";
+                                 "capsfilter caps=video/x-raw name=mycapsfilter";
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
 
     bus = gst_pipeline_get_bus(GST_PIPELINE(vid_pipeline));
