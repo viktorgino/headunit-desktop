@@ -57,7 +57,7 @@ script:
   - cmake ..
   - cd ..
   - make -j4
-  - make install
+  - sudo make install
   - cd ..
   - protoc --proto_path=headunit/hu/ --cpp_out=headunit/hu/generated.x64/ headunit/hu/hu.proto
   - qmake -config release
