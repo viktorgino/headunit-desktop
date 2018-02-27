@@ -120,9 +120,12 @@ int Headunit::initGst(){
     const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100 do-timestamp=true stream-type=stream ! "
                                  "queue ! "
                                  "h264parse ! "
+                       #ifdef RPI
+                                 "omxh264dec ! "
+                       #else
                                  "avdec_h264 lowres=1 skip-frame=2 ! "
-                                 "videoconvert ! "
-                                 "capsfilter caps=video/x-raw,format=BGR name=mycapsfilter";
+                       #endif
+                                 "capsfilter caps=video/x-rawname=mycapsfilter";
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
 
     bus = gst_pipeline_get_bus(GST_PIPELINE(vid_pipeline));

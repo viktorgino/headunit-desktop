@@ -61,6 +61,10 @@ DBUS_INTERFACES += org.bluez.obex.PhonebookAccess1.xml
 
 include("qml_gui/quickcross/quickcross.pri")
 
+rpi {
+    DEFINES += RPI
+}
+
 welleio {
     DEFINES += HAVE_WELLEIO
     DEFINES	+= MOT_BASICS__ # Not necessary after code clean up
