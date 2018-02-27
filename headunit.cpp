@@ -123,7 +123,7 @@ int Headunit::initGst(){
                        #ifdef RPI
                                  "omxh264dec ! "
                        #else
-                                 "avdec_h264 lowres=1 skip-frame=2 ! "
+                                 "avdec_h264 ! "
                        #endif
                                  "capsfilter caps=video/x-raw name=mycapsfilter";
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
@@ -150,7 +150,11 @@ int Headunit::initGst(){
 
     aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=48000, channels=2, format=S16LE ! "
+                         #ifdef RPI
+                                    "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Music\""
+                         #else
                                     "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Music\""
+                         #endif
                                     , &error);
 
     if (error != NULL) {
@@ -169,7 +173,12 @@ int Headunit::initGst(){
 
     au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  ! "
-                                    "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Voice\"", &error);
+                         #ifdef RPI
+                                    "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Voice\""
+                         #else
+                                    "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Voice\""
+                         #endif
+                                    , &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -185,7 +194,12 @@ int Headunit::initGst(){
      * Initialize Microphone pipeline
      */
 
-    mic_pipeline = gst_parse_launch("pulsesrc name=micsrc client-name=\"Android Auto Voice\" ! audioconvert ! "
+    mic_pipeline = gst_parse_launch(
+                          #ifdef RPI
+                                    "alsasrc name=micsrc device-name=\"Android Auto Voice\" ! audioconvert ! "
+                          #else
+                                    "pulsesrc name=micsrc client-name=\"Android Auto Voice\" ! audioconvert ! "
+                          #endif
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000 ! "
                                     "queue ! "
                                     "appsink name=micsink emit-signals=true async=false blocksize=8192", &error);
