@@ -26,7 +26,7 @@ script:
   - cd ../
   - git clone https://anongit.kde.org/bluez-qt.git
   - cd bluez-qt
-  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) -DCMAKE_INSTALL_INCLUDEDIR=include -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11 -DKDE_INSTALL_QMLDIR=/opt/qt57/qml -DECM_MKSPECS_INSTALL_DIR=/opt/qt57/mkspecs/modules
+  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) -DCMAKE_INSTALL_INCLUDEDIR=include -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11 -DKDE_INSTALL_QMLDIR=/opt/qt59/qml -DECM_MKSPECS_INSTALL_DIR=/opt/qt59/mkspecs/modules
   - make -j4
   - sudo make install
   - cd ../
@@ -50,15 +50,6 @@ script:
   - make -j4
   - sudo make install
   - cd ../../
-  - git clone git://anongit.kde.org/bluez-qt.git
-  - cd bluez-qt
-  - git checkout  v5.38.0
-  - mkdir build && cd build
-  - cmake ..
-  - cd ..
-  - make -j4
-  - sudo make install
-  - cd ..
   - protoc --proto_path=headunit/hu/ --cpp_out=headunit/hu/generated.x64/ headunit/hu/hu.proto
   - qmake -config release
   - make -j4
