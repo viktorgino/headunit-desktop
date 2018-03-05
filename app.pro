@@ -47,7 +47,8 @@ HEADERS += \
     mediadb.h \
     medialibrary.h \
     addressbook.h \
-    telephonymanager.h
+    telephonymanager.h \
+    includes/plugininterface.h
 
 INCLUDEPATH +=$$PWD/headunit/hu
 INCLUDEPATH +=$$PWD/headunit/hu/generated.x64
@@ -400,3 +401,5 @@ welleio {
         LIBS       += -lSoapySDR
     }
 }
+
+DISTFILES +=

@@ -32,7 +32,57 @@
 #include "dab-gui/dabHelper.h"
 #endif
 
+#include "includes/plugininterface.h"
+
 Q_DECLARE_LOGGING_CATEGORY(HEADUNIT)
+
+static QVariantList menuItems;
+static QVariantList configItems;
+static QQmlApplicationEngine *engine;
+
+bool loadPlugins(QList<PluginInterface *> *plugins)
+{
+    QDir pluginsDir(qApp->applicationDirPath());
+#if defined(Q_OS_WIN)
+    if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
+        pluginsDir.cdUp();
+#elif defined(Q_OS_MAC)
+    if (pluginsDir.dirName() == "MacOS") {
+        pluginsDir.cdUp();
+        pluginsDir.cdUp();
+        pluginsDir.cdUp();
+    }
+#endif
+    pluginsDir.cd("plugins");
+    //Load plugins
+    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+        QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
+
+        QJsonValue menu = pluginLoader.metaData().value("MetaData").toObject().value("menu");
+        if(menu.type() == QJsonValue::Object){
+            menuItems << menu.toObject().toVariantMap();
+        }
+
+        QJsonValue config = pluginLoader.metaData().value("MetaData").toObject().value("config");
+        if(config.type() == QJsonValue::Object){
+            configItems << config.toObject().toVariantMap();
+        }
+
+        QObject *plugin = pluginLoader.instance();
+        if (plugin) {
+            plugins->append(qobject_cast<PluginInterface *>(plugin));
+        }
+    }
+    //Load QML plugins
+    pluginsDir.cd("qml");
+    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+        QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
+        QJsonValue uri = pluginLoader.metaData().value("MetaData").toObject().value("uri");
+        QList<QQmlError> errors;
+        engine->importPlugin(pluginsDir.absoluteFilePath(fileName),uri.toString(),&errors);
+    }
+    return false;
+}
 
 int main(int argc, char *argv[])
 {
@@ -44,19 +94,28 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
     QLoggingCategory::setFilterRules("");
-    QQmlApplicationEngine *engine = new QQmlApplicationEngine;
+    engine = new QQmlApplicationEngine;
 
     QGst::init(&argc, &argv);
 
 
     int defaultMenuItem = 4;
-    QVariantList menuItems;
+    QList<PluginInterface *> plugins;
+    loadPlugins(&plugins);
+
     menuItems << QJsonObject {{"source","qrc:/qml/ClimateControl/CCLayout.qml"},{"image","icons/svg/thermometer.svg"},{"text","A/C"},{"color","#f44336"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/Radio/RadioLayout.qml"},{"image","icons/svg/radio-waves.svg"},{"text","Radio"},{"color","#E91E63"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/aaVideo.qml"},{"image","icons/svg/social-android.svg"},{"text","Android Auto"},{"color","#673AB7"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/MediaPlayer/MediaPlayerLayout.qml"},{"image","icons/svg/music-note.svg"},{"text","Media player"},{"color","#3F51B5"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/Phone/Phone.qml"},{"image","icons/svg/android-call.svg"},{"text","Phone"},{"color","#00BCD4"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/SettingsPage/SettingsPage.qml"},{"image","icons/svg/gear-a.svg"},{"text","Settings"},{"color","#4CAF50"}}.toVariantMap();
+
+    configItems << QJsonObject {{"name","theme"},{"iconImage","qrc:/qml/icons/android-color-palette.png"},{"text","Theme"},{"section","General"},{"source",""}}.toVariantMap()
+                << QJsonObject {{"name","behaviour"},{"iconImage","qrc:/qml/icons/android-settings.png"},{"text","Behaviour"},{"section","General"},{"source",""}}.toVariantMap()
+                << QJsonObject {{"name","media-locations"},{"iconImage","qrc:/qml/icons/android-folder.png"},{"text","Media locations"},{"section","Media apps"},{"source","qrc:/qml/SettingsPage/SettingsPageMediaLocations.qml"}}.toVariantMap()
+                << QJsonObject {{"name","android-uto"},{"iconImage","qrc:/qml/icons/svg/social-android.svg"},{"text","Android Auto"},{"section","Media apps"},{"source","qrc:/qml/SettingsPage/SettingsPageAA.qml"}}.toVariantMap()
+                << QJsonObject {{"name","bluetooth"},{"iconImage","qrc:/qml/icons/bluetooth.png"},{"text","Bluetooth"},{"section","Media apps"},{"source","qrc:/qml/SettingsPage/SettingsPageBluetooth.qml"}}.toVariantMap()
+                << QJsonObject {{"name","quit"},{"iconImage","qrc:/qml/icons/log-out.png"},{"text","Quit headunit-desktop"},{"section","Other"},{"source",""}}.toVariantMap();
     QGst::Quick::VideoSurface surface;
     Headunit *headunit =  new Headunit(surface.videoSink());
     MediaLibrary *mediaLibrary = new MediaLibrary();
@@ -104,6 +163,7 @@ int main(int argc, char *argv[])
     engine->rootContext()->setContextProperty("videoSurface1", &surface);
     engine->rootContext()->setContextProperty("headunit", headunit);
     engine->rootContext()->setContextProperty("menuItems", menuItems);
+    engine->rootContext()->setContextProperty("configItems", configItems);
     engine->rootContext()->setContextProperty("mediaLibrary", mediaLibrary);
     engine->rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
     engine->rootContext()->setContextProperty("telephonyManager", telephonyManager);
@@ -120,6 +180,9 @@ int main(int argc, char *argv[])
         delete RadioController;
     }
 #endif
+    foreach (PluginInterface * plugin, plugins) {
+        delete(plugin);
+    }
     delete(headunit);
     connectionListener->stop();
     return ret;
