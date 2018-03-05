@@ -1,5 +1,8 @@
 TEMPLATE = subdirs
 SUBDIRS = app.pro \
-          qml_gui/headunit-gui.pro \
-          tests \
-          dab-gui
+          modules-volume-control
+
+app.subdir = ./
+modules-volume-control.subdir = modules/volume-control
+
+app.depends = modules-volume-control

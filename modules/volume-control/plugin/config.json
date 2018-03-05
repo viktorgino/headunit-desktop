@@ -1,0 +1,10 @@
+{
+    "name":"VolumeControl",
+    "config":{
+        "name":"audio",
+        "text":"Audio",
+        "source":"qrc:/AudioSettings/AudioMain.qml",
+        "iconImage": "qrc:/AudioSettings/volume.png",
+        "section":"Media apps"
+    }
+}

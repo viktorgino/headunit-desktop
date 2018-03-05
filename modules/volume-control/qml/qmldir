@@ -1,0 +1,2 @@
+module org.viktorgino.headunit.volume
+plugin viktorgino-volume-declarative

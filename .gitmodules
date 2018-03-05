@@ -11,3 +11,6 @@
 	path = welle.io
 	url = https://github.com/viktorgino/welle.io.git
 	branch = 3d-view-integration
+[submodule "modules/volume-control/qml/plasma-pa"]
+	path = modules/volume-control/qml/plasma-pa
+	url = https://github.com/KDE/plasma-pa.git
