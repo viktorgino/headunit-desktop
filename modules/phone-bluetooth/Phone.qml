@@ -49,7 +49,7 @@ Item {
                         Binding {
                             target:btPowerSwitch
                             property: "checked"
-                            value: bluezManager.operational && bluezManager.adapters[0].powered
+                            value: bluezManager.operational && bluezManager.adapters[0] && bluezManager.adapters[0].powered
                         }
                     }
                     MenuItem {
@@ -66,7 +66,7 @@ Item {
                         Binding {
                             target:btVisibilitySwitch
                             property: "checked"
-                            value: bluezManager.operational && bluezManager.adapters[0].discoverable
+                            value: bluezManager.operational && bluezManager.adapters[0] && bluezManager.adapters[0].discoverable
                         }
                     }
                     MenuItem {

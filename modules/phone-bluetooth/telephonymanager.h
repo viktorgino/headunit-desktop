@@ -7,6 +7,7 @@
 #include "qofonovoicecall.h"
 #include "qofonomodem.h"
 #include <BluezQt/Manager>
+#include <BluezQt/Agent>
 #include <BluezQt/Device>
 #include <BluezQt/MediaPlayer>
 #include <BluezQt/ObexManager>
@@ -21,7 +22,7 @@
 #include <QStandardPaths>
 #include <QLoggingCategory>
 
-
+#include "bluezagent.h"
 
 class TelephonyManager : public QObject
 {
@@ -79,6 +80,7 @@ private:
     BluezQt::ObexAgent* obexAgent;
     BluezQt::PendingCall* obexSessionRegisterPC;
     BluezQt::ObexSessionPtr pbapSession;
+    BluezQt::Agent *bluez_agent;
 
     void pullPhonebooks();
     void getPhonebooks(QString destination);

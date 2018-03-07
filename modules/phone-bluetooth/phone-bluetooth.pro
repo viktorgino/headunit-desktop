@@ -11,7 +11,8 @@ PKGCONFIG += qofono-qt5
 
 SOURCES += \
     $$PWD/bluetooth.cpp \
-    telephonymanager.cpp
+    telephonymanager.cpp \
+    bluezagent.cpp
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
@@ -20,7 +21,8 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 HEADERS += \
     $$PWD/bluetooth.h \
-    telephonymanager.h
+    telephonymanager.h \
+    bluezagent.h
 
 DISTFILES += \
     config.json

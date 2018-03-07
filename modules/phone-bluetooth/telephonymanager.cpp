@@ -43,6 +43,24 @@ void TelephonyManager::bluezManagerStartResult (BluezQt::InitManagerJob *job){
     if(job->error() == BluezQt::Job::Error::NoError){
         qCWarning(HEADUNIT)  << "[BluezQt] bluez manager started";
 
+        bluez_agent = new BluezAgent();
+        BluezQt::PendingCall *agent_pcall = bluez_manager->registerAgent(bluez_agent);
+        agent_pcall->waitForFinished();
+        if(agent_pcall->error() != BluezQt::PendingCall::NoError){
+            qCWarning(HEADUNIT)  << "[BluezQt] registerAgent  : " << agent_pcall->errorText();
+        } else {
+            qCWarning(HEADUNIT)  << "[BluezQt] Agent registered";
+        }
+
+
+        agent_pcall = bluez_manager->requestDefaultAgent(bluez_agent);
+        agent_pcall->waitForFinished();
+        if(agent_pcall->error() != BluezQt::PendingCall::NoError){
+            qCWarning(HEADUNIT)  << "[BluezQt] requestDefaultAgent  : " << agent_pcall->errorText();
+        } else {
+            qCWarning(HEADUNIT)  << "[BluezQt] Agent set as default";
+        }
+
         BluezQt::PendingCall * obexServiceStart = BluezQt::ObexManager::startService();
         obexServiceStart->waitForFinished();
         if(obexServiceStart->error() != BluezQt::PendingCall::NoError){
