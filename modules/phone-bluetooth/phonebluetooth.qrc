@@ -1,0 +1,11 @@
+<RCC>
+    <qresource prefix="/PhoneBluetooth">
+        <file>Call.qml</file>
+        <file>Contacts.qml</file>
+        <file>Dialer.qml</file>
+        <file>MediaPlayer.qml</file>
+        <file>Phone.qml</file>
+        <file>bluetooth.png</file>
+        <file>ImageButton.qml</file>
+    </qresource>
+</RCC>

@@ -1,9 +1,8 @@
 TEMPLATE = app
 TARGET = headunit-app
-QT += qml quick multimedia multimediawidgets sql bluetooth dbus BluezQt
+QT += qml quick multimedia multimediawidgets sql bluetooth
 CONFIG += c++11 link_pkgconfig welleio
 QMAKE_CXXFLAGS += -Wno-unused-parameter
-QMAKE_LIBS += -lKF5BluezQt
 
 SOURCES += main.cpp \
     headunit/hu/hu_aad.cpp \
@@ -19,8 +18,7 @@ SOURCES += main.cpp \
     mediadb.cpp \
     medialibrary.cpp \
     headunit/hu/generated.x64/hu.pb.cc \
-    addressbook.cpp \
-    telephonymanager.cpp
+    addressbook.cpp
 
 RESOURCES += \
     qml_gui/qml.qrc \
@@ -30,7 +28,6 @@ PKGCONFIG += libssl libcrypto libusb-1.0 glib-2.0 gobject-2.0
 PKGCONFIG += gstreamer-1.0 gstreamer-app-1.0 gstreamer-video-1.0
 PKGCONFIG += Qt5GLib-2.0 Qt5GStreamer-1.0 Qt5GStreamerQuick-1.0 Qt5GStreamerUtils-1.0
 PKGCONFIG += protobuf libudev taglib
-PKGCONFIG += qofono-qt5
 
 HEADERS += \
     headunit/hu/hu_aad.h \
@@ -47,18 +44,11 @@ HEADERS += \
     mediadb.h \
     medialibrary.h \
     addressbook.h \
-    telephonymanager.h \
     includes/plugininterface.h
 
 INCLUDEPATH +=$$PWD/headunit/hu
 INCLUDEPATH +=$$PWD/headunit/hu/generated.x64
 INCLUDEPATH +=$$PWD/headunit/common
-
-#QDBUSXML2CPP_INTERFACE_HEADER_FLAGS += -i dbus_types.h
-DBUS_INTERFACES += org.bluez.obex.PhonebookAccess1.xml
-
-#QDBUSXML2CPP_ADAPTOR_HEADER_FLAGS += -i dbus_types.h
-#DBUS_ADAPTORS += org.bluez.obex.PhonebookAccess1.xml
 
 include("qml_gui/quickcross/quickcross.pri")
 

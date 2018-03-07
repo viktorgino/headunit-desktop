@@ -9,6 +9,7 @@ class PluginInterface
 public:
     virtual ~PluginInterface() {}
     //virtual void load(const QString &message) = 0;
+    virtual QObject *getContextProperty() = 0;
 };
 
 #define PluginInterface_iid "org.viktorgino.Headunit.PluginInterface"

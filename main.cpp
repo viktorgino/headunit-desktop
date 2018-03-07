@@ -19,7 +19,6 @@
 #include "headunit.h"
 #include "usbconnectionlistener.h"
 #include "medialibrary.h"
-#include "telephonymanager.h"
 
 #ifdef HAVE_WELLEIO
 #include <unistd.h>
@@ -40,7 +39,7 @@ static QVariantList menuItems;
 static QVariantList configItems;
 static QQmlApplicationEngine *engine;
 
-bool loadPlugins(QList<PluginInterface *> *plugins)
+bool loadPlugins(QMap<QString, PluginInterface *> *plugins, QMap<QString, QJsonObject> *pluginConfigs)
 {
     QDir pluginsDir(qApp->applicationDirPath());
 #if defined(Q_OS_WIN)
@@ -58,19 +57,32 @@ bool loadPlugins(QList<PluginInterface *> *plugins)
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
 
-        QJsonValue menu = pluginLoader.metaData().value("MetaData").toObject().value("menu");
+        QJsonObject metaData;
+        if(pluginLoader.metaData().value("MetaData").type() != QJsonValue::Object){
+            qDebug() << "Invalid plugin : " << fileName << " config missing";
+            //break;
+        }
+
+        QObject *plugin = pluginLoader.instance();
+        if (!plugin) {
+            qDebug() << "Error loading plugin : " << fileName;
+            //break;
+        } else {
+            qDebug() << "Plugin loaded : " << fileName;
+        }
+
+        metaData = pluginLoader.metaData().value("MetaData").toObject();
+        pluginConfigs->insert(metaData.value("name").toString(), metaData);
+        plugins->insert(metaData.value("name").toString(), qobject_cast<PluginInterface *>(plugin));
+
+        QJsonValue menu = metaData.value("menu");
         if(menu.type() == QJsonValue::Object){
             menuItems << menu.toObject().toVariantMap();
         }
 
-        QJsonValue config = pluginLoader.metaData().value("MetaData").toObject().value("config");
+        QJsonValue config = metaData.value("config");
         if(config.type() == QJsonValue::Object){
             configItems << config.toObject().toVariantMap();
-        }
-
-        QObject *plugin = pluginLoader.instance();
-        if (plugin) {
-            plugins->append(qobject_cast<PluginInterface *>(plugin));
         }
     }
     //Load QML plugins
@@ -100,14 +112,14 @@ int main(int argc, char *argv[])
 
 
     int defaultMenuItem = 4;
-    QList<PluginInterface *> plugins;
-    loadPlugins(&plugins);
+    QMap<QString, PluginInterface *> plugins;
+    QMap<QString, QJsonObject> pluginConfigs;
+    loadPlugins(&plugins, &pluginConfigs);
 
     menuItems << QJsonObject {{"source","qrc:/qml/ClimateControl/CCLayout.qml"},{"image","icons/svg/thermometer.svg"},{"text","A/C"},{"color","#f44336"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/Radio/RadioLayout.qml"},{"image","icons/svg/radio-waves.svg"},{"text","Radio"},{"color","#E91E63"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/aaVideo.qml"},{"image","icons/svg/social-android.svg"},{"text","Android Auto"},{"color","#673AB7"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/MediaPlayer/MediaPlayerLayout.qml"},{"image","icons/svg/music-note.svg"},{"text","Media player"},{"color","#3F51B5"}}.toVariantMap()
-              << QJsonObject {{"source","qrc:/qml/Phone/Phone.qml"},{"image","icons/svg/android-call.svg"},{"text","Phone"},{"color","#00BCD4"}}.toVariantMap()
               << QJsonObject {{"source","qrc:/qml/SettingsPage/SettingsPage.qml"},{"image","icons/svg/gear-a.svg"},{"text","Settings"},{"color","#4CAF50"}}.toVariantMap();
 
     configItems << QJsonObject {{"name","theme"},{"iconImage","qrc:/qml/icons/android-color-palette.png"},{"text","Theme"},{"section","General"},{"source",""}}.toVariantMap()
@@ -119,7 +131,6 @@ int main(int argc, char *argv[])
     QGst::Quick::VideoSurface surface;
     Headunit *headunit =  new Headunit(surface.videoSink());
     MediaLibrary *mediaLibrary = new MediaLibrary();
-    TelephonyManager *telephonyManager = new TelephonyManager();
 
     //Load welle.io
 #ifdef HAVE_WELLEIO
@@ -166,7 +177,12 @@ int main(int argc, char *argv[])
     engine->rootContext()->setContextProperty("configItems", configItems);
     engine->rootContext()->setContextProperty("mediaLibrary", mediaLibrary);
     engine->rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
-    engine->rootContext()->setContextProperty("telephonyManager", telephonyManager);
+
+    foreach (QJsonObject config, pluginConfigs) {
+        engine->rootContext()->setContextProperty(config.value("name").toString(),
+                                                  plugins.value(config.value("name").toString())->getContextProperty());
+    }
+
     engine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
     headunit->startHU();
     UsbConnectionListener *connectionListener = new UsbConnectionListener();

@@ -1,0 +1,9 @@
+{
+    "name":"PhoneBluetooth",
+    "menu":{
+        "text":"Phone",
+        "source":"qrc:/PhoneBluetooth/Phone.qml",
+        "image": "qrc:/PhoneBluetooth/bluetooth.png",
+        "color":"#00BCD4"
+    }
+}
