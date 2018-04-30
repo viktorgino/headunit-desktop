@@ -19,7 +19,7 @@ The GUI for some of the proposed features is already there. For screenshots of t
 Getting started
 -------------------
 Download the Raspberry Pi image which is based on Raspbian Stretch Lite from here: http://files.headunit.viktorgino.me/index.html
-The Pi image has all the prerequesit libraries included and a fully built headunit-desktop with wellei.io included.
+The Pi image has all the prerequesit libraries included and a fully built headunit-desktop with [welle.io](http://welle.io/) included.
 The login details are the Raspbian defaults:
 
 > Username: pi
