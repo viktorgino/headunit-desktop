@@ -18,8 +18,12 @@ class MediaLibrary : public QObject
     Q_OBJECT
     Q_PROPERTY(QVariantMap audioFolders READ audioFolders CONSTANT)
     Q_PROPERTY(QVariantMap playlists READ playlists CONSTANT)
+    Q_PROPERTY(QVariantMap albums READ getAlbums NOTIFY mediaScanningFinished)
+    Q_PROPERTY(QVariantMap artists READ getArtists NOTIFY mediaScanningFinished)
+    Q_PROPERTY(QVariantMap genres READ getGenres NOTIFY mediaScanningFinished)
+    Q_PROPERTY(QVariantMap songs READ getSongs NOTIFY mediaScanningFinished)
 public:
-    explicit MediaLibrary(QObject *parent = 0);
+    explicit MediaLibrary(QObject *parent = nullptr);
     const QVariantMap audioFolders();
     const QVariantMap playlists();
     Q_INVOKABLE QVariantMap audioFolderContent(int folder_id);

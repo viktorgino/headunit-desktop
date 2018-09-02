@@ -28,6 +28,7 @@ QVariantList MediaLibrary::getLocations() {
     return mediaScanner->mediadb->getLocations(false);
 }
 QVariantMap MediaLibrary::getAlbums() {
+    qDebug() << "ASD";
     return mediaScanner->mediadb->getList(mediaScanner->mediadb->albums);
 }
 QVariantMap MediaLibrary::getArtists() {

@@ -1,0 +1,10 @@
+{
+    "name":"OdbCar",
+    "config":{
+        "name":"odbcar-plugin",
+        "text":"Car Settings",
+        "source":"qrc:/OdbCar/settings.qml",
+        "iconImage": "qrc:/OdbCar/icon.png",
+        "section":"Examples"
+    }
+}

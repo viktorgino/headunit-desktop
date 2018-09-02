@@ -1,22 +1,25 @@
-#ifndef VOLUMECONTROL_H
-#define VOLUMECONTROL_H
+#ifndef MEDIAPLAYER_H
+#define MEDIAPLAYER_H
 
 #include <QObject>
 #include <plugininterface.h>
 
-class VolumeControl : public QObject, PluginInterface
+#include "medialibrary.h"
+class MediaPlayerPlugin : public QObject, PluginInterface
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.viktorgino.headunit.volumecontrol" FILE "config.json")
+    Q_PLUGIN_METADATA(IID "org.viktorgino.headunit.mediaplayer" FILE "config.json")
     Q_INTERFACES(PluginInterface)
 public:
-    explicit VolumeControl(QObject *parent = nullptr);
+    explicit MediaPlayerPlugin(QObject *parent = nullptr);
+    ~MediaPlayerPlugin() override;
     QObject *getContextProperty() override;
     QQuickImageProvider *getImageProvider() override;
     QStringList eventListeners() override;
     QStringList events() override;
     QStringList actions() override;
-
+private:
+    MediaLibrary mediaLibrary;
 signals:
 
 public slots:
@@ -24,4 +27,5 @@ public slots:
     void actionMessage(QString id, QString message) override;
 };
 
-#endif // VOLUMECONTROL_H
+#endif // MEDIAPLAYER_H
+

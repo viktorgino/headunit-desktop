@@ -1,5 +1,5 @@
 [submodule "headunit"]
-	path = headunit
+	path = modules/android-auto/headunit
 	url = https://github.com/viktorgino/libheadunit.git
 [submodule "qml_gui"]
 	path = qml_gui
@@ -8,7 +8,7 @@
 	path = doxygen-bootstrapped
 	url = https://github.com/Velron/doxygen-bootstrapped.git
 [submodule "welle.io"]
-	path = welle.io
+	path = modules/welle-io/welle.io
 	url = https://github.com/viktorgino/welle.io.git
 	branch = 3d-view-integration
 [submodule "modules/volume-control/qml/plasma-pa"]

@@ -51,8 +51,12 @@ import "qrc:/src/gui/QML"
 import "qrc:/src/gui/QML/style"
 
 Item {
+    property QtObject cppRadioController: WelleIoPlugin.RadioController
+    property QtObject cppGUI: WelleIoPlugin.GUI
+
     id: mainWindow
     visible: true
+
     property bool isLandscape: true
     function getWidth() {
         if(Screen.desktopAvailableWidth < Units.dp(700)
@@ -347,7 +351,7 @@ Item {
     }
 
     Connections{
-        target: cppGUI
+        target: WelleIoPlugin.GUI
 
         onSetGUIData:{
             dateTimeDisplay.text = GUIData.DateTime
@@ -355,7 +359,7 @@ Item {
     }
 
     Connections{
-        target: cppRadioController
+        target: WelleIoPlugin.RadioController
 
         onShowErrorMessage:{
             errorMessagePopup.text = Text;

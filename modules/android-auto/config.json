@@ -1,0 +1,16 @@
+{
+    "name":"AndroidAuto",
+    "menu":{
+        "text":"Android Auto",
+        "source":"qrc:/AndroidAuto/aaVideo.qml",
+        "image": "qrc:/AndroidAuto/social-android.svg",
+        "color":"#673AB7"
+    },
+    "config":{
+        "name":"android-auto-plugin",
+        "text":"Android Auto",
+        "source":"qrc:/AndroidAuto/SettingsPageAA.qml",
+        "iconImage": "qrc:/AndroidAuto/social-android.svg",
+        "section":"Media apps"
+    }
+}

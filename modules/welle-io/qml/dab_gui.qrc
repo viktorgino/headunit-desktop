@@ -1,5 +1,5 @@
 <RCC>
-    <qresource prefix="/">
+    <qresource prefix="/WelleIoPlugin">
         <file>main.qml</file>
         <file>qtquickcontrols2.conf</file>
         <file>DABLayout.qml</file>
@@ -8,5 +8,7 @@
         <file>style/TouchSlider.qml</file>
         <file>style/TouchSwitch.qml</file>
         <file>style/ErrorMessagePopup.qml</file>
+        <file>radio-waves.svg</file>
     </qresource>
+    <qresource prefix="/"/>
 </RCC>

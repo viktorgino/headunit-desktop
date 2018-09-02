@@ -17,20 +17,20 @@ Item{
         id: aaVideo
         anchors.verticalCenter: parent.verticalCenter
         width:parent.width
-        height: width * headunit.videoHeight/headunit.videoWidth
-        surface: videoSurface1
+        height: width * AndroidAuto.videoHeight/AndroidAuto.videoWidth
+        surface: AndroidAuto.videoSurface
 
         MouseArea {
             id: mouseArea1
             anchors.fill: parent
             onPressed:{
-                headunit.mouseDown(Qt.point(mouse.x, mouse.y));
+                AndroidAuto.mouseDown(Qt.point(mouse.x, mouse.y));
             }
             onPositionChanged:{
-                headunit.mouseMove(Qt.point(mouse.x, mouse.y));
+                AndroidAuto.mouseMove(Qt.point(mouse.x, mouse.y));
             }
             onReleased:{
-                headunit.mouseUp(Qt.point(mouse.x, mouse.y));
+                AndroidAuto.mouseUp(Qt.point(mouse.x, mouse.y));
             }
         }
 
@@ -43,11 +43,11 @@ Item{
         }
     }
     Connections{
-        target: headunit
+        target: AndroidAuto
         onVideoResized:{
-            aaVideo.height = aaVideo.width * headunit.videoHeight/headunit.videoWidth
-            headunit.outputHeight = aaVideo.height
-            headunit.outputWidth = aaVideo.width
+            aaVideo.height = AndroidAuto.width * AndroidAuto.videoHeight/AndroidAuto.videoWidth
+            AndroidAuto.outputHeight = aaVideo.height
+            AndroidAuto.outputWidth = aaVideo.width
         }
     }
 

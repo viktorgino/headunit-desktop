@@ -1,10 +1,20 @@
 TEMPLATE = subdirs
 SUBDIRS = app.pro \
-          modules-volume-control \
-          modules-phone-bluetooth
+          module-volume-control \
+          module-phone-bluetooth \
+          module-android-auto \
+          module-media-player \
+          module-odb-car \
+          module-usbconnectionlistener \
+          module-welle-io
 
 app.subdir = ./
-modules-volume-control.subdir = modules/volume-control
-modules-phone-bluetooth.subdir = modules/phone-bluetooth
+module-volume-control.subdir           = modules/volume-control
+module-phone-bluetooth.subdir          = modules/phone-bluetooth
+module-android-auto.subdir             = modules/android-auto
+module-media-player.subdir             = modules/media-player
+module-odb-car.subdir                  = modules/odb-car
+module-usbconnectionlistener.subdir    = modules/usbconnectionlistener
+module-welle-io.subdir                 = modules/welle-io
 
-app.depends = modules-volume-control modules-phone-bluetooth
+app.depends = module-volume-control module-phone-bluetooth module-android-auto module-media-player module-odb-car module-usbconnectionlistener module-welle-io

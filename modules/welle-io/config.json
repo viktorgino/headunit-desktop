@@ -1,0 +1,10 @@
+{
+    "name":"WelleIoPlugin",
+    "imageProvider": "motslideshow",
+    "menu":{
+        "source":"qrc:/WelleIoPlugin/DABLayout.qml",
+        "image":"qrc:/WelleIoPlugin/radio-waves.svg",
+        "text":"DAB",
+        "color":"#9C27B0"
+    }
+}

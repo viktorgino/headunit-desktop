@@ -23,9 +23,11 @@
 #include "hu_uti.h"
 #include "hu_aap.h"
 
-Headunit::Headunit(const QGst::ElementPtr & sink):callbacks(this)
+Headunit::Headunit(QGst::Quick::VideoSurface *videoSurface):
+    callbacks(this),
+    m_videoSink(videoSurface->videoSink()),
+    m_videoSurface(videoSurface)
 {
-    m_videoSink = sink;
     int ret = 0;
     ret = initGst();
     if (ret < 0) {
@@ -52,10 +54,11 @@ Headunit::~Headunit() {
     }
 }
 
-int Headunit::startHU(){    
+int Headunit::startHU(){
     QSettings settings;
     std::map<std::string, std::string> aa_settings;
 
+    qDebug() << "Starting headunit";
     if(settings.childGroups().contains("AndroidAuto")){
         settings.beginGroup("AndroidAuto");
         QStringList keys = settings.childKeys();
@@ -67,24 +70,29 @@ int Headunit::startHU(){
 
     headunit = new HUServer(callbacks, aa_settings);
 
-    int ret = headunit->hu_aap_start(false);
+    int ret = headunit->hu_aap_start(false, false);
     if ( ret >= 0) {
         g_hu = &headunit->GetAnyThreadInterface();
         setGstState("play");
         return 1;
     } else {
-        delete(headunit);
-        setGstState("");
-        qDebug("Phone is not connected. Connect a supported phone.");
+        stopHU();
         return 0;
     }
 }
 
-int Headunit::restartHU(){
-    if(huStarted){
-        headunit->hu_aap_shutdown();
-        qDebug("Headunit::~Headunit() called hu_aap_shutdown()");
+int Headunit::stopHU(){
+    setGstState("");
+    if(headunit){
+        qDebug() << "Stopping headunit";
+        //headunit->hu_aap_shutdown();
+        //delete(headunit);
+        //headunit = NULL;
     }
+    return 1;
+}
+int Headunit::restartHU(){
+    stopHU();
     startHU();
     return 1;
 }
@@ -120,11 +128,11 @@ int Headunit::initGst(){
     const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100 do-timestamp=true stream-type=stream ! "
                                  "queue ! "
                                  "h264parse ! "
-                       #ifdef RPI
+        #ifdef RPI
                                  "omxh264dec ! "
-                       #else
+        #else
                                  "avdec_h264 ! "
-                       #endif
+        #endif
                                  "capsfilter caps=video/x-raw name=mycapsfilter";
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
 
@@ -150,11 +158,11 @@ int Headunit::initGst(){
 
     aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=48000, channels=2, format=S16LE ! "
-                         #ifdef RPI
+                                #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Music\""
-                         #else
+                                #else
                                     "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Music\""
-                         #endif
+                                #endif
                                     , &error);
 
     if (error != NULL) {
@@ -173,11 +181,11 @@ int Headunit::initGst(){
 
     au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false max-latency=100000 do-timestamp=true ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  ! "
-                         #ifdef RPI
+                                #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Voice\""
-                         #else
+                                #else
                                     "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Voice\""
-                         #endif
+                                #endif
                                     , &error);
 
     if (error != NULL) {
@@ -195,14 +203,14 @@ int Headunit::initGst(){
      */
 
     mic_pipeline = gst_parse_launch(
-                          #ifdef RPI
-                                    "alsasrc name=micsrc device-name=\"Android Auto Voice\" ! audioconvert ! "
-                          #else
-                                    "pulsesrc name=micsrc client-name=\"Android Auto Voice\" ! audioconvert ! "
-                          #endif
-                                    "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000 ! "
-                                    "queue ! "
-                                    "appsink name=micsink emit-signals=true async=false blocksize=8192", &error);
+            #ifdef RPI
+                "alsasrc name=micsrc device-name=\"Android Auto Voice\" ! audioconvert ! "
+            #else
+                "pulsesrc name=micsrc client-name=\"Android Auto Voice\" ! audioconvert ! "
+            #endif
+                "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000 ! "
+                "queue ! "
+                "appsink name=micsink emit-signals=true async=false blocksize=8192", &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -398,39 +406,6 @@ void Headunit::touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point) {
     }
 }
 
-void Headunit::setUsbConnectionListener(UsbConnectionListener *m_connectionListener){
-    connectionListener = m_connectionListener;
-    connect(connectionListener,SIGNAL(androidDeviceConnected(QString)),this,SLOT(slotAndroidDeviceAdded(QString)));
-    connect(connectionListener,SIGNAL(usbDriveConnected(QString)),this,SLOT(slotDeviceAdded(QString)));
-    connect(connectionListener,SIGNAL(deviceRemoved(QString)),this,SLOT(slotDeviceRemoved(QString)));
-}
-void Headunit::slotDeviceAdded(const QString &dev)
-{
-    emit deviceConnected(QJsonObject {{"image","icons/usb.png"},
-                                      {"title","New USB storage detected"},
-                                      {"text",QString("%1 connected").arg(dev)}}.toVariantMap());
-    qDebug("add %s", qPrintable(dev));
-}
-void Headunit::slotAndroidDeviceAdded(const QString &dev)
-{
-    startHU();
-    emit deviceConnected(QJsonObject {{"image","icons/usb.png"},
-                                      {"title","New Android device detected"},
-                                      {"text",QString("%1 connected\nStarting Android Auto").arg(dev)}}.toVariantMap());
-    qDebug("add %s", qPrintable(dev));
-}
-
-void Headunit::slotDeviceChanged(const QString &dev)
-{
-    qDebug("change %s", qPrintable(dev));
-    emit deviceConnected(QJsonObject {{"image","icons/refresh.png"},{"title","USB device changed"},{"text",""}}.toVariantMap());
-}
-
-void Headunit::slotDeviceRemoved(const QString &dev)
-{
-    qDebug("remove %s", qPrintable(dev));
-    //emit deviceConnected(QJsonObject {{"image","icons/eject.png"},{"title","USB device removed"},{"text",""}}.toVariantMap());
-}
 void Headunit::setOutputWidth(const int a){
     if(a != m_outputWidth){
         m_outputWidth = a;
@@ -454,6 +429,11 @@ void Headunit::setVideoHeight(const int a){
     emit videoResized();
 }
 
+void Headunit::setVideoSurface(QGst::Quick::VideoSurface *surface){
+    m_videoSurface = surface;
+    emit videoSurfaceChanged();
+}
+
 int Headunit::outputWidth() {
     return m_outputWidth;
 }
@@ -465,6 +445,10 @@ int Headunit::videoWidth() {
 }
 int Headunit::videoHeight() {
     return m_videoHeight;
+}
+
+QGst::Quick::VideoSurface *Headunit::videoSurface(){
+    return m_videoSurface;
 }
 int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;
@@ -517,7 +501,7 @@ int DesktopEventCallbacks::MediaStop(int chan) {
 
 void DesktopEventCallbacks::DisconnectionOrError() {
     qDebug("Android Device disconnected, pausing gstreamer");
-    headunit->setGstState("");
+    headunit->stopHU();
 }
 
 void DesktopEventCallbacks::CustomizeOutputChannel(int /* unused */, HU::ChannelDescriptor::OutputStreamChannel& /* unused */) {

@@ -14,10 +14,11 @@
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
 
+#include <QGst/Quick/VideoSurface>
+
 #include "hu_uti.h"
 #include "hu_aap.h"
 #include "glib_utils.h"
-#include "usbconnectionlistener.h"
 
 class Headunit;
 
@@ -54,23 +55,25 @@ class Headunit : public QObject
     Q_PROPERTY(int outputHeight READ outputHeight WRITE setOutputHeight NOTIFY outputResized)
     Q_PROPERTY(int videoWidth READ videoWidth NOTIFY videoResized)
     Q_PROPERTY(int videoHeight READ videoHeight NOTIFY videoResized)
+    Q_PROPERTY(QGst::Quick::VideoSurface *videoSurface READ videoSurface NOTIFY videoSurfaceChanged)
 public:
-    Headunit(const QGst::ElementPtr & sink);
+    Headunit(QGst::Quick::VideoSurface *videoSurface);
     ~Headunit();
     int startHU();
     Q_INVOKABLE int restartHU();
     void stop();
     void exit();
     void setGstState(QString state);
-    void setUsbConnectionListener(UsbConnectionListener *m_connectionListener);
     void setOutputWidth(const int a);
     void setOutputHeight(const int a);
     void setVideoWidth(const int a);
     void setVideoHeight(const int a);
+    void setVideoSurface(QGst::Quick::VideoSurface *surface);
     int outputWidth();
     int outputHeight();
     int videoWidth();
     int videoHeight();
+    QGst::Quick::VideoSurface *videoSurface();
     GstElement *mic_pipeline = nullptr;
     GstElement *mic_sink = nullptr;
     GstElement *aud_pipeline = nullptr;
@@ -85,21 +88,19 @@ signals:
     void videoResized();
     void deviceConnected(QVariantMap notification);
     void btConnectionRequest(QString address);
+    void videoSurfaceChanged();
 public slots:
     bool mouseDown(QPoint point);
     bool mouseMove(QPoint point);
     bool mouseUp(QPoint point);
     bool keyEvent(QString key);
-    void slotDeviceAdded(const QString &dev);
-    void slotAndroidDeviceAdded(const QString &dev);
-    void slotDeviceRemoved(const QString &dev);
-    void slotDeviceChanged(const QString &dev);
+
+    int stopHU();
 private:
     QGst::ElementPtr m_videoSink;
     HUServer *headunit;
     DesktopEventCallbacks callbacks;
     HU::TouchInfo::TOUCH_ACTION lastAction = HU::TouchInfo::TOUCH_ACTION_RELEASE;
-    UsbConnectionListener *connectionListener;
     int m_videoWidth = 800;
     int m_videoHeight = 480;
     int m_outputWidth = 800;
@@ -113,5 +114,6 @@ private:
     bool huStarted = false;
     byte ep_in_addr = -2;
     byte ep_out_addr = -2;
+    QGst::Quick::VideoSurface *m_videoSurface;
 };
 #endif // HEADUNITPLAYER_H

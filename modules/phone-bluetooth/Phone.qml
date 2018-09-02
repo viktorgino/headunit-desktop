@@ -281,7 +281,7 @@ Item {
         }
     }
     Connections{
-        target: headunit
+        target: AndroidAuto
         onBtConnectionRequest:{
             for(var i = 0 ; i < bluezManager.devices.length; i++){
                 if(bluezManager.devices[i].address === address){

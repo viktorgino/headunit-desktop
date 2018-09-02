@@ -1,21 +1,22 @@
-#ifndef VOLUMECONTROL_H
-#define VOLUMECONTROL_H
+#ifndef ODBCAR_H
+#define ODBCAR_H
 
 #include <QObject>
 #include <plugininterface.h>
 
-class VolumeControl : public QObject, PluginInterface
+class OdbCar : public QObject, PluginInterface
 {
     Q_OBJECT
-    Q_PLUGIN_METADATA(IID "org.viktorgino.headunit.volumecontrol" FILE "config.json")
+    Q_PLUGIN_METADATA(IID "org.viktorgino.headunit.odbcar" FILE "config.json")
     Q_INTERFACES(PluginInterface)
 public:
-    explicit VolumeControl(QObject *parent = nullptr);
+    explicit OdbCar(QObject *parent = nullptr);
     QObject *getContextProperty() override;
     QQuickImageProvider *getImageProvider() override;
     QStringList eventListeners() override;
     QStringList events() override;
     QStringList actions() override;
+private:
 
 signals:
 
@@ -24,4 +25,4 @@ public slots:
     void actionMessage(QString id, QString message) override;
 };
 
-#endif // VOLUMECONTROL_H
+#endif // ODBCAR_H
