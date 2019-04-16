@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 #include "pluginmanager.h"
+#include "thememanager.h"
 
 Q_DECLARE_LOGGING_CATEGORY(HEADUNIT)
 
@@ -24,19 +25,20 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName("viktorgino");
     QCoreApplication::setOrganizationDomain("https://github.com/viktorgino/headunit-desktop");
     QCoreApplication::setApplicationName("viktorgino's HeadUnit Desktop");
+    QCoreApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     QApplication app(argc, argv);
     QLoggingCategory::setFilterRules("");
+
     QQmlApplicationEngine *engine = new QQmlApplicationEngine();
 
     QVariantList menuItems;
     QVariantList configItems;
 
-    int defaultMenuItem = 4;
+    int defaultMenuItem = 6;
 
-    PluginManager pluginManager;
-    pluginManager.loadPlugins(engine);
-
+    PluginManager pluginManager(engine);
+    ThemeManager themeManager(engine);
     engine->rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
 
     engine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
@@ -44,5 +46,6 @@ int main(int argc, char *argv[])
     int ret = app.exec();
 
     delete &pluginManager;
+    delete &themeManager;
     return ret;
 }

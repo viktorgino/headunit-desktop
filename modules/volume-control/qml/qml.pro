@@ -2,10 +2,10 @@ TEMPLATE = lib
 CONFIG += c++11 link_pkgconfig plugin
 QT += widgets quick dbus
 PKGCONFIG += libcanberra glib-2.0 gconf-2.0 gmodule-2.0 gobject-2.0 gthread-2.0 libpulse-simple libpulse libpulse-mainloop-glib
-INCLUDEPATH += ../../../includes
+INCLUDEPATH += $${PWD}/../../../includes
 TARGET = $$qtLibraryTarget(volume-control-qml)
 DEFINES += QT_DEPRECATED_WARNINGS
-DESTDIR = ../../../plugins/qml
+DESTDIR = $${OUT_PWD}/../../../plugins/qml
 
 SOURCES += \
     $$PWD/plasma-pa/src/card.cpp \
@@ -41,10 +41,10 @@ QML_IMPORT_PATH +=
 # Additional import path used to resolve QML modules just for Qt Quick Designer
 QML_DESIGNER_IMPORT_PATH =
 
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+## Default rules for deployment.
+#qnx: target.path = /tmp/$${TARGET}/bin
+#else: unix:!android: target.path = /opt/$${TARGET}/bin
+#!isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
     $$PWD/plasma-pa/src/card.h \

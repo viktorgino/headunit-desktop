@@ -5,15 +5,19 @@
 #include <QString>
 #include <QStringList>
 #include <QQuickImageProvider>
+#include <QQmlPropertyMap>
 
 class PluginInterface
 {
+    Q_PROPERTY(QQmlPropertyMap *Settings MEMBER settings CONSTANT)
 public:
     virtual QObject *getContextProperty() = 0;
     virtual QQuickImageProvider *getImageProvider() = 0;
     virtual QStringList eventListeners() = 0;
     virtual QStringList events() = 0;
     virtual QStringList actions() = 0;
+    virtual ~PluginInterface() = 0;
+    QQmlPropertyMap settings;
 public slots:
     virtual void eventMessage(QString id, QString message) = 0;
     virtual void actionMessage(QString id, QString message) = 0;

@@ -3,6 +3,5 @@
     <qresource prefix="/AndroidAuto">
         <file>aaVideo.qml</file>
         <file>social-android.svg</file>
-        <file>SettingsPageAA.qml</file>
     </qresource>
 </RCC>

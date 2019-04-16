@@ -7,8 +7,8 @@
         "color":"#3F51B5"
     },
     "config":{
-        "name":"media-locations",
-        "text":"Media locations",
+        "label":"Media locations",
+        "type":"loader",
         "source":"qrc:/MediaPlayer/qml/MediaPlayerSettings.qml",
         "iconImage": "qrc:/MediaPlayer/images/android-folder.png",
         "section":"Media apps"

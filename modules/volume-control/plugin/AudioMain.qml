@@ -25,7 +25,6 @@ import QtQuick.Window 2.2
 import org.viktorgino.headunit.volume 0.1
 
 Item {
-    anchors.fill: parent
     visible: true
     Component.onCompleted: {
         console.log("asd");

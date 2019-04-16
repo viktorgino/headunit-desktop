@@ -1,10 +1,14 @@
 #include "pluginmanager.h"
 
-PluginManager::PluginManager(QObject *parent) : QObject(parent)
+Q_LOGGING_CATEGORY(PLUGINMANAGER, "Plugin Manager")
+
+PluginManager::PluginManager(QQmlApplicationEngine *engine, QObject *parent) : QObject(parent)
 {
-
+    loadPlugins(engine);
 }
-
+void PluginManager::settingsChanged(QString key, QVariant value){
+    qDebug () << "settingsChanged" << key << value;
+}
 bool PluginManager::loadPlugins(QQmlApplicationEngine *engine)
 {
     QDir pluginsDir(qApp->applicationDirPath());
@@ -24,16 +28,16 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine)
         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
 
         if(pluginLoader.metaData().value("MetaData").type() != QJsonValue::Object){
-            qDebug() << "Invalid plugin : " << fileName << " config missing " << fileName << pluginLoader.errorString();
+            qCDebug(PLUGINMANAGER) << "Invalid plugin : " << fileName << " config missing " << fileName << pluginLoader.errorString();
             continue;
         }
 
         QObject *plugin = pluginLoader.instance();
         if (!plugin) {
-            qDebug() << "Error loading plugin : " << fileName << pluginLoader.errorString();
+            qCDebug(PLUGINMANAGER) << "Error loading plugin : " << fileName << pluginLoader.errorString();
             continue;
         } else {
-            qDebug() << "Plugin loaded : " << fileName;
+            qCDebug(PLUGINMANAGER) << "Plugin loaded : " << fileName;
         }
 
         QJsonObject metaData = pluginLoader.metaData().value("MetaData").toObject();
@@ -61,7 +65,6 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine)
 
         QObject * contextProperty = pluginObject->getContextProperty();
         if(contextProperty){
-            qDebug() << pluginName;
             engine->rootContext()->setContextProperty(pluginName,contextProperty);
         }
 
@@ -77,8 +80,18 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine)
 
         QJsonValue config = metaData.value("config");
         if(config.type() == QJsonValue::Object){
-            configItems << config.toObject().toVariantMap();
+            QJsonObject settingsObject = config.toObject();
+            settingsObject.insert("name", pluginName);
+
+            SettingsLoader *settings = new SettingsLoader(settingsObject, &pluginObject->settings);
+            pluginSettings << settings;
+
+            QQmlPropertyMap * settingsMap = settings->getSettingsMap();
+
+            m_settings.insert(pluginName,  QVariant::fromValue<QQmlPropertyMap *>(settingsMap));
+            settingsItems.append(settingsObject.toVariantMap());
         }
+        pluginLoaders<< &pluginLoader;
     }
     //Load QML plugins
     pluginsDir.cd("qml");
@@ -91,6 +104,9 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine)
 
     loadConfigItems(engine);
     loadMenuItems(engine);
+
+    engine->rootContext()->setContextProperty("HUDSettingsMenu", settingsItems);
+    engine->rootContext()->setContextProperty("HUDSettings", m_settings);
 
     return true;
 }
@@ -112,10 +128,9 @@ void PluginManager::loadMenuItems(QQmlApplicationEngine *engine){
 }
 
 void PluginManager::loadConfigItems(QQmlApplicationEngine *engine){
-    configItems << QJsonObject {{"name","theme"},{"iconImage","qrc:/qml/icons/android-color-palette.png"},{"text","Theme"},{"section","General"},{"source",""}}.toVariantMap()
-                << QJsonObject {{"name","behaviour"},{"iconImage","qrc:/qml/icons/android-settings.png"},{"text","Behaviour"},{"section","General"},{"source",""}}.toVariantMap()
-                << QJsonObject {{"name","bluetooth"},{"iconImage","qrc:/qml/icons/bluetooth.png"},{"text","Bluetooth"},{"section","Media apps"},{"source","qrc:/qml/SettingsPage/SettingsPageBluetooth.qml"}}.toVariantMap()
-                << QJsonObject {{"name","quit"},{"iconImage","qrc:/qml/icons/log-out.png"},{"text","Quit headunit-desktop"},{"section","Other"},{"source",""}}.toVariantMap();
+    settingsItems << QJsonObject {{"name","theme"},{"iconImage","qrc:/qml/icons/android-color-palette.png"},{"label","Theme"},{"type","loader"},{"section","General"},{"source","qrc:/qml/SettingsPage/SettingsPageTheme.qml"}}.toVariantMap()
+                  << QJsonObject {{"name","quit"},{"iconImage","qrc:/qml/icons/log-out.png"},{"label","Quit headunit-desktop"},{"type","loader"},{"section","Other"},{"source",""}}.toVariantMap();
+
     engine->rootContext()->setContextProperty("configItems", configItems);
 }
 
@@ -148,7 +163,7 @@ void PluginManager::loadWelleIo(QQmlApplicationEngine *engine){
             DABHelper *dabHelper = new DABHelper();
             engine->rootContext()->setContextProperty("dabHelper", dabHelper);
         } catch (int e) {
-            qDebug()<< "Can't initialise welle.io. Exception: " << e ;
+            qCDebug(PLUGINMANAGER)<< "Can't initialise welle.io. Exception: " << e ;
             welleioError = true;
         }
     }
@@ -159,8 +174,19 @@ void PluginManager::loadWelleIo(QQmlApplicationEngine *engine){
 #endif
 
 PluginManager::~PluginManager(){
-    foreach (PluginInterface * plugin, plugins) {
-        delete(plugin);
+    for (QPluginLoader * pluginLoader : pluginLoaders) {
+        if(pluginLoader->isLoaded()){
+            pluginLoader->unload();
+        }
+    }
+
+//    for (PluginInterface * plugin : plugins) {
+//        delete(plugin);
+//    }
+    qDeleteAll(plugins);
+
+    for(SettingsLoader * settings : pluginSettings){
+        delete(settings);
     }
 #ifdef HAVE_WELLEIO
     if(!welleioError){

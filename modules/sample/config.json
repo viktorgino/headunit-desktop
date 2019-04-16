@@ -1,0 +1,213 @@
+{
+    "name":"SamplePlugin",
+    "config":{
+        "label":"Sample Plugin",
+        "name": "test",
+        "type":"items",
+        "description":"Settings Menu Test",
+        "items":[
+            {
+                "label":"Items (confirm save)",
+                "name": "items",
+                "type":"items",
+                "description":"Change the colors of the UI",
+                "confirmChange" : true,
+                "items":[
+                    {
+                        "label":"Colors",
+                        "name": "text",
+                        "type":"color",
+                        "description":"UI text color",
+                        "defaultValue":"#ffffff"
+                    },
+                    {
+                        "label":"Sub Text",
+                        "name": "subText",
+                        "type":"color",
+                        "description":"UI sub text color",
+                        "defaultValue":"#CACACA"
+                    }
+                ]
+            },
+            {
+                "label":"Items (save on back)",
+                "name": "items2",
+                "type":"items",
+                "items":[
+                    {
+                        "label":"Colors",
+                        "name": "text",
+                        "type":"color",
+                        "description":"UI text color",
+                        "defaultValue":"#ffffff"
+                    },
+                    {
+                        "label":"Sub Text",
+                        "name": "subText",
+                        "type":"color",
+                        "description":"UI sub text color",
+                        "defaultValue":"#CACACA"
+                    }
+                ]
+            },
+            {
+                "label":"Items (autosave)",
+                "name": "items3",
+                "type":"items",
+                "items":[
+                    {
+                        "label":"Colors",
+                        "name": "text",
+                        "type":"color",
+                        "description":"UI text color",
+                        "defaultValue":"#ffffff",
+                        "autosave": true
+                    },
+                    {
+                        "label":"Sub Text",
+                        "name": "subText",
+                        "type":"color",
+                        "description":"UI sub text color",
+                        "defaultValue":"#CACACA",
+                        "autosave": true
+                    }
+                ]
+            },
+            {
+                "label":"Loader",
+                "name": "loader",
+                "type":"loader",
+                "source":"qrc:/qml/SettingsPage/SettingsPageTheme.qml"
+            },
+            {
+                "label":"Text",
+                "name": "text",
+                "type":"text"
+            },
+            {
+                "label":"Slider",
+                "name": "slider",
+                "type":"slider",
+                "defaultValue":18,
+                "minimum": 5,
+                "maximum": 30,
+                "stepSize": 1,
+                "prefix" : "LS",
+                "suffix" : "cm"
+            },
+            {
+                "label":"Switch",
+                "name": "switch",
+                "type":"switch",
+                "textOff":"Off",
+                "textOn": "On"
+            },
+            {
+                "label":"Checkbox",
+                "name": "checkbox",
+                "type":"checkbox",
+                "conditional":true,
+                "conditionTarget": "switch",
+                "conditionValue":false
+            },
+            {
+                "label":"Textboxes",
+                "name": "header",
+                "type":"header"
+            },
+            {
+                "label":"Textfield (string)",
+                "name": "textfield",
+                "type":"textfield",
+                "textType" : "string",
+                "defaultValue" : "Qt",
+                "prefix" : "Text:",
+                "suffix" : "is awsome!"
+            },
+            {
+                "label":"Textfield (int)",
+                "name": "textfield2",
+                "type":"textfield",
+                "textType" : "int",
+                "defaultValue" : 2,
+                "prefix" : "Number:",
+                "suffix" : "apples"
+            },
+            {
+                "label":"Textfield (double)",
+                "name": "textfield3",
+                "type":"textfield",
+                "textType" : "double",
+                "defaultValue" : 2.5,
+                "prefix" : "Double:",
+                "suffix" : "kg"
+            },
+            {
+                "label":"Textfield (regex)",
+                "name": "textfield4",
+                "type":"textfield",
+                "textType" : "regexp",
+                "defaultValue" : "00ff00",
+                "regexp": "[0-9A-Fa-f]{6}",
+                "prefix" : "Regex:",
+                "suffix" : "hex"
+            },
+            {
+                "label":"Textfield (string, input mask)",
+                "name": "textfield5",
+                "type":"textfield",
+                "textType" : "regexp",
+                "defaultValue" : "127.0.0.1",
+                "inputMask" : "000.000.000.000;_"
+            },
+            {
+                "label":"Combo Box",
+                "description": "using an array as values",
+                "name": "combobox",
+                "type":"combobox",
+                "values": ["Apple","Orange","Banana"]
+            },
+            {
+                "label":"Combo Box",
+                "description": "using a map as values",
+                "name": "combobox2",
+                "type":"combobox",
+                "values": {"value1":"Apple","value2":"Orange","value3":"Banana"}
+            },
+            {
+                "label":"Color",
+                "name": "color",
+                "type":"color",
+                "description":"Color test",
+                "defaultValue":"#00fff0"
+            },
+            {
+                "label":"Button",
+                "name": "button",
+                "type":"button",
+                "values": [
+                    {"label":"Click me!","action":"console.log(\"Hello world!\")"},
+                    {"label":"No, click me!","action":"console.log(\"Hi!\")"}
+                ]
+            },
+            {
+                "label":"File Select",
+                "name": "file",
+                "type":"file",
+                "browserType" : "file"
+            },
+            {
+                "label":"Folder Select",
+                "name": "folder",
+                "type":"file",
+                "browserType" : "folder"
+            },
+            {
+                "label":"Action",
+                "name": "action",
+                "type":"action",
+                "action" : "console.log(\"Hi!\")"
+            }
+        ]
+    }
+}

@@ -41,5 +41,5 @@ void AndroidAuto::actionMessage(QString id, QString message){
 }
 AndroidAuto::~AndroidAuto() {
     delete(headunit);
-    delete(&surface);
+    //delete(&surface);
 }

@@ -3,8 +3,8 @@ CONFIG += c++11 plugin
 QT += quick
 TARGET = $$qtLibraryTarget(odb-car-plugin)
 DEFINES += QT_DEPRECATED_WARNINGS
-INCLUDEPATH += ../../includes
-DESTDIR = ../../plugins
+INCLUDEPATH += $${PWD}/../../includes
+DESTDIR = $${OUT_PWD}/../../plugins
 
 SOURCES += \
     odbcar.cpp \
@@ -12,10 +12,10 @@ SOURCES += \
 
 RESOURCES += qml.qrc
 
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+## Default rules for deployment.
+#qnx: target.path = /tmp/$${TARGET}/bin
+#else: unix:!android: target.path = /opt/$${TARGET}/bin
+#!isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
     odbcar.h \

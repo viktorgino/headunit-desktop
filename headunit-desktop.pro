@@ -6,7 +6,8 @@ SUBDIRS = app.pro \
           module-media-player \
           module-odb-car \
           module-usbconnectionlistener \
-          module-welle-io
+          module-welle-io \
+          module-sample
 
 app.subdir = ./
 module-volume-control.subdir           = modules/volume-control
@@ -16,5 +17,13 @@ module-media-player.subdir             = modules/media-player
 module-odb-car.subdir                  = modules/odb-car
 module-usbconnectionlistener.subdir    = modules/usbconnectionlistener
 module-welle-io.subdir                 = modules/welle-io
+module-sample.subdir                   = modules/sample
 
-app.depends = module-volume-control module-phone-bluetooth module-android-auto module-media-player module-odb-car module-usbconnectionlistener module-welle-io
+app.depends = module-volume-control \
+              module-phone-bluetooth \
+              module-android-auto \
+              module-media-player \
+              module-odb-car \
+              module-usbconnectionlistener \
+              module-welle-io \
+              module-sample

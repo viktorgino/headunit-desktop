@@ -3,8 +3,8 @@ CONFIG += c++11 plugin
 QT += network qml quick charts multimedia
 TARGET = $$qtLibraryTarget(welle-io-plugin)
 DEFINES += QT_DEPRECATED_WARNINGS
-INCLUDEPATH += ../../includes
-DESTDIR = ../../plugins
+INCLUDEPATH += $${PWD}/../../includes
+DESTDIR = $${OUT_PWD}/../../plugins
 
 SOURCES += \
     welleio.cpp
@@ -13,10 +13,10 @@ RESOURCES += \
     $$PWD/welle.io/resources.qrc \
     $$PWD/qml/dab_gui.qrc
 
-# Default rules for deployment.
-qnx: target.path = /tmp/$${TARGET}/bin
-else: unix:!android: target.path = /opt/$${TARGET}/bin
-!isEmpty(target.path): INSTALLS += target
+## Default rules for deployment.
+#qnx: target.path = /tmp/$${TARGET}/bin
+#else: unix:!android: target.path = /opt/$${TARGET}/bin
+#!isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
     welleio.h

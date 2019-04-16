@@ -7,10 +7,118 @@
         "color":"#673AB7"
     },
     "config":{
-        "name":"android-auto-plugin",
-        "text":"Android Auto",
-        "source":"qrc:/AndroidAuto/SettingsPageAA.qml",
+        "label":"Android Auto",
+        "type":"items",
         "iconImage": "qrc:/AndroidAuto/social-android.svg",
-        "section":"Media apps"
+        "section":"Media apps",
+        "items" : [
+            {
+                "label":"Play Native Media during VR",
+                "name": "can_play_native_media_during_vr",
+                "type":"switch",
+                "textOff":"Off",
+                "textOn": "On",
+                "defaultValue": false
+            },
+            {
+                "label":"Hide clock",
+                "name": "hide_clock",
+                "type":"switch",
+                "textOff":"Off",
+                "textOn": "On",
+                "defaultValue": false
+            },
+            {
+                "label":"Available in call",
+                "name": "available_while_in_call",
+                "type":"switch",
+                "textOff":"Off",
+                "textOn": "On",
+                "defaultValue": false
+            },
+            {
+                "label":"Touchscreen width",
+                "name": "ts_width",
+                "type":"textfield",
+                "textType" : "int",
+                "defaultValue" : 800,
+                "suffix" : "pixels"
+            },
+            {
+                "label":"Touchscreen height",
+                "name": "ts_height",
+                "type":"textfield",
+                "textType" : "int",
+                "defaultValue" : 480,
+                "suffix" : "pixels"
+            },
+            {
+                "label":"Margin width",
+                "name": "margin_width",
+                "type":"textfield",
+                "textType" : "int",
+                "defaultValue" : 0,
+                "suffix" : "pixels"
+            },
+            {
+                "label":"Margin height",
+                "name": "margin_height",
+                "type":"textfield",
+                "textType" : "int",
+                "defaultValue" : 0,
+                "suffix" : "pixels"
+            },
+            {
+                "label":"Pixel density",
+                "name": "dpi",
+                "type":"textfield",
+                "textType" : "int",
+                "defaultValue" : 200,
+                "suffix" : "DPI"
+            },
+            {
+                "label":"Resolution",
+                "name": "resolution",
+                "type":"combobox",
+                "values": {"1":"800x480","2":"1280x720","3":"1920x1080"},
+                "defaultValue": 0
+            },
+            {
+                "label":"Frame rate",
+                "name": "frame_rate",
+                "type":"combobox",
+                "values": {"1" : "30 FPS","2" : "60 FPS"},
+                "defaultValue": 0
+            },
+            {
+                "label":"Transport type",
+                "name": "transport_type",
+                "type":"combobox",
+                "values": {"usb":"USB" ,"network":"Network"},
+                "defaultValue": 0
+            },
+            {
+                "label":"Network address",
+                "name": "network_address",
+                "type":"textfield",
+                "textType" : "string",
+                "defaultValue" : "127.0.0.1",
+                "inputMask" : "000.000.000.000;_",
+                "conditional":true,
+                "conditionTarget": "transport_type",
+                "conditionValue":"network"
+            },
+            {
+                "label":"WiFi direct",
+                "name": "wifi_direct",
+                "type":"switch",
+                "textOff":"Off",
+                "textOn": "On",
+                "defaultValue": false,
+                "conditional":true,
+                "conditionTarget": "transport_type",
+                "conditionValue":"network"
+            }
+        ]
     }
 }
