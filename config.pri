@@ -1,0 +1,4 @@
+isEmpty(PREFIX) {
+ PREFIX = /opt
+}
+

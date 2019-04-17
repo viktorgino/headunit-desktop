@@ -1,29 +1,51 @@
-TEMPLATE = subdirs
-SUBDIRS = app.pro \
-          module-volume-control \
-          module-phone-bluetooth \
-          module-android-auto \
-          module-media-player \
-          module-odb-car \
-          module-usbconnectionlistener \
-          module-welle-io \
-          module-sample
+TEMPLATE = app
+TARGET = headunit-app
+QT += gui widgets qml quick bluetooth
+CONFIG += c++11 link_pkgconfig welleio
+QMAKE_CXXFLAGS += -Wno-unused-parameter
 
-app.subdir = ./
-module-volume-control.subdir           = modules/volume-control
-module-phone-bluetooth.subdir          = modules/phone-bluetooth
-module-android-auto.subdir             = modules/android-auto
-module-media-player.subdir             = modules/media-player
-module-odb-car.subdir                  = modules/odb-car
-module-usbconnectionlistener.subdir    = modules/usbconnectionlistener
-module-welle-io.subdir                 = modules/welle-io
-module-sample.subdir                   = modules/sample
+include("config.pri")
 
-app.depends = module-volume-control \
-              module-phone-bluetooth \
-              module-android-auto \
-              module-media-player \
-              module-odb-car \
-              module-usbconnectionlistener \
-              module-welle-io \
-              module-sample
+SOURCES += main.cpp \
+    pluginmanager.cpp \
+    settingsloader.cpp \
+    thememanager.cpp
+
+RESOURCES += \
+    qml_gui/qml.qrc
+
+HEADERS += \
+    includes/plugininterface.h \
+    pluginmanager.h \
+    settingsloader.h \
+    thememanager.h
+
+include("qml_gui/quickcross/quickcross.pri")
+
+rpi {
+    DEFINES += RPI
+}
+
+QML_IMPORT_PATH = $${OUT_PWD}
+
+target.path = $$PREFIX/
+
+pluginfiles.files += \
+    $${PWD}/qml_gui/qml/theme/*
+
+pluginfiles.path = $$PREFIX/HUDTheme
+
+theme.files += \
+    $${PWD}/theme.json
+
+theme.path = $$PREFIX/ 
+
+INSTALLS += target pluginfiles theme
+
+DISTFILES += \
+    $${PWD}/qml_gui/qml/theme/qmldir \
+    $${PWD}/qml_gui/qml/theme/designer/hudtheme.metainfo \
+    $${PWD}/qml_gui/qml/theme/backgrounds/* \
+    $${PWD}/theme.json
+
+include($${PWD}/modules/modules.pri)

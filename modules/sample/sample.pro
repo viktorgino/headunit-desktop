@@ -6,6 +6,12 @@ DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += $${PWD}/../../includes
 DESTDIR = $${OUT_PWD}/../../plugins
 
+include("../../config.pri")
+
+target.path = $${PREFIX}/plugins
+
+INSTALLS += target
+
 SOURCES += \
     sampleplugin.cpp
 
@@ -14,3 +20,4 @@ HEADERS += \
 
 DISTFILES += \
     config.json
+
