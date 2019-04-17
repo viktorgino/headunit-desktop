@@ -129,7 +129,7 @@ void PluginManager::loadMenuItems(QQmlApplicationEngine *engine){
 
 void PluginManager::loadConfigItems(QQmlApplicationEngine *engine){
     settingsItems << QJsonObject {{"name","theme"},{"iconImage","qrc:/qml/icons/android-color-palette.png"},{"label","Theme"},{"type","loader"},{"section","General"},{"source","qrc:/qml/SettingsPage/SettingsPageTheme.qml"}}.toVariantMap()
-                  << QJsonObject {{"name","quit"},{"iconImage","qrc:/qml/icons/log-out.png"},{"label","Quit headunit-desktop"},{"type","loader"},{"section","Other"},{"source",""}}.toVariantMap();
+                  << QJsonObject {{"name","quit"},{"iconImage","qrc:/qml/icons/log-out.png"},{"label","Quit headunit-desktop"},{"type","action"},{"action","Qt.quit()"},{"section","Other"},{"source",""}}.toVariantMap();
 
     engine->rootContext()->setContextProperty("configItems", configItems);
 }
