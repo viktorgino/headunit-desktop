@@ -9,7 +9,7 @@ DESTDIR = $${OUT_PWD}/../../../plugins/qml
 
 include("../../../config.pri")
 
-target.path = $${PREFIX}/plugins
+target.path = $${PREFIX}/plugins/qml
 
 INSTALLS += target
 

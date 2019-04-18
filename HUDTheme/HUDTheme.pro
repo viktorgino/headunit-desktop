@@ -5,6 +5,7 @@ QT += qml quick
 TARGET = $$qtLibraryTarget(hudtheme)
 DEFINES += QT_DEPRECATED_WARNINGS
 
+include("../config.pri")
 
 
 RESOURCES += qml.qrc
@@ -33,8 +34,10 @@ pluginfiles.files += \
     $${PWD}/TopMenu.qml \
     $${PWD}/ThemeText.qml
 
-pluginfiles.path += $${OUT_PWD}
-INSTALLS += pluginfiles
+pluginfiles.path += $${PREFIX}/HUDThemeX/
+INSTALLS += pluginfiles target
+
+target.path = $${PREFIX}/HUDThemeX/qml
 
 DISTFILES += \
     $$PWD/qmldir \
