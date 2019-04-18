@@ -16,7 +16,7 @@ RESOURCES += \
     ../qml_gui/qml.qrc
 
 HEADERS += \
-    includes/plugininterface.h \
+    ../includes/plugininterface.h \
     pluginmanager.h \
     settingsloader.h \
     thememanager.h
@@ -49,4 +49,3 @@ DISTFILES += \
     $${PWD}/../qml_gui/qml/theme/backgrounds/* \
     $${PWD}/theme.json
 
-include($${PWD}/../modules/modules.pri)
