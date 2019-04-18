@@ -1,0 +1,10 @@
+module HUDTheme
+plugin hudtheme
+
+AlphabetScrollBar 1.0 AlphabetScrollBar.qml
+Arrow 1.0 Arrow.qml
+ImageButton 1.0 ImageButton.qml
+MenuButton 1.0 MenuButton.qml
+ModeSwitch 1.0 ModeSwitch.qml
+TopMenu 1.0 TopMenu.qml
+ThemeText 1.0 ThemeText.qml
