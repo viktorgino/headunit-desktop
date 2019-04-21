@@ -15,7 +15,7 @@
 #include <QTextStream>
 #include <QJsonParseError>
 #include <QLoggingCategory>
-#include "includes/plugininterface.h"
+#include "../includes/plugininterface.h"
 #include "settingsloader.h"
 
 class PluginManager : public QObject

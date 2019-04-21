@@ -30,10 +30,11 @@ INCLUDEPATH +=$$PWD/headunit/hu
 INCLUDEPATH +=$$PWD/headunit/hu/generated.x64
 INCLUDEPATH +=$$PWD/headunit/common
 
-## Default rules for deployment.
-#qnx: target.path = /tmp/$${TARGET}/bin
-#else: unix:!android: target.path = /opt/$${TARGET}/bin
-#!isEmpty(target.path): INSTALLS += target
+include("../../config.pri")
+
+target.path = $${PREFIX}/plugins
+
+INSTALLS += target
 
 HEADERS += \
     androidauto.h \
