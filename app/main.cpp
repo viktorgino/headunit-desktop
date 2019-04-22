@@ -6,6 +6,7 @@
 #include <QJsonObject>
 #include <QVariantList>
 #include <QQmlComponent>
+#include <QCommandLineParser>
 #include <QThreadPool>
 #include <QDir>
 #include <QSettings>
@@ -37,7 +38,27 @@ int main(int argc, char *argv[])
 
     int defaultMenuItem = 6;
 
-    PluginManager pluginManager(engine);
+    QCommandLineParser parser;
+    parser.setApplicationDescription("helper");
+    parser.addHelpOption();
+    parser.addVersionOption();
+    
+    QCommandLineOption pluginsOption(QStringList() << "p" << "plugins",
+	QCoreApplication::translate("main", "Plugins to enable (defaults to all)"),
+	QCoreApplication::translate("main", "plugins")
+    );
+    parser.addOption(pluginsOption);
+
+    parser.process(app);
+    QString p = parser.value(pluginsOption);
+    bool whitelist = parser.isSet(pluginsOption);
+    QStringList plugins;
+    if (whitelist) {
+	    plugins = p.split(" ",QString::SkipEmptyParts);
+    }
+   
+
+    PluginManager pluginManager(engine, whitelist, plugins);
     ThemeManager themeManager(engine);
     engine->rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
 

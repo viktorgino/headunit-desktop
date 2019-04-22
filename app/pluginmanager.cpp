@@ -2,14 +2,14 @@
 
 Q_LOGGING_CATEGORY(PLUGINMANAGER, "Plugin Manager")
 
-PluginManager::PluginManager(QQmlApplicationEngine *engine, QObject *parent) : QObject(parent)
+PluginManager::PluginManager(QQmlApplicationEngine *engine, bool filter, QStringList filterList, QObject *parent) : QObject(parent)
 {
-    loadPlugins(engine);
+    loadPlugins(engine, filter, filterList);
 }
 void PluginManager::settingsChanged(QString key, QVariant value){
     qDebug () << "settingsChanged" << key << value;
 }
-bool PluginManager::loadPlugins(QQmlApplicationEngine *engine)
+bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStringList filterList)
 {
     QDir pluginsDir(qApp->applicationDirPath());
 #if defined(Q_OS_WIN)
@@ -25,6 +25,14 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine)
     pluginsDir.cd("plugins");
     //Load plugins
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+
+	QString fileBaseName=fileName.section(".",0,0);
+	if (filter && !filterList.contains(fileBaseName,Qt::CaseInsensitive)) {
+		qDebug() << "Plugin not whitelisted (disabled): " << fileBaseName;
+		continue;
+	}
+	qDebug() << "Loading plugin: " << fileName;
+
         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
 
         if(pluginLoader.metaData().value("MetaData").type() != QJsonValue::Object){
