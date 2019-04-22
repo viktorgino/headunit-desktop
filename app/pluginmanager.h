@@ -22,7 +22,7 @@ class PluginManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit PluginManager(QQmlApplicationEngine *engine, QObject *parent = nullptr);
+    explicit PluginManager(QQmlApplicationEngine *engine, bool filter, QStringList filterList, QObject *parent = nullptr);
     ~PluginManager();
 signals:
 
@@ -30,7 +30,7 @@ public slots:
 private slots:
     void messageReceived(QString id, QString message);
 private:
-    bool loadPlugins(QQmlApplicationEngine *engine);
+    bool loadPlugins(QQmlApplicationEngine *engine, bool filter, QStringList filterList);
     QVariantList menuItems;
     QVariantList configItems;
     QMap<QString, PluginInterface *> plugins;
