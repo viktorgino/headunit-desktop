@@ -10,5 +10,6 @@ SUBDIRS = \
           modules/odb-car \
           modules/usbconnectionlistener \
           modules/welle-io \
+          modules/navit \
           modules/sample
 
