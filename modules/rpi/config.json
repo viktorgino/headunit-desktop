@@ -10,11 +10,11 @@
                 "label":"Brightness",
                 "name": "rpiplugin_brightness",
                 "type":"slider",
-                "defaultValue":18,
-                "minimum": 5,
-                "maximum": 255,
+                "defaultValue":100,
+                "minimum": 10,
+                "maximum": 200,
 		"autosave": true,
-                "stepSize": 1
+                "stepSize": 10
             }
         ]
     }
