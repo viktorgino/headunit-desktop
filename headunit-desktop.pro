@@ -10,5 +10,5 @@ SUBDIRS = \
           modules/odb-car \
           modules/usbconnectionlistener \
           modules/welle-io \
+          modules/rpi
           modules/sample
-
