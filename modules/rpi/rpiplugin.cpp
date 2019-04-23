@@ -36,6 +36,11 @@ QStringList RPiPlugin::actions() {
     return QStringList();
 }
 
+// maps slider value (0-100) to (0-200)
+int RPiPlugin::mapBrightness(double v) {
+	return v*200/100;
+}
+
 void RPiPlugin::settingChanged(QString id, QVariant val){
     if (!initialized) return;
 
@@ -43,8 +48,7 @@ void RPiPlugin::settingChanged(QString id, QVariant val){
     	QFile file(RPI_BACKLIGHT_PATH);
         if (file.open(QIODevice::WriteOnly | QIODevice::ExistingOnly | QIODevice::Text)) {
 		QTextStream stream(&file);
-	   	qDebug() << "applying setting: " << id << " " << val.toDouble();
-		stream << val.toDouble();
+		stream << mapBrightness(val.toDouble());
 		file.close();
 	}	
     }
