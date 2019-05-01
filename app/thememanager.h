@@ -5,7 +5,7 @@
 #include <QColor>
 #include <QDebug>
 #include <QQmlApplicationEngine>
-#include <QQmlContext>5
+#include <QQmlContext>
 #include <QQmlPropertyMap>
 #include <QSettings>
 #include <QDir>
@@ -15,6 +15,7 @@
 #include <QJsonArray>
 #include <QLoggingCategory>
 #include <QSettings>
+#include <QPluginLoader>
 
 #include "settingsloader.h"
 

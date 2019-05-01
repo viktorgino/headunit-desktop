@@ -5,7 +5,18 @@ Q_LOGGING_CATEGORY(THEMEMANAGER, "Theme Manager")
 ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QObject *parent) : QObject(parent),
     m_engine(engine)
 {
-    loadJson("theme.json");
+//    loadJson("themes/default-theme/theme.json");
+
+    QPluginLoader themeLoader("themes/default-theme/libdefault-theme.so");
+    qDebug() << themeLoader.errorString();
+    themeLoader.load();
+
+    QJsonObject themeSettings = themeLoader.metaData().value("MetaData").toObject();
+
+    processThemeSettings(themeSettings);
+
+    engine->addImportPath("themes/default-theme");
+    engine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 }
 
 void ThemeManager::loadJson(QString path){
@@ -30,9 +41,11 @@ void ThemeManager::loadJson(QString path){
 void ThemeManager::processThemeSettings(QJsonObject json){
     if(!json.keys().contains("name") || !json.keys().contains("label") || !json.keys().contains("colors") || !json.keys().contains("sizes")){
         qCDebug(THEMEMANAGER) << "Error processing theme settings, missing required field(s)";
+        return;
     }
     if(!json.value("colors").isArray() || !json.value("sizes").isArray()){
         qCDebug(THEMEMANAGER) << "Error processing theme settings, \"colors\" or \"sizes\" field is not an array";
+        return;
     }
 
     QQmlPropertyMap *colorsMap = new QQmlPropertyMap();

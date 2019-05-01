@@ -1,8 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS = \
-	  app \
-	  HUDTheme \
+          app \
           modules/volume-control \
           modules/phone-bluetooth \
           modules/android-auto \
@@ -10,6 +9,7 @@ SUBDIRS = \
           modules/odb-car \
           modules/usbconnectionlistener \
           modules/welle-io \
-          modules/navit \
-          modules/sample
+#          modules/navit \
+          modules/sample \
+          themes/default-theme
 

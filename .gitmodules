@@ -1,8 +1,8 @@
 [submodule "headunit"]
 	path = modules/android-auto/headunit
 	url = https://github.com/viktorgino/libheadunit.git
-[submodule "qml_gui"]
-	path = qml_gui
+[submodule "themes/default-theme"]
+	path = themes/default-theme
 	url = https://github.com/viktorgino/headunit-gui.git
 [submodule "doxygen-bootstrapped"]
 	path = doxygen-bootstrapped
