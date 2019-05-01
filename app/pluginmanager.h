@@ -25,7 +25,7 @@ public:
     explicit PluginManager(QQmlApplicationEngine *engine, bool filter, QStringList filterList, QObject *parent = nullptr);
     ~PluginManager();
 signals:
-
+    void themeEvent(QString, QString);
 public slots:
 private slots:
     void messageReceived(QString id, QString message);

@@ -20,6 +20,7 @@ public:
     QStringList actions() override;
 private:
     MediaLibrary mediaLibrary;
+
 signals:
 
 public slots:

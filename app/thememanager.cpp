@@ -5,18 +5,45 @@ Q_LOGGING_CATEGORY(THEMEMANAGER, "Theme Manager")
 ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QObject *parent) : QObject(parent),
     m_engine(engine)
 {
-//    loadJson("themes/default-theme/theme.json");
+    QString fileName = "themes/default-theme/libdefault-theme.so";
+    QPluginLoader themeLoader(fileName);
 
-    QPluginLoader themeLoader("themes/default-theme/libdefault-theme.so");
-    qDebug() << themeLoader.errorString();
-    themeLoader.load();
+    QQmlExtensionPlugin * theme = static_cast<QQmlExtensionPlugin *>(themeLoader.instance());
+
+    if (!theme) {
+        qCDebug(THEMEMANAGER) << "Error loading plugin : " << fileName << themeLoader.errorString();
+        return;
+    }
+
+    QQmlExtensionPlugin * themePlugin = static_cast<QQmlExtensionPlugin *>(themeLoader.instance());
+
+    if(!themePlugin){
+        qCDebug(THEMEMANAGER) << "Error loading theme : " << themeLoader.metaData().value("name") << ", root component is not a valid instance of QQmlExtensionPlugin";
+        return;
+    }
+
+    qCDebug(THEMEMANAGER) << "Theme loaded : " << fileName;
+
+    const QMetaObject *pluginMeta = themePlugin->metaObject();
+
+    QStringList methods;
+    for(int i = pluginMeta->methodOffset(); i < pluginMeta->methodCount(); ++i){
+        if(pluginMeta->method(i).methodSignature() == "onEvent(QString,QString)"){
+            qDebug() << "Has onEvent";
+            connect(this, SIGNAL(themeEvent(QString, QString)), themePlugin, SLOT(onEvent(QString, QString)));
+        }
+    }
 
     QJsonObject themeSettings = themeLoader.metaData().value("MetaData").toObject();
 
     processThemeSettings(themeSettings);
 
-    engine->addImportPath("themes/default-theme");
-    engine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
+    themePlugin->registerTypes("");
+    themePlugin->initializeEngine(engine, "");
+}
+
+void ThemeManager::onEvent(QString event, QString eventData) {
+    emit themeEvent(event, eventData);
 }
 
 void ThemeManager::loadJson(QString path){

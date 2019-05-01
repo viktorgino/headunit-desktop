@@ -64,6 +64,9 @@ int main(int argc, char *argv[])
 
     ThemeManager themeManager(engine);
 
+    QObject::connect(&pluginManager, &PluginManager::themeEvent, &themeManager, &ThemeManager::onEvent);
+
+
     int ret = app.exec();
 
     delete &pluginManager;
