@@ -206,7 +206,7 @@
                 "label":"Action",
                 "name": "action",
                 "type":"action",
-                "action" : "console.log(\"Hi!\")"
+                "action" : "SamplePlugin.testNotification()"
             }
         ]
     }
