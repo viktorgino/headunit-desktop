@@ -13,6 +13,8 @@ RPiPlugin::RPiPlugin(QObject *parent) : QObject (parent)
     if (check_file.exists() && check_file.isFile()) {
 	    connect(&settings,&QQmlPropertyMap::valueChanged, this, &RPiPlugin::settingChanged);
 	    initialized = true;
+    } else {
+	    qDebug() << "rpiplugin not initializing.";
     } 
 }
 
@@ -41,17 +43,25 @@ int RPiPlugin::mapBrightness(double v) {
 	return v*200/100;
 }
 
-void RPiPlugin::settingChanged(QString id, QVariant val){
-    if (!initialized) return;
+void RPiPlugin::onLoad() {
+	if (settings.contains(PROP_NAME)) {
+		applyBrightness(settings[PROP_NAME].toJsonValue().toString().toDouble());
+	}
+}
 
-    if (id == PROP_NAME) {
-    	QFile file(RPI_BACKLIGHT_PATH);
-        if (file.open(QIODevice::WriteOnly | QIODevice::ExistingOnly | QIODevice::Text)) {
-		QTextStream stream(&file);
-		stream << mapBrightness(val.toDouble());
-		file.close();
-	}	
-    }
+void RPiPlugin::applyBrightness(double v) {
+    if (!initialized) return;
+    
+    QFile file(RPI_BACKLIGHT_PATH);
+    if (file.open(QIODevice::WriteOnly | QIODevice::ExistingOnly | QIODevice::Text)) {
+        QTextStream stream(&file);
+	stream << mapBrightness(v);
+	file.close();
+    }	
+}
+
+void RPiPlugin::settingChanged(QString id, QVariant val){
+    if (id == PROP_NAME) applyBrightness(val.toDouble());
 }
 
 void RPiPlugin::eventMessage(QString id, QString message){

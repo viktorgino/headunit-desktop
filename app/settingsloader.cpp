@@ -26,7 +26,6 @@ QQmlPropertyMap *SettingsLoader::createPropertyMap(QString group, QVariantMap ma
             createPropertyMap(item, map.value(item).toMap(), propMapTemp);
 
             propertyMap->insert(item, QVariant::fromValue(propMapTemp));
-	    emit propertyMap->valueChanged(item, QVariant::fromValue(propMapTemp));
         } else {
             if(settings.contains(item)){
                 QVariant value = settings.value(item);
@@ -46,10 +45,8 @@ QQmlPropertyMap *SettingsLoader::createPropertyMap(QString group, QVariantMap ma
 
                 QJsonValue jsonValue = QJsonValue::fromVariant(value);
                 propertyMap->insert(item, jsonValue);
-		emit propertyMap->valueChanged(item, value);
             } else {
                 propertyMap->insert(item, map.value(item));
-		emit propertyMap->valueChanged(item, map.value(item));
             }
         }
     }
