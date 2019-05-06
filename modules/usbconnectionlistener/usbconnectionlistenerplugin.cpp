@@ -38,9 +38,11 @@ void UsbConnectionListenerPlugin::actionMessage(QString id, QString message){
 
 void UsbConnectionListenerPlugin::usbDeviceAdded(QString deviceDetails){
     emit onMessage("UsbDeviceAdded", deviceDetails);
+    emit onMessage("GUI::Notification", deviceDetails);
 }
 
 void UsbConnectionListenerPlugin::usbDeviceRemoved(QString deviceDetails){
     emit onMessage("UsbDeviceRemoved", deviceDetails);
+    emit onMessage("GUI::Notification", deviceDetails);
 }
 

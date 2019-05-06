@@ -118,6 +118,7 @@ void MediaLibrary::addLocation(QString path){
 void MediaLibrary::scanningFinished(){
     p_audioFolders = mediaScanner->mediadb->getMediaFolders(MediaDB::AUDIO);
     p_playlists = getPlaylists();
-    emit mediaScanningFinished();
+    emit libraryUpdated();
+    emit mediaNotification("GUI::Notification","{\"image\":\"qrc:/qml/icons/android-search.png\", \"title\":\"Media Scanning finished\", \"description\":\"\"}");
 }
 

@@ -26,12 +26,11 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
     //Load plugins
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
 
-	QString fileBaseName=fileName.section(".",0,0);
-	if (filter && !filterList.contains(fileBaseName,Qt::CaseInsensitive)) {
-		qDebug() << "Plugin not whitelisted (disabled): " << fileBaseName;
-		continue;
-	}
-	qDebug() << "Loading plugin: " << fileName;
+        QString fileBaseName=fileName.section(".",0,0);
+        if (filter && !filterList.contains(fileBaseName,Qt::CaseInsensitive)) {
+            qDebug() << "Plugin not whitelisted (disabled): " << fileBaseName;
+            continue;
+        }
 
         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
 
@@ -44,14 +43,19 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
         if (!plugin) {
             qCDebug(PLUGINMANAGER) << "Error loading plugin : " << fileName << pluginLoader.errorString();
             continue;
-        } else {
-            qCDebug(PLUGINMANAGER) << "Plugin loaded : " << fileName;
         }
+
+        PluginInterface * pluginObject = qobject_cast<PluginInterface *>(plugin);
+
+        if(!pluginObject){
+            qCDebug(PLUGINMANAGER) << "Error loading plugin : " << fileName << ", root component is not a valid instance of PluginInterface";
+            continue;
+        }
+
+        qCDebug(PLUGINMANAGER) << "Plugin loaded : " << fileName;
 
         QJsonObject metaData = pluginLoader.metaData().value("MetaData").toObject();
         QString pluginName = metaData.value("name").toString();
-
-        PluginInterface * pluginObject = qobject_cast<PluginInterface *>(plugin);
 
         const QMetaObject *pluginMeta = plugin->metaObject();
 
@@ -120,6 +124,13 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 }
 
 void PluginManager::messageReceived(QString id, QString message){
+    QStringList messageId = id.split("::");
+
+    if(messageId.size() == 2 && messageId[0] == "GUI") {
+        emit themeEvent(messageId[1], message);
+        return;
+    }
+
     QString event = QString("%1::%2").arg(QString(sender()->metaObject()->className())).arg(id);
     if(connections.contains(event)){
         QStringList listeners = connections.value(event);
