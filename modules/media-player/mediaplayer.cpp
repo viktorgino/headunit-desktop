@@ -2,7 +2,7 @@
 
 MediaPlayerPlugin::MediaPlayerPlugin(QObject *parent) : QObject(parent)
 {
-
+    connect(&mediaLibrary, &MediaLibrary::mediaNotification, this, &MediaPlayerPlugin::onMessage);
 }
 
 QObject *MediaPlayerPlugin::getContextProperty(){
