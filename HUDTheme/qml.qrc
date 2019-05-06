@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>AlphabetScrollBar.qml</file>
+        <file>Arrow.qml</file>
+        <file>ImageButton.qml</file>
+        <file>MenuButton.qml</file>
+        <file>ModeSwitch.qml</file>
+        <file>plugins.qmltypes</file>
+        <file>qmldir</file>
+        <file>ThemeText.qml</file>
+        <file>TopMenu.qml</file>
+    </qresource>
+</RCC>

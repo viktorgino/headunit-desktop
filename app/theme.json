@@ -1,0 +1,234 @@
+{
+    "name": "base",
+    "label": "Base Thems",
+    "colors": [
+        {
+            "name": "text",
+            "label": "UI text color",
+            "defaultValue": "#ffffff"
+        },
+        {
+            "name": "subText",
+            "label": "UI sub text color",
+            "defaultValue": "#CACACA"
+        },
+        {
+            "name": "headingText1",
+            "label": "Heading Level 1 text color",
+            "defaultValue": "#ffffff"
+        },
+        {
+            "name": "headingText2",
+            "label": "Heading Level 2 text color",
+            "defaultValue": "#bbbbbb"
+        },
+        {
+            "name": "headingText3",
+            "label": "Heading Level 3 text color",
+            "defaultValue": "#999999"
+        },
+        {
+            "name": "headingText4",
+            "label": "Heading Level 4 text color",
+            "defaultValue": "#777777"
+        },
+        {
+            "name": "headingText5",
+            "label": "Heading Level 5 text color",
+            "defaultValue": "#ffffff"
+        },
+        {
+            "name": "icon",
+            "label": "Icon color",
+            "defaultValue": "#ffffff"
+        },
+        {
+            "name": "iconActive",
+            "label": "Active icon color",
+            "defaultValue": "#ff5722"
+        },
+        {
+            "name": "box",
+            "label": "Main UI box",
+            "defaultValue": "#212121"
+        },
+        {
+            "name": "formBox",
+            "label": "Form box color",
+            "defaultValue": "#3f51b5"
+        },
+        {
+            "name": "formText",
+            "label": "Form text color",
+            "defaultValue": "#000000"
+        },
+        {
+            "name": "formSubText",
+            "label": "Form sub text color",
+            "defaultValue": "#0D0D0D"
+        },
+        {
+            "name": "formBackground",
+            "label": "Form background color",
+            "defaultValue": "#fafafa"
+        }
+    ],
+    "sizes": [
+        {
+            "name": "text",
+            "label": "UI text size",
+            "defaultValue": 16,
+            "minimum": 5,
+            "maximum": 100
+        },
+        {
+            "name": "subText",
+            "label": "UI sub text size",
+            "defaultValue": 14,
+            "minimum": 5,
+            "maximum": 100
+        },
+        {
+            "name": "headingText1",
+            "label": "Heading Level 1 text size",
+            "defaultValue": 50,
+            "minimum": 5,
+            "maximum": 100
+        },
+        {
+            "name": "headingText2",
+            "label": "Heading Level 2 text size",
+            "defaultValue": 45,
+            "minimum": 5,
+            "maximum": 100
+        },
+        {
+            "name": "headingText3",
+            "label": "Heading Level 3 text size",
+            "defaultValue": 40,
+            "minimum": 5,
+            "maximum": 100
+        },
+        {
+            "name": "headingText4",
+            "label": "Heading Level 4 text size",
+            "defaultValue": 35,
+            "minimum": 5,
+            "maximum": 100
+        },
+        {
+            "name": "headingText5",
+            "label": "Heading Level 5 text size",
+            "defaultValue": 16,
+            "minimum": 5,
+            "maximum": 100
+        },
+        {
+            "name": "formText",
+            "label": "Form text size",
+            "defaultValue": 16,
+            "minimum": 5,
+            "maximum": 100
+        },
+        {
+            "name": "formSubText",
+            "label": "Form sub text size",
+            "defaultValue": 14,
+            "minimum": 5,
+            "maximum": 100
+        },
+        {
+            "name": "menuText",
+            "label": "Side menu text size",
+            "defaultValue": 18
+        },
+        {
+            "name": "menuIcon",
+            "label": "Side menu icon size",
+            "defaultValue": 30,
+            "minimum": 5,
+            "maximum": 100
+        }
+    ],
+    "settings": [
+        {			
+            "label":"Background Settings",
+            "name": "Background",
+			"type":"items",
+            "items": [
+                {
+                    "label": "Type",
+                    "name": "image",
+                    "type": "switch",
+                    "textOff": "Color",
+                    "textOn": "Image"
+                },
+                {
+                    "label": "Background Color",
+                    "name": "color",
+                    "type": "color",
+                    "defaultValue": "#ffffff",
+                    "conditional":true,
+                    "conditionTarget": "image",
+                    "conditionValue":false
+                },
+                {
+                    "label": "Type",
+                    "name": "slideshow",
+                    "type": "switch",
+                    "textOff": "Image",
+                    "textOn": "Slideshow",
+                    "conditional":true,
+                    "conditionTarget": "image",
+                    "conditionValue":true
+                },
+                {
+                    "label": "Slide show time",
+                    "name": "slideshowTime",
+                    "type": "slider",
+                    "defaultValue": 60,
+                    "minimum": 10,
+                    "maximum": 120,
+                    "stepSize": 1,
+                    "suffix": "secs",
+                    "conditional":true,
+                    "conditionTarget": "slideshow",
+                    "conditionValue":true
+                },
+                {
+                    "label": "Select folder",
+                    "name": "slideshowPath",
+                    "type": "file",
+                    "browserType" : "folder",
+                    "conditional":true,
+                    "conditionTarget": "slideshow",
+                    "conditionValue":true
+                },
+                {
+                    "label": "Select image",
+                    "name": "imagePath",
+                    "type": "file",
+                    "browserType" : "file",
+                    "nameFilters" : [ "*.png", "*.jpg" ],
+                    "conditional":true,
+                    "conditionTarget": "slideshow",
+                    "conditionValue":false
+                }
+            ]
+        },
+        {
+            "label":"Theme Settings",
+            "name": "themeSettings",
+            "type":"items",
+            "items": [
+                {
+                    "label":"Font",
+                    "name": "font",
+                    "type":"textfield",
+                    "textType" : "string",
+                    "defaultValue" : "Raleway"
+                }
+            ]
+        }
+    ]
+}

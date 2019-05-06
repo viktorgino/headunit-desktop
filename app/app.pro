@@ -12,16 +12,20 @@ SOURCES += main.cpp \
     settingsloader.cpp \
     thememanager.cpp
 
+RESOURCES += \
+    ../qml_gui/qml.qrc
+
 HEADERS += \
     ../includes/plugininterface.h \
     pluginmanager.h \
     settingsloader.h \
     thememanager.h
 
+include("../qml_gui/quickcross/quickcross.pri")
+
 rpi {
     DEFINES += RPI
 }
-DESTDIR = $${OUT_PWD}/../
 
 QML_IMPORT_PATH = $${OUT_PWD}
 
@@ -38,4 +42,10 @@ theme.files += \
 theme.path = $$PREFIX/ 
 
 INSTALLS += target pluginfiles theme
+
+DISTFILES += \
+    $${PWD}/../qml_gui/qml/theme/qmldir \
+    $${PWD}/../qml_gui/qml/theme/designer/hudtheme.metainfo \
+    $${PWD}/../qml_gui/qml/theme/backgrounds/* \
+    $${PWD}/theme.json
 

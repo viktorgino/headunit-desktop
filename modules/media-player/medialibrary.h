@@ -18,10 +18,10 @@ class MediaLibrary : public QObject
     Q_OBJECT
     Q_PROPERTY(QVariantMap audioFolders READ audioFolders CONSTANT)
     Q_PROPERTY(QVariantMap playlists READ playlists CONSTANT)
-    Q_PROPERTY(QVariantMap albums READ getAlbums NOTIFY libraryUpdated)
-    Q_PROPERTY(QVariantMap artists READ getArtists NOTIFY libraryUpdated)
-    Q_PROPERTY(QVariantMap genres READ getGenres NOTIFY libraryUpdated)
-    Q_PROPERTY(QVariantMap songs READ getSongs NOTIFY libraryUpdated)
+    Q_PROPERTY(QVariantMap albums READ getAlbums NOTIFY mediaScanningFinished)
+    Q_PROPERTY(QVariantMap artists READ getArtists NOTIFY mediaScanningFinished)
+    Q_PROPERTY(QVariantMap genres READ getGenres NOTIFY mediaScanningFinished)
+    Q_PROPERTY(QVariantMap songs READ getSongs NOTIFY mediaScanningFinished)
 public:
     explicit MediaLibrary(QObject *parent = nullptr);
     const QVariantMap audioFolders();
@@ -43,8 +43,7 @@ public:
     Q_INVOKABLE QVariantList getMountedVolumes();
     Q_INVOKABLE void addLocation(QString path);
 signals:
-    void libraryUpdated();
-    void mediaNotification(QString id, QString message);
+    void mediaScanningFinished();
 public slots:
     void scanningFinished();
 private:

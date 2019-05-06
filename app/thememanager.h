@@ -5,7 +5,7 @@
 #include <QColor>
 #include <QDebug>
 #include <QQmlApplicationEngine>
-#include <QQmlContext>
+#include <QQmlContext>5
 #include <QQmlPropertyMap>
 #include <QSettings>
 #include <QDir>
@@ -15,8 +15,6 @@
 #include <QJsonArray>
 #include <QLoggingCategory>
 #include <QSettings>
-#include <QPluginLoader>
-#include <QQmlExtensionPlugin>
 
 #include "settingsloader.h"
 
@@ -37,9 +35,8 @@ private:
     QVariantList HUDStyleSettings;
     QList<SettingsLoader *>m_settings;
 signals:
-    void themeEvent(QString event, QString eventData);
+
 public slots:
-    void onEvent(QString event, QString eventData);
 };
 
 #endif // THEMEMANAGER_H

@@ -20,9 +20,7 @@ public:
     QStringList actions() override;
 private:
     MediaLibrary mediaLibrary;
-
 signals:
-    void onMessage(QString id, QString message);
 
 public slots:
     void eventMessage(QString id, QString message) override;

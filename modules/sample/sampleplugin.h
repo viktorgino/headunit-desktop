@@ -15,7 +15,6 @@ public:
     QStringList eventListeners() override;
     QStringList events() override;
     QStringList actions() override;
-    Q_INVOKABLE void testNotification();
 private slots:
     void usbDeviceAdded(QString deviceDetails);
     void usbDeviceRemoved(QString deviceDetails);

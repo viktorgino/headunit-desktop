@@ -56,16 +56,13 @@ int main(int argc, char *argv[])
     if (whitelist) {
 	    plugins = p.split(" ",QString::SkipEmptyParts);
     }
-
-
-    engine->rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
+   
 
     PluginManager pluginManager(engine, whitelist, plugins);
-
     ThemeManager themeManager(engine);
+    engine->rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
 
-    QObject::connect(&pluginManager, &PluginManager::themeEvent, &themeManager, &ThemeManager::onEvent);
-
+    engine->load(QUrl(QStringLiteral("qrc:/qml/main.qml")));
 
     int ret = app.exec();
 
