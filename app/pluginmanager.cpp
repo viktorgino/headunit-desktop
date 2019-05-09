@@ -90,6 +90,11 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
             menuItems << menu.toObject().toVariantMap();
         }
 
+        QJsonValue overlay = metaData.value("overlay");
+        if(overlay.type() == QJsonValue::String){
+            m_overlays << overlay.toString();
+        }
+
         QJsonValue config = metaData.value("config");
         if(config.type() == QJsonValue::Object){
             QJsonObject settingsObject = config.toObject();
@@ -119,6 +124,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 
     engine->rootContext()->setContextProperty("HUDSettingsMenu", settingsItems);
     engine->rootContext()->setContextProperty("HUDSettings", m_settings);
+    engine->rootContext()->setContextProperty("HUDOverlays", m_overlays);
 
     return true;
 }

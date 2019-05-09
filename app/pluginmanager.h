@@ -47,6 +47,8 @@ private:
     void processPluginEvents(QStringList events);
     QVariantMap m_settings;
     QHash<QString, QStringList> connections;
+
+    QStringList m_overlays;
 };
 
 #endif // PLUGINMANAGER_H
