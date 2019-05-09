@@ -7,5 +7,6 @@
         <file>Phone.qml</file>
         <file>bluetooth.png</file>
         <file>ImageButton.qml</file>
+        <file>CallNotification.qml</file>
     </qresource>
 </RCC>

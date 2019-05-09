@@ -18,7 +18,7 @@ public:
     QStringList events() override;
     QStringList actions() override;
 private:
-     TelephonyManager *telephonyManager;
+    TelephonyManager *telephonyManager;
 
 signals:
 

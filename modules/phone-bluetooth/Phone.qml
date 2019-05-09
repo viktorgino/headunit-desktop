@@ -284,6 +284,7 @@ Item {
     }
     Connections{
         target: AndroidAuto
+        ignoreUnknownSignals: true
         onBtConnectionRequest:{
             for(var i = 0 ; i < bluezManager.devices.length; i++){
                 if(bluezManager.devices[i].address === address){
