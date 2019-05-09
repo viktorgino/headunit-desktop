@@ -11,5 +11,6 @@ SUBDIRS = \
           modules/welle-io \
 #          modules/navit \
           modules/sample \
+          modules/rpi \
           themes/default-theme
 

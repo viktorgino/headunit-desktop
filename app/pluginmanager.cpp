@@ -109,10 +109,12 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
             settingsItems.append(settingsObject.toVariantMap());
         }
         pluginLoaders<< &pluginLoader;
+	pluginObject->onLoad();
     }
     //Load QML plugins
     pluginsDir.cd("qml");
     foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+	qDebug() << "Loading qml plugin: " << fileName;
         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
         QJsonValue uri = pluginLoader.metaData().value("MetaData").toObject().value("uri");
         QList<QQmlError> errors;
