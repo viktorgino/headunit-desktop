@@ -16,7 +16,7 @@ Proposed features:
  - FM Radio
  - CAN bus sniffer (depending on how much control different modules of the car allow and how much information, such as A/C steering wheel controls, different gauges and sensor data) with a customizable profile for each car.
 
-The GUI for some of the proposed features is already there. For screenshots of the current state of the GUI [go to the screenshots page.](http://headunit.viktorgino.me/SCREENSHOTS)
+The GUI for some of the proposed features is already there. For screenshots of the current state of the GUI go to the [screenshots page](https://github.com/viktorgino/headunit-desktop/wiki/Screenshots) in the Wiki.
 
 For information on getting started on documentation go to the [Wiki](https://github.com/viktorgino/headunit-desktop/wiki)
 
