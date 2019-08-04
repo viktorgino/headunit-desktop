@@ -1,37 +1,17 @@
 language: none
 compiler: gcc
 sudo: require
-dist: trusty
+dist: bionic
 
 before_install:
-    - sudo add-apt-repository ppa:beineri/opt-qt591-trusty -y
-    - sudo add-apt-repository ppa:floe/libusb -y
-    - sudo add-apt-repository ppa:dan-witt/gstreamer -y
-    - sudo add-apt-repository ppa:m2xtreme/pulseaudio -y
     - sudo apt-get update -qq
     
 install: 
-    - sudo apt-get -q -y install qt59base qt59declarative qt59quickcontrols2 qt59multimedia qt59connectivity qt59xmlpatterns qt59charts-no-lgpl
-    - sudo apt-get -q -y install build-essential cmake protobuf-compiler
-    - sudo apt-get -q -y install ofono ofono-dev ofono-phonesim pulseaudio bluez pulseaudio-module-bluetooth
-    - sudo apt-get -q -y install libpulse-dev libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libboost-dev libgstreamer-plugins-base1.0-dev libudev-dev libtag1-dev libprotobuf-dev libunwind8-dev
-    - sudo apt-get -q -y install libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev  portaudio19-dev libsndfile1-dev libsamplerate0-dev libcanberra-dev libgconf2-dev libpulse-dev
+    - sudo apt-get -q -y install qt5-default qml-module-qtquick2 qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins qml-module-qtquick* qml-module-qtmultimedia qml-module-qt-labs-settings qml-module-qt-labs-folderlistmodel libqt5xmlpatterns5-dev libqt5bluetooth5 qtconnectivity5-dev qml-module-qtbluetooth libqt5charts5 qml-module-qtcharts libqt5contacts5 qtpim5-dev qml-module-qtcontacts
+    - sudo apt-get -q -y install install build-essential protobuf-compiler cmake extra-cmake-modules libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libboost-dev libudev-dev libtag1-dev libprotobuf-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libgstreamer-plugins-base1.0-dev gstreamer1.0-pulseaudio libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev  portaudio19-dev libsndfile1-dev libsamplerate0-dev ofono ofono-dev ofono-phonesim pulseaudio bluez bluez-obexd pulseaudio-module-bluetooth qtconnectivity5-dev qml-module-qtbluetooth libkf5bluezqt-dev qml-module-org-kde-bluezqt qtbase5-private-dev libcanberra-dev libgconf2-dev libpulse-dev libmp3lame-dev libsoapysdr-dev libmpg123-dev
     - sudo apt-get -q -y install git
-    - source /opt/qt59/bin/qt59-env.sh
 
 script:
-  - git clone https://anongit.kde.org/extra-cmake-modules.git
-  - cd extra-cmake-modules
-  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) -DCMAKE_INSTALL_INCLUDEDIR=include -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11
-  - make -j4
-  - sudo make install
-  - cd ../
-  - git clone https://anongit.kde.org/bluez-qt.git
-  - cd bluez-qt
-  - cmake . -DCMAKE_INSTALL_PREFIX=/usr -DCMAKE_INSTALL_LIBDIR=lib/$(dpkg-architecture -qDEB_HOST_MULTIARCH) -DCMAKE_INSTALL_INCLUDEDIR=include -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS=-std=c++11 -DKDE_INSTALL_QMLDIR=/opt/qt59/qml -DECM_MKSPECS_INSTALL_DIR=/opt/qt59/mkspecs/modules
-  - make -j4
-  - sudo make install
-  - cd ../
   - git clone git://anongit.freedesktop.org/gstreamer/qt-gstreamer
   - cd qt-gstreamer
   - mkdir build
@@ -52,7 +32,9 @@ script:
   - make -j4
   - sudo make install
   - cd ../../
-  - protoc --proto_path=headunit/hu/ --cpp_out=headunit/hu/generated.x64/ headunit/hu/hu.proto
+  - protoc --proto_path=modules/android-auto/headunit/hu/ --cpp_out=modules/android-auto/headunit/hu/generated.x64/ modules/android-auto/headunit/hu/hu.proto
+  - mkdir build && cd build
+  - PREFIX=~/hud qmake ../headunit-desktop.pro
   - qmake -config release
   - make -j4
   
