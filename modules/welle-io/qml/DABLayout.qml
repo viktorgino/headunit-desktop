@@ -38,296 +38,445 @@
 **
 ****************************************************************************/
 
-import QtQuick 2.2
-import QtQuick.Controls 2.0
-import QtQuick.Controls 1.4
-import QtQuick.Layouts 1.1
+import QtQuick 2.9
+import QtQuick.Layouts 1.3
+import QtQuick.Controls 2.3
+import QtQuick.Controls.Material 2.1
+import QtQuick.Controls.Universal 2.1
 import QtQuick.Window 2.2
-import QtQuick.Dialogs 1.1
 import Qt.labs.settings 1.0
 
-// Import custom styles
-import "qrc:/src/gui/QML"
-import "qrc:/src/gui/QML/style"
+import "qrc:/WelleIoPluginRes/QML"
+import "qrc:/WelleIoPluginRes/QML/texts"
+import "qrc:/WelleIoPluginRes/QML/settingpages"
+import "qrc:/WelleIoPluginRes/QML/components"
 
 Item {
-    property QtObject cppRadioController: WelleIoPlugin.RadioController
-    property QtObject cppGUI: WelleIoPlugin.GUI
+    id: __root
 
-    id: mainWindow
+    property bool isExpertView: false
+    property bool isFullScreen: false
+    property bool isLoaded: false
+
     visible: true
 
-    property bool isLandscape: true
-    function getWidth() {
-        if(Screen.desktopAvailableWidth < Units.dp(700)
-                || Screen.desktopAvailableHeight < Units.dp(500)
-                || Qt.platform.os == "android") // Always full screen on Android
-            return Screen.desktopAvailableWidth
-        else
-            return Units.dp(700)
-    }
+    StationListModel { id: stationList }
+    StationListModel { id: favoritsList }
 
-    function getHeight() {
-        if(Screen.desktopAvailableHeight < Units.dp(500)
-                || Screen.desktopAvailableWidth < Units.dp(700)
-                || Qt.platform.os == "android")  // Always full screen on Android
-            return Screen.desktopAvailableHeight
-        else
-            return Units.dp(500)
-    }
-
-    width: getWidth()
-    height: getHeight()
+    readonly property bool inPortrait: __root.width < __root.height
 
     Component.onCompleted: {
-        console.debug("os: " + Qt.platform.os)
-        console.debug("desktopAvailableWidth: " + Screen.desktopAvailableWidth)
-        console.debug("desktopAvailableHeight: " + Screen.desktopAvailableHeight)
-        console.debug("orientation: " + Screen.orientation)
-        console.debug("devicePixelRatio: " + Screen.devicePixelRatio)
-        console.debug("pixelDensity: " + Screen.pixelDensity)
-    }
+        // Show error message if one occured during startup
+        if(errorMessagePopup.text != "")
+            errorMessagePopup.open();
 
-    property int stackViewDepth
-    signal stackViewPush(Item item)
-    signal stackViewPop()
-    signal stackViewComplete()
-    signal stationClicked()
-    property alias isExpertView: settingsPage.enableExpertModeState
+        isLoaded = true
+    }
 
     Settings {
-        property alias width : mainWindow.width
-        property alias height : mainWindow.height
+//        property alias width : __root.width
+//        property alias height : __root.height
+        property alias stationListSerialize: stationList.serialized
+        property alias favoritsListSerialize: favoritsList.serialized
+        property alias stationListBoxIndex: stationListBox.currentIndex
     }
 
-    onIsExpertViewChanged: {
-        if(stackViewDepth > 1)
-        {
-            if(isExpertView == true)
-                infoMessagePopup.text = qsTr("Expert mode is enabled")
-            else
-                infoMessagePopup.text = qsTr("Expert mode is disabled")
-            infoMessagePopup.open()
-        }
-    }
+    ToolBar {
+        id: overlayHeader
+        Material.foreground: "white"
+        width: __root.width
+        height: __root.height * 0.05
+        RowLayout {
+            spacing: 20
+            anchors.fill: parent
 
-
-    SettingsPage{
-        id:settingsPage
-        visible: false
-    }
-
-
-
-
-    Item {
-        id: __toolBar
-        //border.bottom: Units.dp(10)
-        //source: "images/toolbar.png"
-        width: parent.width
-        height: Units.dp(40);
-
-        Rectangle {
-            id: backButton
-            width: Units.dp(60)
-            anchors.left: parent.left
-            anchors.leftMargin: Units.dp(20)
-            anchors.verticalCenter: parent.verticalCenter
-            antialiasing: true
-            radius: Units.dp(4)
-            color: backmouse.pressed ? "#222" : "transparent"
-            property bool isSettings: false
-            Behavior on opacity { NumberAnimation{} }
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                source: parent.isSettings ? "qrc:/src/gui/QML/images/navigation_previous_item.png" : "qrc:/src/gui/QML/images/icon-settings.png"
-                height: parent.isSettings? Units.dp(20) : Units.dp(23)
-                fillMode: Image.PreserveAspectFit
-            }
-            MouseArea {
-                id: backmouse
-                scale: 1
-                anchors.fill: parent
-                anchors.margins: Units.dp(-20)
+            ToolButton {
+                text: qsTr("‹")
                 onClicked: {
-                    backButton.isSettings = !backButton.isSettings
-                }
-            }
-        }
+                    if (stationDrawer.visible)
+                    {
+                        stationDrawer.close()
+                    }
+                    else
+                    {
+                        // Workaround for touch displays. (Discovered with Windows 10)
+                        // For some reason the dawer will be closed before it is openend
+                        // Disbale closing
+                        stationDrawer.closePolicy = Popup.NoAutoClose
 
-        TextTitle {
-            x: backButton.x + backButton.width + Units.dp(20)
-            anchors.verticalCenter: parent.verticalCenter
-            text: "welle.io"
-        }
-
-        TextStandart {
-            x: mainWindow.width - width - Units.dp(5) - infoButton.width
-            anchors.verticalCenter: parent.verticalCenter
-            anchors.rightMargin: Units.dp(5)
-            text: "01.01.2016 00:00"
-            id: dateTimeDisplay
-        }
-
-        Rectangle {
-            id: infoButton
-            width: backButton.isSettings ? Units.dp(40) : 0
-            anchors.right: parent.right
-            anchors.verticalCenter: parent.verticalCenter
-            antialiasing: true
-            radius: Units.dp(4)
-            color: backmouse.pressed ? "#222" : "transparent"
-            property bool isInfoPage: false
-            Image {
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.horizontalCenter: parent.horizontalCenter
-                source: backButton.isSettings ? "qrc:/src/gui/QML/images/icon-info.png" : ""
-                anchors.rightMargin: Units.dp(20)
-                height: Units.dp(23)
-                fillMode: Image.PreserveAspectFit
-            }
-            MouseArea {
-                id: infomouse
-                scale: 1
-                anchors.fill: parent
-                anchors.margins: Units.dp(-20)
-                onClicked: {
-                    infoButton.isInfoPage = !infoButton.isInfoPage
-                }
-            }
-        }
-    }
-
-
-
-    Loader {
-        id:mainViewLoader
-        anchors.top: __toolBar.bottom
-        anchors.right: parent.right
-        anchors.bottom: parent.bottom
-        anchors.left: parent.left
-        anchors.topMargin: 0
-        Layout.margins: Units.dp(10);
-        sourceComponent: {
-            mainWindow.isLandscape = true;
-            if(isExpertView)
-                return landscapeViewExpert3D
-            else
-                return landscapeView3D
-        }
-    }
-
-    Component {
-        id:channelBrowser
-        ChannelBrowser{
-            Connections {
-                target: backmouse
-                onClicked: {
-                    if(infoPageVisible){
-                        infoPageVisible = false
-                        backButton.isSettings = true
-                    } else {
-                        settingsVisible = backButton.isSettings
+                        // Open drawer
+                        stationDrawer.open()
                     }
                 }
             }
-            Connections {
-                target: infomouse
-                onClicked: {
-                    infoPageVisible = infoButton.isInfoPage
+
+            Label {
+                id: titleLabel
+                text: "welle.io"
+                font.pixelSize: Units.dp(20)
+                elide: Label.ElideRight
+                horizontalAlignment: Qt.AlignHCenter
+                verticalAlignment: Qt.AlignVCenter
+                Layout.fillWidth: true
+            }
+
+            ToolButton {
+                text: qsTr("⋮")
+                onClicked: optionsMenu.open()
+
+                Menu {
+                    id: optionsMenu
+                    x: parent.width - width
+                    transformOrigin: Menu.TopRight
+
+                    MenuItem {
+                        text: qsTr("Settings")
+                        font.pixelSize: TextStyle.textStandartSize
+                        onTriggered: {
+                            globalSettingsDialog.title = text
+                            globalSettingsDialog.open()
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("Expert Settings")
+                        font.pixelSize: TextStyle.textStandartSize
+                        onTriggered: {
+                            expertSettingsDialog.title = text
+                            expertSettingsDialog.open()
+                        }
+                    }
+                    MenuItem {
+                        text: qsTr("About")
+                        font.pixelSize: TextStyle.textStandartSize
+                        onTriggered: {
+                            aboutDialog.title = text
+                            aboutDialog.open()
+                        }
+                    }
                 }
             }
-            Component.onCompleted: {
-                settingsVisible = backButton.isSettings
-                enableFullScreenState = settingsPage.enableFullScreenState
-                enableExpertModeState = settingsPage.enableExpertModeState
-                enableAGCState = settingsPage.enableAGCState
-                manualGainState = settingsPage.manualGainState
-                is3D = settingsPage.is3D
-            }
-            onEnableAGCStateChanged: {
-                settingsPage.enableAGCState = enableAGCState
-            }
-            onEnableExpertModeStateChanged: {
-                settingsPage.enableExpertModeState = enableExpertModeState
-
-            }
-            onEnableFullScreenStateChanged: {
-                settingsPage.enableFullScreenState = enableFullScreenState
-            }
-            onManualGainStateChanged: {
-                settingsPage.manualGainState = manualGainState
-            }
-            onIs3DChanged: {
-                settingsPage.is3D = is3D
-            }
         }
     }
-    Component {
-        id: landscapeView3D
 
-        Loader {
-            id: stationView
-            Layout.minimumWidth: Units.dp(350)
-            Layout.margins: Units.dp(10)
-            sourceComponent: channelBrowser
-        }
-    }
-    Component {
-        id: landscapeViewExpert3D
+    Drawer {
+        id: stationDrawer
 
-        SplitView {
-            id: splitView
+        y: overlayHeader.height
+        width: __root.width < 1.5 * implicitWidth ? __root.width : Units.dp(320)
+        height: __root.height - overlayHeader.height
+
+        modal: inPortrait
+        interactive: inPortrait
+        position: inPortrait ? 0 : 1
+        visible: !inPortrait
+
+        // Workaround for touch displays. (Discovered with Windows 10)
+        // For some reason the dawer will be closed before it is openend
+        // Enable closing again
+        onOpened: closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        ColumnLayout {
             anchors.fill: parent
-            orientation: Qt.Horizontal
+            anchors.topMargin: Units.dp(5)
 
-            Loader {
-                id: stationView
-                Layout.minimumWidth: Units.dp(350)
-                Layout.margins: Units.dp(10)
-                sourceComponent: channelBrowser
+            RowLayout {
+                WComboBox {
+                    id: stationListBox
+                    Layout.preferredWidth: Units.dp(200)
+                    background: Rectangle { color: "white" }
+
+                    model:  [qsTr("All stations"), qsTr("Favorites")]
+
+                    onCurrentIndexChanged: {
+                        switch(currentIndex) {
+                        case 0: stationChannelView.model = stationList; break;
+                        case 1: stationChannelView.model = favoritsList; break;
+                        }
+                    }
+                }
+
+                Item { // Dummy element for filling
+                    Layout.fillWidth: true
+                }
+
+                Button {
+                    id: menuButton
+                    icon.name: "menu"
+                    icon.height: Units.dp(15)
+                    icon.width: Units.dp(15)
+                    background: Rectangle {
+                        color: menuButton.pressed ? "lightgrey" : "white"
+                        opacity: menuButton.pressed ? 100 : 0
+                    }
+                    onClicked: stationMenu.open()
+                    implicitWidth: contentItem.implicitWidth + Units.dp(15)
+
+                    Menu {
+                        id: stationMenu
+
+                        MenuItem {
+                            id: startStationScanItem
+                            text: qsTr("Start station scan")
+                            font.pixelSize: TextStyle.textStandartSize
+                            font.family: TextStyle.textFont
+                            onTriggered:  {
+                                startStationScanItem.enabled = false
+                                stopStationScanItem.enabled = true
+                                WelleIoPlugin.RadioController.startScan()
+                            }
+                        }
+
+                        MenuItem {
+                            id: stopStationScanItem
+                            text: qsTr("Stop station scan")
+                            font.pixelSize: TextStyle.textStandartSize
+                            font.family: TextStyle.textFont
+                            enabled: false
+                            onTriggered:  {
+                                startStationScanItem.enabled = true
+                                stopStationScanItem.enabled = false
+                                WelleIoPlugin.RadioController.stopScan()
+                            }
+                        }
+
+                        MenuItem {
+                            text: qsTr("Clear station list")
+                            font.pixelSize: TextStyle.textStandartSize
+                            font.family: TextStyle.textFont
+                            onTriggered: stationList.clearStations()
+                        }
+
+                        MenuItem {
+                            id: stationSettingsItem
+                            text: qsTr("Station settings")
+                            font.pixelSize: TextStyle.textStandartSize
+                            font.family: TextStyle.textFont
+                            onTriggered: {
+                                stationSettingsDialog.title = text
+                                stationSettingsDialog.open()
+                            }
+                        }
+                    }
+                }
             }
-            Loader {
-                id: expertViewLoader
+
+            TextStandart {
+                text: qsTr("No stations in list")
+                visible: stationChannelView.count ? false : true
                 Layout.margins: Units.dp(10)
+            }
+
+            ListView {
+                id: stationChannelView
+                model: stationList
                 Layout.fillWidth: true
-                sourceComponent: expertView
+                Layout.fillHeight: true
+                clip: true
+                delegate: StationDelegate {
+                    stationNameText: stationName
+                    stationSIdValue: stationSId
+                    channelNameText: channelName
+                    isFavorit: favorit
+                    isExpert: isExpertView
+                    onClicked: WelleIoPlugin.RadioController.play(channelName, stationName, stationSId)
+                    onFavoritClicked: {
+                        var favoritInvert = !favorit
+                        stationList.setFavorit(stationSId, favoritInvert) // Invert favorit
+
+                        if(favoritInvert)
+                            favoritsList.addStation(stationName, stationSId, channelName, true)
+                        else
+                            favoritsList.removeStation(stationSId);
+                    }
+                }
+
+                ScrollIndicator.vertical: ScrollIndicator { }
             }
 
-            Settings {
-                property alias expertStationViewWidth: stationView.width
-                property alias expertViewWidth: expertViewLoader.width
+            RowLayout {
+                Layout.margins: Units.dp(10)
+                visible: isExpertView ? true : false
+
+                TextStandart {
+                    text: qsTr("Manual channel")
+                    Layout.fillWidth: true
+                }
+
+                WComboBox {
+                    id: manualChannelBox
+                    model: ["5A", "5B", "5C", "5D",
+                        "6A", "6B", "6C", "6D",
+                        "7A", "7B", "7C", "7D",
+                        "8A", "8B", "8C", "8D",
+                        "9A", "9B", "9C", "9D",
+                        "10A", "10B", "10C", "10D",
+                        "11A", "11B", "11C", "11D",
+                        "12A", "12B", "12C", "12D",
+                        "13A", "13B", "13C", "13D", "13E", "13F",
+                        "LA", "LB", "LC", "LD",
+                        "LE", "LF", "LG", "LH",
+                        "LI", "LJ", "LK", "LL",
+                        "LM", "LN", "LO", "LP"]
+
+                    Layout.preferredHeight: Units.dp(25)
+                    Layout.preferredWidth: Units.dp(130)
+                    onActivated: {
+                        WelleIoPlugin.RadioController.setManualChannel(model[index])
+                    }
+                }
             }
         }
     }
 
-    // expertView
-    Component {
-        id: expertView
+    Flickable {
+        id: flickable
+        anchors.fill: parent
+        anchors.leftMargin: (!inPortrait && stationDrawer.opened) ? stationDrawer.width: undefined
+        anchors.topMargin: overlayHeader.height
 
-        ExpertView{
-            Layout.fillWidth: true
-            Layout.fillHeight: true
-            Layout.preferredWidth: Units.dp(400)
-            width: Units.dp(400)
+        GeneralView {
+            id: generalView
+            isExpert: isExpertView
+            isPortrait: inPortrait
+        }
+    }
+
+    RoundButton {
+        text: "\u002b" // Unicode character '+'
+        onClicked: viewMenu.open()
+        x: parent.width - width - 50
+        y: parent.height - height - 50
+        visible: isExpertView
+
+        Menu {
+            id: viewMenu
+            transformOrigin: Menu.TopRight
+
+            MenuItem {
+                text: qsTr("Service Overview")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/WelleIoPluginRes/QML/RadioView.qml", -1 ,-1)
+            }
+
+            MenuItem {
+                text: qsTr("Service Details")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/WelleIoPluginRes/QML/expertviews/ServiceDetails.qml", -1 ,-1)
+            }
+
+            MenuItem {
+                text: qsTr("MOT Slide Show")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/WelleIoPluginRes/QML/MotView.qml", -1 ,-1)
+            }
+
+            MenuItem {
+                text: qsTr("Spectrum")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/WelleIoPluginRes/QML/expertviews/SpectrumGraph.qml", -1 ,-1)
+            }
+
+            MenuItem {
+                text: qsTr("Impulse Response")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/WelleIoPluginRes/QML/expertviews/ImpulseResponseGraph.qml", -1 ,-1)
+            }
+
+            MenuItem {
+                text: qsTr("Constellation Diagram")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/WelleIoPluginRes/QML/expertviews/ConstellationGraph.qml", -1 ,-1)
+            }
+
+            MenuItem {
+                text: qsTr("Null Symbol")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/WelleIoPluginRes/QML/expertviews/NullSymbolGraph.qml", -1 ,-1)
+            }
+
+            MenuItem {
+                text: qsTr("Console Output")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/WelleIoPluginRes/QML/expertviews/TextOutputView.qml", -1 ,-1)
+            }
+
+            MenuItem {
+                text: qsTr("RAW Recorder")
+                font.pixelSize: TextStyle.textStandartSize
+                onTriggered: generalView.addComponent("qrc:/WelleIoPluginRes/QML/expertviews/RawRecorder.qml", -1 ,-1)
+            }
+        }
+    }
+
+    WDialog {
+        id: aboutDialog
+
+        contentItem: InfoPage{
+            id: infoPage
+        }
+    }
+
+    WDialog {
+        id: stationSettingsDialog
+        content: Loader {
+            anchors.right: parent.right
+            anchors.left: parent.left
+            height: parent.implicitHeight
+            source:  "qrc:/WelleIoPluginRes/QML/settingpages/ChannelSettings.qml"
+        }
+    }
+
+    WDialog {
+        id: globalSettingsDialog
+
+        content: Loader {
+            id: globalSettingsLoader
+            anchors.right: parent.right
+            anchors.left: parent.left
+            height: parent.implicitHeight
+            source:  "qrc:/WelleIoPluginRes/QML/settingpages/GlobalSettings.qml"
+            onLoaded : isFullScreen = globalSettingsLoader.item.enableFullScreenState
+        }
+
+        Connections {
+            target: globalSettingsLoader.item
+            onEnableFullScreenStateChanged : isFullScreen = globalSettingsLoader.item.enableFullScreenState
+        }
+    }
+
+    WDialog {
+        id: expertSettingsDialog
+
+        content: Loader {
+            id: expertSettingsLoader
+            anchors.right: parent.right
+            anchors.left: parent.left
+            height: parent.implicitHeight
+            source:  "qrc:/WelleIoPluginRes/QML/settingpages/ExpertSettings.qml"
+            onLoaded: isExpertView = expertSettingsLoader.item.enableExpertModeState
+        }
+
+        Connections {
+            target: expertSettingsLoader.item
+            onEnableExpertModeStateChanged : isExpertView = expertSettingsLoader.item.enableExpertModeState
         }
     }
 
     MessagePopup {
         id: errorMessagePopup
-        x: mainWindow.width/2 - width/2
-        y: mainWindow.height  - __toolBar.height - height
-        revealedY: mainWindow.height - __toolBar.height - height
-        hiddenY: mainWindow.height
+        x: __root.width/2 - width/2
+        y: __root.height  - overlayHeader.height - height
+        revealedY: __root.height - overlayHeader.height - height
+        hiddenY: __root.height
         color: "#8b0000"
     }
 
     MessagePopup {
         id: infoMessagePopup
-        x: mainWindow.width/2 - width/2
-        y: mainWindow.height  - __toolBar.height - height
-        revealedY: mainWindow.height - __toolBar.height - height
-        hiddenY: mainWindow.height
+        x: __root.width/2 - width/2
+        y: __root.height  - overlayHeader.height - height
+        revealedY: __root.height - overlayHeader.height - height
+        hiddenY: __root.height
         color:  "#468bb7"
         onOpened: closeTimer.running = true;
         Timer {
@@ -335,26 +484,8 @@ Item {
             interval: 1 * 5000 // 5 s
             repeat: false
             onTriggered: {
-              infoMessagePopup.close()
+                infoMessagePopup.close()
             }
-        }
-    }
-
-    MessageDialog {
-        id: androidRTLSDRDialog
-        icon: StandardIcon.Warning
-        standardButtons: StandardButton.Ok | StandardButton.Cancel
-        onAccepted: {
-            Qt.openUrlExternally("https://play.google.com/store/apps/details?id=marto.rtl_tcp_andro")
-            Qt.quit()
-        }
-    }
-
-    Connections{
-        target: WelleIoPlugin.GUI
-
-        onSetGUIData:{
-            dateTimeDisplay.text = GUIData.DateTime
         }
     }
 
@@ -363,7 +494,9 @@ Item {
 
         onShowErrorMessage:{
             errorMessagePopup.text = Text;
-            errorMessagePopup.open();
+
+            if(__root.isLoaded)
+                errorMessagePopup.open();
         }
 
         onShowInfoMessage:{
@@ -371,10 +504,16 @@ Item {
             infoMessagePopup.open();
         }
 
-        onShowAndroidInstallDialog:{
-            androidRTLSDRDialog.title = Title
-            androidRTLSDRDialog.text = Text;
-            androidRTLSDRDialog.open();
+        onScanStopped:{
+            startStationScanItem.enabled = true
+            stopStationScanItem.enabled = false
         }
+
+        onScanProgress:{
+            startStationScanItem.enabled = false
+            stopStationScanItem.enabled = true
+        }
+
+        onNewStationNameReceived: stationList.addStation(station, sId, channel, false)
     }
 }

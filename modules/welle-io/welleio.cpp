@@ -2,45 +2,55 @@
 
 WelleIoPlugin::WelleIoPlugin(QObject *parent) : QObject (parent), welleIoWrapper(new WelleIoWrapper())
 {
-    welleioError = false;
 
-    // Default values
+    qDebug() << "WelleIoPlugin";
+    CDebugOutput::init();
+
+    // Register waterfall diagram
+    qmlRegisterType<WaterfallItem>("io.welle", 1, 0, "Waterfall");
+
+    QStringList themePaths;
+    themePaths << "qrc:/WelleIoPluginRes/icon";
+    QIcon::setThemeSearchPaths(themePaths);
+    QIcon::setThemeName("welle_io_icons");
+
     QVariantMap commandLineOptions;
-    CDABParams DABParams(1);
-    commandLineOptions["dabDevice"] = "auto";
-    commandLineOptions["ipAddress"] = "127.0.0.1";
-    commandLineOptions["ipPort"] = 1234;
-    commandLineOptions["rawFile"] =  "";
-    commandLineOptions["rawFileFormat"] = "u8";
+    commandLineOptions["dumpFileName"] = "test.dump";
 
-    if(!welleioError){
-        try {
-            // Create a new radio interface instance
-            CRadioController* RadioController = new CRadioController(commandLineOptions, DABParams);
-            QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted()));
-            CGUI *GUI = new CGUI(RadioController, &DABParams);
+    m_radioController = new CRadioController (commandLineOptions);
 
-            welleIoWrapper->setGui(GUI);
-            welleIoWrapper->setRadioController(RadioController);
+    m_guiHelper = new CGUIHelper (m_radioController);
 
-        } catch (int e) {
-            qDebug()<< "Can't initialise welle.io. Exception: " << e ;
-            welleioError = true;
-        }
-    }
+
+    welleIoWrapper->setRadioController(m_radioController);
+    welleIoWrapper->setGuiHelper(m_guiHelper);
+
 }
 
-CGUI *WelleIoWrapper::gui(){
-    return m_GUI;
+
+WelleIoPlugin::~WelleIoPlugin() {
+    qDebug() << "Deleting WelleIoPlugin";
+    if(welleIoWrapper){
+        delete welleIoWrapper;
+    }
+    if(m_guiHelper){
+        delete m_guiHelper;
+    }
+    if(m_radioController){
+        delete m_radioController;
+    }
+}
+CGUIHelper *WelleIoWrapper::guiHelper(){
+    return m_guiHelper;
 }
 
 CRadioController *WelleIoWrapper::radioController(){
     return m_radioController;
 }
 
-void WelleIoWrapper::setGui(CGUI * GUI){
-    m_GUI = GUI;
-    emit guiChanged();
+void WelleIoWrapper::setGuiHelper(CGUIHelper * GUIHelper){
+    m_guiHelper = GUIHelper;
+    emit guiHelperChanged();
 }
 
 void WelleIoWrapper::setRadioController(CRadioController * radioController){
@@ -48,12 +58,15 @@ void WelleIoWrapper::setRadioController(CRadioController * radioController){
     emit radioControllerChanged();
 }
 
+WelleIoWrapper::~WelleIoWrapper() {
+    qDebug() << "Deleting WelleIoWrapper";
+}
 QObject *WelleIoPlugin::getContextProperty(){
     return welleIoWrapper;
 }
 
 QQuickImageProvider *WelleIoPlugin::getImageProvider() {
-    return welleIoWrapper->gui()->MOTImage;
+    return welleIoWrapper->guiHelper()->motImage;
 }
 
 QStringList WelleIoPlugin::eventListeners(){
