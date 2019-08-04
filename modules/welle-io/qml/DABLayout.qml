@@ -93,16 +93,12 @@ Item {
             ToolButton {
                 text: qsTr("‹")
                 onClicked: {
-                    if (stationDrawer.visible)
+                    if (stationDrawer.isOpen)
                     {
                         stationDrawer.close()
                     }
                     else
                     {
-                        // Workaround for touch displays. (Discovered with Windows 10)
-                        // For some reason the dawer will be closed before it is openend
-                        // Disbale closing
-                        stationDrawer.closePolicy = Popup.NoAutoClose
 
                         // Open drawer
                         stationDrawer.open()
@@ -158,22 +154,39 @@ Item {
         }
     }
 
-    Drawer {
+    Item {
         id: stationDrawer
 
         y: overlayHeader.height
         width: __root.width < 1.5 * implicitWidth ? __root.width : Units.dp(320)
         height: __root.height - overlayHeader.height
+        property bool isOpen: true
 
-        modal: inPortrait
-        interactive: inPortrait
-        position: inPortrait ? 0 : 1
+        function open () {
+            x = 0
+            isOpen = true
+        }
+        function close () {
+            x = - width
+            isOpen = false
+        }
+
+        Behavior on x {
+            NumberAnimation { duration: 500 }
+        }
+
         visible: !inPortrait
+
+        parent: __root
 
         // Workaround for touch displays. (Discovered with Windows 10)
         // For some reason the dawer will be closed before it is openend
         // Enable closing again
-        onOpened: closePolicy = Popup.CloseOnEscape | Popup.CloseOnPressOutside
+
+        Rectangle {
+            anchors.fill: parent
+            color: "#ffffff"
+        }
 
         ColumnLayout {
             anchors.fill: parent
@@ -201,7 +214,7 @@ Item {
 
                 Button {
                     id: menuButton
-                    icon.name: "menu"
+                    text: qsTr("⋮")
                     icon.height: Units.dp(15)
                     icon.width: Units.dp(15)
                     background: Rectangle {
@@ -330,9 +343,12 @@ Item {
 
     Flickable {
         id: flickable
-        anchors.fill: parent
         anchors.leftMargin: (!inPortrait && stationDrawer.opened) ? stationDrawer.width: undefined
         anchors.topMargin: overlayHeader.height
+        anchors.left : stationDrawer.right
+        anchors.right: parent.right
+        anchors.top: parent.top
+        anchors.bottom: parent.bottom
 
         GeneralView {
             id: generalView
