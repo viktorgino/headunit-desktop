@@ -7,6 +7,7 @@ before_install:
     - sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu/ bionic main restricted'
     - sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu/ bionic main universe'
     - sudo apt-get update -qq
+    - sudo apt-get remove binutils
     
 install: 
     - sudo apt-get -q -y install qt5-default qml-module-qtquick2 qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins qml-module-qtquick* qml-module-qtmultimedia qml-module-qt-labs-settings qml-module-qt-labs-folderlistmodel libqt5xmlpatterns5-dev libqt5bluetooth5 qtconnectivity5-dev qml-module-qtbluetooth libqt5charts5 qml-module-qtcharts libqt5contacts5 qtpim5-dev qml-module-qtcontacts
