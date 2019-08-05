@@ -5,6 +5,7 @@ dist: bionic
 
 before_install:
     - sudo add-apt-repository 'deb http://gb.archive.ubuntu.com/ubuntu/ cosmic main restricted'
+    - sudo add-apt-repository 'deb http://gb.archive.ubuntu.com/ubuntu/ cosmic main universe'
     - sudo apt-get update -qq
     
 install: 
