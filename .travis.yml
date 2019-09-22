@@ -6,7 +6,7 @@ dist: bionic
 before_install:
     - sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu/ bionic main restricted'
     - sudo add-apt-repository 'deb http://archive.ubuntu.com/ubuntu/ bionic main universe'
-    - sudo apt-get update
+    - sudo apt-get update -qq
     - sudo apt-get upgrade -y --allow-unauthenticated
     
 install: 
