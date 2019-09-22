@@ -36,8 +36,6 @@ int main(int argc, char *argv[])
     QVariantList menuItems;
     QVariantList configItems;
 
-    int defaultMenuItem = 6;
-
     QCommandLineParser parser;
     parser.setApplicationDescription("helper");
     parser.addHelpOption();
@@ -56,9 +54,6 @@ int main(int argc, char *argv[])
     if (whitelist) {
 	    plugins = p.split(" ",QString::SkipEmptyParts);
     }
-
-
-    engine->rootContext()->setContextProperty("defaultMenuItem", defaultMenuItem);
 
     PluginManager pluginManager(engine, whitelist, plugins);
 
