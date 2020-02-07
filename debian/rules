@@ -1,0 +1,41 @@
+#!/usr/bin/make -f
+
+LC_ALL := C.UTF-8
+export LC_ALL
+
+# See debhelper(7) (uncomment to enable)
+# output every command that modifies files on the build system.
+DH_VERBOSE = 1
+
+# see FEATURE AREAS in dpkg-buildflags(1)
+#export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+# see ENVIRONMENT in dpkg-buildflags(1)
+# package maintainers to append CFLAGS
+#export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
+# package maintainers to append LDFLAGS
+#export DEB_LDFLAGS_MAINT_APPEND = -Wl,--as-needed
+
+export QTDIR=/usr/share/qt5
+export QT_SELECT=qt5
+
+
+%:
+	mkdir -p build
+	dh $@ --builddirectory=build
+
+override_dh_auto_configure:
+	protoc --proto_path=modules/android-auto/headunit/hu/ --cpp_out=modules/android-auto/headunit/hu/generated.x64/ modules/android-auto/headunit/hu/hu.proto
+	dh_auto_configure -- ../headunit-desktop.pro PREFIX=/opt/headunit-desktop
+
+override_dh_builddeb:
+	mkdir -p debs
+	dh_builddeb --destdir=debs
+
+override_dh_clean:
+	rm build -f
+	rm debs -rf
+	dh_clean
+
+override_dh_shlibdeps:
+	dh_shlibdeps --dpkg-shlibdeps-params=--ignore-missing-info

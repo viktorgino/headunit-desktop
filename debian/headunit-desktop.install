@@ -1,0 +1,6 @@
+#! /usr/bin/dh-exec
+opt/headunit-desktop/headunit-app
+opt/headunit-desktop/themes/default-theme/*
+opt/headunit-desktop/plugins/libusbconnectionlistener-plugin.so
+headunit-desktop.desktop usr/share/applications 
+icon.png opt/headunit-desktop

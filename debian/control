@@ -1,0 +1,62 @@
+Source: headunit-desktop
+Section: apps
+Priority: optional
+Maintainer: Viktor Verebelyi <me@viktorgino.me>
+Build-Depends: debhelper (>=9), protobuf-compiler, libusb-1.0-0-dev, libssl-dev, openssl, libglib2.0-dev, libboost-dev, libudev-dev, libtag1-dev, libprotobuf-dev, libgstreamer1.0-dev, gstreamer1.0-plugins-base-apps, gstreamer1.0-plugins-bad, gstreamer1.0-libav, gstreamer1.0-alsa, libgstreamer-plugins-base1.0-dev, gstreamer1.0-pulseaudio, libfaad-dev, libfftw3-dev, librtlsdr-dev, libusb-1.0-0-dev, mesa-common-dev, libglu1-mesa-dev, zlib1g-dev, , portaudio19-dev, libsndfile1-dev, libsamplerate0-dev, ofono, ofono-dev, ofono-phonesim, pulseaudio, bluez, bluez-obexd, pulseaudio-module-bluetooth, qtconnectivity5-dev, qml-module-qtbluetooth, libkf5bluezqt-dev, qml-module-org-kde-bluezqt, qtbase5-private-dev, libcanberra-dev, libgconf2-dev, libpulse-dev, libmp3lame-dev, libsoapysdr-dev, libmpg123-dev
+Standards-Version: 4.0.0
+Homepage: https://github.com/viktorgino/headunit-desktop
+
+Package: headunit-desktop
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, libusb-1.0-0, libssl1.1, openssl, libglib2.0-0, libboost-all-dev, libudev1, libtag1v5, libprotobuf17, libgstreamer1.0-0, gstreamer1.0-plugins-base-apps, gstreamer1.0-plugins-bad, gstreamer1.0-libav, gstreamer1.0-alsa, libgstreamer-plugins-base1.0-0, gstreamer1.0-pulseaudio, libfaad2, libfftw3-3, librtlsdr0, libusb-1.0-0, mesa-common-dev, libglu1-mesa, zlib1g, portaudio19-dev, libsndfile1, libsamplerate0, ofono, ofono, ofono-phonesim, pulseaudio, bluez, bluez-obexd, pulseaudio-module-bluetooth, qtconnectivity5-dev, qml-module-qtbluetooth, libkf5bluezqt-dev, qml-module-org-kde-bluezqt, libcanberra-dev, libgconf2-dev, libpulse0, libmp3lame0, libsoapysdr0.6, libmpg123-0
+Description: HeadUnit Desktop is a Qt based free and open source software that is intended to be run on computers built into cars. 
+
+Package: headunit-desktop-plugin-androidauto
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, headunit-desktop
+Description: Android Auto Plugin for HeadUnit Desktop. 
+
+Package: headunit-desktop-plugin-hvac
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, headunit-desktop
+Description: HVAC Plugin for HeadUnit Desktop. 
+
+Package: headunit-desktop-plugin-media-player
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, headunit-desktop
+Description: Media Player Plugin for HeadUnit Desktop. 
+
+Package: headunit-desktop-plugin-navit
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, headunit-desktop
+Description: Navit Plugin for HeadUnit Desktop. 
+
+Package: headunit-desktop-plugin-odb-car
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, headunit-desktop
+Description: ODB Car Plugin for HeadUnit Desktop. 
+
+Package: headunit-desktop-plugin-phone-bluetooth
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, headunit-desktop
+Description: Phone Buletooth Plugin for HeadUnit Desktop. 
+
+Package: headunit-desktop-plugin-rpi
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, headunit-desktop
+Description: Raspberry Pi Plugin for HeadUnit Desktop. 
+
+Package: headunit-desktop-plugin-sample
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, headunit-desktop
+Description: Sample Plugin for HeadUnit Desktop. 
+
+Package: headunit-desktop-plugin-volume
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, headunit-desktop
+Description: Volume Plugin for HeadUnit Desktop. 
+
+Package: headunit-desktop-plugin-welleio
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, headunit-desktop
+Description: welle.io Plugin for HeadUnit Desktop. 
