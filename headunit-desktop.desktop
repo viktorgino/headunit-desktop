@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Headunit Desktop
+Exec=/opt/headunit-desktop/headunit-app
+Icon=/opt/headunit-desktop/icon.png
+Type=Application
+Terminal=false
