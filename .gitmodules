@@ -9,7 +9,7 @@
 	url = https://github.com/Velron/doxygen-bootstrapped.git
 [submodule "welle.io"]
 	path = modules/welle-io/welle.io
-	url = https://github.com/AlbrechtL/welle.io
+	url = https://github.com/viktorgino/welle.io
 	branch = master
 [submodule "modules/volume-control/qml/plasma-pa"]
 	path = modules/volume-control/qml/plasma-pa
