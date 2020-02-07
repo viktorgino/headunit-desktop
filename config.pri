@@ -1,5 +1,7 @@
 isEmpty(PREFIX) {
- PREFIX = /opt/headunit-desktop
+    PREFIX = /opt/headunit-desktop
 }
 
-#DEFINES += RPI
+defined(RPI){
+    DEFINES += RPI
+}
