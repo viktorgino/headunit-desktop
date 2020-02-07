@@ -175,6 +175,7 @@ QVariant SettingsLoader::processItem(QJsonObject json){
         return itemsMap;
     } else if (types.keys().contains(json.value("type").toString())) {
         QVariant value = settings.value(json.value("name").toString());
+        value.convert(types.value(json.value("type").toString()));
 
         if(value.isNull()){
             if(json.value("defaultValue").isUndefined()){
