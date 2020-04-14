@@ -22,7 +22,7 @@ before_install:
     - sudo mkdir -p /mnt/rootfs/boot 
     - sudo mount $img_loop"p2" -o rw /mnt/rootfs
     - sudo mount $img_loop"p1" -o rw /mnt/rootfs/boot
-    - sudo rsync -axHAX /mnt/rootfs rpi
+    - sudo rsync -axHAX /mnt/rootfs .
     - sudo umount /mnt/rootfs/boot
     - sudo umount /mnt/rootfs
     - sudo losetup -d $img_loop

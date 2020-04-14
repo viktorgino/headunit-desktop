@@ -1,3 +1,11 @@
+headunit-desktop (0.1-5) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (1e587a804239e2b30143c384393779fc8797e147)
+  * [Travis] Correct destination when rsyncing rpi rootfs
+
+ -- Gino <gino@gino-ubuntu>  Tue, 14 Apr 2020 17:54:04 +0000
+
 headunit-desktop (0.1-4) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
