@@ -25,7 +25,7 @@ before_install:
     - sudo rsync -axHAX /mnt/rootfs rpi
     - sudo umount /mnt/rootfs/boot
     - sudo umount /mnt/rootfs
-    - sudo losetup -d $img_dev
+    - sudo losetup -d $img_loop
 
 install:
     - ROOTFS_DIR=$HOME/rpi/rootfs
