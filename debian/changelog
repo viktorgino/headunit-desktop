@@ -1,3 +1,12 @@
+headunit-desktop (2019-08-08-2) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (787b2192800004988717c68e59e12398ad6b5bb9)
+  * Add git hooks used for adding git commit messages to
+    debian/changelog
+
+ -- Gino <gino@gino-ubuntu>  Tue, 14 Apr 2020 00:53:10 +0000
+
 headunit-desktop (2019-08-08-1) unstable; urgency=medium
 
   * Initial release

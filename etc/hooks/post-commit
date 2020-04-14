@@ -1,0 +1,23 @@
+#!/bin/sh
+
+echo
+if [ -e .commit ]
+    then
+    rm .commit
+
+    #Exit if we changed debian/changelog in our commit
+    last_commit_files=$(git show --stat --name-only --pretty="")
+    if echo $last_commit_files | grep "debian/changelog"; then
+        echo "debian/changelog changed exiting"
+        exit
+    fi
+
+    dch -U "Bring debian package up-to-date with latest commit ($(git rev-parse HEAD))"
+    git log -1 --pretty=%B | while read line ; do
+        dch -U "$line"
+    done
+    dch -U -r -D "unstable" --force-distribution ""
+    git add debian/changelog
+    git commit --amend -C HEAD --no-verify
+fi
+exit

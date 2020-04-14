@@ -1,0 +1,11 @@
+#!/bin/sh
+
+#gbp dch --distribution=buster --force-distribution --ignore-branch --new-version=$(date +%s)
+#gbp dch --distribution=buster --force-distribution --ignore-branch
+#dch -U "Bring debian package up-to-date with latest github master ($(date +'%Y-%m-%d %H:%M:%S'))"
+#dch -U -r -D "buster" --force-distribution ""
+#git add debian/changelog
+
+echo 
+touch .commit 
+exit
