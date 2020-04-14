@@ -1,0 +1,20 @@
+{
+    "package": {
+        "name": "headunit-desktop-nightly",
+        "repo": "headunit-desktop",
+        "subject": "viktorgino"
+    },
+    "version": {
+        "name": "###VERSION###"
+    },
+    "files":
+        [
+        {"includePattern": "/home/gino/opt/packaging/headunit-desktop/deb/(.*\.deb)", "uploadPattern": "pool/main/m/mypackage/$1",
+            "matrixParams": {
+                "deb_distribution": "buster",
+                "deb_component": "main",
+                "deb_architecture": "armhf"}
+        }
+        ],
+    "publish": true
+}   
