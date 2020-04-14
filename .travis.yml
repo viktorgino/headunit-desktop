@@ -40,6 +40,7 @@ install:
     - sudo rsync -r $TRAVIS_BUILD_DIR $ROOTFS_DIR/packaging
 
 before_script:
+    - sudo chroot . uname -a
     - |
       sudo chroot . << EOF
       cd /opt/packaging

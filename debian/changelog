@@ -1,3 +1,11 @@
+headunit-desktop (0.1-6) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (6d9a74ce5a01dd93c392f793c8a1a834a908f1c9)
+  * [Travis] Add chroot test line
+
+ -- Gino <gino@gino-ubuntu>  Tue, 14 Apr 2020 18:09:02 +0000
+
 headunit-desktop (0.1-5) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
