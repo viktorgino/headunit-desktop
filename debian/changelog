@@ -1,3 +1,11 @@
+headunit-desktop (0.1-8) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (f0f860d3a8d065bb6891126c62354f0e35c3ad2e)
+  * [Travis] Add directory list after rpi rootfs install
+
+ -- Gino <gino@gino-ubuntu>  Tue, 14 Apr 2020 18:20:29 +0000
+
 headunit-desktop (0.1-7) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
