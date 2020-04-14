@@ -1,3 +1,11 @@
+headunit-desktop (0.1-7) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (2d8c433e05d5dc6dcaafe81bb6bb80a7249369b0)
+  * [Travis] Add qemu and qemu-user-static packages
+
+ -- Gino <gino@gino-ubuntu>  Tue, 14 Apr 2020 18:13:39 +0000
+
 headunit-desktop (0.1-6) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

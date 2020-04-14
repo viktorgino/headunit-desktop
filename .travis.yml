@@ -6,7 +6,9 @@ dist: bionic
 addons:
   apt:
     packages:
+    - qemu
     - qemu-system
+    - qemu-user-static
     - devscripts
     - dh-make
     - debhelper
@@ -40,6 +42,7 @@ install:
     - sudo rsync -r $TRAVIS_BUILD_DIR $ROOTFS_DIR/packaging
 
 before_script:
+    - cd $ROOTFS_DIR
     - sudo chroot . uname -a
     - |
       sudo chroot . << EOF
