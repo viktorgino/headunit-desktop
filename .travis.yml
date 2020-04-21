@@ -5,6 +5,9 @@ dist: bionic
 addons:
   apt:
     packages:
+    - qemu
+    - qemu-system
+    - qemu-user-static
     - binfmt-support
     - devscripts
     - dh-make
@@ -13,12 +16,7 @@ addons:
     - systemd-container
 
 before_install:
-  - cd $HOME
-  - sudo sh -c "echo 'deb http://download.opensuse.org/repositories/home:/noscript/bionic/ /' > /etc/apt/sources.list.d/home:noscript.list"
-  - wget -nv https://download.opensuse.org/repositories/home:noscript/bionic/Release.key -O Release.key
-  - sudo apt-key add - < Release.key
-  - sudo apt-get update
-  - sudo apt-get install qemu
+  - sudo apt-get -y upgrade
   - mkdir $HOME/rpi
   - cd $HOME/rpi
   - wget https://downloads.raspberrypi.org/raspbian_lite_latest
@@ -34,6 +32,24 @@ before_install:
   - sudo losetup -d $img_loop
 
 install:
+  - cd $HOME
+  - sudo apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev
+  - sudo apt-get install -y git-email
+  - sudo apt-get install -y libaio-dev libbluetooth-dev libbrlapi-dev libbz2-dev
+  - sudo apt-get install -y libcap-dev libcap-ng-dev libcurl4-gnutls-dev libgtk-3-dev
+  - sudo apt-get install -y libibverbs-dev libjpeg8-dev libncurses5-dev libnuma-dev
+  - sudo apt-get install -y librbd-dev librdmacm-dev
+  - sudo apt-get install -y libsasl2-dev libsdl1.2-dev libseccomp-dev libsnappy-dev libssh2-1-dev
+  - sudo apt-get install -y libvde-dev libvdeplug-dev libvte-2.90-dev libxen-dev liblzo2-dev
+  - sudo apt-get install -y valgrind xfslibs-dev 
+  - sudo apt-get install -y libnfs-dev libiscsi-dev
+  - git clone git://git.qemu-project.org/qemu.git
+  - cd qemu
+  - mkdir build
+  - cd build
+  - ../configure --target-list=arm-linux-user
+  - make
+  - sudo make install
   - ROOTFS_DIR=$HOME/rpi/rootfs
   - cd $ROOTFS_DIR
   - sudo rm $ROOTFS_DIR/etc/ld.so.preload

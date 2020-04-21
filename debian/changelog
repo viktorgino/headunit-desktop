@@ -1,3 +1,11 @@
+headunit-desktop (0.1-9) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (fb40b89dcd8dd0137d8351f09b6a28ae2f0bbe92)
+  * [Travis] Add QEMU build
+
+ -- Gino <gino@gino-ubuntu>  Tue, 21 Apr 2020 15:30:10 +0000
+
 headunit-desktop (0.1-8) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
