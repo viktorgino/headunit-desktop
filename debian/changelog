@@ -1,3 +1,11 @@
+headunit-desktop (0.1-10) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (11485d45baebc218e8718f99a5406d0a23529bbd)
+  * [Travis] Remove qemu packages
+
+ -- Gino <gino@gino-ubuntu>  Tue, 21 Apr 2020 15:44:07 +0000
+
 headunit-desktop (0.1-9) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

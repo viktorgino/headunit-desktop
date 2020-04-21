@@ -5,9 +5,6 @@ dist: bionic
 addons:
   apt:
     packages:
-    - qemu
-    - qemu-system
-    - qemu-user-static
     - binfmt-support
     - devscripts
     - dh-make
