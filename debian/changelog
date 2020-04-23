@@ -1,3 +1,11 @@
+headunit-desktop (0.1-11) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (059562d5cd8cb6e5c46d2a68175c04896940bb02)
+  * [Travis] test
+
+ -- Gino <gino@gino-ubuntu>  Thu, 23 Apr 2020 10:36:34 +0000
+
 headunit-desktop (0.1-10) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
