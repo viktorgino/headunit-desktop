@@ -37,38 +37,6 @@
                 "defaultValue": false
             },
             {
-                "label":"Touchscreen width",
-                "name": "ts_width",
-                "type":"textfield",
-                "textType" : "int",
-                "defaultValue" : 800,
-                "suffix" : "pixels"
-            },
-            {
-                "label":"Touchscreen height",
-                "name": "ts_height",
-                "type":"textfield",
-                "textType" : "int",
-                "defaultValue" : 480,
-                "suffix" : "pixels"
-            },
-            {
-                "label":"Margin width",
-                "name": "margin_width",
-                "type":"textfield",
-                "textType" : "int",
-                "defaultValue" : 0,
-                "suffix" : "pixels"
-            },
-            {
-                "label":"Margin height",
-                "name": "margin_height",
-                "type":"textfield",
-                "textType" : "int",
-                "defaultValue" : 0,
-                "suffix" : "pixels"
-            },
-            {
                 "label":"Pixel density",
                 "name": "dpi",
                 "type":"textfield",

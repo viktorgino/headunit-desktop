@@ -1,3 +1,11 @@
+headunit-desktop (0.1-12) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (dd8285c1fc8af6a3f98b0b455b190e7f3962cdd4)
+  * [AndroidAuto] Remove Qt5GStreamer dependency
+
+ -- Gino <gino@gino-ubuntu>  Tue, 13 Oct 2020 15:49:52 +0000
+
 headunit-desktop (0.1-11) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

@@ -2,15 +2,6 @@
 
 #include <QDebug>
 #include <QJsonObject>
-#include <QGlib/Error>
-#include <QGlib/Connect>
-#include <QGst/Init>
-#include <QGst/Bus>
-#include <QGst/Pipeline>
-#include <QGst/Parse>
-#include <QGst/Message>
-#include <QGst/Utils/ApplicationSink>
-#include <QGst/Utils/ApplicationSource>
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonArray>
@@ -23,17 +14,10 @@
 #include "hu_uti.h"
 #include "hu_aap.h"
 
-Headunit::Headunit(QGst::Quick::VideoSurface *videoSurface):
-    callbacks(this),
-    m_videoSink(videoSurface->videoSink()),
-    m_videoSurface(videoSurface)
+Headunit::Headunit():
+    callbacks(this)
 {
-    int ret = 0;
-    ret = initGst();
-    if (ret < 0) {
-        qDebug("STATUS:initGst() ret: %d", ret);
-        return;
-    }
+    initGst();
 }
 
 Headunit::~Headunit() {
@@ -68,6 +52,28 @@ int Headunit::startHU(){
         }
     }
 
+    if(settings.childKeys().contains("resolution")){
+        QVariant res = settings.value("resolution");
+        if(res.canConvert(QMetaType::Int)){
+            switch(res.toInt()){
+            case 1:
+                setVideoWidth(800);
+                setVideoHeight(480);
+                break;
+            case 2:
+                setVideoWidth(1280);
+                setVideoHeight(720);
+                break;
+            case 3:
+                setVideoWidth(1920);
+                setVideoHeight(1080);
+                break;
+            }
+        }
+    }
+    aa_settings["ts_height"] = std::to_string(m_videoHeight);
+    aa_settings["ts_width"] = std::to_string(m_videoWidth);
+
     headunit = new HUServer(callbacks, aa_settings);
 
     int ret = headunit->hu_aap_start(false, false);
@@ -81,6 +87,16 @@ int Headunit::startHU(){
     }
 }
 
+
+void Headunit::setVideoItem(QQuickItem * videoItem){
+    m_videoItem = videoItem;
+
+    g_object_set (m_videoSink, "widget", m_videoItem, NULL);
+
+    startHU();
+
+//    gst_debug_bin_to_dot_file_with_ts(GST_BIN(vid_pipeline),GST_DEBUG_GRAPH_SHOW_VERBOSE ,"vid_pipeline");
+}
 int Headunit::stopHU(){
     setGstState("");
     if(headunit){
@@ -107,6 +123,7 @@ GstPadProbeReturn Headunit::convert_probe(GstPad *pad, GstPadProbeInfo *info, vo
                 Headunit *headunit = static_cast<Headunit *>(user_data);
                 headunit->setVideoWidth(vinfo->width);
                 headunit->setVideoHeight(vinfo->height);
+                qDebug() << "Resizing video";
             }
             return GST_PAD_PROBE_REMOVE;
         }
@@ -117,15 +134,16 @@ GstPadProbeReturn Headunit::convert_probe(GstPad *pad, GstPadProbeInfo *info, vo
 int Headunit::initGst(){
     GstBus *bus;
 
-    GError *error = NULL;
+    GError *error = NULL;    
 
     gst_init(NULL, NULL);
+
 
     /*
      * Initialize Video pipeline
      */
 
-    const char* vid_launch_str = "appsrc name=mysrc is-live=true block=false max-latency=100 do-timestamp=true stream-type=stream ! "
+    const char* vid_launch_str = "appsrc name=vid_src is-live=true block=false max-latency=100 do-timestamp=true stream-type=stream ! "
                                  "queue ! "
                                  "h264parse ! "
         #ifdef RPI
@@ -133,23 +151,20 @@ int Headunit::initGst(){
         #else
                                  "avdec_h264 ! "
         #endif
-                                 "capsfilter caps=video/x-raw name=mycapsfilter";
+                                 "glsinkbin name=vid_glsinkbin ";
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
 
     bus = gst_pipeline_get_bus(GST_PIPELINE(vid_pipeline));
     gst_bus_add_watch(bus, (GstBusFunc) Headunit::bus_callback, this);
     gst_object_unref(bus);
 
+    m_videoSink = gst_element_factory_make ("qmlglsink", NULL);
 
-    GstElement *sink = QGlib::RefPointer<QGst::Element>(m_videoSink);
-    g_object_set (sink, "force-aspect-ratio", true, nullptr);
-    g_object_set (sink, "sync", false, nullptr);
-    g_object_set (sink, "async", false, nullptr);
-    GstElement *capsfilter = gst_bin_get_by_name(GST_BIN(vid_pipeline), "mycapsfilter");
-    gst_bin_add(GST_BIN(vid_pipeline), GST_ELEMENT(sink));
-    gst_element_link(capsfilter, GST_ELEMENT(sink));
+    GstElement *glsinkbin = gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_glsinkbin");
 
-    vid_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(vid_pipeline), "mysrc"));
+    g_object_set (glsinkbin, "sink", m_videoSink, NULL);
+
+    vid_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_src"));
     gst_app_src_set_stream_type(vid_src, GST_APP_STREAM_TYPE_STREAM);
 
     /*
@@ -220,24 +235,25 @@ int Headunit::initGst(){
 
     mic_sink = gst_bin_get_by_name(GST_BIN(mic_pipeline), "micsink");
 
-    g_signal_connect(mic_sink, "new-sample", G_CALLBACK(&Headunit::read_mic_data), NULL);
+    g_signal_connect(mic_sink, "new-sample", G_CALLBACK(&Headunit::read_mic_data), this);
 
     gst_element_set_state(mic_pipeline, GST_STATE_READY);
 
     return 0;
 }
-void Headunit::read_mic_data(GstElement * sink) {
+
+void Headunit::read_mic_data(Headunit *_this) {
     GstSample *gstsample;
     GstBuffer *gstbuf;
 
-    gstsample = gst_app_sink_pull_sample((GstAppSink *) sink);
+    gstsample = gst_app_sink_pull_sample((GstAppSink *) _this->mic_sink);
     gstbuf = gst_sample_get_buffer(gstsample);
 
     if (gstbuf) {
 
         /* if mic is stopped, don't bother sending */
         GstState mic_state = GST_STATE_NULL;
-        if (gst_element_get_state(mic_pipeline, &mic_state, NULL, GST_CLOCK_TIME_NONE) != GST_STATE_CHANGE_SUCCESS
+        if (gst_element_get_state(_this->mic_pipeline, &mic_state, NULL, GST_CLOCK_TIME_NONE) != GST_STATE_CHANGE_SUCCESS
                 || mic_state != GST_STATE_PLAYING) {
             qDebug("Mic stopped.. dropping buffers ");
             gst_buffer_unref(gstbuf);
@@ -255,7 +271,7 @@ void Headunit::read_mic_data(GstElement * sink) {
 
             uint64_t bufTimestamp = GST_BUFFER_TIMESTAMP(gstbuf);
             uint64_t timestamp = GST_CLOCK_TIME_IS_VALID(bufTimestamp) ? (bufTimestamp / 1000) : get_cur_timestamp();
-            g_hu->hu_queue_command([timestamp, gstbuf, mapInfo](IHUConnectionThreadInterface & s) {
+            _this->g_hu->hu_queue_command([timestamp, gstbuf, mapInfo](IHUConnectionThreadInterface & s) {
                 int ret = s.hu_aap_enc_send_media_packet(1, AA_CH_MIC, HU_PROTOCOL_MESSAGE::MediaDataWithTimestamp, timestamp, mapInfo.data, mapInfo.size);
 
                 if (ret < 0) {
@@ -268,6 +284,7 @@ void Headunit::read_mic_data(GstElement * sink) {
         }
     }
 }
+
 uint64_t Headunit::get_cur_timestamp() {
     struct timespec tp;
     /* Fetch the time stamp */
@@ -429,11 +446,6 @@ void Headunit::setVideoHeight(const int a){
     emit videoResized();
 }
 
-void Headunit::setVideoSurface(QGst::Quick::VideoSurface *surface){
-    m_videoSurface = surface;
-    emit videoSurfaceChanged();
-}
-
 int Headunit::outputWidth() {
     return m_outputWidth;
 }
@@ -447,9 +459,6 @@ int Headunit::videoHeight() {
     return m_videoHeight;
 }
 
-QGst::Quick::VideoSurface *Headunit::videoSurface(){
-    return m_videoSurface;
-}
 int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;
     //GstElement* gst_pipe = nullptr;

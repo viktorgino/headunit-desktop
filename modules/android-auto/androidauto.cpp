@@ -2,11 +2,8 @@
 
 AndroidAuto::AndroidAuto(QObject *parent) : QObject (parent)
 {
-    QGst::init(nullptr, nullptr);
-
-    surface = new QGst::Quick::VideoSurface();
-    headunit =  new Headunit(surface);
-    headunit->startHU();
+    headunit =  new Headunit();
+//    headunit->startHU();
 }
 
 QObject *AndroidAuto::getContextProperty(){

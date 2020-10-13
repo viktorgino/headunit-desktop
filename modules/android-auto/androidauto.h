@@ -3,13 +3,9 @@
 
 #include <QObject>
 #include <QThreadPool>
+#include <QDebug>
 #include <plugininterface.h>
 #include "headunit.h"
-
-#include <QGst/Init>
-#include <QGst/Quick/VideoSurface>
-#include <QGst/Element>
-#include <QGlib/RefPointer>
 
 class AndroidAuto : public QObject, PluginInterface
 {
@@ -33,7 +29,6 @@ public slots:
     void actionMessage(QString id, QString message) override;
 private:
     Headunit *headunit;
-    QGst::Quick::VideoSurface *surface;
 };
 
 #endif // ANDROIDAUTO_H

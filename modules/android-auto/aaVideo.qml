@@ -1,24 +1,21 @@
 import QtQuick 2.0
-import QtGStreamer 1.0
+import org.freedesktop.gstreamer.GLVideoItem 1.0
 import Qt.labs.settings 1.0
 
 Item{
     id:__root
-    Rectangle {
-        id: rectangle
-        color: "#505050"
-        anchors.fill: parent
-    }
+
     property int margin_width
     property int margin_height
     property string resolution
 
-    VideoItem {
+    GstGLVideoItem {
         id: aaVideo
+        objectName: "aaVideoItem"
         anchors.verticalCenter: parent.verticalCenter
-        width:parent.width
-        height: width * AndroidAuto.videoHeight/AndroidAuto.videoWidth
-        surface: AndroidAuto.videoSurface
+        anchors.horizontalCenter: parent.horizontalCenter
+        width:parent.width * AndroidAuto.videoHeight/AndroidAuto.videoWidth < parent.height ? parent.width : height * AndroidAuto.videoWidth/AndroidAuto.videoHeight
+        height:parent.width * AndroidAuto.videoHeight/AndroidAuto.videoWidth < parent.height ? width * AndroidAuto.videoHeight/AndroidAuto.videoWidth : parent.height
 
         MouseArea {
             id: mouseArea1
@@ -41,14 +38,19 @@ Item{
                 break;
             }
         }
-    }
-    Connections{
-        target: AndroidAuto
-        onVideoResized:{
-            aaVideo.height = AndroidAuto.width * AndroidAuto.videoHeight/AndroidAuto.videoWidth
-            AndroidAuto.outputHeight = aaVideo.height
+
+        onWidthChanged: {
             AndroidAuto.outputWidth = aaVideo.width
         }
-    }
+        onHeightChanged: {
+            AndroidAuto.outputHeight = aaVideo.height
+        }
 
+        Component.onCompleted:{
+            AndroidAuto.outputHeight = aaVideo.height
+            AndroidAuto.outputWidth = aaVideo.width
+            AndroidAuto.setVideoItem(aaVideo)
+        }
+
+    }
 }
