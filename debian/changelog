@@ -1,3 +1,11 @@
+headunit-desktop (0.1-15) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (4f9e860c74ea471ebba3aaa65f698af97a266356)
+  * [AndroidAuto] Fix pulsesrc mic input
+
+ -- Gino <gino@gino-ubuntu>  Wed, 14 Oct 2020 23:41:17 +0000
+
 headunit-desktop (0.1-14) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

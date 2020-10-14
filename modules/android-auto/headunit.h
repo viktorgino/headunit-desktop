@@ -11,6 +11,7 @@
 #include <QBluetoothLocalDevice>
 #include <gst/gst.h>
 #include <gst/app/gstappsrc.h>
+#include <gst/app/gstappsink.h>
 
 
 #include "hu_uti.h"
@@ -39,10 +40,6 @@ public:
     virtual void PhoneBluetoothReceived(std::string address) override;
 
     void VideoFocusHappened(bool hasFocus, bool unrequested);
-
-    std::atomic<bool> connected;
-    std::atomic<bool> videoFocus;
-    std::atomic<bool> audioFocus;
 };
 
 class Headunit : public QObject
@@ -77,6 +74,9 @@ public:
     GstAppSrc *au1_src = nullptr;
     GstElement *vid_pipeline = nullptr;
     GstAppSrc *vid_src = nullptr;
+
+    bool huStarted = false;
+
     IHUAnyThreadInterface* g_hu = nullptr;
 signals:
     void outputResized();
@@ -100,12 +100,11 @@ private:
     int m_outputWidth = 800;
     int m_outputHeight = 480;
     int initGst();
-    static void read_mic_data(Headunit * _this);
+    static GstFlowReturn read_mic_data(GstElement *appsink, Headunit * _this);
     static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr);
     void touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point);
     static uint64_t get_cur_timestamp();
     static GstPadProbeReturn convert_probe(GstPad *pad, GstPadProbeInfo *info, void *user_data);
-    bool huStarted = false;
     byte ep_in_addr = -2;
     byte ep_out_addr = -2;
     QQuickItem *m_videoItem;

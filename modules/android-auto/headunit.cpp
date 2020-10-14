@@ -79,7 +79,6 @@ int Headunit::startHU(){
     int ret = headunit->hu_aap_start(false, false);
     if ( ret >= 0) {
         g_hu = &headunit->GetAnyThreadInterface();
-        setGstState("play");
         return 1;
     } else {
         stopHU();
@@ -94,8 +93,6 @@ void Headunit::setVideoItem(QQuickItem * videoItem){
     g_object_set (m_videoSink, "widget", m_videoItem, NULL);
 
     startHU();
-
-//    gst_debug_bin_to_dot_file_with_ts(GST_BIN(vid_pipeline),GST_DEBUG_GRAPH_SHOW_VERBOSE ,"vid_pipeline");
 }
 int Headunit::stopHU(){
     setGstState("");
@@ -123,7 +120,6 @@ GstPadProbeReturn Headunit::convert_probe(GstPad *pad, GstPadProbeInfo *info, vo
                 Headunit *headunit = static_cast<Headunit *>(user_data);
                 headunit->setVideoWidth(vinfo->width);
                 headunit->setVideoHeight(vinfo->height);
-                qDebug() << "Resizing video";
             }
             return GST_PAD_PROBE_REMOVE;
         }
@@ -143,7 +139,7 @@ int Headunit::initGst(){
      * Initialize Video pipeline
      */
 
-    const char* vid_launch_str = "appsrc name=vid_src is-live=true block=false max-latency=100 do-timestamp=true stream-type=stream ! "
+    const char* vid_launch_str = "appsrc name=vid_src is-live=true block=false min-latency=0 max-latency=100 do-timestamp=true format=3 ! "
                                  "queue ! "
                                  "h264parse ! "
         #ifdef RPI
@@ -171,15 +167,15 @@ int Headunit::initGst(){
      * Initialize Music pipeline
      */
 
-    aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false max-latency=100000 do-timestamp=true ! "
+    aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=true format=3 ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=48000, channels=2, format=S16LE ! "
+                                    "queue ! "
                                 #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Music\""
                                 #else
                                     "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Music\""
                                 #endif
                                     , &error);
-
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
         g_clear_error(&error);
@@ -194,8 +190,9 @@ int Headunit::initGst(){
      * Initialize Voice pipeline
      */
 
-    au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false max-latency=100000 do-timestamp=true ! "
-                                    "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  ! "
+    au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=true  format=3 ! "
+                                    "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  !"
+                                    "queue ! "
                                 #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Voice\""
                                 #else
@@ -223,9 +220,8 @@ int Headunit::initGst(){
             #else
                 "pulsesrc name=micsrc client-name=\"Android Auto Voice\" ! audioconvert ! "
             #endif
-                "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000 ! "
                 "queue ! "
-                "appsink name=micsink emit-signals=true async=false blocksize=8192", &error);
+                "appsink name=micsink emit-signals=true async=false caps=\"audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000\" blocksize=8192", &error);
 
     if (error != NULL) {
         qDebug("could not construct pipeline: %s", error->message);
@@ -242,47 +238,39 @@ int Headunit::initGst(){
     return 0;
 }
 
-void Headunit::read_mic_data(Headunit *_this) {
+GstFlowReturn Headunit::read_mic_data(GstElement *appsink, Headunit *_this) {
     GstSample *gstsample;
     GstBuffer *gstbuf;
 
-    gstsample = gst_app_sink_pull_sample((GstAppSink *) _this->mic_sink);
-    gstbuf = gst_sample_get_buffer(gstsample);
+    gstsample = gst_app_sink_pull_sample(GST_APP_SINK(appsink));
 
-    if (gstbuf) {
-
-        /* if mic is stopped, don't bother sending */
-        GstState mic_state = GST_STATE_NULL;
-        if (gst_element_get_state(_this->mic_pipeline, &mic_state, NULL, GST_CLOCK_TIME_NONE) != GST_STATE_CHANGE_SUCCESS
-                || mic_state != GST_STATE_PLAYING) {
-            qDebug("Mic stopped.. dropping buffers ");
-            gst_buffer_unref(gstbuf);
-            return;
-        }
-
-        GstMapInfo mapInfo;
-        if (gst_buffer_map(gstbuf, &mapInfo, GST_MAP_READ)) {
-
-            if (mapInfo.size <= 64) {
-                qDebug("Mic data < 64 ");
-                gst_buffer_unref(gstbuf);
-                return;
-            }
-
-            uint64_t bufTimestamp = GST_BUFFER_TIMESTAMP(gstbuf);
-            uint64_t timestamp = GST_CLOCK_TIME_IS_VALID(bufTimestamp) ? (bufTimestamp / 1000) : get_cur_timestamp();
-            _this->g_hu->hu_queue_command([timestamp, gstbuf, mapInfo](IHUConnectionThreadInterface & s) {
-                int ret = s.hu_aap_enc_send_media_packet(1, AA_CH_MIC, HU_PROTOCOL_MESSAGE::MediaDataWithTimestamp, timestamp, mapInfo.data, mapInfo.size);
-
-                if (ret < 0) {
-                    qDebug("read_mic_data(): hu_aap_enc_send() failed with (%d)", ret);
-                }
-
-                gst_buffer_unmap(gstbuf, const_cast<GstMapInfo*> (&mapInfo));
-                gst_buffer_unref(gstbuf);
-            });
-        }
+    if (!gstsample) {
+        return GST_FLOW_ERROR;
     }
+
+    gstbuf = gst_sample_get_buffer(gstsample);
+    if(!gstbuf){
+        gst_sample_unref(gstsample);
+        return GST_FLOW_ERROR;
+    }
+
+    GstMapInfo mapInfo;
+    gst_buffer_map(gstbuf, &mapInfo, GST_MAP_READ);
+
+    uint64_t bufTimestamp = GST_BUFFER_TIMESTAMP(gstbuf);
+    uint64_t timestamp = GST_CLOCK_TIME_IS_VALID(bufTimestamp) ? (bufTimestamp / 1000) : get_cur_timestamp();
+
+    _this->g_hu->hu_queue_command([timestamp, mapInfo](IHUConnectionThreadInterface & s) {
+        int ret = s.hu_aap_enc_send_media_packet(1, AA_CH_MIC, HU_PROTOCOL_MESSAGE::MediaDataWithTimestamp, timestamp, mapInfo.data, mapInfo.size);
+        if (ret < 0) {
+            qDebug("read_mic_data(): hu_aap_enc_send() failed with (%d)", ret);
+        }
+    });
+
+    gst_buffer_unmap(gstbuf, const_cast<GstMapInfo*> (&mapInfo));
+
+    gst_sample_unref(gstsample);
+    return GST_FLOW_OK;
 }
 
 uint64_t Headunit::get_cur_timestamp() {
@@ -339,8 +327,8 @@ void Headunit::setGstState(QString state){
     if(state == "play"){
         gst_state = GST_STATE_PLAYING;
         huStarted = true;
-        GstElement *capsfilter = gst_bin_get_by_name(GST_BIN(vid_pipeline), "mycapsfilter");
-        GstPad *convert_pad = gst_element_get_static_pad(capsfilter, "sink");
+        GstElement *glsinkbin = gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_glsinkbin");
+        GstPad *convert_pad = gst_element_get_static_pad(glsinkbin, "sink");
         gst_pad_add_probe (convert_pad,GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM,convert_probe, this, NULL);
 
     } else if(state == "pause") {
@@ -485,25 +473,44 @@ int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const by
 }
 
 int DesktopEventCallbacks::MediaStart(int chan) {
-
-    HU::SensorEvent sensorEvent;
-    sensorEvent.add_location_data()->set_speed(0);
-    headunit->g_hu->hu_queue_command([sensorEvent](IHUConnectionThreadInterface& s)
-    {
-        s.hu_aap_enc_send_message(0, AA_CH_SEN, HU_SENSOR_CHANNEL_MESSAGE::SensorEvent, sensorEvent);
-    });
-
-    if (chan == AA_CH_MIC) {
-        qDebug("SHAI1 : Mic Started");
+    switch(chan){
+    case AA_CH_VID:
+        gst_element_set_state(headunit->vid_pipeline, GST_STATE_PLAYING);
+        headunit->huStarted = true;
+        break;
+    case AA_CH_AUD:
+        gst_element_set_state(headunit->aud_pipeline, GST_STATE_PLAYING);
+        break;
+    case AA_CH_AU1:
+        gst_element_set_state(headunit->au1_pipeline, GST_STATE_PLAYING);
+        break;
+    case AA_CH_MIC:
         gst_element_set_state(headunit->mic_pipeline, GST_STATE_PLAYING);
+        break;
+    default:
+        qDebug() << "Media Start Unknown chan : " << chan;
     }
+
     return 0;
 }
 
 int DesktopEventCallbacks::MediaStop(int chan) {
-    if (chan == AA_CH_MIC) {
-        qDebug("SHAI1 : Mic Stopped");
+    switch(chan){
+    case AA_CH_VID:
+        gst_element_set_state(headunit->vid_pipeline, GST_STATE_READY);
+        headunit->huStarted = false;
+        break;
+    case AA_CH_AUD:
+        gst_element_set_state(headunit->aud_pipeline, GST_STATE_READY);
+        break;
+    case AA_CH_AU1:
+        gst_element_set_state(headunit->au1_pipeline, GST_STATE_READY);
+        break;
+    case AA_CH_MIC:
         gst_element_set_state(headunit->mic_pipeline, GST_STATE_READY);
+        break;
+    default:
+        qDebug() << "Media Stop Unknown chan : " << chan;
     }
     return 0;
 }
@@ -525,15 +532,9 @@ void DesktopEventCallbacks::AudioFocusRequest(int chan, const HU::AudioFocusRequ
     run_on_main_thread([this, chan, request](){
         HU::AudioFocusResponse response;
         if (request.focus_type() == HU::AudioFocusRequest::AUDIO_FOCUS_RELEASE) {
-            //audioOutput.reset();
             response.set_focus_type(HU::AudioFocusResponse::AUDIO_FOCUS_STATE_LOSS);
-            audioFocus = false;
         } else {
-            /*if (!audioOutput) {
-                audioOutput.reset(new AudioOutput());
-            }*/
             response.set_focus_type(HU::AudioFocusResponse::AUDIO_FOCUS_STATE_GAIN);
-            audioFocus = true;
         }
 
         headunit->g_hu->hu_queue_command([chan, response](IHUConnectionThreadInterface & s) {
@@ -549,19 +550,24 @@ void DesktopEventCallbacks::VideoFocusRequest(int /* unused */, const HU::VideoF
 
 void DesktopEventCallbacks::VideoFocusHappened(bool hasFocus, bool unrequested) {
     run_on_main_thread([this, hasFocus, unrequested](){
-        /*if ((bool)videoOutput != hasFocus) {
-            videoOutput.reset(hasFocus ? new VideoOutput(this) : nullptr);
-        }*/
-        videoFocus = hasFocus;
         headunit->g_hu->hu_queue_command([hasFocus, unrequested](IHUConnectionThreadInterface & s) {
             HU::VideoFocus videoFocusGained;
             videoFocusGained.set_mode(hasFocus ? HU::VIDEO_FOCUS_MODE_FOCUSED : HU::VIDEO_FOCUS_MODE_UNFOCUSED);
             videoFocusGained.set_unrequested(unrequested);
             s.hu_aap_enc_send_message(0, AA_CH_VID, HU_MEDIA_CHANNEL_MESSAGE::VideoFocus, videoFocusGained);
         });
+
+        //Set speed to 0
+        HU::SensorEvent sensorEvent;
+        sensorEvent.add_location_data()->set_speed(0);
+        headunit->g_hu->hu_queue_command([sensorEvent](IHUConnectionThreadInterface& s)
+        {
+            s.hu_aap_enc_send_message(0, AA_CH_SEN, HU_SENSOR_CHANNEL_MESSAGE::SensorEvent, sensorEvent);
+        });
         return false;
     });
 }
+
 std::string DesktopEventCallbacks::GetCarBluetoothAddress(){
     QList<QBluetoothHostInfo> localAdapters = QBluetoothLocalDevice::allDevices();
     if(localAdapters.size() > 0){
@@ -569,6 +575,7 @@ std::string DesktopEventCallbacks::GetCarBluetoothAddress(){
     }
     return std::string();
 }
+
 void DesktopEventCallbacks::PhoneBluetoothReceived(std::string address){
     emit headunit->btConnectionRequest(QString::fromStdString(address));
 }
