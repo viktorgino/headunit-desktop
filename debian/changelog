@@ -1,3 +1,11 @@
+headunit-desktop (0.1-16) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (7a807d0725c4c232e120be83e23af8dd8e5a4904)
+  * [SettingsLoader] Change combobox setting type to QString
+
+ -- Gino <gino@gino-ubuntu>  Wed, 14 Oct 2020 23:42:19 +0000
+
 headunit-desktop (0.1-15) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

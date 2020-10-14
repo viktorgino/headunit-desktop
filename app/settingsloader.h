@@ -47,7 +47,7 @@ private:
         {"switch",QMetaType::Bool},
         {"checkbox",QMetaType::Bool},
         {"textfield",QMetaType::QVariant},
-        {"combobox",QMetaType::QVariant},
+        {"combobox",QMetaType::QString},
         {"color",QMetaType::QColor},
         {"file",QMetaType::QString},
         {"folder",QMetaType::QString}
