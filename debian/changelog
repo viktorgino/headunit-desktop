@@ -1,3 +1,11 @@
+headunit-desktop (0.1-21) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (88ff426988759e274cae9828f49226f24af40095)
+  * [AndroidAuto] Add status messages to front end
+
+ -- Gino <gino@gino-ubuntu>  Thu, 15 Oct 2020 13:53:46 +0000
+
 headunit-desktop (0.1-20) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

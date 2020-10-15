@@ -49,17 +49,27 @@ class Headunit : public QObject
     Q_PROPERTY(int outputHeight MEMBER m_outputHeight NOTIFY outputResized)
     Q_PROPERTY(int videoWidth READ videoWidth NOTIFY videoResized)
     Q_PROPERTY(int videoHeight READ videoHeight NOTIFY videoResized)
+    Q_PROPERTY(hu_status status READ status NOTIFY statusChanged)
+
 public:
     Headunit();
     ~Headunit();
     int startHU();
-    void stop();
-    void exit();
+
+    enum hu_status{
+        NO_CONNECTION,
+        VIDEO_WAITING,
+        RUNNING
+    };
+
+    Q_ENUMS(hu_status)
     void stopPipelines();
     void setVideoWidth(const int a);
     void setVideoHeight(const int a);
+    void setStatus(hu_status status);
     int videoWidth();
     int videoHeight();
+    hu_status status();
 
     GstElement *mic_pipeline = nullptr;
     GstElement *aud_pipeline = nullptr;
@@ -73,6 +83,8 @@ signals:
     void deviceConnected(QVariantMap notification);
     void btConnectionRequest(QString address);
     void videoSurfaceChanged();
+    void statusChanged();
+
 public slots:
     bool mouseDown(QPoint point);
     bool mouseMove(QPoint point);
@@ -89,6 +101,7 @@ private:
     int m_outputWidth = 800;
     int m_outputHeight = 480;
     bool huStarted = false;
+    hu_status m_status = NO_CONNECTION;
     int initGst();
     static GstFlowReturn read_mic_data(GstElement *appsink, Headunit * _this);
     static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr);

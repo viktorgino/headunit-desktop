@@ -9,9 +9,33 @@ Item{
     property int margin_height
     property string resolution
 
+    Rectangle {
+        visible: AndroidAuto.status === 0 /*AndroidAuto.NO_CONNECTION*/ || AndroidAuto.status === 1/*AndroidAuto.VIDEO_WAITING*/
+        width: parent.width * 0.6
+        height: parent.height * 0.4
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+        color: "#66000000"
+        Text{
+            visible: AndroidAuto.status === 0/*AndroidAuto.NO_CONNECTION*/
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            text:"Please connect a device"
+            color: "#ffffff"
+        }
+        Text{
+            visible: AndroidAuto.status === 1/*AndroidAuto.VIDEO_WAITING*/
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            text:"Waiting for video"
+            color: "#ffffff"
+        }
+    }
+
     GstGLVideoItem {
         id: aaVideo
         objectName: "aaVideoItem"
+        visible: AndroidAuto.status === 2 /*AndroidAuto.RUNNING*/
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         width:parent.width * AndroidAuto.videoHeight/AndroidAuto.videoWidth < parent.height ? parent.width : height * AndroidAuto.videoWidth/AndroidAuto.videoHeight

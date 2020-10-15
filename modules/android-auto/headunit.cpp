@@ -76,14 +76,13 @@ int Headunit::startHU(){
     if ( ret >= 0) {
         g_hu = &headunit->GetAnyThreadInterface();
         huStarted = true;
+        setStatus(Headunit::VIDEO_WAITING);
     }
     return 1;
 }
 
 
 void Headunit::setVideoItem(QQuickItem * videoItem){
-    qDebug() << "setting widget sinks";
-
     GstElement *glsinkbin = gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_glsinkbin");
     GstElement *vid_sink;
 
@@ -274,12 +273,7 @@ gboolean Headunit::bus_callback(GstBus */* unused*/, GstMessage *message, gpoint
         break;
 
     case GST_MESSAGE_EOS:
-        qDebug("End of stream");
-        hu->stopPipelines();
-        break;
-
     case GST_MESSAGE_STATE_CHANGED:
-        break;
     default:
         break;
     }
@@ -372,8 +366,18 @@ void Headunit::setVideoHeight(const int a){
 int Headunit::videoWidth() {
     return m_videoWidth;
 }
+
 int Headunit::videoHeight() {
     return m_videoHeight;
+}
+
+Headunit::hu_status Headunit::status() {
+    return m_status;
+}
+
+void Headunit::setStatus(hu_status status){
+    m_status = status;
+    emit statusChanged();
 }
 
 int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const byte * buf, int len) {
@@ -403,6 +407,7 @@ int DesktopEventCallbacks::MediaStart(int chan) {
     switch(chan){
     case AA_CH_VID:
         gst_element_set_state(headunit->vid_pipeline, GST_STATE_PLAYING);
+        headunit->setStatus(Headunit::RUNNING);
         break;
     case AA_CH_AUD:
         gst_element_set_state(headunit->aud_pipeline, GST_STATE_PLAYING);
@@ -424,6 +429,7 @@ int DesktopEventCallbacks::MediaStop(int chan) {
     switch(chan){
     case AA_CH_VID:
         gst_element_set_state(headunit->vid_pipeline, GST_STATE_READY);
+        headunit->setStatus(Headunit::VIDEO_WAITING);
         break;
     case AA_CH_AUD:
         gst_element_set_state(headunit->aud_pipeline, GST_STATE_READY);
@@ -442,6 +448,7 @@ int DesktopEventCallbacks::MediaStop(int chan) {
 
 void DesktopEventCallbacks::DisconnectionOrError() {
     qDebug("Android Device disconnected, pausing gstreamer");
+    headunit->setStatus(Headunit::NO_CONNECTION);
 }
 
 void DesktopEventCallbacks::CustomizeOutputChannel(int /* unused */, HU::ChannelDescriptor::OutputStreamChannel& /* unused */) {
