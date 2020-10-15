@@ -1,3 +1,11 @@
+headunit-desktop (0.1-19) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (fba49ffd6e094703fd61facf0dc64b6658be6da2)
+  * [AndroidAuto] Adjustments to audio/video pipelines
+
+ -- Gino <gino@gino-ubuntu>  Thu, 15 Oct 2020 02:04:10 +0000
+
 headunit-desktop (0.1-18) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

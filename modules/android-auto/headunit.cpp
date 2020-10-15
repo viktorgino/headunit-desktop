@@ -139,8 +139,7 @@ int Headunit::initGst(){
      * Initialize Video pipeline
      */
 
-    const char* vid_launch_str = "appsrc name=vid_src is-live=true block=false min-latency=0 max-latency=100 do-timestamp=true format=3 ! "
-                                 "queue ! "
+    const char* vid_launch_str = "appsrc name=vid_src is-live=true block=false min-latency=0 max-latency=15000000 do-timestamp=true format=3 ! "
                                  "h264parse ! "
         #ifdef RPI
                                  "omxh264dec ! "
@@ -169,7 +168,7 @@ int Headunit::initGst(){
 
     aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=true format=3 ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=48000, channels=2, format=S16LE ! "
-                                    "queue ! "
+                                    "queue min-threshold-buffers=1024 flush-on-eos=true ! "
                                 #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Music\""
                                 #else
@@ -192,7 +191,7 @@ int Headunit::initGst(){
 
     au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=true  format=3 ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  !"
-                                    "queue ! "
+                                    "queue min-threshold-buffers=1024 ! "
                                 #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Voice\""
                                 #else
