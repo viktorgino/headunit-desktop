@@ -21,19 +21,15 @@ Headunit::Headunit():
 }
 
 Headunit::~Headunit() {
-    setGstState("");
+    stopPipelines();
 
     gst_object_unref(vid_pipeline);
     gst_object_unref(mic_pipeline);
     gst_object_unref(aud_pipeline);
     gst_object_unref(au1_pipeline);
 
-    gst_object_unref(vid_src);
-    gst_object_unref(mic_sink);
-    gst_object_unref(aud_src);
-    gst_object_unref(au1_src);
-    if(huStarted){
-        headunit->hu_aap_shutdown();
+    if(headunit){
+        delete(headunit);
         qDebug("Headunit::~Headunit() called hu_aap_shutdown()");
     }
 }
@@ -79,52 +75,26 @@ int Headunit::startHU(){
     int ret = headunit->hu_aap_start(false, false);
     if ( ret >= 0) {
         g_hu = &headunit->GetAnyThreadInterface();
-        return 1;
-    } else {
-        stopHU();
-        return 0;
+        huStarted = true;
     }
+    return 1;
 }
 
 
 void Headunit::setVideoItem(QQuickItem * videoItem){
-    m_videoItem = videoItem;
+    qDebug() << "setting widget sinks";
 
-    g_object_set (m_videoSink, "widget", m_videoItem, NULL);
+    GstElement *glsinkbin = gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_glsinkbin");
+    GstElement *vid_sink;
+
+    g_object_get (glsinkbin, "sink", &vid_sink, nullptr);
+
+    g_object_set (vid_sink, "widget", videoItem, NULL);
+
+    gst_object_unref(vid_sink);
+    gst_object_unref(glsinkbin);
 
     startHU();
-}
-int Headunit::stopHU(){
-    setGstState("");
-    if(headunit){
-        qDebug() << "Stopping headunit";
-        //headunit->hu_aap_shutdown();
-        //delete(headunit);
-        //headunit = NULL;
-    }
-    return 1;
-}
-int Headunit::restartHU(){
-    stopHU();
-    startHU();
-    return 1;
-}
-GstPadProbeReturn Headunit::convert_probe(GstPad *pad, GstPadProbeInfo *info, void *user_data){
-    GstEvent *event = GST_PAD_PROBE_INFO_EVENT(info);
-    if (GST_PAD_PROBE_INFO_TYPE(info) & GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM) {
-        if (GST_EVENT_TYPE (event) == GST_EVENT_SEGMENT) {
-            GstCaps *caps  = gst_pad_get_current_caps(pad);
-            if(caps != NULL){
-                GstVideoInfo *vinfo = gst_video_info_new ();
-                gst_video_info_from_caps (vinfo, caps);
-                Headunit *headunit = static_cast<Headunit *>(user_data);
-                headunit->setVideoWidth(vinfo->width);
-                headunit->setVideoHeight(vinfo->height);
-            }
-            return GST_PAD_PROBE_REMOVE;
-        }
-    }
-    return GST_PAD_PROBE_OK;
 }
 
 int Headunit::initGst(){
@@ -133,7 +103,6 @@ int Headunit::initGst(){
     GError *error = NULL;    
 
     gst_init(NULL, NULL);
-
 
     /*
      * Initialize Video pipeline
@@ -153,14 +122,19 @@ int Headunit::initGst(){
     gst_bus_add_watch(bus, (GstBusFunc) Headunit::bus_callback, this);
     gst_object_unref(bus);
 
-    m_videoSink = gst_element_factory_make ("qmlglsink", NULL);
+    GstElement *vid_sink = gst_element_factory_make ("qmlglsink", "vid_qmlsink");
 
     GstElement *glsinkbin = gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_glsinkbin");
+    g_object_set (glsinkbin, "sink", vid_sink, NULL);
 
-    g_object_set (glsinkbin, "sink", m_videoSink, NULL);
+    gst_object_unref(glsinkbin);
+    gst_object_unref(vid_sink);
 
-    vid_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_src"));
-    gst_app_src_set_stream_type(vid_src, GST_APP_STREAM_TYPE_STREAM);
+    if (error != NULL) {
+        qDebug("Could not construct video pipeline: %s", error->message);
+        g_clear_error(&error);
+        return -1;
+    }
 
     /*
      * Initialize Music pipeline
@@ -176,14 +150,10 @@ int Headunit::initGst(){
                                 #endif
                                     , &error);
     if (error != NULL) {
-        qDebug("could not construct pipeline: %s", error->message);
+        qDebug("Could not construct audio pipeline: %s", error->message);
         g_clear_error(&error);
         return -1;
     }
-
-    aud_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(aud_pipeline), "audsrc"));
-
-    gst_app_src_set_stream_type(aud_src, GST_APP_STREAM_TYPE_STREAM);
 
     /*
      * Initialize Voice pipeline
@@ -200,14 +170,10 @@ int Headunit::initGst(){
                                     , &error);
 
     if (error != NULL) {
-        qDebug("could not construct pipeline: %s", error->message);
+        qDebug("Could not construct voice pipeline: %s", error->message);
         g_clear_error(&error);
         return -1;
     }
-
-    au1_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(au1_pipeline), "au1src"));
-
-    gst_app_src_set_stream_type(au1_src, GST_APP_STREAM_TYPE_STREAM);
 
     /*
      * Initialize Microphone pipeline
@@ -223,14 +189,14 @@ int Headunit::initGst(){
                 "appsink name=micsink emit-signals=true async=false caps=\"audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000\" blocksize=8192", &error);
 
     if (error != NULL) {
-        qDebug("could not construct pipeline: %s", error->message);
+        qDebug("Could not construct mic pipeline: %s", error->message);
         g_clear_error(&error);
         return -1;
     }
 
-    mic_sink = gst_bin_get_by_name(GST_BIN(mic_pipeline), "micsink");
-
+    GstElement *mic_sink = gst_bin_get_by_name(GST_BIN(mic_pipeline), "micsink");
     g_signal_connect(mic_sink, "new-sample", G_CALLBACK(&Headunit::read_mic_data), this);
+    gst_object_unref(mic_sink);
 
     gst_element_set_state(mic_pipeline, GST_STATE_READY);
 
@@ -292,7 +258,7 @@ gboolean Headunit::bus_callback(GstBus */* unused*/, GstMessage *message, gpoint
         qDebug("Error %s", err->message);
         g_error_free(err);
         g_free(debug);
-        hu->setGstState("");
+        hu->stopPipelines();
         break;
 
     case GST_MESSAGE_WARNING:
@@ -309,7 +275,7 @@ gboolean Headunit::bus_callback(GstBus */* unused*/, GstMessage *message, gpoint
 
     case GST_MESSAGE_EOS:
         qDebug("End of stream");
-        hu->setGstState("");
+        hu->stopPipelines();
         break;
 
     case GST_MESSAGE_STATE_CHANGED:
@@ -320,27 +286,10 @@ gboolean Headunit::bus_callback(GstBus */* unused*/, GstMessage *message, gpoint
 
     return TRUE;
 }
-void Headunit::setGstState(QString state){
-
-    GstState gst_state;
-    if(state == "play"){
-        gst_state = GST_STATE_PLAYING;
-        huStarted = true;
-        GstElement *glsinkbin = gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_glsinkbin");
-        GstPad *convert_pad = gst_element_get_static_pad(glsinkbin, "sink");
-        gst_pad_add_probe (convert_pad,GST_PAD_PROBE_TYPE_EVENT_DOWNSTREAM,convert_probe, this, NULL);
-
-    } else if(state == "pause") {
-        gst_state = GST_STATE_PAUSED;
-        huStarted = false;
-    } else {
-        gst_state = GST_STATE_NULL;
-        huStarted = false;
-    }
-
-    gst_element_set_state(vid_pipeline, gst_state);
-    gst_element_set_state(aud_pipeline, gst_state);
-    gst_element_set_state(au1_pipeline, gst_state);
+void Headunit::stopPipelines(){
+    gst_element_set_state(vid_pipeline, GST_STATE_NULL);
+    gst_element_set_state(aud_pipeline, GST_STATE_NULL);
+    gst_element_set_state(au1_pipeline, GST_STATE_NULL);
 }
 
 bool Headunit::mouseDown(QPoint point){
@@ -410,19 +359,6 @@ void Headunit::touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point) {
     }
 }
 
-void Headunit::setOutputWidth(const int a){
-    if(a != m_outputWidth){
-        m_outputWidth = a;
-        emit outputResized();
-    }
-}
-void Headunit::setOutputHeight(const int a){
-    if(a != m_outputHeight){
-        m_outputHeight = a;
-        emit outputResized();
-    }
-}
-
 void Headunit::setVideoWidth(const int a){
     m_videoWidth = a;
     emit videoResized();
@@ -433,12 +369,6 @@ void Headunit::setVideoHeight(const int a){
     emit videoResized();
 }
 
-int Headunit::outputWidth() {
-    return m_outputWidth;
-}
-int Headunit::outputHeight() {
-    return m_outputHeight;
-}
 int Headunit::videoWidth() {
     return m_videoWidth;
 }
@@ -448,16 +378,13 @@ int Headunit::videoHeight() {
 
 int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;
-    //GstElement* gst_pipe = nullptr;
+
     if (chan == AA_CH_VID) {
-        gst_src = headunit->vid_src;
-        //gst_pipe = headunit->vid_pipeline;
+        gst_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(headunit->vid_pipeline), "vid_src"));
     } else if (chan == AA_CH_AUD) {
-        gst_src = headunit->aud_src;
-        //gst_pipe = headunit->aud_pipeline;
+        gst_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(headunit->aud_pipeline), "audsrc"));
     } else if (chan == AA_CH_AU1) {
-        gst_src = headunit->au1_src;
-        //gst_pipe = headunit->au1_pipeline;
+        gst_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(headunit->au1_pipeline), "au1src"));
     }
 
     if (gst_src) {
@@ -467,6 +394,7 @@ int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const by
         if (ret != GST_FLOW_OK) {
             qDebug("push buffer returned %d for %d bytes ", ret, len);
         }
+        gst_object_unref(gst_src);
     }
     return 0;
 }
@@ -475,7 +403,6 @@ int DesktopEventCallbacks::MediaStart(int chan) {
     switch(chan){
     case AA_CH_VID:
         gst_element_set_state(headunit->vid_pipeline, GST_STATE_PLAYING);
-        headunit->huStarted = true;
         break;
     case AA_CH_AUD:
         gst_element_set_state(headunit->aud_pipeline, GST_STATE_PLAYING);
@@ -497,7 +424,6 @@ int DesktopEventCallbacks::MediaStop(int chan) {
     switch(chan){
     case AA_CH_VID:
         gst_element_set_state(headunit->vid_pipeline, GST_STATE_READY);
-        headunit->huStarted = false;
         break;
     case AA_CH_AUD:
         gst_element_set_state(headunit->aud_pipeline, GST_STATE_READY);
@@ -516,7 +442,6 @@ int DesktopEventCallbacks::MediaStop(int chan) {
 
 void DesktopEventCallbacks::DisconnectionOrError() {
     qDebug("Android Device disconnected, pausing gstreamer");
-    headunit->stopHU();
 }
 
 void DesktopEventCallbacks::CustomizeOutputChannel(int /* unused */, HU::ChannelDescriptor::OutputStreamChannel& /* unused */) {

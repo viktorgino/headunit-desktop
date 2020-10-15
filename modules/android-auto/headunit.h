@@ -45,37 +45,26 @@ public:
 class Headunit : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(int outputWidth READ outputWidth WRITE setOutputWidth NOTIFY outputResized)
-    Q_PROPERTY(int outputHeight READ outputHeight WRITE setOutputHeight NOTIFY outputResized)
+    Q_PROPERTY(int outputWidth MEMBER m_outputWidth NOTIFY outputResized)
+    Q_PROPERTY(int outputHeight MEMBER m_outputHeight NOTIFY outputResized)
     Q_PROPERTY(int videoWidth READ videoWidth NOTIFY videoResized)
     Q_PROPERTY(int videoHeight READ videoHeight NOTIFY videoResized)
 public:
     Headunit();
     ~Headunit();
     int startHU();
-    Q_INVOKABLE int restartHU();
     void stop();
     void exit();
-    void setGstState(QString state);
-    void setOutputWidth(const int a);
-    void setOutputHeight(const int a);
+    void stopPipelines();
     void setVideoWidth(const int a);
     void setVideoHeight(const int a);
-    int outputWidth();
-    int outputHeight();
     int videoWidth();
     int videoHeight();
 
     GstElement *mic_pipeline = nullptr;
-    GstElement *mic_sink = nullptr;
     GstElement *aud_pipeline = nullptr;
-    GstAppSrc *aud_src = nullptr;
     GstElement *au1_pipeline = nullptr;
-    GstAppSrc *au1_src = nullptr;
     GstElement *vid_pipeline = nullptr;
-    GstAppSrc *vid_src = nullptr;
-
-    bool huStarted = false;
 
     IHUAnyThreadInterface* g_hu = nullptr;
 signals:
@@ -90,24 +79,20 @@ public slots:
     bool mouseUp(QPoint point);
     bool keyEvent(QString key);
     void setVideoItem(QQuickItem *videoItem);
-    int stopHU();
+
 private:
     HUServer *headunit;
     DesktopEventCallbacks callbacks;
     HU::TouchInfo::TOUCH_ACTION lastAction = HU::TouchInfo::TOUCH_ACTION_RELEASE;
-    int m_videoWidth = 1280;
-    int m_videoHeight = 720;
+    int m_videoWidth = 800;
+    int m_videoHeight = 480;
     int m_outputWidth = 800;
     int m_outputHeight = 480;
+    bool huStarted = false;
     int initGst();
     static GstFlowReturn read_mic_data(GstElement *appsink, Headunit * _this);
     static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr);
     void touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point);
     static uint64_t get_cur_timestamp();
-    static GstPadProbeReturn convert_probe(GstPad *pad, GstPadProbeInfo *info, void *user_data);
-    byte ep_in_addr = -2;
-    byte ep_out_addr = -2;
-    QQuickItem *m_videoItem;
-    GstElement *m_videoSink;
 };
 #endif // HEADUNITPLAYER_H
