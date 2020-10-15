@@ -53,8 +53,8 @@ int LIBUSB_CALL UsbConnectionListener::hotplugCallback(libusb_context */* unused
         QVariantMap deviceDetails;
         deviceDetails.insert("vid", QString("%1").arg(desc.idVendor));
         deviceDetails.insert("pid", QString("%1").arg(desc.idProduct));
-        QJsonDocument json = QJsonDocument::fromVariant(deviceDetails);
-        emit parent->usbDeviceRemoved(json.toJson(QJsonDocument::Compact));
+
+        emit parent->usbDeviceRemoved(deviceDetails);
     }
     return 0;
 }
@@ -131,8 +131,8 @@ void UsbConnectionListener::run() {
                     deviceDetails.insert("serialNumber", QString(reinterpret_cast<char *>(serialNumber)));
                     deviceDetails.insert("vid", QString("%1").arg(desc.idVendor));
                     deviceDetails.insert("pid", QString("%1").arg(desc.idProduct));
-                    QJsonDocument json = QJsonDocument::fromVariant(deviceDetails);
-                    emit usbDeviceAdded(json.toJson(QJsonDocument::Compact));
+
+                    emit usbDeviceAdded(deviceDetails);
                 }
             }
             libusb_free_device_list(devices, 1);

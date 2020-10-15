@@ -36,13 +36,24 @@ void UsbConnectionListenerPlugin::actionMessage(QString id, QString message){
 
 }
 
-void UsbConnectionListenerPlugin::usbDeviceAdded(QString deviceDetails){
-    emit onMessage("UsbDeviceAdded", deviceDetails);
-    emit onMessage("GUI::Notification", deviceDetails);
+void UsbConnectionListenerPlugin::usbDeviceAdded(QVariantMap deviceDetails){
+    QJsonDocument json = QJsonDocument::fromVariant(deviceDetails);
+    emit onMessage("UsbDeviceAdded", json.toJson(QJsonDocument::Compact));
+
+    QVariantMap notificationDetails;
+    QString notificationText = QString("%1 %2").arg(deviceDetails.value("manufacturer").toString())
+                                               .arg(deviceDetails.value("product").toString());
+    notificationDetails.insert("description", notificationText);
+    notificationDetails.insert("title", "New USB device connected");
+    notificationDetails.insert("image", "qrc:/qml/icons/usb.png");
+
+    json = QJsonDocument::fromVariant(notificationDetails);
+
+    emit onMessage("GUI::Notification", json.toJson(QJsonDocument::Compact));
 }
 
-void UsbConnectionListenerPlugin::usbDeviceRemoved(QString deviceDetails){
-    emit onMessage("UsbDeviceRemoved", deviceDetails);
-    emit onMessage("GUI::Notification", deviceDetails);
+void UsbConnectionListenerPlugin::usbDeviceRemoved(QVariantMap deviceDetails){
+    QJsonDocument json = QJsonDocument::fromVariant(deviceDetails);
+    emit onMessage("UsbDeviceRemoved", json.toJson(QJsonDocument::Compact));
 }
 

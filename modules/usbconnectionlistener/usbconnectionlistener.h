@@ -26,8 +26,8 @@ private:
     libusb_context *hotplug_context = nullptr;
     QStringList newDevices;
 signals:
-    void usbDeviceAdded(QString deviceDetails);
-    void usbDeviceRemoved(QString deviceDetails);
+    void usbDeviceAdded(QVariantMap deviceDetails);
+    void usbDeviceRemoved(QVariantMap deviceDetails);
 };
 
 #endif // USBCONNECTIONLISTENER_H

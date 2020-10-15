@@ -1,3 +1,11 @@
+headunit-desktop (0.1-17) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (9b13e732edc366e21c2934a7e3b5b2ccb5dc0666)
+  * [USBConnectionListener] Fix notifications
+
+ -- Gino <gino@gino-ubuntu>  Thu, 15 Oct 2020 00:09:44 +0000
+
 headunit-desktop (0.1-16) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

@@ -19,8 +19,8 @@ public:
     QStringList events() override;
     QStringList actions() override;
 private slots:
-    void usbDeviceAdded(QString deviceDetails);
-    void usbDeviceRemoved(QString deviceDetails);
+    void usbDeviceAdded(QVariantMap deviceDetails);
+    void usbDeviceRemoved(QVariantMap deviceDetails);
 signals:
     void onMessage(QString id, QString message);
 public slots:
