@@ -1,3 +1,11 @@
+headunit-desktop (0.1-18) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (d5ff490d05be1204097f26549ca863f048ad0d5e)
+  * [Debian] Update Debian version to Buster
+
+ -- Gino <gino@gino-ubuntu>  Thu, 15 Oct 2020 00:10:16 +0000
+
 headunit-desktop (0.1-17) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
