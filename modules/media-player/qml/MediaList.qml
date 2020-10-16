@@ -1,13 +1,13 @@
-import QtQuick 2.6
-import QtQuick.Controls 2.0
+import QtQuick 2.11
+import QtQuick.Controls 2.4
 
 Item {
     id:__media_list
     signal back()
     property var model;
-    property url thumbnail: "qrc:/qml/images/music_placeholder.jpg"
-    property string title: "Title"
-    property string sub_title:"Sub title"
+    property string thumbnail: ""
+    property string title: ""
+    property string sub_title:""
     signal itemClicked(string path)
     Item {
         id: container_info

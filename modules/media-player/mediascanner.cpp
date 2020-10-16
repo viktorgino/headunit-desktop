@@ -2,8 +2,6 @@
 
 MediaScanner::MediaScanner()
 {
-    mediadb = new MediaDB();
-
     audioFileTypes << "*.mp3" << "*.flac" << "*.wav" << "*.ogg" << "*.aac" << "*.aiff";
     videoFileTypes << "*.avi" << "*.mkv" << "*.webm" << "*.flv" << "*.mov" << "*.mp4" << "*.mpg" << "*.mpeg";
     playlistFileTypes << "*.m3u";
@@ -13,22 +11,25 @@ MediaScanner::MediaScanner()
     videoFileTypes.replaceInStrings("*.", "");
     playlistFileTypes.replaceInStrings("*.", "");
 
-    updateLocationsAvailability();
+    MediaDB mediadb;
+    updateLocationsAvailability(&mediadb);
 }
 //TODO: Add functionality that not just adds to the database, but compares folder contetents and structure with DB and removes non-existent files/folders from DB
 void MediaScanner::run(){
+
+    MediaDB mediadb;
     isRunning = true;
     emit scanningStarted();
     while (!pathsToScan.isEmpty()){
         QMap<QString, QVariant> path = pathsToScan.dequeue();
-        scanForFolders(path["path"].toString(),true,path["location_id"].toInt(), "", 0);
+        scanForFolders(&mediadb, path["path"].toString(),true,path["location_id"].toInt(), "", 0);
     }
     //getUsbBlockSerial();
     //QVariantList volumes = getVolumes();
     isRunning = false;
     emit scanningFinished();
 }
-void MediaScanner::scanForFolders(QString path, bool is_root, int location_id, QString current_dir, qint64 last_modified){
+void MediaScanner::scanForFolders(MediaDB *mediadb, QString path, bool is_root, int location_id, QString current_dir, qint64 last_modified){
     QDir currentDir(path);
     currentDir.setFilter(QDir::NoSymLinks | QDir::NoDotAndDotDot | QDir::Dirs);
     QString relative_path = current_dir;
@@ -39,16 +40,16 @@ void MediaScanner::scanForFolders(QString path, bool is_root, int location_id, Q
     for (int i = 0; i < list.size(); ++i) {
         QFileInfo fileInfo = list.at(i);
         //qDebug() << qPrintable(fileInfo.fileName());
-        scanForFolders(fileInfo.filePath(),false,location_id,current_dir,fileInfo.lastModified().toMSecsSinceEpoch());
+        scanForFolders(mediadb, fileInfo.filePath(),false,location_id,current_dir,fileInfo.lastModified().toMSecsSinceEpoch());
     }
     int folder_id = mediadb->addScannedFolder(location_id,currentDir.dirName(),current_dir,last_modified,"");
     if(folder_id < 0)
         return;
 
-    scanForMediaFiles(path, folder_id);
+    scanForMediaFiles(mediadb, path, folder_id);
 }
-//TODO:have a look at how to use UTF-8
-void MediaScanner::scanForMediaFiles(QString path, int folder_id){
+
+void MediaScanner::scanForMediaFiles(MediaDB *mediadb, QString path, int folder_id){
     QDir currentDir(path);
     currentDir.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
 
@@ -153,7 +154,7 @@ QString MediaScanner::getStorageUUID(QString device){
  * Add new location to database and start scanning it
  */
 //int MediaScanner::addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path){
-int MediaScanner::addLocation(QString path){
+int MediaScanner::addLocation(MediaDB *mediadb, QString path){
     QStorageInfo volume(path);
     QString uuid = getStorageUUID(volume.device());
     QDir volume_dir(volume.rootPath());
@@ -162,13 +163,13 @@ int MediaScanner::addLocation(QString path){
     int location_id = mediadb->addLocation(volume.displayName(),uuid,rootPath,"/"+relative_path);
     if(location_id < 0)
         return location_id;
-    scanLocation(location_id);
+    scanLocation(mediadb, location_id);
     return 1;
 }
 /*
  * Scan location
  */
-void MediaScanner::scanLocation(int location_id){
+void MediaScanner::scanLocation(MediaDB *mediadb, int location_id){
     QVariantMap locationInfo = mediadb->getLocationInfo(location_id);
     QString path(locationInfo["volume_path"].toString() + locationInfo["relative_path"].toString());
     QMap<QString,QVariant> info;
@@ -179,7 +180,7 @@ void MediaScanner::scanLocation(int location_id){
     if(!isRunning)
         this->start();
 }
-void MediaScanner::updateLocationsAvailability(){
+void MediaScanner::updateLocationsAvailability(MediaDB *mediadb){
     QVariantList locations = mediadb->getLocations(false);
     for(int i = 0; i < locations.size(); i++){
         QVariantMap location = locations.at(i).toMap();

@@ -1,3 +1,11 @@
+headunit-desktop (0.1-22) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (e208d07110750d90413d9836918362e66cd02eb7)
+  * [MediaPlayer] Various bug fixes & new features
+
+ -- Gino <gino@gino-ubuntu>  Fri, 16 Oct 2020 02:51:38 +0000
+
 headunit-desktop (0.1-21) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

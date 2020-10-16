@@ -1,8 +1,9 @@
-import QtQuick 2.6
+import QtQuick 2.11
 import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.0
 import QtMultimedia 5.7
 import Qt.labs.settings 1.0
+import QtGraphicalEffects 1.11
 
 Item {
     id: __media_player_layout
@@ -29,6 +30,113 @@ Item {
         } else if(caller == "toNowPlaying"){
             top_menu.menuButtonActive = true;
             __media_player_layout.state="now playing";
+        }
+    }
+
+    Item {
+        id:background
+        anchors.fill: parent
+        visible : false
+        property alias imageSrc: thumbnail_image.source
+
+        onImageSrcChanged: {
+            if(imageSrc.toString()){
+                background.visible = true;
+                bgCanvas.loadImage(imageSrc)
+            } else {
+                background.visible = false;
+            }
+        }
+
+        Rectangle {
+            id:bgRec
+            anchors.fill: parent
+            visible: false
+        }
+
+        Image {
+            id: image
+            anchors.fill: parent
+            horizontalAlignment: Image.AlignRight
+            source: thumbnail_image.source
+            mipmap: true
+            fillMode: Image.PreserveAspectFit
+            smooth: true
+            visible: false
+        }
+        FastBlur {
+            id: imageBlur
+            anchors.fill: image
+            source: image
+            radius: 32
+            smooth: true
+            visible: false
+        }
+
+        LinearGradient {
+            id: mask
+            anchors.fill: parent
+            gradient: Gradient {
+                GradientStop { position: 0.4; color: "#00ffffff" }
+                GradientStop { position: 0.7; color: "#ffffffff" }
+            }
+            start: Qt.point(0, 0)
+            end: Qt.point(image.width, 0)
+            visible: false
+        }
+
+
+        OpacityMask {
+            id:opacityMask
+            anchors.fill: imageBlur
+            source: imageBlur
+            maskSource:mask
+            visible: false
+        }
+        Blend {
+            anchors.fill: parent
+            source: bgRec
+            foregroundSource: opacityMask
+            mode: "lighten"
+        }
+
+
+        Canvas {
+            anchors.fill: parent
+            visible: false
+            contextType: qsTr("")
+            id: bgCanvas
+            onPaint: {
+                var ctx = bgCanvas.getContext('2d');
+                var arr = ctx.getImageData(0, 0, 255, 255).data;
+                var len = arr.length;
+
+                var red = 0;
+                var green = 0;
+                var blue = 0;
+                var i = 0;
+
+                for (; i < len; i += 4) {
+                    red += arr[i];
+                    green += arr[i + 1];
+                    blue += arr[i + 2];
+                }
+                var count = i/4;
+
+                var r = Math.round(red / count).toString(16);
+                var g = Math.round(green / count).toString(16);
+                var b = Math.round(blue / count).toString(16);
+
+                var color = "#"+r + g + b;
+                bgRec.color = color;
+                bgRec.visible = true;
+            }
+            onImageLoaded: {
+                var ctx = bgCanvas.getContext('2d');
+                context.clearRect(0, 0, 255, 255);
+                ctx.drawImage(background.imageSrc,0,0, 255, 255)
+                requestPaint()
+            }
         }
     }
 
@@ -319,6 +427,7 @@ Item {
         playbackMode : Playlist.Sequential
     }
 
+
     MediaPlayer {
         id: mediaplayer
         playlist: nowPlaying
@@ -355,6 +464,7 @@ Item {
         }
     }
 
+
     MediaList {
         id: mediaList
         width: parent.width * 0.7
@@ -373,6 +483,7 @@ Item {
         onBack: changeState("toContainer")
     }
 
+
     MediaContainerList {
         id: media_container_list
         width: parent.width * 0.7
@@ -388,36 +499,47 @@ Item {
             case "folders":
                 changeState("toList");
                 mediaList.model = MediaPlayerPlugin.audioFolderContent(itemData.id).data;
-                mediaList.thumbnail = itemData.thumbnail;
-                mediaList.title = itemData.name;
                 mediaList.sub_title = itemData.path;
                 break;
             case "playlists":
                 changeState("toList");
-                mediaList.model = MediaPlayerPlugin.getPlaylistContent(itemData.path, itemData.name);
+                mediaList.model = MediaPlayerPlugin.getPlaylistContent(itemData.path, itemData.title);
                 break;
             case "artists":
                 changeState("toList");
-                mediaList.model = MediaPlayerPlugin.getArtistContent(itemData.name).data;
+                mediaList.model = MediaPlayerPlugin.getArtistContent(itemData.title).data;
                 break;
             case "albums":
                 changeState("toList");
-                mediaList.model = MediaPlayerPlugin.getAlbumContent(itemData.name).data;
+                mediaList.model = MediaPlayerPlugin.getAlbumContent(itemData.title).data;
                 break;
             case "genres":
                 changeState("toList");
-                mediaList.model = MediaPlayerPlugin.getGenreContent(itemData.name).data;
+                mediaList.model = MediaPlayerPlugin.getGenreContent(itemData.title).data;
                 break;
             case "songs":
                 changeState("button");
                 nowPlayingList.model = itemData.data;
-                thumbnail_image.source = itemData.thumbnail;
-                break;
+
+                if(itemData.thumbnail){
+                    thumbnail_image.source = "file:/" + itemData.thumbnail;
+                } else {
+                    thumbnail_image.source = ""
+                }
+                return;
             default:
                 break;
             }
+            if(itemData.thumbnail){
+                mediaList.thumbnail = "file:/" + itemData.thumbnail;
+            } else {
+                mediaList.thumbnail = ""
+            }
+
+            mediaList.title = itemData.title;
         }
     }
+
 
 
     MediaDrawer {
@@ -461,6 +583,7 @@ Item {
             __media_player_layout.changeState("toContainer");
         }
     }
+
 
     NowPlayingList {
         id: nowPlayingList
@@ -606,4 +729,11 @@ Item {
         property alias nowPlayingCurrentIndex: nowPlaying.currentIndex
         property alias thumbnailImage: thumbnail_image.source
     }
+
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;formeditorColor:"#808080";height:480;width:640}
+}
+##^##*/

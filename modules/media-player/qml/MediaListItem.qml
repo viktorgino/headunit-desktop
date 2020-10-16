@@ -1,4 +1,4 @@
-import QtQuick 2.6
+import QtQuick 2.11
 
 Item {
     id: __media_list_item
@@ -6,12 +6,12 @@ Item {
     width: parent.width
 
     signal itemClicked(string path, int index)
-    property string name: modelData.name
+//    property string name: modelData.name
     Text {
         id: label1
         height: 20
         color: "#ffffff"
-        text: modelData.name
+        text: modelData.title
         fontSizeMode: Text.VerticalFit
         clip: true
         verticalAlignment: Text.AlignVCenter

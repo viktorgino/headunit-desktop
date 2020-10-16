@@ -19,6 +19,5 @@
         <file>qml/TopMenu.qml</file>
         <file>qml/AlphabetScrollBar.qml</file>
         <file>qml/MenuButton.qml</file>
-        <file>qml/FileBrowser.qml</file>
     </qresource>
 </RCC>

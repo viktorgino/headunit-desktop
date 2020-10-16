@@ -1,15 +1,15 @@
-import QtQuick 2.6
+import QtQuick 2.11
 
 Item {
     id: __media_container_list_item
     height: 50
-    property string name: modelData.name
+    property string name: modelData.title
     signal itemClicked(var itemData)
     Text {
         id: label1
         height: 20
         color: "#ffffff"
-        text: modelData.name
+        text: modelData.title
         elide: Text.ElideLeft
         clip: true
         verticalAlignment: Text.AlignTop

@@ -1,4 +1,4 @@
-import QtQuick 2.6
+import QtQuick 2.11
 
 Item {
     id: __media_folder_list_item
@@ -17,14 +17,14 @@ Item {
         anchors.top: parent.top
         anchors.topMargin: 0
         fillMode: Image.PreserveAspectCrop
-        source:modelData.thumbnail == ""?"qrc:/qml/images/music_placeholder.jpg":"file:/"+modelData.thumbnail
+        source:modelData.thumbnail == ""?"":"file:/"+modelData.thumbnail
         mipmap:true
     }
     Text {
         id: label1
         height: 20
         color: "#ffffff"
-        text:modelData.name
+        text:modelData.title
         elide: Text.ElideLeft
         clip: true
         verticalAlignment: Text.AlignVCenter
@@ -62,9 +62,7 @@ Item {
         id: mouseArea
         anchors.fill: parent
         onClicked:{
-            var itemData = modelData;
-            itemData.thumbnail = thumbnail_image.source;
-            __media_folder_list_item.itemClicked(itemData);
+            __media_folder_list_item.itemClicked(modelData);
         }
     }
 

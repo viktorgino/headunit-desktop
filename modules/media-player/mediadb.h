@@ -219,11 +219,15 @@ public:
      */
     QVariantMap getListContent(ListType listType, QString key);
 
-    static const int AUDIO = 1; /**< Media type id used for AUDIO files */
-    static const int VIDEO = 2; /**< Media type id used for VIDEO files */
-    static const int PLAYLIST = 3; /**< Media type id used for PLAYLIST files */
+    enum MediaTypes {
+        AUDIO = 1, /**< Media type id used for AUDIO files */
+        VIDEO, /**< Media type id used for VIDEO files */
+        PLAYLIST /**< Media type id used for PLAYLIST files */
+    };
+
 private:
     QSqlDatabase db; /**< TODO: describe */
+    QVariantMap executeQuery(QString query, QVariantMap values);
 signals:
 
 public slots:

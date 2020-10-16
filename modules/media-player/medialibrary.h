@@ -53,6 +53,7 @@ private:
     QVariantMap p_audioFolders;
     QVariantMap p_playlists;
     QVariantMap getPlaylists();
+    MediaDB m_mediaDb;
 };
 
 #endif // MEDIALIBRARY_H

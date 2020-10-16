@@ -1,4 +1,4 @@
-import QtQuick 2.6
+import QtQuick 2.11
 import QtGraphicalEffects 1.0
 Item {
     id: __now_playing_list_item
@@ -12,7 +12,7 @@ Item {
         id: label1
         height: 20
         color: "#ffffff"
-        text: modelData.name
+        text: modelData.title
         fontSizeMode: Text.VerticalFit
         clip: true
         verticalAlignment: Text.AlignVCenter

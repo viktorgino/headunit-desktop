@@ -7,7 +7,7 @@ MediaLibrary::MediaLibrary(QObject *parent) : QObject(parent)
 }
 const QVariantMap MediaLibrary::audioFolders() {
     if(p_audioFolders.isEmpty())
-        p_audioFolders = mediaScanner->mediadb->getMediaFolders(MediaDB::AUDIO);
+        p_audioFolders = m_mediaDb.getMediaFolders(MediaDB::AUDIO);
     return p_audioFolders;
 }
 const QVariantMap MediaLibrary::playlists() {
@@ -16,29 +16,28 @@ const QVariantMap MediaLibrary::playlists() {
     return p_playlists;
 }
 QVariantMap MediaLibrary::audioFolderContent(int folder_id) {
-    return mediaScanner->mediadb->getFolderContent(folder_id, MediaDB::AUDIO);
+    return m_mediaDb.getFolderContent(folder_id, MediaDB::AUDIO);
 }
 QVariantMap MediaLibrary::videoFolderContent(int folder_id) {
-    return mediaScanner->mediadb->getFolderContent(folder_id, MediaDB::VIDEO);
+    return m_mediaDb.getFolderContent(folder_id, MediaDB::VIDEO);
 }
 QVariantMap MediaLibrary::albumContent(QString album) {
-    return mediaScanner->mediadb->getAlbumContent(album);
+    return m_mediaDb.getAlbumContent(album);
 }
 QVariantList MediaLibrary::getLocations() {
-    return mediaScanner->mediadb->getLocations(false);
+    return m_mediaDb.getLocations(false);
 }
 QVariantMap MediaLibrary::getAlbums() {
-    qDebug() << "ASD";
-    return mediaScanner->mediadb->getList(mediaScanner->mediadb->albums);
+    return m_mediaDb.getList(m_mediaDb.albums);
 }
 QVariantMap MediaLibrary::getArtists() {
-    return mediaScanner->mediadb->getList(mediaScanner->mediadb->artists);
+    return m_mediaDb.getList(m_mediaDb.artists);
 }
 QVariantMap MediaLibrary::getGenres() {
-    return mediaScanner->mediadb->getList(mediaScanner->mediadb->genres);
+    return m_mediaDb.getList(m_mediaDb.genres);
 }
 QVariantMap MediaLibrary::getPlaylists() {
-    QVariantMap playlists = mediaScanner->mediadb->getPlaylists();
+    QVariantMap playlists = m_mediaDb.getPlaylists();
     QVariantList playlist_counted;
     foreach (QVariant item, playlists["data"].toList()) {
         QVariantMap tmp_item = item.toMap();
@@ -58,22 +57,23 @@ QVariantMap MediaLibrary::getPlaylists() {
     return playlists;
 }
 QVariantMap MediaLibrary::getSongs() {
-    return mediaScanner->mediadb->getAudioFiles();
+    return m_mediaDb.getAudioFiles();
 }
 QVariantMap MediaLibrary::getAlbumContent(QString key) {
-    return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->albums, key);
+    QVariantMap list = m_mediaDb.getListContent(m_mediaDb.albums, key);
+    return list;
 }
 QVariantMap MediaLibrary::getArtistContent(QString key) {
-    return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->artists, key);
+    return m_mediaDb.getListContent(m_mediaDb.artists, key);
 }
 QVariantMap MediaLibrary::getGenreContent(QString key) {
-    return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->genres, key);
+    return m_mediaDb.getListContent(m_mediaDb.genres, key);
 }
 QVariantMap MediaLibrary::getPlaylistContent(QString key) {
-    return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->playlists, key);
+    return m_mediaDb.getListContent(m_mediaDb.playlists, key);
 }
 QVariantMap MediaLibrary::getSongContent(QString key) {
-    return mediaScanner->mediadb->getListContent(mediaScanner->mediadb->songs, key);
+    return m_mediaDb.getListContent(m_mediaDb.songs, key);
 }
 QVariantList MediaLibrary::getPlaylistContent(QString path, QString name) {
     QVariantList ret;
@@ -88,7 +88,7 @@ QVariantList MediaLibrary::getPlaylistContent(QString path, QString name) {
         QVariantMap tmp;
         TagLib::FileRef f(QString(path + "/" + line).toUtf8().data());
         TagLib::Tag *tag = f.tag();
-        tmp.insert("name", tag->title().toCString());
+        tmp.insert("title", tag->title().toCString());
         tmp.insert("path", path + "/" + line);
         tmp.insert("artist", tag->artist().toCString());
         tmp.insert("album", tag->album().toCString());
@@ -113,10 +113,10 @@ QVariantList MediaLibrary::getMountedVolumes(){
     return ret;
 }
 void MediaLibrary::addLocation(QString path){
-    mediaScanner->addLocation(path.remove("file://",Qt::CaseInsensitive));
+    mediaScanner->addLocation(&m_mediaDb, path.remove("file://",Qt::CaseInsensitive));
 }
 void MediaLibrary::scanningFinished(){
-    p_audioFolders = mediaScanner->mediadb->getMediaFolders(MediaDB::AUDIO);
+    p_audioFolders = m_mediaDb.getMediaFolders(MediaDB::AUDIO);
     p_playlists = getPlaylists();
     emit libraryUpdated();
     emit mediaNotification("GUI::Notification","{\"image\":\"qrc:/qml/icons/android-search.png\", \"title\":\"Media Scanning finished\", \"description\":\"\"}");
