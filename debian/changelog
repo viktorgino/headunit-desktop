@@ -1,3 +1,11 @@
+headunit-desktop (0.1-24) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (2910a64b8100c981d5cf35c6c5ca39a807c9dda3)
+  * Update submodules to latest
+
+ -- Gino <gino@gino-ubuntu>  Sat, 17 Oct 2020 05:40:41 +0000
+
 headunit-desktop (0.1-23) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
