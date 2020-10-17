@@ -1,3 +1,12 @@
+headunit-desktop (0.1-25) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (77348b0b74ec25ed15effb26fe7e8674ca2a71d8)
+  * [HVAC] Move AC functions to separate module and add configuration
+    engine
+
+ -- Gino <gino@gino-ubuntu>  Sat, 17 Oct 2020 05:50:44 +0000
+
 headunit-desktop (0.1-24) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

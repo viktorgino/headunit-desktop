@@ -1,0 +1,36 @@
+<RCC>
+    <qresource prefix="/HVAC">
+        <file>ClimateControl/ACLayout.qml</file>
+        <file>ClimateControl/FanDirection.qml</file>
+        <file>ClimateControl/FanSlider.qml</file>
+        <file>ClimateControl/TempSlider.qml</file>
+        <file>ClimateControl/SeatHeaterButton.qml</file>
+        <file>icons/ac.svg</file>
+        <file>icons/air-conditioning.svg</file>
+        <file>icons/alert.png</file>
+        <file>icons/automatic-loading.svg</file>
+        <file>icons/power.svg</file>
+        <file>icons/rear-window-defrost.svg</file>
+        <file>icons/recirculation.svg</file>
+        <file>icons/seat.svg</file>
+        <file>icons/seat-heat.svg</file>
+        <file>icons/thermometer.svg</file>
+        <file>icons/windshield-defrost.svg</file>
+        <file>icons/ac-fan-direction.svg</file>
+        <file>icons/windscreen.svg</file>
+        <file>icons/ac-fan-dir-bg.svg</file>
+        <file>icons/ac-fan-dir-buttons.svg</file>
+        <file>icons/ac-buttons_01.png</file>
+        <file>icons/ac-buttons_02.png</file>
+        <file>icons/ac-buttons_03.png</file>
+        <file>icons/ac-buttons_04.png</file>
+        <file>icons/ac-buttons_05.png</file>
+        <file>icons/ac-buttons-bg.png</file>
+        <file>icons/ac-buttons_06.png</file>
+        <file>icons/ac-buttons_07.png</file>
+        <file>icons/ac-buttons_08.png</file>
+        <file>icons/ac-buttons_09.png</file>
+        <file>ClimateControl/ImageButton.qml</file>
+        <file>ClimateControl/TopButton.qml</file>
+    </qresource>
+</RCC>

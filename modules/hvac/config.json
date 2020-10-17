@@ -1,0 +1,9 @@
+{
+    "name":"HVACPlugin",
+    "menu":{
+        "text":"A/C",
+        "source":"qrc:/HVAC/ClimateControl/ACLayout.qml",
+        "image": "qrc:/HVAC/icons/thermometer.svg",
+        "color":"#673AB7"
+    }
+}
