@@ -5,10 +5,21 @@ Q_LOGGING_CATEGORY(PLUGINMANAGER, "Plugin Manager")
 PluginManager::PluginManager(QQmlApplicationEngine *engine, bool filter, QStringList filterList, QObject *parent) : QObject(parent)
 {
     loadPlugins(engine, filter, filterList);
+    initPlugins();
 }
+
 void PluginManager::settingsChanged(QString key, QVariant value){
     qDebug () << "settingsChanged" << key << value;
 }
+
+void PluginManager::initPlugins(){
+    for(QVariant plugin : plugins){
+        QObject * plug = plugin.value<QObject *>();
+        PluginInterface * pluginObject = qobject_cast<PluginInterface *>(plug);
+        pluginObject->init();
+    }
+}
+
 bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStringList filterList)
 {
     QDir pluginsDir(qApp->applicationDirPath());
@@ -32,7 +43,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
             continue;
         }
 
-        QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
+        QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName), this);
 
         if(pluginLoader.metaData().value("MetaData").type() != QJsonValue::Object){
             qCDebug(PLUGINMANAGER) << "Invalid plugin : " << fileName << " config missing " << fileName << pluginLoader.errorString();
@@ -61,11 +72,15 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 
         QStringList methods;
         for(int i = pluginMeta->methodOffset(); i < pluginMeta->methodCount(); ++i){
-            if(pluginMeta->method(i).methodSignature() == "onMessage(QString,QString)"){
-                connect(plugin, SIGNAL(onMessage(QString, QString)), this, SLOT(messageReceived(QString, QString)));
+            if(pluginMeta->method(i).methodSignature() == "message(QString,QVariant)"){
+                connect(plugin, SIGNAL(message(QString, QVariant)), this, SLOT(messageHandler(QString, QVariant)));
+            }
+            if(pluginMeta->method(i).methodSignature() == "action(QString,QVariant)"){
+                connect(plugin, SIGNAL(action(QString, QVariant)), this, SLOT(actionHandler(QString, QVariant)));
             }
         }
-        for(QString event : pluginObject->eventListeners()){
+        PluginSettings *pluginSettings = pluginObject->getPluginSettings();
+        for(QString event : pluginSettings->eventListeners){
             if(connections.contains(event)){
                 connections[event].append(pluginMeta->className());
             } else {
@@ -73,7 +88,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
             }
         }
 
-        plugins.insert(pluginMeta->className(), pluginObject);
+        plugins.insert(pluginName, QVariant::fromValue(plugin));
 
         QObject * contextProperty = pluginObject->getContextProperty();
         if(contextProperty){
@@ -92,7 +107,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 
         QJsonValue overlay = metaData.value("overlay");
         if(overlay.type() == QJsonValue::String){
-            m_overlays << overlay.toString();
+            m_overlays.insert(pluginName,overlay.toString());
         }
 
         QJsonValue config = metaData.value("config");
@@ -100,8 +115,8 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
             QJsonObject settingsObject = config.toObject();
             settingsObject.insert("name", pluginName);
 
-            SettingsLoader *settings = new SettingsLoader(settingsObject, &pluginObject->settings);
-            pluginSettings << settings;
+            SettingsLoader *settings = new SettingsLoader(settingsObject, pluginObject->getSettings(), this);
+//            pluginSettings << settings;
 
             QQmlPropertyMap * settingsMap = settings->getSettingsMap();
 
@@ -127,29 +142,63 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
     engine->rootContext()->setContextProperty("HUDSettingsMenu", settingsItems);
     engine->rootContext()->setContextProperty("HUDSettings", m_settings);
     engine->rootContext()->setContextProperty("HUDOverlays", m_overlays);
+    engine->rootContext()->setContextProperty("HUDPlugins", this);
 
+    emit pluginsUpdated();
     return true;
 }
 
-void PluginManager::messageReceived(QString id, QString message){
+void PluginManager::messageHandler(QString id, QVariant message){
     QStringList messageId = id.split("::");
 
+    QString senderName = sender()->metaObject()->className();
+
     if(messageId.size() == 2 && messageId[0] == "GUI") {
-        emit themeEvent(messageId[1], message);
+        emit themeEvent(senderName,messageId[1], message);
         return;
     }
+    QString event = QString("%1::%2").arg(senderName).arg(id);
 
-    QString event = QString("%1::%2").arg(QString(sender()->metaObject()->className())).arg(id);
     if(connections.contains(event)){
         QStringList listeners = connections.value(event);
         for(QString listener : listeners){
-            plugins[listener]->eventMessage(event, message);
+            QObject *plugin = plugins[listener].value<QObject *>();
+            PluginInterface * pluginObject = qobject_cast<PluginInterface *>(plugin);
+            pluginObject->eventMessage(event, message);
         }
     }
 }
+
+void PluginManager::actionHandler(QString id, QVariant message){
+    QStringList messageId = id.split("::");
+
+    if(messageId.size() == 2){
+        if(messageId[0] == "GUI") {
+
+            QString senderName = sender()->metaObject()->className();
+            emit themeEvent(senderName,messageId[1], message);
+
+        } else if(plugins.keys().contains(messageId[0])){
+
+            QObject *plugin = plugins[messageId[0]].value<QObject *>();
+            PluginInterface *pluginObject = qobject_cast<PluginInterface *>(plugin);
+            PluginSettings *pluginSettings = pluginObject->getPluginSettings();
+
+            if(pluginSettings->actions.contains(messageId[1])){
+                pluginObject->actionMessage(messageId[1], message);
+            } else {
+                qWarning () << "actionHandler() : Invalid action";
+            }
+        } else {
+            qWarning () << "actionHandler() : Invalid plugin";
+        }
+    } else {
+        qWarning () << "actionHandler() : Action Handler id";
+    }
+}
+
 void PluginManager::loadMenuItems(QQmlApplicationEngine *engine){
-    menuItems << QJsonObject {{"source","qrc:/qml/Radio/RadioLayout.qml"},{"image","icons/svg/radio-waves.svg"},{"text","Radio"},{"color","#E91E63"}}.toVariantMap()
-              << QJsonObject {{"source","qrc:/qml/SettingsPage/SettingsPage.qml"},{"image","icons/svg/gear-a.svg"},{"text","Settings"},{"color","#4CAF50"}}.toVariantMap();
+    menuItems << QJsonObject {{"source","qrc:/qml/SettingsPage/SettingsPage.qml"},{"image","icons/svg/gear-a.svg"},{"text","Settings"},{"color","#4CAF50"}}.toVariantMap();
     engine->rootContext()->setContextProperty("menuItems", menuItems);
 }
 
@@ -160,65 +209,27 @@ void PluginManager::loadConfigItems(QQmlApplicationEngine *engine){
     engine->rootContext()->setContextProperty("configItems", configItems);
 }
 
-#ifdef HAVE_WELLEIO
-void PluginManager::loadWelleIo(QQmlApplicationEngine *engine){
-    welleioError = false;
-    GUI = nullptr;
-    RadioController = nullptr;
-    // Default values
-    QVariantMap commandLineOptions;
-    CDABParams DABParams(1);
-    commandLineOptions["dabDevice"] = "auto";
-    commandLineOptions["ipAddress"] = "127.0.0.1";
-    commandLineOptions["ipPort"] = 1234;
-    commandLineOptions["rawFile"] =  "";
-    commandLineOptions["rawFileFormat"] = "u8";
 
-    if(!welleioError){
-        try {
-            // Create a new radio interface instance
-            RadioController = new CRadioController(commandLineOptions, DABParams);
-            QTimer::singleShot(0, RadioController, SLOT(onEventLoopStarted()));
-            GUI = new CGUI(RadioController, &DABParams);
-            // Load welle.io's control object to QML context
-            engine->rootContext()->setContextProperty("cppGUI", GUI);
-            engine->rootContext()->setContextProperty("cppRadioController", RadioController);
-            // Add MOT slideshow provider
-            engine->addImageProvider(QLatin1String("motslideshow"), GUI->MOTImage);
-            // Load the DAB helper class to QML context
-            DABHelper *dabHelper = new DABHelper();
-            engine->rootContext()->setContextProperty("dabHelper", dabHelper);
-        } catch (int e) {
-            qCDebug(PLUGINMANAGER)<< "Can't initialise welle.io. Exception: " << e ;
-            welleioError = true;
+QVariant PluginManager::getPluginProperty(QString plugin, QString property){
+    if(plugins.keys().contains(plugin)){
+        QObject *pluginObj = plugins[plugin].value<QObject *>();
+        QVariant ret;
+
+        ret = pluginObj->property(property.toLocal8Bit());
+        if(!ret.isValid()){
+            qDebug() << "Invalid property name when getting property : " << plugin << " : " << property;
         }
+
+        return ret;
+
+
+    } else {
+        qDebug() << "Invalid plugin name when getting property : " << plugin;
     }
-    if(!welleioError){
-        menuItems.insert(2,QJsonObject {{"source","qrc:/DABLayout.qml"},{"image","icons/svg/radio-waves.svg"},{"text","DAB"},{"color","#9C27B0"}}.toVariantMap());
-    }
+    return QVariant();
 }
-#endif
+
 
 PluginManager::~PluginManager(){
-    for (QPluginLoader * pluginLoader : pluginLoaders) {
-        if(pluginLoader->isLoaded()){
-            pluginLoader->unload();
-        }
-    }
-
-//    for (PluginInterface * plugin : plugins) {
-//        delete(plugin);
-//    }
-    qDeleteAll(plugins);
-
-    for(SettingsLoader * settings : pluginSettings){
-        delete(settings);
-    }
-#ifdef HAVE_WELLEIO
-    if(!welleioError){
-        delete GUI;
-        delete RadioController;
-    }
-#endif
-
+    qCDebug(PLUGINMANAGER) << "Plugin manager died";
 }

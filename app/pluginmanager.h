@@ -17,26 +17,33 @@
 #include <QLoggingCategory>
 #include "../includes/plugininterface.h"
 #include "settingsloader.h"
+#include "../includes/hvac-common.h"
+
 
 class PluginManager : public QObject
 {
     Q_OBJECT
+    Q_PROPERTY(QVariantMap plugins READ getPlugins NOTIFY pluginsUpdated)
 public:
     explicit PluginManager(QQmlApplicationEngine *engine, bool filter, QStringList filterList, QObject *parent = nullptr);
     ~PluginManager();
 signals:
-    void themeEvent(QString, QString);
+    void themeEvent(QString, QString, QVariant);
+    void pluginsUpdated();
 public slots:
+    QVariant getPluginProperty(QString plugin, QString property);
 private slots:
-    void messageReceived(QString id, QString message);
+    void messageHandler(QString id, QVariant message);
+    void actionHandler(QString id, QVariant message);
 private:
     bool loadPlugins(QQmlApplicationEngine *engine, bool filter, QStringList filterList);
+    void initPlugins();
     QVariantList menuItems;
     QVariantList configItems;
-    QMap<QString, PluginInterface *> plugins;
+    QVariantMap plugins;
     QMap<QString, QJsonObject> pluginConfigs;
     QList<QPluginLoader *>pluginLoaders;
-    QList<SettingsLoader *>pluginSettings;
+//    QList<SettingsLoader *>pluginSettings;
 
     void settingsChanged(QString key, QVariant value);
 //    QQmlPropertyMap settings;
@@ -48,7 +55,12 @@ private:
     QVariantMap m_settings;
     QHash<QString, QStringList> connections;
 
-    QStringList m_overlays;
+    QVariantMap m_overlays;
+
+    QVariantMap getPlugins(){
+        return plugins;
+    }
+
 };
 
 #endif // PLUGINMANAGER_H

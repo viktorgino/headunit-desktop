@@ -36,10 +36,11 @@ private:
     QVariantMap HUDStyle;
     QVariantList HUDStyleSettings;
     QList<SettingsLoader *>m_settings;
+    QQmlExtensionPlugin * m_themePlugin;
 signals:
-    void themeEvent(QString event, QString eventData);
+    void themeEvent(QString sender, QString event, QVariant eventData);
 public slots:
-    void onEvent(QString event, QString eventData);
+    void onEvent(QString sender, QString event, QVariant eventData);
 };
 
 #endif // THEMEMANAGER_H

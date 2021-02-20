@@ -15,22 +15,21 @@ ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QObject *parent) : QOb
         return;
     }
 
-    QQmlExtensionPlugin * themePlugin = static_cast<QQmlExtensionPlugin *>(themeLoader.instance());
+    m_themePlugin = static_cast<QQmlExtensionPlugin *>(themeLoader.instance());
 
-    if(!themePlugin){
+    if(!m_themePlugin){
         qCDebug(THEMEMANAGER) << "Error loading theme : " << themeLoader.metaData().value("name") << ", root component is not a valid instance of QQmlExtensionPlugin";
         return;
     }
 
     qCDebug(THEMEMANAGER) << "Theme loaded : " << fileName;
 
-    const QMetaObject *pluginMeta = themePlugin->metaObject();
+    const QMetaObject *pluginMeta = m_themePlugin->metaObject();
 
     QStringList methods;
     for(int i = pluginMeta->methodOffset(); i < pluginMeta->methodCount(); ++i){
-        if(pluginMeta->method(i).methodSignature() == "onEvent(QString,QString)"){
-            qDebug() << "Has onEvent";
-            connect(this, SIGNAL(themeEvent(QString, QString)), themePlugin, SLOT(onEvent(QString, QString)));
+        if(pluginMeta->method(i).methodSignature() == "onEvent(QString,QString,QVariant)"){
+            connect(this, SIGNAL(themeEvent(QString, QString, QVariant)), m_themePlugin, SLOT(onEvent(QString, QString, QVariant)));
         }
     }
 
@@ -38,12 +37,12 @@ ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QObject *parent) : QOb
 
     processThemeSettings(themeSettings);
 
-    themePlugin->registerTypes("");
-    themePlugin->initializeEngine(engine, "");
+    m_themePlugin->registerTypes("");
+    m_themePlugin->initializeEngine(engine, "");
 }
 
-void ThemeManager::onEvent(QString event, QString eventData) {
-    emit themeEvent(event, eventData);
+void ThemeManager::onEvent(QString sender, QString event, QVariant eventData) {
+    emit themeEvent(sender, event, eventData);
 }
 
 void ThemeManager::loadJson(QString path){
@@ -75,10 +74,10 @@ void ThemeManager::processThemeSettings(QJsonObject json){
         return;
     }
 
-    QQmlPropertyMap *colorsMap = new QQmlPropertyMap();
+    QQmlPropertyMap *colorsMap = new QQmlPropertyMap(this);
     HUDStyleSettings << loadSettingsMap("Colors", "Colors", "color", json.value("colors").toArray().toVariantList(), colorsMap);
 
-    QQmlPropertyMap *sizesMap = new QQmlPropertyMap();
+    QQmlPropertyMap *sizesMap = new QQmlPropertyMap(this);
     HUDStyleSettings << loadSettingsMap("Sizes", "Sizes", "tumbler", json.value("sizes").toArray().toVariantList(), sizesMap);
 
     HUDStyle.insert("Colors", QVariant::fromValue<QQmlPropertyMap *>(colorsMap));
@@ -95,8 +94,8 @@ void ThemeManager::processThemeSettings(QJsonObject json){
 
         QJsonObject jsonObject = item.toObject();
 
-        QQmlPropertyMap *map = new QQmlPropertyMap();
-        m_settings << new SettingsLoader(jsonObject, map);
+        QQmlPropertyMap *map = new QQmlPropertyMap(this);
+        m_settings << new SettingsLoader(jsonObject, map, this);
 
         HUDStyle.insert(jsonObject.value("name").toString(), QVariant::fromValue<QQmlPropertyMap *>(map));
         HUDStyleSettings.append(jsonObject.toVariantMap());
@@ -118,7 +117,7 @@ QVariantMap ThemeManager::loadSettingsMap(QString name, QString label, QString t
     }
     settings.insert("items", itemsList);
 
-    m_settings << new SettingsLoader(QJsonObject::fromVariantMap(settings), settingsMap);
+    m_settings << new SettingsLoader(QJsonObject::fromVariantMap(settings), settingsMap, this);
 
     return settings;
 }

@@ -55,16 +55,16 @@ int main(int argc, char *argv[])
 	    plugins = p.split(" ",QString::SkipEmptyParts);
     }
 
-    PluginManager pluginManager(engine, whitelist, plugins);
+    PluginManager pluginManager(engine, whitelist, plugins,&app);
 
-    ThemeManager themeManager(engine);
+    ThemeManager themeManager(engine,&app);
 
     QObject::connect(&pluginManager, &PluginManager::themeEvent, &themeManager, &ThemeManager::onEvent);
 
 
     int ret = app.exec();
 
-    delete &pluginManager;
-    delete &themeManager;
+//    delete &pluginManager;
+//    delete &themeManager;
     return ret;
 }
