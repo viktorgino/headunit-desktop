@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/">
+        <file>Radio/RadioDrawer.qml</file>
+        <file>Radio/RadioDrawerItem.qml</file>
+        <file>Radio/RadioLayout.qml</file>
+        <file>Radio/Tuner.qml</file>
+    </qresource>
+</RCC>

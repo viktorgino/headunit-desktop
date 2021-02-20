@@ -1,3 +1,11 @@
+headunit-desktop (0.1-32) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (d979297d9ebe9ce78e38b0023c2ccc36f3b4acbc)
+  * [FMRadio] Add FM Radio module
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Feb 2021 04:26:38 +0000
+
 headunit-desktop (0.1-31) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

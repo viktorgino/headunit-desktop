@@ -1,0 +1,9 @@
+{
+    "name":"FMRadio",
+    "menu":{
+        "text":"Radio",
+        "source":"qrc:/Radio/RadioLayout.qml",
+        "image": "icons/svg/radio-waves.svg",
+        "color":"#E91E63"
+    }
+}
