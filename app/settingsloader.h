@@ -50,7 +50,8 @@ private:
         {"combobox",QMetaType::QString},
         {"color",QMetaType::QColor},
         {"file",QMetaType::QString},
-        {"folder",QMetaType::QString}
+        {"folder",QMetaType::QString},
+        {"tumbler",QMetaType::Double},
     };
 };
 

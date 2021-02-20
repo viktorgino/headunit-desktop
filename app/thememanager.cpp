@@ -79,7 +79,7 @@ void ThemeManager::processThemeSettings(QJsonObject json){
     HUDStyleSettings << loadSettingsMap("Colors", "Colors", "color", json.value("colors").toArray().toVariantList(), colorsMap);
 
     QQmlPropertyMap *sizesMap = new QQmlPropertyMap();
-    HUDStyleSettings << loadSettingsMap("Sizes", "Sizes", "slider", json.value("sizes").toArray().toVariantList(), sizesMap);
+    HUDStyleSettings << loadSettingsMap("Sizes", "Sizes", "tumbler", json.value("sizes").toArray().toVariantList(), sizesMap);
 
     HUDStyle.insert("Colors", QVariant::fromValue<QQmlPropertyMap *>(colorsMap));
     HUDStyle.insert("Sizes", QVariant::fromValue<QQmlPropertyMap *>(sizesMap));
