@@ -1,3 +1,11 @@
+headunit-desktop (0.1-26) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (0846d4977550568f1fbd1234b0e020b8b608c5fc)
+  * [App] Add hvac-common header
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Feb 2021 04:18:16 +0000
+
 headunit-desktop (0.1-25) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
