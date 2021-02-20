@@ -1,10 +1,10 @@
 <RCC>
     <qresource prefix="/HVAC">
         <file>ClimateControl/ACLayout.qml</file>
-        <file>ClimateControl/FanDirection.qml</file>
-        <file>ClimateControl/FanSlider.qml</file>
-        <file>ClimateControl/TempSlider.qml</file>
-        <file>ClimateControl/SeatHeaterButton.qml</file>
+        <file>ClimateControl/HVACControlFanDirection2.qml</file>
+        <file>ClimateControl/HVACControlFanSlider.qml</file>
+        <file>ClimateControl/HVACControlTempSlider.qml</file>
+        <file>ClimateControl/HVACControlSeatHeater.qml</file>
         <file>icons/ac.svg</file>
         <file>icons/air-conditioning.svg</file>
         <file>icons/alert.png</file>
@@ -32,5 +32,27 @@
         <file>icons/ac-buttons_09.png</file>
         <file>ClimateControl/ImageButton.qml</file>
         <file>ClimateControl/TopButton.qml</file>
+        <file>ClimateControl/HVACBottomBarDisplay.qml</file>
+        <file>ClimateControl/HVACDisplayFan.qml</file>
+        <file>icons/cars/v50.png</file>
+        <file>ClimateControl/HVACDisplayFanDirection.qml</file>
+        <file>icons/ac-buttons-single-seat.png</file>
+        <file>icons/ac-buttons-dir-bottom.png</file>
+        <file>icons/ac-buttons-dir-middle.png</file>
+        <file>icons/ac-buttons-dir-top.png</file>
+        <file>ClimateControl/HVACDisplayTemperature.qml</file>
+        <file>ClimateControl/HVACDisplayProgram.qml</file>
+        <file>icons/zone-background.png</file>
+        <file>icons/zone-bottom.png</file>
+        <file>icons/zone-middle.png</file>
+        <file>icons/zone-top.png</file>
+        <file>ClimateControl/HVACControlZone.qml</file>
+        <file>icons/recirc.svg</file>
+        <file>icons/auto.svg</file>
+        <file>icons/ac-flat.svg</file>
+        <file>ClimateControl/HVACBottomBarControl.qml</file>
+        <file>ClimateControl/HVACOverlayTempSlider.qml</file>
+        <file>ClimateControl/HVACBottomBar.qml</file>
+        <file>ClimateControl/HVACControlFanDirection.qml</file>
     </qresource>
 </RCC>

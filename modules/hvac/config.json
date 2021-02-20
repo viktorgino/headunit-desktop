@@ -1,9 +1,39 @@
 {
     "name":"HVACPlugin",
+    "overlay" : "qrc:/HVAC/ClimateControl/HVACOverlayTempSlider.qml",
     "menu":{
         "text":"A/C",
         "source":"qrc:/HVAC/ClimateControl/ACLayout.qml",
         "image": "qrc:/HVAC/icons/thermometer.svg",
         "color":"#673AB7"
+    },
+    "config" :{
+        "label":"HVAC",
+        "name": "hvac",
+        "type":"items",
+        "description":"",
+        "items" : [
+        {
+            "label":"Car Manufacturer",
+            "name": "car_make",
+            "type":"combobox",
+            "provider" : "plugin",
+            "providerName" : "HVACPlugin",
+            "providerProperty" : "carManufacturers",
+            "defaultValue": 0,
+            "autosave": true
+        },
+
+        {
+            "label":"Car",
+            "name": "car",
+            "type":"combobox",
+            "provider" : "plugin",
+            "providerName" : "HVACPlugin",
+            "providerProperty" : "cars",
+            "defaultValue": 0,
+            "autosave": true
+        }
+        ]
     }
 }

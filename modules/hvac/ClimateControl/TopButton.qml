@@ -24,6 +24,19 @@ Item {
         anchors.leftMargin: top_button.margin
         anchors.right: parent.right
         anchors.rightMargin: top_button.margin
+
+        Image {
+            id: image3
+            width:getInnerSquareSide(rectangle1.height)
+            height:getInnerSquareSide(rectangle1.height)
+            anchors.horizontalCenter: rectangle2.horizontalCenter
+            anchors.verticalCenter: rectangle2.verticalCenter
+            fillMode: Image.PreserveAspectFit
+            source:top_button.imageSrc
+            mipmap:true
+            smooth: true
+        }
+
         Rectangle {
             id: rectangle2
             color: "#4cffffff"
@@ -48,33 +61,20 @@ Item {
                 anchors.bottom: parent.bottom
                 anchors.bottomMargin: top_button.ringSize
                 visible: true
-                color: "#ffffff"
+                color: "#dddddd"
 
 
             }
         }
 
-        Image {
-            id: image3
-            width:getInnerSquareSide(rectangle1.height)
-            height:getInnerSquareSide(rectangle1.height)
-            anchors.horizontalCenter: rectangle2.horizontalCenter
-            anchors.verticalCenter: rectangle2.verticalCenter
-            fillMode: Image.PreserveAspectFit
-            source:top_button.imageSrc
-            mipmap:true
-        }
-
         ColorOverlay {
             id: image3_overlay
-            width:getInnerSquareSide(rectangle1.height)
-            height:getInnerSquareSide(rectangle1.height)
-            color: "#000000"
-            anchors.horizontalCenter: rectangle2.horizontalCenter
-            anchors.verticalCenter: rectangle2.verticalCenter
+            color: "#212121"
+            anchors.fill: image3
             visible: top_button.active
             enabled: true
             source: image3
+            smooth: true
         }
 
 
@@ -85,3 +85,9 @@ Item {
         }
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;formeditorColor:"#c0c0c0";height:480;width:640}
+}
+##^##*/

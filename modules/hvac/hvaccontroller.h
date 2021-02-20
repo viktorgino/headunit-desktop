@@ -15,69 +15,52 @@
 #include <QQmlPropertyMap>
 #include <QThreadPool>
 #include <QTimer>
+#include <QJsonDocument>
+#include <QJsonObject>
+
+#include <hvac-common.h>
 
 class HVACController : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QVariantMap settings READ settings NOTIFY settingsChanged)
-    Q_PROPERTY(QQmlPropertyMap *parameters MEMBER m_parameters CONSTANT)
-
+    Q_PROPERTY(QVariantMap parameters READ getHVACParameters NOTIFY parametersUpdated)
+    Q_PROPERTY(QVariantList carManufacturers READ getHVACParameters NOTIFY carsUpdated)
 
 public:
-    explicit HVACController(QDir settingsDir, std::map<QString, QVariant> settings, QObject *parent = nullptr);
+    explicit HVACController(QObject *parent = nullptr);
     ~HVACController();
 
-    enum HVACParameters{
-        InvalidParameter,
-        Windshield,
-        FrontTop,
-        FrontMiddle,
-        FrontBottom,
-        RearTop,
-        RearMiddle,
-        RearBottom,
-        FrontDefrost,
-        RearDefrost,
-        AC,
-        Recirculate,
-        AutoAc,
-        Power,
-        Fan1,
-        Fan2,
-        Temperature1,
-        Temperature2,
-        SeatHeatLeft,
-        SeatHeatRight
-    };
-
-    Q_ENUM(HVACParameters)
+    void setHVACParameters(QVariant parameters);
 public slots:
-    void toggleParameter(QString parameterString);
-    void setParameterValue(QString parameterString, QVariant value);
-    void sendMessage(QString message);
+    void setZoneParameter(QString zone, QString parameter, QVariant value);
+    void setParameter(QString parameter, bool value);
+    void openOverlay(bool rightHand);
+    void closeOverlay();
+
 signals:
     void settingsChanged();
-    void parameterChanged();
-    void setParameter(HVACParameters parameter, QVariant value);
-private slots:
+    void parametersUpdated();
+    void carsUpdated();
+    void hvacParmeterUpdate(ClimateControlCommandFrame commandFrame);
+    void action(QString id, QVariant message);
 
-    void executeTimedAction();
 private:
-    QSettings *carPlatformSettings;
-    QJSEngine *hvacEngine;
-    QTimer *timer;
+    void updateHVACParameters();
     QVariantMap m_settings;
-    QQmlPropertyMap *m_parameters;
-    QList<HVACParameters> boolValues = {Windshield,FrontTop,FrontMiddle,FrontBottom,RearTop,RearMiddle,RearBottom,FrontDefrost,RearDefrost,AC,Recirculate,AutoAc,Power};
-    QList<HVACParameters> intValues = {Fan1,Fan2,Temperature1,Temperature2,SeatHeatLeft,SeatHeatRight};
+    ClimateControlCommandFrame m_commandFrame;    
+    QVariantMap m_hvacParameters;
+    QVariantList m_manufacturers;
 
-    void loadValues();
-    QString parameterKeytoString(HVACParameters);
-    HVACParameters stringToParameterKey(QString key);
     QVariantMap settings(){
         return m_settings;
     }
-
+    QVariantList carManufacturers(){
+        return m_manufacturers;
+    }
+    QVariantMap getHVACParameters(){
+        return m_hvacParameters;
+    }
 public slots:
 };
 

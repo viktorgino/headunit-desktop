@@ -6,9 +6,9 @@ Image {
     id: __root
 
     property url imageSource
-    property color baseColor: "#00ffffff"
-    property color activeColor: "#6600ff22"
-    property color pressedColor: "#44ffffff"
+    property color baseColor: "#aaaaaaaa"
+    property color activeColor: "#cc00ff22"
+    property color pressedColor: "#ccffffff"
     property bool checked: false
     signal clicked()
 
@@ -36,7 +36,9 @@ Image {
     }
 }
 
+
+
 /*##^## Designer {
-    D{i:0;autoSize:true;height:480;width:640}
+D{i:0;autoSize:true;height:480;width:640}
 }
- ##^##*/
+##^##*/

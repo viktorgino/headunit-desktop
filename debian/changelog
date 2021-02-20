@@ -1,3 +1,11 @@
+headunit-desktop (0.1-33) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (d7461f82a67750523d86a3c3e27637ab6afb85a4)
+  * [HVAC] Add new HVAC UI & backend
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Feb 2021 04:27:15 +0000
+
 headunit-desktop (0.1-32) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

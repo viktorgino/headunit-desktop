@@ -13,12 +13,10 @@ target.path = $${PREFIX}/plugins
 INSTALLS += target
 
 SOURCES += \
-    hvacplugin.cpp \
-    hvaccontroller.cpp
+    hvacplugin.cpp
 
 HEADERS += \
-    hvacplugin.h \
-    hvaccontroller.h
+    hvacplugin.h
 
 DISTFILES += \
     config.json \
