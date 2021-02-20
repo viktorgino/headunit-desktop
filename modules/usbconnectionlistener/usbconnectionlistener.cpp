@@ -6,7 +6,7 @@ UsbConnectionListener::UsbConnectionListener(){
         qDebug ("Error libusb_init usb_err failed");
         return;
     }
-    libusb_set_debug(hotplug_context, LIBUSB_LOG_LEVEL_INFO);
+    libusb_set_option(hotplug_context, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_INFO);
 
     if (libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG)) {
         int rc;

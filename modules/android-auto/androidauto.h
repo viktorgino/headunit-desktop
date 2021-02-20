@@ -16,17 +16,13 @@ public:
     explicit AndroidAuto(QObject *parent = nullptr);
     ~AndroidAuto() override;
     QObject *getContextProperty() override;
-    QQuickImageProvider *getImageProvider() override;
-    QStringList eventListeners() override;
-    QStringList events() override;
-    QStringList actions() override;
+    void init() override;
 private:
 
 signals:
 
 public slots:
-    void eventMessage(QString id, QString message) override;
-    void actionMessage(QString id, QString message) override;
+    void eventMessage(QString id, QVariant message) override;
 private:
     Headunit *headunit;
 };

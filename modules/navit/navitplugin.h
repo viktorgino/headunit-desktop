@@ -19,7 +19,7 @@ private slots:
     void usbDeviceAdded(QString deviceDetails);
     void usbDeviceRemoved(QString deviceDetails);
 signals:
-    void onMessage(QString id, QString message);
+    void message(QString id, QString message);
 public slots:
     void eventMessage(QString id, QString message) override;
     void actionMessage(QString id, QString message) override;

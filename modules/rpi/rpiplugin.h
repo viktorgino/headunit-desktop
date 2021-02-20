@@ -16,17 +16,11 @@ private:
     int mapBrightness(double v);
 public:
     explicit RPiPlugin(QObject *parent = nullptr);
-    QObject *getContextProperty() override;
-    QQuickImageProvider *getImageProvider() override;
-    QStringList eventListeners() override;
-    QStringList events() override;
-    QStringList actions() override;
+    void init() override;
 signals:
-    void onMessage(QString id, QString message);
+    void message(QString id, QString message);
 
 public slots:
-    void eventMessage(QString id, QString message) override;
-    void actionMessage(QString id, QString message) override;
     void settingChanged(QString id, QVariant val);
 };
 

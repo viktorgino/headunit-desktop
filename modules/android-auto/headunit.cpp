@@ -107,14 +107,14 @@ int Headunit::initGst(){
      * Initialize Video pipeline
      */
 
-    const char* vid_launch_str = "appsrc name=vid_src is-live=true block=false min-latency=0 max-latency=15000000 do-timestamp=true format=3 ! "
+    const char* vid_launch_str = "appsrc name=vid_src is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=false format=3 ! "
                                  "h264parse ! "
         #ifdef RPI
                                  "omxh264dec ! "
         #else
                                  "avdec_h264 ! "
         #endif
-                                 "glsinkbin name=vid_glsinkbin ";
+                                 "glsinkbin sync=true name=vid_glsinkbin ";
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
 
     bus = gst_pipeline_get_bus(GST_PIPELINE(vid_pipeline));
@@ -139,13 +139,12 @@ int Headunit::initGst(){
      * Initialize Music pipeline
      */
 
-    aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=true format=3 ! "
+    aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=false format=3 ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=48000, channels=2, format=S16LE ! "
-                                    "queue min-threshold-buffers=1024 flush-on-eos=true ! "
                                 #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Music\""
                                 #else
-                                    "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Music\""
+                                    "pulsesink sync=true client-name=\"Android Auto Music\""
                                 #endif
                                     , &error);
     if (error != NULL) {
@@ -158,13 +157,12 @@ int Headunit::initGst(){
      * Initialize Voice pipeline
      */
 
-    au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=true  format=3 ! "
+    au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=false format=3 ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  !"
-                                    "queue min-threshold-buffers=1024 ! "
                                 #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Voice\""
                                 #else
-                                    "pulsesink buffer-time=400000 sync=false client-name=\"Android Auto Voice\""
+                                    "pulsesink sync=true client-name=\"Android Auto Voice\""
                                 #endif
                                     , &error);
 
@@ -379,8 +377,8 @@ void Headunit::setStatus(hu_status status){
     m_status = status;
     emit statusChanged();
 }
-
-int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const byte * buf, int len) {
+//static uint64_t init_ts = 0;
+int DesktopEventCallbacks::MediaPacket(int chan, uint64_t timestamp, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;
 
     if (chan == AA_CH_VID) {
@@ -393,6 +391,10 @@ int DesktopEventCallbacks::MediaPacket(int chan, uint64_t /* unused */, const by
 
     if (gst_src) {
         GstBuffer * buffer = gst_buffer_new_and_alloc(len);
+
+        GstCaps *reference = gst_caps_from_string("timestamp/x-metavision-stream");
+        gst_buffer_add_reference_timestamp_meta(buffer, reference, timestamp * 1000, GST_CLOCK_TIME_NONE);
+
         gst_buffer_fill(buffer, 0, buf, len);
         int ret = gst_app_src_push_buffer((GstAppSrc *) gst_src, buffer);
         if (ret != GST_FLOW_OK) {

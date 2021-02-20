@@ -21,3 +21,6 @@ HEADERS += \
 DISTFILES += \
     config.json
 
+RESOURCES += \
+    RPI.qrc
+

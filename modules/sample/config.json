@@ -96,19 +96,47 @@
                 "suffix" : "cm"
             },
             {
+                "label":"Tumbler",
+                "name": "tumbler",
+                "type":"tumbler",
+                "defaultValue":18,
+                "minimum": 5,
+                "maximum": 30,
+                "stepSize": 1,
+                "prefix" : "LS",
+                "suffix" : "cm"
+            },
+            {
                 "label":"Switch",
                 "name": "switch",
                 "type":"switch",
+                "defaultValue" : true,
                 "textOff":"Off",
                 "textOn": "On"
             },
             {
-                "label":"Checkbox",
-                "name": "checkbox",
-                "type":"checkbox",
+                "label":"Optional Switch",
+                "name": "switch2",
+                "type":"switch",
+                "defaultValue" : true,
+                "textOff":"Off",
+                "textOn": "On",
                 "conditional":true,
                 "conditionTarget": "switch",
-                "conditionValue":false
+                "conditionValue":true
+            },
+            {
+                "label":"Optional Text",
+                "name": "text2",
+                "type":"text",
+                "conditional":true,
+                "conditionTarget": "switch2",
+                "conditionValue":true
+            },
+            {
+                "label":" Checkbox",
+                "name": "checkbox",
+                "type":"checkbox"
             },
             {
                 "label":"Textboxes",

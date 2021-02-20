@@ -26,7 +26,9 @@ WelleIoPlugin::WelleIoPlugin(QObject *parent) : QObject (parent), welleIoWrapper
     welleIoWrapper->setGuiHelper(m_guiHelper);
 
 }
+void WelleIoPlugin::init(){
 
+}
 
 WelleIoPlugin::~WelleIoPlugin() {
     qDebug() << "Deleting WelleIoPlugin";
@@ -67,24 +69,4 @@ QObject *WelleIoPlugin::getContextProperty(){
 
 QQuickImageProvider *WelleIoPlugin::getImageProvider() {
     return welleIoWrapper->guiHelper()->motImage;
-}
-
-QStringList WelleIoPlugin::eventListeners(){
-    return QStringList();
-}
-
-QStringList WelleIoPlugin::events(){
-    return QStringList();
-}
-
-QStringList WelleIoPlugin::actions() {
-    return QStringList();
-}
-
-void WelleIoPlugin::eventMessage(QString id, QString message){
-
-}
-
-void WelleIoPlugin::actionMessage(QString id, QString message){
-
 }

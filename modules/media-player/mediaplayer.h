@@ -14,19 +14,12 @@ public:
     explicit MediaPlayerPlugin(QObject *parent = nullptr);
     ~MediaPlayerPlugin() override;
     QObject *getContextProperty() override;
-    QQuickImageProvider *getImageProvider() override;
-    QStringList eventListeners() override;
-    QStringList events() override;
-    QStringList actions() override;
+    void init() override;
 private:
     MediaLibrary mediaLibrary;
 
 signals:
-    void onMessage(QString id, QString message);
-
-public slots:
-    void eventMessage(QString id, QString message) override;
-    void actionMessage(QString id, QString message) override;
+    void message(QString id, QString message);
 };
 
 #endif // MEDIAPLAYER_H

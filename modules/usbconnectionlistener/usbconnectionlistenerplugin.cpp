@@ -6,39 +6,19 @@ UsbConnectionListenerPlugin::UsbConnectionListenerPlugin(QObject *parent) : QObj
     connect(&connectionListener, &UsbConnectionListener::usbDeviceRemoved, this, &UsbConnectionListenerPlugin::usbDeviceRemoved);
 
     QThreadPool::globalInstance()->start(&connectionListener);
+    m_pluginSettings.events = QStringList() << "UsbDeviceAdded" << "UsbDeviceRemoved";
 }
 
+void UsbConnectionListenerPlugin::init(){
+
+}
 QObject *UsbConnectionListenerPlugin::getContextProperty(){
     return new QObject();
 }
 
-QQuickImageProvider *UsbConnectionListenerPlugin::getImageProvider() {
-    return nullptr;
-}
-
-QStringList UsbConnectionListenerPlugin::eventListeners(){
-    return QStringList();
-}
-
-QStringList UsbConnectionListenerPlugin::events(){
-    return QStringList() << "UsbDeviceAdded" << "UsbDeviceRemoved";
-}
-
-QStringList UsbConnectionListenerPlugin::actions() {
-    return QStringList();
-}
-
-void UsbConnectionListenerPlugin::eventMessage(QString id, QString message){
-
-}
-
-void UsbConnectionListenerPlugin::actionMessage(QString id, QString message){
-
-}
-
 void UsbConnectionListenerPlugin::usbDeviceAdded(QVariantMap deviceDetails){
     QJsonDocument json = QJsonDocument::fromVariant(deviceDetails);
-    emit onMessage("UsbDeviceAdded", json.toJson(QJsonDocument::Compact));
+    emit message("UsbDeviceAdded", json.toJson(QJsonDocument::Compact));
 
     QVariantMap notificationDetails;
     QString notificationText = QString("%1 %2").arg(deviceDetails.value("manufacturer").toString())
@@ -49,11 +29,11 @@ void UsbConnectionListenerPlugin::usbDeviceAdded(QVariantMap deviceDetails){
 
     json = QJsonDocument::fromVariant(notificationDetails);
 
-    emit onMessage("GUI::Notification", json.toJson(QJsonDocument::Compact));
+    emit message("GUI::Notification", json.toJson(QJsonDocument::Compact));
 }
 
 void UsbConnectionListenerPlugin::usbDeviceRemoved(QVariantMap deviceDetails){
     QJsonDocument json = QJsonDocument::fromVariant(deviceDetails);
-    emit onMessage("UsbDeviceRemoved", json.toJson(QJsonDocument::Compact));
+    emit message("UsbDeviceRemoved", json.toJson(QJsonDocument::Compact));
 }
 

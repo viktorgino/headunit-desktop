@@ -1,3 +1,11 @@
+headunit-desktop (0.1-30) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (02fa95e2704e577a84ad4b5b5880773ed3249556)
+  * Update modules according to new plugin interface
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Feb 2021 04:25:58 +0000
+
 headunit-desktop (0.1-29) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

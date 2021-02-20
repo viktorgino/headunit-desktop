@@ -10,20 +10,12 @@ class SamplePlugin : public QObject, PluginInterface
     Q_INTERFACES(PluginInterface)
 public:
     explicit SamplePlugin(QObject *parent = nullptr);
-    QObject *getContextProperty() override;
-    QQuickImageProvider *getImageProvider() override;
-    QStringList eventListeners() override;
-    QStringList events() override;
-    QStringList actions() override;
+
+    void init() override;
+
     Q_INVOKABLE void testNotification();
-private slots:
-    void usbDeviceAdded(QString deviceDetails);
-    void usbDeviceRemoved(QString deviceDetails);
 signals:
-    void onMessage(QString id, QString message);
-public slots:
-    void eventMessage(QString id, QString message) override;
-    void actionMessage(QString id, QString message) override;
+    void message(QString id, QVariant message);
 };
 
 #endif // SAMPLEPLUGIN_H

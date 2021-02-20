@@ -42,18 +42,13 @@ public:
     ~WelleIoPlugin() override;
     QObject *getContextProperty() override;
     QQuickImageProvider *getImageProvider() override;
-    QStringList eventListeners() override;
-    QStringList events() override;
-    QStringList actions() override;
+    void init() override;
 private:
     void loadWelleIo(QQmlApplicationEngine *engine);
     bool welleioError;
     WelleIoWrapper *welleIoWrapper;
     CRadioController* m_radioController = nullptr;
     CGUIHelper *m_guiHelper = nullptr;
-public slots:
-    void eventMessage(QString id, QString message) override;
-    void actionMessage(QString id, QString message) override;
 };
 
 #endif // ODBCAR_H

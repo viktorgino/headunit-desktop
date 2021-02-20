@@ -1,10 +1,10 @@
 {
     "name":"RPiPlugin",
     "config":{
-        "label":"RPi Plugin",
+        "label":"Raspberry Pi settings",
         "name": "rpi",
         "type":"items",
-        "description":"Raspberry Pi settings",
+        "iconImage":"qrc:/RPI/Raspberry_Pi_Logo.svg",
         "items":[
             {
                 "label":"Brightness",
