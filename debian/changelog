@@ -1,3 +1,11 @@
+headunit-desktop (0.1-37) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (f2ded5eea2563fbb9c4987e57fafcc0c35294689)
+  * Fix QML module versions
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Feb 2021 20:55:09 +0000
+
 headunit-desktop (0.1-36) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

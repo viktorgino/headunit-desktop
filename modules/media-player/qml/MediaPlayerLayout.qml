@@ -3,7 +3,7 @@ import QtQuick.Controls 1.4
 import QtQuick.Layouts 1.0
 import QtMultimedia 5.7
 import Qt.labs.settings 1.0
-import QtGraphicalEffects 1.11
+import QtGraphicalEffects 1.0
 
 Item {
     id: __media_player_layout
