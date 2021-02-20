@@ -4,7 +4,7 @@ QT += quick serialport
 TARGET = $$qtLibraryTarget(hud-serial-plugin)
 DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += $${PWD}/../../includes
-INCLUDEPATH += $${PWD}/FastCRC
+
 DESTDIR = $${OUT_PWD}/../../plugins
 
 include("../../config.pri")
@@ -25,7 +25,8 @@ HEADERS += \
     CRL/HUDSerial/HUDSerial.h \
     CRL/Protocols/Protocol.h \
     CRL/common.h \
-    hudserialplugin.h
+    hudserialplugin.h \
+    ../../includes/hvac-common.h
 
 DISTFILES += \
     config.json

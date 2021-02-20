@@ -16,7 +16,8 @@ SOURCES += \
     hvacplugin.cpp
 
 HEADERS += \
-    hvacplugin.h
+    hvacplugin.h \
+    ../../includes/hvac-common.h
 
 DISTFILES += \
     config.json \
