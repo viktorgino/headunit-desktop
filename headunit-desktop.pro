@@ -6,12 +6,13 @@ SUBDIRS = \
           modules/phone-bluetooth \
           modules/android-auto \
           modules/media-player \
-          modules/odb-car \
           modules/usbconnectionlistener \
           modules/welle-io \
 #          modules/navit \
+          modules/fm-radio \
           modules/hvac \
           modules/sample \
           modules/rpi \
+          modules/hud-serial \
           themes/default-theme
 
