@@ -1,3 +1,11 @@
+headunit-desktop (0.1-31) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (8ef914659aa74a2cf6a0637e4d97736c1695d773)
+  * [HUDSerial] Add HUDSerial module
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Feb 2021 04:26:25 +0000
+
 headunit-desktop (0.1-30) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

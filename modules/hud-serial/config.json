@@ -1,0 +1,38 @@
+{
+    "name":"HUDSerialPlugin",
+    "config" :{
+        "label":"Car Settings",
+        "name": "car",
+        "type":"items",
+        "description":"",
+        "items" : [
+        {
+            "label":"Serial Port",
+            "name": "serial_port",
+            "type":"combobox",
+            "provider" : "plugin",
+            "providerName" : "HUDSerialPlugin",
+            "providerProperty" : "ports",
+            "defaultValue": 0,
+            "autosave": true
+        },
+
+        {
+            "label":"Serial Speed",
+            "name": "serial_speed",
+            "type":"combobox",
+            "saveByValue" : true,
+            "values": ["9600","19200","38400","57600","115200","230400","460800","500000","921600", "1000000", "1152000", "2000000", "4608000"],
+            "defaultValue": 4,
+            "autosave": true
+        },
+
+        {
+            "label":"Restart Serial",
+            "name": "action",
+            "type":"action",
+            "action" : "HUDSerialPlugin.serialRestart()"
+        }
+        ]
+    }
+}
