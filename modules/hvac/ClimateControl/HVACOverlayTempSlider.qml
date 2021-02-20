@@ -1,7 +1,7 @@
 import QtQuick 2.11
 import QtGraphicalEffects 1.0
 import QtQuick.Layouts 1.0
-import QtQml 2.12
+import QtQml 2.11
 
 Item {
     id:__root
