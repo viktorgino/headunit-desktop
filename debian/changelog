@@ -1,3 +1,11 @@
+headunit-desktop (0.1-34) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (7abbecd0cdb661d474d96bc1f95a5c836697758b)
+  * [ODB] Remove odb-car module
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Feb 2021 04:27:47 +0000
+
 headunit-desktop (0.1-33) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
