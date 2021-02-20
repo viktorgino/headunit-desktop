@@ -14,6 +14,7 @@ SOURCES += main.cpp \
 
 HEADERS += \
     ../includes/plugininterface.h \
+    ../includes/hvac-common.h \
     pluginmanager.h \
     settingsloader.h \
     thememanager.h
