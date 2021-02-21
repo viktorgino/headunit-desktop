@@ -19,7 +19,7 @@ private:
     MediaLibrary mediaLibrary;
 
 signals:
-    void message(QString id, QString message);
+    void message(QString id, QVariant message);
 };
 
 #endif // MEDIAPLAYER_H

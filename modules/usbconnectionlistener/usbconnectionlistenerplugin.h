@@ -20,7 +20,7 @@ private slots:
     void usbDeviceAdded(QVariantMap deviceDetails);
     void usbDeviceRemoved(QVariantMap deviceDetails);
 signals:
-    void message(QString id, QString message);
+    void message(QString id, QVariant message);
 private:
     UsbConnectionListener connectionListener;
 };

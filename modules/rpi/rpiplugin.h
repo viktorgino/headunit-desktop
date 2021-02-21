@@ -10,14 +10,11 @@ class RPiPlugin : public QObject, PluginInterface
     Q_PLUGIN_METADATA(IID "org.viktorgino.headunit.rpiplugin" FILE "config.json")
     Q_INTERFACES(PluginInterface)
 private:
-    bool initialized;
     void applyBrightness(int v);
     int mapBrightness(int v);
 public:
     explicit RPiPlugin(QObject *parent = nullptr);
     void init() override;
-signals:
-    void message(QString id, QString message);
 
 public slots:
     void settingChanged(QString id, QVariant val);

@@ -3,7 +3,7 @@
 #include <QFile>
 #include <QJsonValue>
 
-RPiPlugin::RPiPlugin(QObject *parent) : QObject (parent), initialized(false)
+RPiPlugin::RPiPlugin(QObject *parent) : QObject (parent)
 {
     connect(&m_settings,&QQmlPropertyMap::valueChanged, this, &RPiPlugin::settingChanged);
 }
