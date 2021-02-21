@@ -52,9 +52,10 @@ class Headunit : public QObject
     Q_PROPERTY(hu_status status READ status NOTIFY statusChanged)
 
 public:
-    Headunit();
+    Headunit(QObject *parent = nullptr);
     ~Headunit();
     int startHU();
+    int init();
 
     enum hu_status{
         NO_CONNECTION,
@@ -102,7 +103,6 @@ private:
     int m_outputHeight = 480;
     bool huStarted = false;
     hu_status m_status = NO_CONNECTION;
-    int initGst();
     static GstFlowReturn read_mic_data(GstElement *appsink, Headunit * _this);
     static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr);
     void touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point);

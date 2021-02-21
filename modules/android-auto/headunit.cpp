@@ -14,10 +14,9 @@
 #include "hu_uti.h"
 #include "hu_aap.h"
 
-Headunit::Headunit():
+Headunit::Headunit(QObject *parent) : QObject(parent),
     callbacks(this)
 {
-    initGst();
 }
 
 Headunit::~Headunit() {
@@ -96,12 +95,11 @@ void Headunit::setVideoItem(QQuickItem * videoItem){
     startHU();
 }
 
-int Headunit::initGst(){
+int Headunit::init(){
     GstBus *bus;
 
     GError *error = NULL;    
 
-    gst_init(NULL, NULL);
 
     /*
      * Initialize Video pipeline

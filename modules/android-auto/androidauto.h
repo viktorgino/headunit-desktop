@@ -14,7 +14,6 @@ class AndroidAuto : public QObject, PluginInterface
     Q_INTERFACES(PluginInterface)
 public:
     explicit AndroidAuto(QObject *parent = nullptr);
-    ~AndroidAuto() override;
     QObject *getContextProperty() override;
     void init() override;
 private:
@@ -24,7 +23,7 @@ signals:
 public slots:
     void eventMessage(QString id, QVariant message) override;
 private:
-    Headunit *headunit;
+    Headunit headunit;
 };
 
 #endif // ANDROIDAUTO_H

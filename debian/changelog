@@ -1,3 +1,12 @@
+headunit-desktop (0.1-42) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (9aeb00c82ffdb8da93ad5c52a589968344f848a9)
+  * [AA] Include the optional building of the Qt plugin from gst-plugins-
+    good
+
+ -- Gino <gino@gino-ubuntu>  Sun, 21 Feb 2021 07:52:56 +0000
+
 headunit-desktop (0.1-41) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
