@@ -8,13 +8,13 @@
         "items":[
             {
                 "label":"Brightness",
-                "name": "rpiplugin_brightness",
+                "name": "brightness",
                 "type":"slider",
-                "defaultValue":60,
+                "defaultValue":100,
                 "minimum": 5,
                 "maximum": 100,
-		"suffix": "%",
-		"autosave": true,
+                "suffix": "%",
+                "autosave": true,
                 "stepSize": 5
             }
         ]

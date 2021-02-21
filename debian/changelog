@@ -1,3 +1,11 @@
+headunit-desktop (0.1-40) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (c1af74f76537e6d4fd2a9ae1c5b7e89707e7eced)
+  * [RPI] Fix brightness setting
+
+ -- Gino <gino@gino-ubuntu>  Sun, 21 Feb 2021 01:47:26 +0000
+
 headunit-desktop (0.1-39) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

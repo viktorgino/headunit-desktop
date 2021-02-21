@@ -11,9 +11,8 @@ class RPiPlugin : public QObject, PluginInterface
     Q_INTERFACES(PluginInterface)
 private:
     bool initialized;
-    void onLoad();
-    void applyBrightness(double v);
-    int mapBrightness(double v);
+    void applyBrightness(int v);
+    int mapBrightness(int v);
 public:
     explicit RPiPlugin(QObject *parent = nullptr);
     void init() override;
