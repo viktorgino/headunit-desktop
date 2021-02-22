@@ -23,7 +23,7 @@ signals:
 public slots:
     void eventMessage(QString id, QVariant message) override;
 private:
-    Headunit headunit;
+    Headunit *headunit = nullptr;
 };
 
 #endif // ANDROIDAUTO_H

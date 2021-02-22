@@ -2,7 +2,7 @@
     "name":"AndroidAuto",
     "menu":{
         "text":"Android Auto",
-        "source":"qrc:/AndroidAuto/aaVideo.qml",
+        "source":"qrc:/AndroidAuto/nativeAA.qml",
         "image": "qrc:/AndroidAuto/social-android.svg",
         "color":"#673AB7"
     },

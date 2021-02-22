@@ -13,10 +13,34 @@
 #include <gst/app/gstappsrc.h>
 #include <gst/app/gstappsink.h>
 
+#include <QAbstractVideoSurface>
+#include <QVideoSurfaceFormat>
+#include <QAbstractVideoBuffer>
+
+#include "qgstvideobuffer.h"
 
 #include "hu_uti.h"
 #include "hu_aap.h"
 #include "glib_utils.h"
+
+#ifdef BUILD_GSTQT
+#include <gst/gstplugin.h>
+#include "qtgst/gstqtsink.h"
+#include <QtQml/QQmlApplicationEngine>
+#endif
+#ifdef BUILD_QTGSTREAMER
+#include <gst/gstplugin.h>
+#include "QtGstreamer/elements/gstqtvideosink/gstqtvideosinkplugin.h"
+#include "QtGstreamer/elements/gstqtvideosink/gstqtvideosink.h"
+#include "QtGstreamer/elements/gstqtvideosink/gstqtquick2videosink.h"
+#include "QtGstreamer/QGst/Quick/VideoSurface"
+#include "QtGstreamer/QGst/Quick/VideoItem"
+#elif defined(QTGSTREAMER)
+#include <QGlib/RefPointer>
+#include <QGst/Element>
+#include <QGst/Quick/VideoItem>
+#include <QGst/Quick/VideoSurface>
+#endif
 
 class Headunit;
 
@@ -51,6 +75,16 @@ class Headunit : public QObject
     Q_PROPERTY(int videoHeight READ videoHeight NOTIFY videoResized)
     Q_PROPERTY(hu_status status READ status NOTIFY statusChanged)
 
+
+    Q_PROPERTY(QAbstractVideoSurface *videoSurface READ videoSurface WRITE setVideoSurface NOTIFY signalVideoSurfaceChanged)
+
+    #ifdef QTGSTREAMER
+    Q_PROPERTY(QGst::Quick::VideoSurface *videoSurface READ videoSurface CONSTANT)
+    QGst::Quick::VideoSurface *videoSurface(){
+        return &m_videoSurface;
+    }
+    #endif
+
 public:
     Headunit(QObject *parent = nullptr);
     ~Headunit();
@@ -72,10 +106,16 @@ public:
     int videoHeight();
     hu_status status();
 
+    QAbstractVideoSurface* videoSurface() const { return m_surface; }
+    void setVideoSurface(QAbstractVideoSurface *surface);
+
     GstElement *mic_pipeline = nullptr;
     GstElement *aud_pipeline = nullptr;
     GstElement *au1_pipeline = nullptr;
     GstElement *vid_pipeline = nullptr;
+    GstAppSrc * m_vid_src = nullptr;
+    GstAppSrc * m_aud_src = nullptr;
+    GstAppSrc * m_au1_src = nullptr;
 
     IHUAnyThreadInterface* g_hu = nullptr;
 signals:
@@ -83,15 +123,23 @@ signals:
     void videoResized();
     void deviceConnected(QVariantMap notification);
     void btConnectionRequest(QString address);
-    void videoSurfaceChanged();
     void statusChanged();
+    void signalVideoSurfaceChanged();
+
+    void receivedVideoFrame(const QVideoFrame &frame);
 
 public slots:
     bool mouseDown(QPoint point);
     bool mouseMove(QPoint point);
     bool mouseUp(QPoint point);
     bool keyEvent(QString key);
+
+    void videoFrameHandler(const QVideoFrame &frame);
+
+
+#if defined(GSTQT)
     void setVideoItem(QQuickItem *videoItem);
+#endif
 
 private:
     HUServer *headunit;
@@ -107,5 +155,16 @@ private:
     static gboolean bus_callback(GstBus *bus, GstMessage *message, gpointer *ptr);
     void touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point);
     static uint64_t get_cur_timestamp();
+    static GstFlowReturn newVideoSample (GstElement * appsink, Headunit * _this);
+
+    QAbstractVideoSurface *m_surface = nullptr;
+    QVideoSurfaceFormat m_format;
+    bool m_videoStarted = false;
+
+#ifdef QTGSTREAMER
+    QGst::Quick::VideoSurface m_videoSurface;
+#endif
+#if defined(GSTQT) || !defined(QTGSTREAMER)
+#endif
 };
 #endif // HEADUNITPLAYER_H

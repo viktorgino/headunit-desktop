@@ -1,3 +1,12 @@
+headunit-desktop (0.1-43) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (2845139df8df5c9dae2b267d01dc41c7e2431b6a)
+  * [AA] Include QtGstreamer and qmlglsink, implement VideoOutput based
+    video output
+
+ -- Gino <gino@gino-ubuntu>  Mon, 22 Feb 2021 15:17:08 +0000
+
 headunit-desktop (0.1-42) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

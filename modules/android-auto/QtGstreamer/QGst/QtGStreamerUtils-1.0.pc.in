@@ -1,0 +1,12 @@
+prefix=@CMAKE_INSTALL_PREFIX@
+exec_prefix=${prefix}
+libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+includedir=${prefix}/@QTGSTREAMER_INCLUDES_INSTALL_DIR@
+
+Name: @QTGSTREAMER_UTILS_LIBRARY@-1.0
+Description: QtGStreamer's high level utility classes
+Requires: @QTGSTREAMER_LIBRARY@-1.0
+Requires.private: gstreamer-1.0 gstreamer-app-1.0
+Version: @QTGSTREAMER_VERSION@
+Cflags: -I${includedir}
+Libs: -L${libdir} -l@QTGSTREAMER_UTILS_LIBRARY@-1.0

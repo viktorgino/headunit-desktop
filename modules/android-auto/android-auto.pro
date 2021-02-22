@@ -1,6 +1,6 @@
 TEMPLATE = lib
 CONFIG += c++11 plugin link_pkgconfig
-QT += quick bluetooth x11extras
+QT += quick bluetooth multimedia
 TARGET = $$qtLibraryTarget(android-auto-plugin)
 DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += $${PWD}/../../includes
@@ -10,28 +10,44 @@ PKGCONFIG += libssl libcrypto libusb-1.0 glib-2.0 gobject-2.0
 PKGCONFIG += gstreamer-1.0 gstreamer-app-1.0 gstreamer-video-1.0
 PKGCONFIG += protobuf libudev
 
-build_qtgst{
-DEFINES += BUILD_QTGST
-include("qtgst.pro")
 
-    CONFIG += x11
+gstqt{
+DEFINES += GSTQT
+}
+build_gstqt{
+    DEFINES += GSTQT
+    DEFINES += BUILD_GSTQT
+    include("qtgst.pro")
+
+    CONFIG += x11 x11extras
     eglfs{
-    CONFIG -= x11
-    DEFINES += GST_GL_HAVE_PLATFORM_EGL
-    DEFINES += HAVE_QT_EGLFS
+        CONFIG -= x11
+        DEFINES += GST_GL_HAVE_PLATFORM_EGL
+        DEFINES += HAVE_QT_EGLFS
     }
 
     wayland{
-    QT+=gui-private
-    CONFIG -= x11
-    DEFINES += HAVE_QT_WAYLAND
-    DEFINES += GST_GL_HAVE_WINDOW_WAYLAND
+        QT+=gui-private
+        CONFIG -= x11
+        DEFINES += HAVE_QT_WAYLAND
+        DEFINES += GST_GL_HAVE_WINDOW_WAYLAND
     }
 
     x11{
-    DEFINES += GST_GL_HAVE_WINDOW_X1
-    DEFINES += HAVE_QT_X11
+        DEFINES += GST_GL_HAVE_WINDOW_X1
+        DEFINES += HAVE_QT_X11
     }
+}
+
+qtgstreamer{
+    DEFINES += QTGSTREAMER
+    PKGCONFIG += Qt5GStreamer-1.0 Qt5GStreamerQuick-1.0 Qt5GLib-2.0
+}
+
+build_qtgstreamer{
+    DEFINES += QTGSTREAMER
+    DEFINES += BUILD_QTGSTREAMER
+    include("qtgstreamer.pro")
 }
 
 SOURCES += \
@@ -45,6 +61,8 @@ SOURCES += \
     headunit/hu/hu_uti.cpp \
     headunit/common/glib_utils.cpp \
     headunit/hu/generated.x64/hu.pb.cc \
+    qgstutils.cpp \
+    qgstvideobuffer.cpp
 
 RESOURCES += qml.qrc
 
@@ -54,7 +72,6 @@ INCLUDEPATH +=$$PWD/headunit/hu/generated.x64
 INCLUDEPATH +=$$PWD/headunit/common
 
 include("../../config.pri")
-
 
 target.path = $${PREFIX}/plugins
 
@@ -71,6 +88,8 @@ HEADERS += \
     headunit/hu/hu_uti.h \
     headunit/hu/generated.x64/hu.pb.h \
     headunit/common/glib_utils.h \
+    qgstutils.h \
+    qgstvideobuffer.h
 
 DISTFILES += \
     config.json \

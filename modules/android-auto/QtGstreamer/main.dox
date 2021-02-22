@@ -1,0 +1,292 @@
+/*
+    Copyright (C) 2010-2014 George Kiagiadakis <kiagiadakis.george@gmail.com>
+    Copyright (C) 2010-2011 Collabora Ltd.
+      @author George Kiagiadakis <george.kiagiadakis@collabora.co.uk>
+
+    This library is free software; you can redistribute it and/or modify
+    it under the terms of the GNU Lesser General Public License as published
+    by the Free Software Foundation; either version 2.1 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Lesser General Public License for more details.
+
+    You should have received a copy of the GNU Lesser General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+/*! \mainpage QtGStreamer API Reference
+ *
+ * \section introduction Introduction
+ * QtGStreamer is a set of libraries and plugins providing C++ bindings for
+ * <a href="http://www.gstreamer.net">GStreamer</a> with a Qt-style API plus some
+ * helper classes for integrating GStreamer better in
+ * <a href="http://qt.nokia.com">Qt</a> applications.
+ *
+ * Currently, it consists of the following parts:
+ * \li QtGLib - Library providing C++/Qt bindings for parts of the GLib
+ * and GObject APIs, a base on which QtGStreamer is built.
+ * \li QtGStreamer - Library providing C++/Qt bindings for GStreamer.
+ * \li QtGStreamerQuick - Library providing integration with QtQuick (Qt5 only).
+ * \li QtGStreamerUi - Library providing integration with QtWidgets.
+ * \li QtGStreamerUtils - Library providing some high level utility classes.
+ *
+ * In addition, it provides GStreamer elements for drawing video on widgets,
+ * graphics items and QtQuick items.
+ *
+ * \section api_reference API Reference
+ * \li <a href="classes.html">All Classes</a>
+ * \li <a href="namespaces.html">All Namespaces</a>
+ *
+ * \section using_qtgstreamer Using QtGStreamer
+ * \li \subpage build_system_integration
+ * \li \subpage coding_conventions
+ *
+ * \section elements Elements provided by QtGStreamer
+ * \li \subpage qtvideosink_overview
+ */
+
+/*! \page build_system_integration Build system integration
+ *
+ * \section cmake CMake
+ *
+ * If you are using cmake as your build system, using QtGStreamer is quite easy.
+ * You can just do:
+ *
+ * \code
+ * find_package(QtGStreamer) # for Qt4 QtGStreamer
+ * # ..... OR .....
+ * find_package(Qt5GStreamer) # for Qt5 QtGStreamer
+ * \endcode
+ *
+ * which will find QtGStreamer and define the following variables:
+ *
+ * \li QTGSTREAMER_FOUND - system has QtGStreamer
+ * \li QTGSTREAMER_INCLUDE_DIR - the QtGStreamer include directory
+ * \li QTGSTREAMER_INCLUDES - the include directories needed to use QtGStreamer
+ * \li QTGLIB_LIBRARY - the QtGLib library
+ * \li QTGLIB_LIBRARIES - the libraries needed to use QtGLib
+ * \li QTGSTREAMER_LIBRARY - the QtGStreamer library
+ * \li QTGSTREAMER_LIBRARIES - the libraries needed to use QtGStreamer
+ * \li QTGSTREAMER_QUICK_LIBRARY - the QtGStreamerQuick library
+ * \li QTGSTREAMER_QUICK_LIBRARIES - the libraries needed to use QtGStreamerQuick
+ * \li QTGSTREAMER_UI_LIBRARY - the QtGStreamerUi library
+ * \li QTGSTREAMER_UI_LIBRARIES - the libraries needed to use QtGStreamerUi
+ * \li QTGSTREAMER_UTILS_LIBRARY - the QtGStreamerUtils library
+ * \li QTGSTREAMER_UTILS_LIBRARIES - the libraries needed to use QtGStreamerUtils
+ * \li QTGSTREAMER_DEFINITIONS - definitions recommended for using QtGStreamer
+ * \li QTGSTREAMER_FLAGS - extra compiler switches recommended for using QtGStreamer
+ *
+ * Take a look at the CMakeLists.txt of the QtGStreamer examples to see how to use them.
+ *
+ * \section qmake qmake
+ *
+ * If you are using qmake as your build system, you can use QtGStreamer via
+ * pkg-config. For example:
+ *
+ * \code
+ * CONFIG += link_pkgconfig
+ * PKGCONFIG += QtGStreamer-1.0
+ * \endcode
+ *
+ * In the PKGCONFIG variable you can set one or more of:
+ *
+ * \li QtGLib-2.0 - the libraries needed to use QtGLib
+ * \li QtGStreamer-1.0 - the libraries needed to use QtGStreamer
+ * \li QtGStreamerUi-1.0 - the libraries needed to use QtGStreamerUi
+ * \li QtGStreamerUtils-1.0 - the libraries needed to use QtGStreamerUtils
+ *
+ * When QtGStreamer is built using Qt5, those packages are called differently:
+ *
+ * \li Qt5GLib-2.0
+ * \li Qt5GStreamer-1.0
+ * \li Qt5GStreamerUi-1.0
+ * \li Qt5GStreamerUtils-1.0
+ *
+ * And additionally in Qt5 there is:
+ *
+ * \li Qt5GStreamerQuick-1.0 - the libraries needed to use Qt5GStreamerQuick
+ *
+ * \section other_build_systems Other build systems
+ *
+ * If you are not using one of the above build systems, you could also use QtGStreamer
+ * via pkg-config, if your build system integrates with it.
+ */
+
+/*! \page coding_conventions Coding conventions
+ *
+ * \section headers Headers
+ *
+ * The correct way to include a certain QtGStreamer header for a class is to use
+ * the #include <namespace/class> syntax. For example:
+ * \code
+ * #include <QGst/Element>
+ * \endcode
+ * All the other lowercase headers (which all end with .h) are considered private
+ * and should \em not be used directly.
+ *
+ * \section smart_pointers Smart pointers
+ *
+ * Nearly all the C objects that these bindings wrap are reference counted. This means
+ * that when you obtain a pointer to such an object, you need to increase its reference
+ * count value and decrease it when you no longer need that pointer. To make reference
+ * counting easy, QtGStreamer wraps all those objects in a smart pointer class, RefPointer.
+ * This smart pointer does all the reference counting work for you and you do not need to
+ * worry about it at all.
+ *
+ * To offer a nice syntax, all those wrapper classes additionally offer typedefs for
+ * RefPointer, in the form:
+ * \code
+ * typedef RefPointer<WrapperClass> WrapperClassPtr;
+ * \endcode
+ */
+
+/*! \page qtvideosink_overview qtvideosink / qtglvideosink / qwidgetvideosink / qtquick2videosink
+ *
+ * \section overview Overview
+ *
+ * qtvideosink and its variants are elements that provide native video drawing
+ * support for Qt surfaces. qtvideosink and qwidgetvideosink do software painting,
+ * using QImage and QPainter. qtglvideosink and qtquick2videosink use
+ * OpenGL/OpenGLES and support hardware colorspace conversion and color balance.
+ *
+ * The API of qtvideosink and qtglvideosink is the same, except that qtglvideosink
+ * has an extra "glcontext" property that must be set with the surface's QGLContext
+ * pointer as early as possible after construction.
+ *
+ * qwidgetvideosink has the same features as qtvideosink, but a different API.
+ * In qwidgetvideosink, you can set a QWidget pointer directly to its "widget"
+ * property and it will paint in this widget, without any further tampering,
+ * while in qtvideosink you need to handle its signals.
+ *
+ * qtquick2videosink has a similar concept to qtvideosink, but it uses the new
+ * scene-graph architecture for drawing in QtQuick items instead of using QPainter.
+ *
+ * All 4 elements require a running Qt event loop and have the inherited limitation
+ * from Qt that they must be created, destroyed and have their signals and
+ * properties handled from the main (GUI) thread.
+ *
+ * When drawing video on QtQuick1 (QML) or QGraphicsView, it is recommended to
+ * use qtglvideosink, if possible, and fall back to qtvideosink otherwise.
+ * When drawing on QWidgets, it is recommended to embed the platform's
+ * hardware accelerated sink, such as xvimagesink on X11, and if this is
+ * not possible, use qwidgetvideosink. Finally, when drawing on QtQuick2 (Qt5),
+ * the only way is to use qtquick2videosink.
+ *
+ * All 4 elements are independent of the QtGStreamer libraries and can be built
+ * and used without them. However, QtGStreamer provides helper integration classes
+ * that you may find useful.
+ *
+ * \section usage_without_qtgstreamer Usage without QtGStreamer
+ *
+ * qtvideosink and qtglvideosink provide two signals, an action signal
+ * (a slot in Qt terminology) called “paint” and a normal signal called “update”.
+ * “update” is emitted every time the sink needs the surface to be repainted.
+ * This is meant to be connected directly to QWidget::update() or QGraphicsItem::update()
+ * or something similar. The “paint” slot takes a QPainter pointer and a rectangle
+ * (x, y, width, height as qreals) as its arguments and paints the video inside the
+ * given rectangle using the given painter. This is meant to be called from the widget’s
+ * paint event or the graphics item’s paint() function. All you need to do is to take
+ * care of those two signals and qtvideosink/qtglvideosink will do everything else.
+ *
+ * qtglvideosink also requires an initialization with the surface's QGLContext pointer.
+ * In addition, it is wise to try to make it READY before using it, to verify that
+ * the required OpenGL features are supported by the hardware. If this fails, it is
+ * sensible to fall back to qtvideosink, which can be used with the same API.
+ * \code
+ * QGst::Element videoSink = QGst::ElementFactory::make("qtglvideosink");
+ * glwidget->makeCurrent();
+ * videoSink->setProperty("glcontext", (void*) QGLContext::currentContext());
+ * glwidget->doneCurrent();
+ *
+ * if (videoSink->setState(QGst::StateReady) != QGst::StateChangeSuccess) {
+ *      // fall back to qtvideosink
+ *      videoSink = QGst::ElementFactory::make("qtvideosink");
+ * }
+ * \endcode
+ *
+ * \section usage_with_qtgstreamer Usage with QtGStreamer
+ *
+ * If you are using the QtGStreamer libraries in your applications, you can directly
+ * use QGst::Ui::VideoWidget to embed any of the 3 first variants (i.e. except
+ * the qtquick2 one) in a QWidget, or QGst::Ui::GraphicsVideoWidget with
+ * QGst::Ui::GraphicsVideoSurface to paint on a QGraphicsView.
+ *
+ * If you are using QtQuick (either QtQuick1 with Qt4 or Qt5, or QtQuick2 with Qt5),
+ * there is also a "VideoItem" element available when you import "QtGStreamer 1.0".
+ * See the qmlplayer and qmlplayer2 examples for details.
+ *
+ * \section qt5_notes Qt5 notes
+ *
+ * When QtGStreamer is compiled with Qt5, the first 3 elements are named:
+ *
+ * \li qt5videosink
+ * \li qt5glvideosink
+ * \li qwidget5videosink
+ *
+ * This is done to allow them to be parallel installable to their Qt4 counterparts
+ * and to avoid Qt version mixing through gstreamer's plugin loading.
+ */
+
+/*! \namespace QGlib
+ * \brief Wrappers for Glib and GObject classes
+ *
+ * This namespace provides wrapper classes for objects from the Glib and GObject libraries,
+ * plus some helper classes that provide the foundations for building C++/Qt bindings for
+ * GObject-based libraries.
+ *
+ * \note This namespace is contained in the QtGLib library.
+ */
+
+/*! \namespace QGst
+ * \brief Wrappers for GStreamer classes
+ *
+ * This namespace provides wrapper classes for GStreamer objects.
+ *
+ * \note This namespace is contained in the QtGStreamer library.
+ */
+
+/*! \namespace QGst::Ui
+ * \brief Helper classes for better integration of GStreamer in QtWidgets-based graphical applications
+ *
+ * This namespace provides helper classes for better integration of GStreamer
+ * in QtWidgets-based graphical applications.
+ *
+ * \note This namespace is contained in the QtGStreamerUi library.
+ */
+
+/*! \namespace QGst::Utils
+ * \brief High level utility classes
+ *
+ * This namespace provides some high level utility classes for easier usage
+ * of certain GStreamer functionality.
+ *
+ * \note This namespace is contained in the QtGStreamerUtils library.
+ */
+
+/*! \namespace QGst::Quick
+ * \brief Helper classes for better integration of GStreamer in QtQuick-based graphical applications
+ *
+ * This namespace provides helper classes for better integration of GStreamer
+ * in QtQuick-based graphical applications.
+ *
+ * \note This namespace is contained in the QtGStreamerQuick library.
+ */
+
+/*! \page internal_design_details Internal Design Details
+ *
+ * This page documents various implementation details for people that are interested
+ * in contributing to the library itself or who are just interesting in learning how
+ * some things work.
+ *
+ * \section wrap_design Wrapping System Design
+ * \include docs/design/wrap.txt
+ *
+ * \section value_design Value Design
+ * \include docs/design/gvalue.txt
+ *
+ * \section connect_design Connect Design
+ * \include docs/design/connect.txt
+ */
