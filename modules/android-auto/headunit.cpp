@@ -16,19 +16,7 @@
 
 Headunit::Headunit(QObject *parent) : QObject(parent),
     callbacks(this)
-#ifdef QTGSTREAMER
-   , m_videoSurface(this)
-#endif
 {
-#ifdef BUILD_GSTQT
-    qmlRegisterType<QtGLVideoItem> ("org.freedesktop.gstreamer.GLVideoItem", 1, 0, "GstGLVideoItem");
-#endif
-#ifdef BUILD_QTGSTREAMER
-    qmlRegisterType<QGst::Quick::VideoItem>("QtGStreamer", 1, 0, "VideoItem");
-    qmlRegisterUncreatableType<QGst::Quick::VideoSurface>("QtGStreamer", 1, 0, "VideoSurface",
-        QLatin1String("Creating a QGst::Quick::VideoSurface from QML is not supported"));
-#endif
-
     connect(this, &Headunit::receivedVideoFrame, this, &Headunit::videoFrameHandler);
 }
 
@@ -98,79 +86,7 @@ int Headunit::startHU(){
     return 1;
 }
 
-#if defined(BUILD_QTGSTREAMER) || defined(BUILD_GSTQT)
-GST_DEBUG_CATEGORY_STATIC (hu_aa);
-#define GST_CAT_DEFAULT hu_aa
-static gboolean gstreamer_plugin_init(GstPlugin *plugin)
-{
-    GST_DEBUG_CATEGORY_INIT(hu_aa, "hu_aa", 0, "Debug category for hu_aa qml elements");
-    bool registered = false;
-#if defined(BUILD_QTGSTREAMER)
-    qDebug() << "Registering qtquick2videosink plugin";
-    registered = gst_element_register(plugin, "qtquick2videosink", GST_RANK_NONE, GST_TYPE_QT_QUICK2_VIDEO_SINK);
-#elif defined(BUILD_GSTQT)
-    qDebug() << "Registering qmlglsink plugin";
-    registered = gst_element_register(plugin, "qmlglsink", GST_RANK_NONE, GST_TYPE_QT_SINK);
-#endif
-    if (registered) {
-        qDebug() << "Registered gstreamer plugin";
-    } else {
-        qWarning() << "Failed to register gstreamer plugin";
-        return false;
-    }
-
-    return true;
-}
-
-#define PACKAGE "headunitDesktop"
-
-GST_PLUGIN_DEFINE (
-        GST_VERSION_MAJOR,
-        GST_VERSION_MINOR,
-#ifdef BUILD_QTGSTREAMER
-        qt5videosink,
-#elif defined(BUILD_GSTQT)
-        qmlgl,
-#endif
-        "QML GStreamer sink",
-        gstreamer_plugin_init,
-        "1.0",
-        "LGPL",
-        "Qt5GStreamer",
-        "http://gstreamer.freedesktop.org/")
-
-#ifdef BUILD_QTGSTREAMER
-    GST_PLUGIN_STATIC_DECLARE(qt5videosink);
-#elif defined(BUILD_GSTQT)
-    GST_PLUGIN_STATIC_DECLARE(qmlgl);
-#endif
-
-#endif
-#if defined(GSTQT)
-void Headunit::setVideoItem(QQuickItem * videoItem){
-
-    GstElement *vid_sink = gst_element_factory_make ("qmlglsink", "vid_qmlsink");
-    g_object_set (vid_sink, "widget", videoItem, NULL);
-
-
-    GstElement *glsinkbin = gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_glsinkbin");
-    g_object_set (glsinkbin, "sink", vid_sink, NULL);
-
-    gst_object_unref(vid_sink);
-    gst_object_unref(glsinkbin);
-
-    startHU();
-}
-#endif
-
 int Headunit::init(){
-
-#ifdef BUILD_QTGSTREAMER
-    GST_PLUGIN_STATIC_REGISTER (qt5videosink);
-#elif defined(BUILD_GSTQT)
-    GST_PLUGIN_STATIC_REGISTER (qmlgl);
-#endif
-
     GstBus *bus;
     GError *error = NULL;    
 
@@ -186,42 +102,17 @@ int Headunit::init(){
         #else
                                  "avdec_h264 ! "
         #endif
-#if defined(GSTQT)
-                                 "glsinkbin sync=true name=vid_glsinkbin ";
-#elif defined(QTGSTREAMER)
-            "capsfilter caps=video/x-raw name=mycapsfilter";
-#else
-//                "glsinkbin sync=true name=vid_glsinkbin ";
-//                "videoconvert !"
                 "appsink emit-signals=true sync=false name=vid_sink";
 
-#endif
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
 
     bus = gst_pipeline_get_bus(GST_PIPELINE(vid_pipeline));
     gst_bus_add_watch(bus, (GstBusFunc) Headunit::bus_callback, this);
     gst_object_unref(bus);
 
-
-#if defined(GSTQT)
-#elif defined(QTGSTREAMER)
-    GstElement *vid_sink = QGlib::RefPointer<QGst::Element>(m_videoSurface.videoSink());
-    GstElement *capsfilter = gst_bin_get_by_name(GST_BIN(vid_pipeline), "mycapsfilter");
-    gst_bin_add(GST_BIN(vid_pipeline), GST_ELEMENT(vid_sink));
-    gst_element_link(capsfilter, GST_ELEMENT(vid_sink));
-    g_object_set (vid_sink, "force-aspect-ratio", true, nullptr);
-
-    gst_object_unref(vid_sink);
-    gst_object_unref(capsfilter);
-#else
-//    GstElement *glsinkbin = gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_glsinkbin");
     GstElement *vid_sink = gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_sink");
 
-//    g_object_set (glsinkbin, "sink", vid_sink, NULL);
     g_signal_connect(vid_sink, "new-sample", G_CALLBACK(&Headunit::newVideoSample), this);
-//    gst_object_unref(vid_sink);
-//    gst_object_unref(glsinkbin);
-#endif
 
 //    GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(vid_pipeline),GST_DEBUG_GRAPH_SHOW_VERBOSE, "vid_pipeline");
 
@@ -321,20 +212,10 @@ GstFlowReturn Headunit::newVideoSample (GstElement * appsink, Headunit * _this){
     GstCaps* caps = gst_sample_get_caps (gstsample);
     GstVideoInfo info;
     gst_video_info_from_caps (&info, caps);
-    GstStructure* structure = gst_caps_get_structure (caps, 0);
 
-
-    gint width;
-    gint height;
-    gst_structure_get_int (structure, "width", &width);
-    gst_structure_get_int (structure, "height", &height);
-//    qDebug() <<width<<height<< gst_structure_get_string (structure, "format");
-
-//    GstBuffer * newBuf = gst_buffer_copy_deep (gstbuf);
     QGstVideoBuffer *qgstBuf = new QGstVideoBuffer(gstbuf,info);
-    QVideoFrame frame(static_cast<QAbstractVideoBuffer *>(qgstBuf), QSize(width,height),QVideoFrame::Format_YUV420P);
+    QVideoFrame frame(static_cast<QAbstractVideoBuffer *>(qgstBuf), QSize(info.width,info.height),QVideoFrame::Format_YUV420P);
 
-//    _this->receiveVideoFrame(frame);
     emit _this->receivedVideoFrame(frame);
 
     gst_buffer_unmap(gstbuf, const_cast<GstMapInfo*> (&mapInfo));
@@ -351,8 +232,6 @@ void Headunit::setVideoSurface(QAbstractVideoSurface *surface)
     m_surface = surface;
 //    if (m_surface)
 //        m_surface->start(m_format);
-
-    emit signalVideoSurfaceChanged();
 }
 void Headunit::videoFrameHandler(const QVideoFrame &frame)
 {

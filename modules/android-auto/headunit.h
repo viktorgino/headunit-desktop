@@ -23,25 +23,6 @@
 #include "hu_aap.h"
 #include "glib_utils.h"
 
-#ifdef BUILD_GSTQT
-#include <gst/gstplugin.h>
-#include "qtgst/gstqtsink.h"
-#include <QtQml/QQmlApplicationEngine>
-#endif
-#ifdef BUILD_QTGSTREAMER
-#include <gst/gstplugin.h>
-#include "QtGstreamer/elements/gstqtvideosink/gstqtvideosinkplugin.h"
-#include "QtGstreamer/elements/gstqtvideosink/gstqtvideosink.h"
-#include "QtGstreamer/elements/gstqtvideosink/gstqtquick2videosink.h"
-#include "QtGstreamer/QGst/Quick/VideoSurface"
-#include "QtGstreamer/QGst/Quick/VideoItem"
-#elif defined(QTGSTREAMER)
-#include <QGlib/RefPointer>
-#include <QGst/Element>
-#include <QGst/Quick/VideoItem>
-#include <QGst/Quick/VideoSurface>
-#endif
-
 class Headunit;
 
 class DesktopEventCallbacks : public IHUConnectionThreadEventCallbacks {
@@ -74,16 +55,7 @@ class Headunit : public QObject
     Q_PROPERTY(int videoWidth READ videoWidth NOTIFY videoResized)
     Q_PROPERTY(int videoHeight READ videoHeight NOTIFY videoResized)
     Q_PROPERTY(hu_status status READ status NOTIFY statusChanged)
-
-
-    Q_PROPERTY(QAbstractVideoSurface *videoSurface READ videoSurface WRITE setVideoSurface NOTIFY signalVideoSurfaceChanged)
-
-    #ifdef QTGSTREAMER
-    Q_PROPERTY(QGst::Quick::VideoSurface *videoSurface READ videoSurface CONSTANT)
-    QGst::Quick::VideoSurface *videoSurface(){
-        return &m_videoSurface;
-    }
-    #endif
+    Q_PROPERTY(QAbstractVideoSurface *videoSurface READ videoSurface WRITE setVideoSurface)
 
 public:
     Headunit(QObject *parent = nullptr);
@@ -124,7 +96,6 @@ signals:
     void deviceConnected(QVariantMap notification);
     void btConnectionRequest(QString address);
     void statusChanged();
-    void signalVideoSurfaceChanged();
 
     void receivedVideoFrame(const QVideoFrame &frame);
 
@@ -135,11 +106,6 @@ public slots:
     bool keyEvent(QString key);
 
     void videoFrameHandler(const QVideoFrame &frame);
-
-
-#if defined(GSTQT)
-    void setVideoItem(QQuickItem *videoItem);
-#endif
 
 private:
     HUServer *headunit;
@@ -160,11 +126,5 @@ private:
     QAbstractVideoSurface *m_surface = nullptr;
     QVideoSurfaceFormat m_format;
     bool m_videoStarted = false;
-
-#ifdef QTGSTREAMER
-    QGst::Quick::VideoSurface m_videoSurface;
-#endif
-#if defined(GSTQT) || !defined(QTGSTREAMER)
-#endif
 };
 #endif // HEADUNITPLAYER_H

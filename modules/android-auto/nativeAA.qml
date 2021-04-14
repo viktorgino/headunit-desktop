@@ -38,8 +38,8 @@ Item{
         visible: AndroidAuto.status === 2 /*AndroidAuto.RUNNING*/
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
-        width:parent.width * AndroidAuto.videoHeight/AndroidAuto.videoWidth < parent.height ? parent.width : height * AndroidAuto.videoWidth/AndroidAuto.videoHeight
-        height:parent.width * AndroidAuto.videoHeight/AndroidAuto.videoWidth < parent.height ? width * AndroidAuto.videoHeight/AndroidAuto.videoWidth : parent.height
+        width:parent.width * AndroidAuto.videoHeight/AndroidAuto.videoWidth < parent.height ? parent.width : parent.height * AndroidAuto.videoWidth/AndroidAuto.videoHeight
+        height:parent.width * AndroidAuto.videoHeight/AndroidAuto.videoWidth < parent.height ? parent.width * AndroidAuto.videoHeight/AndroidAuto.videoWidth : parent.height
         source: AndroidAuto
         MouseArea {
             id: mouseArea1
