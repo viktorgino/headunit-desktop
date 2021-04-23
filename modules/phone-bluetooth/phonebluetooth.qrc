@@ -6,7 +6,8 @@
         <file>MediaPlayer.qml</file>
         <file>Phone.qml</file>
         <file>bluetooth.png</file>
-        <file>ImageButton.qml</file>
         <file>CallNotification.qml</file>
+        <file>MenuSwitch.qml</file>
+        <file>ConnectionOverlay.qml</file>
     </qresource>
 </RCC>

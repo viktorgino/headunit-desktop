@@ -6,5 +6,32 @@
         "image": "qrc:/PhoneBluetooth/bluetooth.png",
         "color":"#00BCD4"
     },
-    "overlay" : "qrc:/PhoneBluetooth/CallNotification.qml"
+    "overlay" : "qrc:/PhoneBluetooth/CallNotification.qml",
+    "overlays" : "qrc:/PhoneBluetooth/CallNotification.qml",
+    "config" :{
+        "label":"Bluetooth Settings",
+        "name": "car",
+        "type":"items",
+        "iconImage": "qrc:/PhoneBluetooth/bluetooth.png",
+        "description":"",
+        "items" : [
+        {
+            "label":"Bluetooth Adapter",
+            "name": "adapter",
+            "type":"combobox",
+            "provider" : "plugin",
+            "providerName" : "PhoneBluetooth",
+            "providerProperty" : "adapters",
+            "defaultValue": 0,
+            "autosave": true
+        },
+        {
+            "label":"Adapter Name",
+            "name": "adapterName",
+            "type":"textfield",
+            "textType" : "string",
+            "defaultValue" : "HUD"
+        }
+        ]
+    }
 }

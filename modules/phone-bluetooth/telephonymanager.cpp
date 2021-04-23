@@ -3,153 +3,203 @@
 #include  "qofonovoicecall.h"
 
 Q_LOGGING_CATEGORY(HEADUNIT, "telephony")
-TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent)
+Q_LOGGING_CATEGORY(OFONO, "telephony [qoFono]")
+Q_LOGGING_CATEGORY(BLUEZ, "telephony [BluezQt]")
+TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent), m_ofonoManager(this), m_ofonoModem(this),
+    m_ofonoVoiceCallManager(this), m_ofonoHandsFree(this),  m_ofonoVoiceCall(this),
+    m_bluez_manager(this), m_obexManager(this)
 {
-    bluez_manager = new BluezQt::Manager();
-    BluezQt::InitManagerJob *job = bluez_manager->init();
-    job->start();
-    connect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::bluezManagerStartResult);
     m_contactsFolder = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/contacts";
-    emit contactsFolderChanged();
+
 }
 TelephonyManager::~TelephonyManager(){
-    delete modem;
-    delete manager;
-    delete phonebook;
-    delete voiceCall;
-
-    delete bluez_manager;
-    delete m_activeDevice;
-    delete obexManager;
-    delete obexAgent;
-    delete obexSessionRegisterPC;
+//    delete m_activeDevice;
 }
 
-void TelephonyManager::obexManagerStartResult (BluezQt::InitObexManagerJob *job){
+QObject *TelephonyManager::getContextProperty(){
+    return this;
+}
+
+void TelephonyManager::init() {
+    BluezQt::InitManagerJob *job = m_bluez_manager.init();
+    job->start();
+    connect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::initBluez);
+
+    connect(&m_ofonoManager, &QOfonoManager::availableChanged, this, &TelephonyManager::ofonoAvailableChanged);
+    connect(&m_ofonoVoiceCallManager, &QOfonoVoiceCallManager::callAdded, this, &TelephonyManager::callAdded);
+    connect(&m_ofonoVoiceCall, &QOfonoVoiceCall::stateChanged, this, &TelephonyManager::voiceCallStateChanged);
+
+    connect(&m_obexManager, &BluezQt::ObexManager::sessionAdded, this, &TelephonyManager::obexPullPhonebook);
+
+    connect(&m_bluez_manager, &BluezQt::Manager::deviceAdded, this, &TelephonyManager::deviceAdded);
+    connect(&m_bluez_manager, &BluezQt::Manager::deviceRemoved, this, &TelephonyManager::deviceRemoved);
+    emit contactsFolderChanged();
+}
+
+void TelephonyManager::initObex (BluezQt::InitObexManagerJob *job){
+    disconnect(job, &BluezQt::InitObexManagerJob::result, this, &TelephonyManager::initObex);
     if(job->error() == BluezQt::Job::Error::NoError){
-        qCWarning(HEADUNIT)  << "[BluezQt] obex manager started";
-        for(int i = 0; bluez_manager->devices().size() > i; i++){
-            if(bluez_manager->devices().at(i).data()->isConnected()){
-                setBluezDevice(bluez_manager->devices().at(i).data());
-                getPhonebooks(m_activeDevice->address());
-                break;
-            }
+        qCDebug(BLUEZ)  << "obex manager started";
+        if(m_activeDevice){
+            getPhonebooks(m_activeDevice->address());
         }
     } else {
-        qCWarning(HEADUNIT)  << "[BluezQt] obexManagerStartResult : "<< job->error() << job->errorText();
+        qCWarning(BLUEZ)  << "initObex : "<< job->error() << job->errorText();
     }
 }
-void TelephonyManager::bluezManagerStartResult (BluezQt::InitManagerJob *job){
+
+void TelephonyManager::initBluez (BluezQt::InitManagerJob *job){
+    disconnect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::initBluez);
     if(job->error() == BluezQt::Job::Error::NoError){
-        qCWarning(HEADUNIT)  << "[BluezQt] bluez manager started";
+        qCDebug(BLUEZ)  << "Manager Started";
 
         bluez_agent = new BluezAgent();
-        BluezQt::PendingCall *agent_pcall = bluez_manager->registerAgent(bluez_agent);
+        BluezQt::PendingCall *agent_pcall = m_bluez_manager.registerAgent(bluez_agent);
         agent_pcall->waitForFinished();
         if(agent_pcall->error() != BluezQt::PendingCall::NoError){
-            qCWarning(HEADUNIT)  << "[BluezQt] registerAgent  : " << agent_pcall->errorText();
+            qCWarning(BLUEZ)  << "Error registerAgent  : " << agent_pcall->errorText();
         } else {
-            qCWarning(HEADUNIT)  << "[BluezQt] Agent registered";
+            qCDebug(BLUEZ)  << "Agent registered";
         }
 
-
-        agent_pcall = bluez_manager->requestDefaultAgent(bluez_agent);
+        agent_pcall = m_bluez_manager.requestDefaultAgent(bluez_agent);
         agent_pcall->waitForFinished();
         if(agent_pcall->error() != BluezQt::PendingCall::NoError){
-            qCWarning(HEADUNIT)  << "[BluezQt] requestDefaultAgent  : " << agent_pcall->errorText();
+            qCWarning(BLUEZ)  << "Error requestDefaultAgent  : " << agent_pcall->errorText();
         } else {
-            qCWarning(HEADUNIT)  << "[BluezQt] Agent set as default";
+            qCDebug(BLUEZ)  << "Agent set as default";
+        }
+
+        if(m_bluez_manager.adapters().size() > 0) {
+            initAdapter(m_bluez_manager.adapters().at(0));
         }
 
         BluezQt::PendingCall * obexServiceStart = BluezQt::ObexManager::startService();
         obexServiceStart->waitForFinished();
         if(obexServiceStart->error() != BluezQt::PendingCall::NoError){
-            qCWarning(HEADUNIT)  << "[BluezQt] obexServiceStart  : " << obexServiceStart->errorText();
+            qCWarning(BLUEZ)  << "Error : obexServiceStart  : " << obexServiceStart->errorText();
         } else {
-            qCWarning(HEADUNIT)  << "[BluezQt] obex service started";
+            qCDebug(BLUEZ)  << "obex service started";
         }
 
-        obexManager = new BluezQt::ObexManager();
-        BluezQt::InitObexManagerJob *obexjob = obexManager->init();
+        BluezQt::InitObexManagerJob *obexjob = m_obexManager.init();
         obexjob->start();
-        connect(obexjob, &BluezQt::InitObexManagerJob::result, this, &TelephonyManager::obexManagerStartResult);
-        connect(obexManager, &BluezQt::ObexManager::sessionAdded, this, &TelephonyManager::obexSessionAdded);
-
-        connect(bluez_manager, &BluezQt::Manager::deviceAdded, this, &TelephonyManager::deviceAdded);
-        connect(bluez_manager, &BluezQt::Manager::deviceRemoved, this, &TelephonyManager::deviceRemoved);
-        connect(bluez_manager, &BluezQt::Manager::deviceChanged, this, &TelephonyManager::deviceChanged);
+        connect(obexjob, &BluezQt::InitObexManagerJob::result, this, &TelephonyManager::initObex);
     } else {
-        qCWarning(HEADUNIT)  << "[BluezQt] bluezManagerStartResult : " << job->errorText();
+        qCWarning(BLUEZ)  << "Error : bluezManagerStartResult : " << job->errorText();
         return;
     }
 }
 
-void TelephonyManager::initHFP(bool available){
-    if(available){
-        QStringList modems = manager->modems();
-        if(modems.size() > 0){
-            modem = new QOfonoModem;
-            modem->setModemPath(modems[0]);
-            modem->setOnline(true);
-            modem->setPowered(true);
-            connect(modem, &QOfonoModem::poweredChanged, this, &TelephonyManager::initHFP2);
-        } else {
-            qCDebug(HEADUNIT)  << "[ofono] : No modem found";
+void TelephonyManager::initAdapter(BluezQt::AdapterPtr adapter) {
+    m_bluez_adapter = adapter.data();
+    connect(m_bluez_adapter, &BluezQt::Adapter::discoveringChanged, this, &TelephonyManager::deviceDiscoveringChanged);
+    m_bluez_adapter->setName(m_settings["adapterName"].toString());
+    m_bluez_adapter->setPowered(true);
+    m_bluez_adapter->setDiscoverable(false);
+    m_bluez_adapter->setPairable(false);
+//    qCDebug(BLUEZ)  << "Starting discovery";
+//    if(!m_bluez_adapter->isDiscovering()){
+//        m_bluez_adapter->startDiscovery();
+//    }
+    //If the newly added device is trusted then disconnect from all other devices and connect to it
+
+    for(BluezQt::DevicePtr p_device : m_bluez_manager.devices()) {
+        if(p_device->isConnected()){
+            if(!m_activeDevice){
+                qCDebug(BLUEZ)  << "Connected device found: " << p_device->name();
+                setBluezDevice(p_device.data());
+            } else {
+                qCDebug(BLUEZ)  << "Disconnecting from : " << p_device->name();
+                p_device->disconnectFromDevice();
+            }
         }
+    }
+    if(!m_activeDevice) {
+        qCDebug(BLUEZ)  << "No device connected, trying to connect";
+        connectToNextDevice();
+    }
+
+}
+
+void TelephonyManager::initOfono(QString ubi){
+    qCDebug(OFONO) << "Init oFono";
+    if(m_ofonoManager.available()){
+        QStringList modems = m_ofonoManager.modems();
+        QString fullPath = "/hfp" + ubi;
+        if(modems.contains(fullPath)){
+            m_ofonoModem.setModemPath(fullPath);
+            m_ofonoVoiceCallManager.setModemPath(m_ofonoModem.modemPath());
+            m_ofonoHandsFree.setModemPath(m_ofonoModem.modemPath());
+        } else {
+            qCWarning(OFONO)  << ": No modem found";
+        }
+    } else {
+        qCWarning(OFONO) << "Ofono not available";
     }
 }
 
-void TelephonyManager::initHFP2(bool available){
-    if(available){
-        voiceCallManager.setModemPath(modem->modemPath());
+void TelephonyManager::updateAdapters(){
+    m_adapters.clear();
+    //    for(BluezQt::AdapterPtr adapter : m_bluez_manager.adapters()){
+    //        m_adapters.append(adapter->systemName());
+    //    }
+    emit adaptersUpdated();
+}
 
-        if(voiceCallManager.isValid())
-            qCDebug(HEADUNIT)  << "[ofono] voiceCallManager is valid";
-        else
-            qCWarning(HEADUNIT)  << "[ofono] voiceCallManager is not valid";
-        connect(&voiceCallManager, &QOfonoVoiceCallManager::callAdded, this, &TelephonyManager::callAdded);
+void TelephonyManager::ofonoAvailableChanged(bool available){
+    qCDebug(OFONO) << "ofonoAvailableChanged : " << available;
+    if(available && m_activeDevice){
+        initOfono(m_activeDevice->ubi());
     }
+}
+
+void TelephonyManager::toggleVoice(){
+    m_ofonoHandsFree.setVoiceRecognition(!m_ofonoHandsFree.voiceRecognition());
 }
 
 void TelephonyManager::callAdded(const QString &call)
 {
-    voiceCall = new QOfonoVoiceCall();
-    voiceCall->setVoiceCallPath(call);
-    connect(voiceCall, &QOfonoVoiceCall::stateChanged, this, &TelephonyManager::voiceCallStateChanged);
+    qCDebug(OFONO) << "call added : " << call;
+    m_ofonoVoiceCall.setVoiceCallPath(call);
 }
 void TelephonyManager::voiceCallStateChanged(const QString &state){
-    qCDebug(HEADUNIT) << "voiceCallStateChanged : " << state;
+    qCDebug(OFONO) << "voiceCallStateChanged : " << state;
     if(state == "incoming"){
-        qCDebug(HEADUNIT) << "Incoming call from name:" << voiceCall->name()
-                          << " | information:"<< voiceCall->information()
-                          << " | voiceCallPath:"<< voiceCall->voiceCallPath()
-                          << " | lineIdentification:"<< voiceCall->lineIdentification()
-                          << " | incomingLine:"<< voiceCall->incomingLine()
-                          << " | state:"<< voiceCall->state()
-                          << " | startTime:"<< voiceCall->startTime();
-        emit incomingCall(voiceCall->name(), voiceCall->lineIdentification(), voiceCall->voiceCallPath());
-    } else if(state == "disconnected"){
+        qCDebug(OFONO) << "Incoming call from name:" << m_ofonoVoiceCall.name()
+                          << " | information:"<< m_ofonoVoiceCall.information()
+                          << " | voiceCallPath:"<< m_ofonoVoiceCall.voiceCallPath()
+                          << " | lineIdentification:"<< m_ofonoVoiceCall.lineIdentification()
+                          << " | incomingLine:"<< m_ofonoVoiceCall.incomingLine()
+                          << " | state:"<< m_ofonoVoiceCall.state()
+                          << " | startTime:"<< m_ofonoVoiceCall.startTime();
+        emit incomingCall(m_ofonoVoiceCall.name(), m_ofonoVoiceCall.lineIdentification(), m_ofonoVoiceCall.voiceCallPath());
 
+        QVariantMap props;
+        //        props.insert("caller", voiceCall->name());
+        props.insert("caller", m_ofonoVoiceCall.lineIdentification());
+        props.insert("callPath", m_ofonoVoiceCall.voiceCallPath());
+        emit action("GUI::OpenOverlay", props);
+    } else if(state == "disconnected"){
+        emit action("GUI::CloseOverlay", QVariant());
     }
 }
 
 void TelephonyManager::answerCall(QString call_path){
-    voiceCall->setVoiceCallPath(call_path);
-    voiceCall->answer();
-}
-void TelephonyManager::declineCall(QString call_path){
-    voiceCall->setVoiceCallPath(call_path);
-    voiceCall->hangup();
-}
-void TelephonyManager::obexSessionAdded (BluezQt::ObexSessionPtr session){
-    qCDebug(HEADUNIT) << "[BluezQt] obex session added";
-    pbapSession = session;
-    pullPhonebooks();
+    m_ofonoVoiceCall.setVoiceCallPath(call_path);
+    m_ofonoVoiceCall.answer();
 }
 
-void TelephonyManager::pullPhonebooks(){
-    qCWarning(HEADUNIT)  << "[BluezQt] Pulling phonebook";
-    QString path = pbapSession.data()->objectPath().path();
+void TelephonyManager::declineCall(QString call_path){
+    m_ofonoVoiceCall.setVoiceCallPath(call_path);
+    m_ofonoVoiceCall.hangup();
+}
+
+void TelephonyManager::obexPullPhonebook (BluezQt::ObexSessionPtr session){
+    qCDebug(BLUEZ) << "obex session added";
+
+    qCDebug(BLUEZ)  << "Pulling phonebook";
+    QString path = session.data()->objectPath().path();
 
     qDBusRegisterMetaType<QPair<QString,QString>>();
     qDBusRegisterMetaType<QList<QPair<QString,QString>>>();
@@ -162,7 +212,7 @@ void TelephonyManager::pullPhonebooks(){
     pcall.waitForFinished();
 
     if(pcall.isError()){
-        qCWarning(HEADUNIT)  << "[Bluez] Phonebook Select:"<< pcall.error().message();
+        qCWarning(BLUEZ)  << "Error phonebook select:"<< pcall.error().message();
         return;
     }
 
@@ -176,66 +226,162 @@ void TelephonyManager::pullPhonebooks(){
     pcall = pbapAccess->PullAll(m_contactsFolder + "/contacts.vcf", QVariantMap());
     pcall.waitForFinished();
     if(pcall.isError()){
-        qCWarning(HEADUNIT)  << "[Bluez] Phonebook Pull:"<< pcall.error().message();
+        qCWarning(BLUEZ)  << "Error phonebook pull:"<< pcall.error().message();
         return;
     }
-    qCWarning(HEADUNIT)  << "[BluezQt] Got phonebook";
+    qCDebug(BLUEZ)  << "Got phonebook";
     emit phonebookChanged();
 }
 
 void TelephonyManager::getPhonebooks(QString destination){
-    if(obexManager->isOperational()){
+    if(m_obexManager.isOperational()){
         QVariantMap args;
         args.insert("Target", "PBAP");
-        obexSessionRegisterPC = obexManager->createSession(destination, args);
-        obexSessionRegisterPC->waitForFinished();
+        m_obexManager.createSession(destination, args);
     } else {
-        qCWarning(HEADUNIT)  << "[BluezQt] obexManager is not operational";
+        qCWarning(BLUEZ)  << "obexManager is not operational";
         return;
     }
 }
-void TelephonyManager::setBluezDevice(BluezQt::Device* device) {
-    m_deviceIndex = -1;
+void TelephonyManager::setBluezDevice(BluezQt::Device *device) {
+    if(m_activeDevice){
+        m_pairedDevices.insert(m_activeDevice->ubi(), m_activeDevice->name());
+    }
     if(device){
-        for(int i=0; bluez_manager->devices().size() > i; i++){
-            if(bluez_manager->devices().at(i).data()->address() == device->address()){
-                m_deviceIndex = i;
-                break;
-            }
-        }
+        m_pairedDevices.remove(device->ubi());
+        qCDebug(BLUEZ)  << "Device set : " << device->name();
+        initOfono(device->ubi());
     } else {
-        for(int i=0; bluez_manager->devices().size() > i; i++){
-            if(bluez_manager->devices().at(i).data()->isConnected()){
-                m_deviceIndex = i;
+        qCDebug(BLUEZ)  << "Device set : NULL";
+    }
+    m_activeDevice = device;
+    emit activeDeviceChanged();
+    emit pairedDevicesChanged();
+}
+
+void TelephonyManager::deviceAdded(BluezQt::DevicePtr device){
+    qCDebug(BLUEZ)  << "Device added : " << device->name();
+
+    connect(device.data(), &BluezQt::Device::connectedChanged, this, &TelephonyManager::deviceConnectionChanged);
+    connect(device.data(), &BluezQt::Device::pairedChanged , this, &TelephonyManager::devicePairedChanged);
+    if(device->isPaired()){
+        m_pairedDevices.insert(device->ubi(),device->name());
+    }
+    emit pairedDevicesChanged();
+}
+void TelephonyManager::deviceRemoved(BluezQt::DevicePtr device){
+    qCDebug(BLUEZ)  << "Device removed : " << device->name();
+    if(m_activeDevice == device){
+        setBluezDevice(nullptr);
+    }
+
+    disconnect(device.data(), &BluezQt::Device::connectedChanged, this, &TelephonyManager::deviceConnectionChanged);
+    disconnect(device.data(), &BluezQt::Device::pairedChanged, this, &TelephonyManager::devicePairedChanged);
+    m_pairedDevices.remove(device->ubi());
+    emit pairedDevicesChanged();
+}
+
+void TelephonyManager::deviceConnectionChanged(bool connected){
+    BluezQt::Device* device = dynamic_cast<BluezQt::Device*>(QObject::sender());
+    if(connected){
+        qCDebug(BLUEZ) << "Device connected : " << device->name() << device->ubi();
+
+        for(BluezQt::DevicePtr p_device : m_bluez_manager.devices()){
+            if(device != p_device.data()){
+                if(p_device->isConnected()){
+                    qCDebug(BLUEZ) << "Disconnecting : " << p_device->name();
+                    p_device->disconnectFromDevice();
+                }
+            }
+        }
+        setBluezDevice(device);
+
+        getPhonebooks(m_activeDevice->address());
+    } else {
+        qCDebug(BLUEZ) << "Device disconnected : " << device->name();
+        if(m_activeDevice == device){
+            setBluezDevice(nullptr);
+        }
+    }
+}
+
+void TelephonyManager::devicePairedChanged(bool paired) {
+    BluezQt::Device* device = dynamic_cast<BluezQt::Device*>(QObject::sender());
+    if(paired && device->isConnected()){
+        deviceConnectionChanged(true);
+    }
+}
+
+void TelephonyManager::deviceDiscoveringChanged(bool discovering){
+    qCDebug(BLUEZ)  << "Discovering changed : " << discovering;
+}
+
+void TelephonyManager::connectToNextDevice(){
+    BluezQt::Device *device = nullptr;
+    bool activeDeviceFound = false;
+    for(BluezQt::DevicePtr p_device : m_bluez_manager.devices()){
+        if(p_device->isTrusted()){
+            if(!m_previouslyTriedDevice) {
+                device = p_device.data();
+                break;
+            } else if(p_device == m_previouslyTriedDevice){
+                activeDeviceFound = true;
+            } else if(activeDeviceFound){
+                device = p_device.data();
                 break;
             }
         }
     }
-    emit deviceIndexChanged();
-    m_activeDevice = device;
-}
-void TelephonyManager::deviceAdded(BluezQt::DevicePtr device){
-    qCWarning(HEADUNIT)  << "[Bluez] Device added";
-    if(device.data()->isConnected() && (!m_activeDevice || device.data()->address() != m_activeDevice->address())){
-        setBluezDevice(device.data());
-        getPhonebooks(m_activeDevice->address());
+    m_previouslyTriedDevice = device;
+    if(device){
+        qCDebug(BLUEZ)  << "Connecting to : " << device->name();
+        BluezQt::PendingCall * connectCall = device->connectToDevice();
+        connectCall->setUserData(device->ubi());
+        connect(connectCall, &BluezQt::PendingCall::finished, this, &TelephonyManager::connectToDeviceCallback);
     }
 }
 
-void TelephonyManager::deviceRemoved(BluezQt::DevicePtr device){
-    if(m_activeDevice && device.data()->address() == m_activeDevice->address()){
-        setBluezDevice(NULL);
+void TelephonyManager::connectToDeviceCallback(BluezQt::PendingCall *call){
+    disconnect(call, &BluezQt::PendingCall::finished, this, &TelephonyManager::connectToDeviceCallback);
+    BluezQt::DevicePtr device = m_bluez_manager.deviceForUbi(call->userData().toString());
+    if(call->error() == BluezQt::PendingCall::NoError){
+        qCDebug(BLUEZ)  << "Finished connecting to : " << device->name();
+    } else {
+        qCDebug(BLUEZ)  << "Error connecting to : " << device->name() << " : " << call->errorText();
+        if(device == m_previouslyTriedDevice){
+            connectToNextDevice();
+        }
     }
 }
 
-void TelephonyManager::deviceChanged(BluezQt::DevicePtr device){
-    //If new device connected
-    if(device.data()->isConnected() && (!m_activeDevice || device.data()->address() != m_activeDevice->address())){
-        setBluezDevice(device.data());
-        getPhonebooks(m_activeDevice->address());
+
+void TelephonyManager::enablePairing(){
+    if(m_bluez_adapter){
+        m_bluez_adapter->setDiscoverable(true);
+        m_bluez_adapter->setPairable(true);
     }
-    //If current device disconnected
-    if(!device.data()->isConnected() && m_activeDevice && device.data()->address() == m_activeDevice->address()){
-        setBluezDevice(NULL);
+}
+void TelephonyManager::disablePairing(){
+    if(m_bluez_adapter){
+        m_bluez_adapter->setDiscoverable(false);
+        m_bluez_adapter->setPairable(false);
+    }
+}
+
+void TelephonyManager::settingsChanged(const QString &key, const QVariant &value){
+    if(key == "adapterName") {
+        if(value.canConvert(QMetaType::QString)){
+            m_bluez_adapter->setName(value.toString());
+        }
+    }
+}
+
+void TelephonyManager::connectToDevice(QString ubi){
+    BluezQt::DevicePtr device = m_bluez_manager.deviceForUbi(ubi);
+    if(device){
+        if(m_activeDevice){
+            m_activeDevice->disconnectFromDevice();
+        }
+        device->connectToDevice();
     }
 }

@@ -16,18 +16,18 @@ class BluezAgent : public BluezQt::Agent
 public:
     explicit BluezAgent(QObject *parent = Q_NULLPTR);
 
-    QDBusObjectPath objectPath() const Q_DECL_OVERRIDE;
 
-    void requestPinCode(BluezQt::DevicePtr device, const BluezQt::Request<QString> &request) Q_DECL_OVERRIDE;
-    void displayPinCode(BluezQt::DevicePtr device, const QString &pinCode) Q_DECL_OVERRIDE;
-    void requestPasskey(BluezQt::DevicePtr device, const BluezQt::Request<quint32> &request) Q_DECL_OVERRIDE;
-    void displayPasskey(BluezQt::DevicePtr device, const QString &passkey, const QString &entered) Q_DECL_OVERRIDE;
-    void requestConfirmation(BluezQt::DevicePtr device, const QString &passkey, const BluezQt::Request<> &request) Q_DECL_OVERRIDE;
-    void requestAuthorization(BluezQt::DevicePtr device, const BluezQt::Request<> &request) Q_DECL_OVERRIDE;
     void authorizeService(BluezQt::DevicePtr device, const QString &uuid, const BluezQt::Request<> &request) Q_DECL_OVERRIDE;
-
     void cancel() Q_DECL_OVERRIDE;
+    BluezQt::Agent::Capability capability() const Q_DECL_OVERRIDE;
+    void displayPasskey(BluezQt::DevicePtr device, const QString &passkey, const QString &entered) Q_DECL_OVERRIDE;
+    void displayPinCode(BluezQt::DevicePtr device, const QString &pinCode) Q_DECL_OVERRIDE;
+    QDBusObjectPath objectPath() const Q_DECL_OVERRIDE;
     void release() Q_DECL_OVERRIDE;
+    void requestAuthorization(BluezQt::DevicePtr device, const BluezQt::Request<> &request) Q_DECL_OVERRIDE;
+    void requestConfirmation(BluezQt::DevicePtr device, const QString &passkey, const BluezQt::Request<> &request) Q_DECL_OVERRIDE;
+    void requestPasskey(BluezQt::DevicePtr device, const BluezQt::Request<quint32> &request) Q_DECL_OVERRIDE;
+    void requestPinCode(BluezQt::DevicePtr device, const BluezQt::Request<QString> &request) Q_DECL_OVERRIDE;
 
     BluezQt::DevicePtr m_device;
 

@@ -7,16 +7,10 @@ Item {
 
     property string caller: "caller"
     property string callPath
-    function hide(){
-        __root.state = ""
-    }
-    function show(){
-        __root.state = "open"
-    }
 
     Item {
         id: item1
-        y: -height
+        y: 0
         height: parent.height * 0.2
         anchors.left: parent.left
         anchors.leftMargin: 0
@@ -125,20 +119,7 @@ Item {
             }
         }
     }
-    transitions:
-        Transition {
-            NumberAnimation { properties: "y"; duration: 250}
-    }
-    states: [
-        State {
-            name: "open"
 
-            PropertyChanges {
-                target: item1
-                y: 0
-            }
-        }
-    ]
     Connections {
         target: PhoneBluetooth
         onIncomingCall:{

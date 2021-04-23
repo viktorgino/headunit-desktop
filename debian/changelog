@@ -1,3 +1,12 @@
+headunit-desktop (0.1-45) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (2e29e3b7c341925c93bfae09e6dde5e40b07611b)
+  * [Phone] Add new features & bug fixes
+  * Notable changes :
+
+ -- Gino <gino@gino-ubuntu>  Fri, 23 Apr 2021 04:49:36 +0000
+
 headunit-desktop (0.1-44) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

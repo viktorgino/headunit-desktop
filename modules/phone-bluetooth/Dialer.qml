@@ -3,15 +3,11 @@ import MeeGo.QOfono 0.2
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
+import HUDTheme 1.0
 
 Item {
     id: __root
-    anchors.left: parent.left
-    anchors.leftMargin: 0
-    anchors.top: parent.top
-    anchors.topMargin: 0
-    anchors.bottom: parent.bottom
-    anchors.bottomMargin: 0
+
     signal dial(string number)
     signal voice_rec(bool state)
     signal hangup()
@@ -21,30 +17,33 @@ Item {
         id: dialer_num
         text: ""
         anchors.leftMargin: 2
-        font.pointSize: 30
+        font.pointSize: 20
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
+        color: "#ffffff"
+        placeholderTextColor : "#cecece"
         validator: RegExpValidator { regExp :/[+]?[0-9#*]*/}
 
-        Image {
+        background: Rectangle {
+            height: 2
+            border.color: "#ffffff"
+            width: dialer_num.width
+            y: dialer_num.height - 2
+        }
+        ImageButton {
             id: image
             width: height * 1.2
-            fillMode: Image.PreserveAspectFit
+//            fillMode: Image.PreserveAspectFit
             anchors.right: parent.right
             anchors.rightMargin: 0
             anchors.top: parent.top
             anchors.topMargin: 0
             anchors.bottom: parent.bottom
             anchors.bottomMargin: 0
-            source: "qrc:/qml/icons/svg/backspace-outline.svg"
-
-            MouseArea {
-                id: mouseArea1
-                anchors.fill: parent
-                onClicked: {
-                    dialer_num.remove(dialer_num.cursorPosition-1, dialer_num.cursorPosition);
-                }
+            imageSource: "qrc:/qml/icons/svg/backspace-outline.svg"
+            onClicked: {
+                dialer_num.remove(dialer_num.cursorPosition-1, dialer_num.cursorPosition);
             }
         }
     }
@@ -115,6 +114,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.fill: parent
+                    color:"#ffffff"
 
                     MouseArea {
                         id: mouseArea
@@ -163,7 +163,7 @@ Item {
             }
         }
 
-        /*Rectangle {
+        Rectangle {
             id:mic
             width: height
             color: "#1e88e5"
@@ -188,7 +188,7 @@ Item {
                     __root.voice_rec(true);
                 }
             }
-        }*/
+        }
 
         Rectangle {
             id:hangup
@@ -222,3 +222,9 @@ Item {
         }
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;formeditorColor:"#808080";height:480;width:640}
+}
+##^##*/

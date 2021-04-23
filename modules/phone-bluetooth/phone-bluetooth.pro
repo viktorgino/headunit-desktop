@@ -10,7 +10,6 @@ QMAKE_LIBS += -lKF5BluezQt
 PKGCONFIG += qofono-qt5
 
 SOURCES += \
-    $$PWD/bluetooth.cpp \
     telephonymanager.cpp \
     bluezagent.cpp
 
@@ -21,7 +20,6 @@ target.path = $${PREFIX}/plugins
 INSTALLS += target
 
 HEADERS += \
-    $$PWD/bluetooth.h \
     telephonymanager.h \
     bluezagent.h
 

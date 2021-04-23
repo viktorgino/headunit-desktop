@@ -3,12 +3,18 @@ import QtQuick 2.6
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
+import HUDTheme 1.0
+
+import org.kde.bluezqt 1.0 as BluezQt
+
 Item {
-    property QtObject bluezManager
+    id:__root
+    property QtObject mediaPlayerObj
+
     Text {
         id: text6
         text: {
-            return bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.track.artist + " - " + bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.track.title
+            return __root.mediaPlayerObj.track.artist + " - " + __root.mediaPlayerObj.track.title
         }
         anchors.bottom: buttons.top
         anchors.bottomMargin: 0
@@ -36,39 +42,40 @@ Item {
      *      BluezQt: PendingCall Error: "No such property 'Shuffle'"
      */
         //TODO:Look into why BluezQt::MediaPlayer.shuffle is not working
-        /*ImageButton{
-        id: shuffle_button
-        Layout.fillHeight: true
-        Layout.fillWidth: true
-        checkable: true
-        imageSource: "qrc:/qml/icons/shuffle.png"
-        changeColorOnPress:false
-        onClicked: {
-            if(checked)
-                bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.shuffle = BluezQt.MediaPlayer.ShuffleAllTracks
-            else
-                bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.shuffle = BluezQt.MediaPlayer.ShuffleOff
-        }
-    }*/
+//        ImageButton{
+//        id: shuffle_button
+//        Layout.fillHeight: true
+//        Layout.fillWidth: true
+//        checkable: true
+//        imageSource: "qrc:/qml/icons/shuffle.png"
+//        changeColorOnPress:false
+//        checked : __root.mediaPlayerObj.shuffle
+//        onClicked: {
+//            if(checked)
+//                __root.mediaPlayerObj.shuffle = 1//BluezQt.MediaPlayer.ShuffleAllTracks
+//            else
+//                __root.mediaPlayerObj.shuffle = 0//BluezQt.MediaPlayer.ShuffleOff
+//        }
+//    }
 
         ImageButton{
             id: prev_button
             Layout.fillHeight: true
             Layout.fillWidth: true
             imageSource: "qrc:/qml/icons/skip-backward.png"
-            onClicked: bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.previous()
+            onClicked: __root.mediaPlayerObj.previous()
         }
 
         ImageButton{
             Layout.fillHeight: true
             Layout.fillWidth: true
-            imageSource: bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.status === 0?"qrc:/qml/icons/pause.png":"qrc:/qml/icons/play.png"
+            imageSource: __root.mediaPlayerObj.status === 0?"qrc:/qml/icons/pause.png":"qrc:/qml/icons/play.png"
             id:playButton
             onClicked: {
-                if(bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.status === 0)
-                    bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.pause()
+                if(__root.mediaPlayerObj.status === 0)
+                    __root.mediaPlayerObj.pause()
                 else
-                    bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.play()
+                    __root.mediaPlayerObj.play()
             }
         }
 
@@ -77,7 +84,7 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
             imageSource: "qrc:/qml/icons/skip-forward.png"
-            onClicked: bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.next()
+            onClicked: __root.mediaPlayerObj.next()
         }
 
         /*
@@ -93,7 +100,7 @@ Item {
         imageSource: "qrc:/qml/icons/refresh.png"
         changeColorOnPress:false
         text: {
-            switch(bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.repeat){
+            switch(__root.mediaPlayerObj.repeat){
             case BluezQt.MediaPlayer.RepeatOff:
                 checked = true;
                 return "1";
@@ -106,15 +113,15 @@ Item {
             }
         }
         onClicked: {
-            switch(bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.repeat){
+            switch(__root.mediaPlayerObj.repeat){
             case BluezQt.MediaPlayer.RepeatOff:
-                bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.shuffle = BluezQt.MediaPlayer.RepeatSingleTrack
+                __root.mediaPlayerObj.shuffle = BluezQt.MediaPlayer.RepeatSingleTrack
                 break;
             case BluezQt.MediaPlayer.RepeatSingleTrack:
-                bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.shuffle = BluezQt.MediaPlayer.RepeatAllTracks
+                __root.mediaPlayerObj.shuffle = BluezQt.MediaPlayer.RepeatAllTracks
                 break;
             default:
-                bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.shuffle = BluezQt.MediaPlayer.RepeatOff
+                __root.mediaPlayerObj.shuffle = BluezQt.MediaPlayer.RepeatOff
                 break;
             }
         }
@@ -125,9 +132,9 @@ Item {
         id: sliderHorizontal1
         anchors.bottom: trackInfo.top
         anchors.bottomMargin: 8
-        value: bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.position
+        value: __root.mediaPlayerObj.position
         from:0
-        to: bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.track.duration
+        to: __root.mediaPlayerObj.track.duration
         stepSize: 1
         anchors.right: parent.right
         anchors.rightMargin: 8
@@ -137,7 +144,7 @@ Item {
     }
 
     Timer {
-        interval: 50; running: bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.status === 0; repeat: true
+        interval: 50; running: __root.mediaPlayerObj.status === 0; repeat: true
         property int lastUpdated: 0
         onTriggered: {
             sliderHorizontal1.value = sliderHorizontal1.value + 50
@@ -145,15 +152,15 @@ Item {
     }
 
     Connections{
-        target: bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer
+        target: __root.mediaPlayerObj
         onPositionChanged: {
             sliderHorizontal1.value = position
         }
         onTrackChanged:{
-            sliderHorizontal1.value = bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.position
+            sliderHorizontal1.value = __root.mediaPlayerObj.position
         }
         onStatusChanged:{
-            sliderHorizontal1.value = bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.position
+            sliderHorizontal1.value = __root.mediaPlayerObj.position
         }
     }
 
@@ -183,7 +190,7 @@ Item {
 
         Text {
             text: {
-                var duration = bluezManager.devices[PhoneBluetooth.deviceIndex].mediaPlayer.track.duration
+                var duration = __root.mediaPlayerObj.track.duration
                 var seconds = parseInt((duration / 1000) % 60);
                 var minutes = parseInt((duration / (60000)) % 60);
                 var hours = parseInt((duration / (3600000)) % 24);
