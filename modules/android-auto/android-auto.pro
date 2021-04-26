@@ -7,7 +7,7 @@ INCLUDEPATH += $${PWD}/../../includes
 DESTDIR = $${OUT_PWD}/../../plugins
 
 PKGCONFIG += libssl libcrypto libusb-1.0 glib-2.0 gobject-2.0
-PKGCONFIG += gstreamer-1.0 gstreamer-app-1.0
+PKGCONFIG += gstreamer-1.0 gstreamer-app-1.0 gstreamer-video-1.0
 PKGCONFIG += protobuf
 
 SOURCES += \

@@ -1,3 +1,11 @@
+headunit-desktop (0.1-46) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (daf68b3c265d3b58750100d498277a329d388e10)
+  * [AA] Fix missing gstreamer-video-1.0 dependency
+
+ -- Gino <gino@gino-ubuntu>  Mon, 26 Apr 2021 17:31:00 +0000
+
 headunit-desktop (0.1-45) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
