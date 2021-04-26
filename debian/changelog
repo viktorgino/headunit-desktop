@@ -1,3 +1,11 @@
+headunit-desktop (0.1-47) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (ce5358d6c05c171822b7c0959f2e3624f1eafad2)
+  * Update README.md
+
+ -- Gino <gino@gino-ubuntu>  Mon, 26 Apr 2021 19:55:56 +0000
+
 headunit-desktop (0.1-46) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

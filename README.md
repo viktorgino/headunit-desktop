@@ -1,6 +1,6 @@
 # HeadUnit Desktop
 
-[![Support Server](https://img.shields.io/discord/591914197219016707.svg?label=Discord&logo=Discord&colorB=7289da&style=for-the-badge)](https://discord.gg/tJXc6eMX)
+[![Support Server](https://img.shields.io/discord/591914197219016707.svg?label=Discord&logo=Discord&colorB=7289da&style=for-the-badge)](https://discord.gg/WpmHjWb64p)
 
 HeadUnit Desktop is a Qt based free and open source software that is intended to be run on computers built into cars. HUD is designed to be highly modular and easy to extend even for beginners. Make sure you check the documentation out, which is actively being updated.
 
