@@ -114,7 +114,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.fill: parent
-                    color:"#ffffff"
+                    color:HUDStyle.Colors.text
 
                     MouseArea {
                         id: mouseArea

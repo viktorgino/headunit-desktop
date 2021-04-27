@@ -4,6 +4,8 @@ import QtGraphicalEffects 1.0
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
+import HUDTheme 1.0
+
 Item {
     id: __root
     property int contactCardHeight: 50
@@ -82,9 +84,8 @@ Item {
                     }
                 }
 
-                Text {
+                ThemeText {
                     id: name
-                    color: "#ffffff"
                     anchors {
                         verticalCenter: parent.verticalCenter
                         left: imageWrapper.right
@@ -92,8 +93,6 @@ Item {
                     }
                     text: contact.name.firstName + " " + contact.name.lastName
                     elide: Text.ElideRight
-                    font.pointSize: parent.height * 0.2
-                    font.family: "Times New Roman"
                     font.bold: true
                 }
                 Rectangle{

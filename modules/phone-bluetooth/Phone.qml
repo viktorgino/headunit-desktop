@@ -21,25 +21,24 @@ Item {
         anchors.rightMargin: 8
         anchors.left: parent.left
         anchors.leftMargin: 8
-
-
-
+        background: Rectangle {
+            implicitHeight: 40
+            color: HUDStyle.Colors.formBox
+        }
 
         ToolButton {
             id: debugMenu
             anchors.left: parent.left
             Layout.fillHeight: true
             Layout.fillWidth: true
-            Image {
+            ImageButton {
                 width: 30
                 height: 30
                 anchors.verticalCenter: parent.verticalCenter
-                source: "qrc:/qml/icons/bug.png"
+                imageSource : "qrc:/qml/icons/bug.png"
                 anchors.horizontalCenter: parent.horizontalCenter
-                fillMode: Image.PreserveAspectFit
-                mipmap:true
+                onClicked: menu.open()
             }
-            onClicked: menu.open()
             Menu {
                 id: menu
                 x: -width+parent.width
@@ -98,7 +97,7 @@ Item {
                         anchors.left: parent.left
                         anchors.leftMargin: 8
                     }
-                    Text{
+                    ThemeText{
                         height: font.pointSize+16
                         anchors.right: parent.right
                         anchors.rightMargin: 8
@@ -107,7 +106,6 @@ Item {
                         text: "Devices"
                         verticalAlignment: Text.AlignVCenter
                         horizontalAlignment: Text.AlignHCenter
-                        font.pointSize: 11
                     }
                 }
                 MenuItem{
@@ -178,67 +176,46 @@ Item {
             }
         }
 
-        ToolButton {
-            id: connectMenu
-            text: qsTr("")
+        ImageButton {
+            width: 30
+            height: 30
             anchors.left: debugMenu.right
             anchors.leftMargin: 8
-            Layout.fillHeight: true
-            Layout.fillWidth: true
+            anchors.verticalCenter: parent.verticalCenter
+            imageSource: "qrc:/qml/icons/bluetooth.png"
             onClicked: {
                 connectionOverlay.visible = true
                 PhoneBluetooth.enablePairing()
             }
-
-            Image {
-                width: 30
-                height: 30
-                anchors.verticalCenter: parent.verticalCenter
-                source: "qrc:/qml/icons/bluetooth.png"
-                fillMode: Image.PreserveAspectFit
-                mipmap: true
-                anchors.horizontalCenter: parent.horizontalCenter
-            }
         }
 
-
-
-
-        Text {
+        ThemeHeaderText {
             text: netreg.name?netreg.name:"No Connection"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: batteryLevel.left
-            font.pixelSize: 22
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             anchors.rightMargin: 16
-            Layout.fillHeight: true
-            Layout.fillWidth: true
         }
 
-        Text {
+        ThemeHeaderText {
             id: batteryLevel
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: signal.left
             //                text: qsTr("Battery: ")+hands_free.batteryChargeLevel
-            font.pixelSize: 22
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
             anchors.rightMargin: 16
-            Layout.fillHeight: true
-            Layout.fillWidth: true
         }
-        Text {
+
+        ThemeHeaderText {
             id: signal
             text: qsTr("Signal: ")+netreg.strength + "%"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
-            font.pixelSize: 22
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
             anchors.rightMargin: 8
-            Layout.fillHeight: true
-            Layout.fillWidth: true
         }
 
 
@@ -276,7 +253,6 @@ Item {
                 id:phoneStack
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                contactCardHeight:phoneStack.height/5
                 dialed_num: dialer.dialed_num
                 onDial: {
                     vcm.dial(number,"")
@@ -297,16 +273,16 @@ Item {
 
     Item {
         id: bottomButtons
-        height: parent.height*0.1
+        height: 40
         anchors.left: parent.left
-        anchors.leftMargin: 0
+        anchors.leftMargin: 8
         anchors.right: parent.right
-        anchors.rightMargin: 0
+        anchors.rightMargin: 8
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0
+        anchors.bottomMargin: 8
 
         Rectangle {
-            color: "#80000000"
+            color: HUDStyle.Colors.formBox
             anchors.fill: parent
         }
 
@@ -366,7 +342,7 @@ Item {
 
     Rectangle {
         id: connectionOverlay
-        color: "#80000000"
+        color: HUDStyle.Colors.formBackground
         anchors.fill: parent
         visible: false
 
@@ -416,6 +392,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;height:480;width:640}D{i:46}
+    D{i:0;autoSize:true;height:480;width:640}
 }
 ##^##*/

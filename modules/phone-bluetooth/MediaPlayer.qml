@@ -11,7 +11,7 @@ Item {
     id:__root
     property QtObject mediaPlayerObj
 
-    Text {
+    ThemeHeaderText {
         id: text6
         text: {
             return __root.mediaPlayerObj.track.artist + " - " + __root.mediaPlayerObj.track.title
@@ -24,7 +24,6 @@ Item {
         anchors.leftMargin: 0
         anchors.right: parent.right
         anchors.rightMargin: 0
-        font.pixelSize: 22
     }
 
     RowLayout {
@@ -174,7 +173,7 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 0
 
-        Text {
+        ThemeText {
             text: {
                 var position = sliderHorizontal1.value
                 var seconds = parseInt((position / 1000) % 60);
@@ -185,10 +184,9 @@ Item {
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
             anchors.leftMargin: 0
-            font.pixelSize: 12
         }
 
-        Text {
+        ThemeText {
             text: {
                 var duration = __root.mediaPlayerObj.track.duration
                 var seconds = parseInt((duration / 1000) % 60);
@@ -198,8 +196,13 @@ Item {
             }
             anchors.right: parent.right
             anchors.rightMargin: 0
-            font.pixelSize: 12
             anchors.verticalCenter: parent.verticalCenter
         }
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+##^##*/

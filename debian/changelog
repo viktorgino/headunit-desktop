@@ -1,3 +1,11 @@
+headunit-desktop (0.1-50) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (322325143f3592123fb917ed8cee6b54421255a2)
+  * [Phone] UI fixes
+
+ -- Gino <gino@gino-ubuntu>  Tue, 27 Apr 2021 02:46:16 +0000
+
 headunit-desktop (0.1-49) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
