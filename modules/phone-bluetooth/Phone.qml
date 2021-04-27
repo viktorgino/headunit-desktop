@@ -37,6 +37,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 imageSource : "qrc:/qml/icons/bug.png"
                 anchors.horizontalCenter: parent.horizontalCenter
+                baseColor: HUDStyle.Colors.headingText1
                 onClicked: menu.open()
             }
             Menu {
@@ -183,6 +184,7 @@ Item {
             anchors.leftMargin: 8
             anchors.verticalCenter: parent.verticalCenter
             imageSource: "qrc:/qml/icons/bluetooth.png"
+            baseColor: HUDStyle.Colors.headingText1
             onClicked: {
                 connectionOverlay.visible = true
                 PhoneBluetooth.enablePairing()
@@ -299,7 +301,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.horizontalCenter: parent.horizontalCenter
                     imageSource: "qrc:/qml/icons/android-call.png"
-                    color: "#ffffff"
+                    baseColor: HUDStyle.Colors.headingText1
                     onClicked: {
                         currentComponent = phoneComponent
                     }
@@ -316,7 +318,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     anchors.horizontalCenter: parent.horizontalCenter
                     imageSource: "qrc:/qml/icons/music-note.png"
-                    color: "#ffffff"
+                    baseColor: HUDStyle.Colors.headingText1
                     onClicked: {
                         currentComponent = mediaPlayerComponent
                     }
