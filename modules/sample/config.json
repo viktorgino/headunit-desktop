@@ -7,32 +7,10 @@
         "description":"Settings Menu Test",
         "items":[
             {
-                "label":"Items (confirm save)",
-                "name": "items",
-                "type":"items",
-                "description":"Change the colors of the UI",
-                "confirmChange" : true,
-                "items":[
-                    {
-                        "label":"Colors",
-                        "name": "text",
-                        "type":"color",
-                        "description":"UI text color",
-                        "defaultValue":"#ffffff"
-                    },
-                    {
-                        "label":"Sub Text",
-                        "name": "subText",
-                        "type":"color",
-                        "description":"UI sub text color",
-                        "defaultValue":"#CACACA"
-                    }
-                ]
-            },
-            {
                 "label":"Items (save on back)",
                 "name": "items2",
                 "type":"items",
+                "enableIcons" : false,
                 "items":[
                     {
                         "label":"Colors",
@@ -54,22 +32,22 @@
                 "label":"Items (autosave)",
                 "name": "items3",
                 "type":"items",
+                "autoSave":true,
+                "enableIcons" : false,
                 "items":[
                     {
                         "label":"Colors",
                         "name": "text",
                         "type":"color",
                         "description":"UI text color",
-                        "defaultValue":"#ffffff",
-                        "autosave": true
+                        "defaultValue":"#ffffff"
                     },
                     {
                         "label":"Sub Text",
                         "name": "subText",
                         "type":"color",
                         "description":"UI sub text color",
-                        "defaultValue":"#CACACA",
-                        "autosave": true
+                        "defaultValue":"#CACACA"
                     }
                 ]
             },
@@ -90,7 +68,7 @@
                 "type":"slider",
                 "defaultValue":18,
                 "minimum": 5,
-                "maximum": 30,
+                "maximum": 255,
                 "stepSize": 1,
                 "prefix" : "LS",
                 "suffix" : "cm"
@@ -101,10 +79,14 @@
                 "type":"tumbler",
                 "defaultValue":18,
                 "minimum": 5,
-                "maximum": 30,
+                "maximum": 255,
                 "stepSize": 1,
                 "prefix" : "LS",
                 "suffix" : "cm"
+            },
+            {
+                "label":"Switches",
+                "type":"header"
             },
             {
                 "label":"Switch",
@@ -126,21 +108,34 @@
                 "conditionValue":true
             },
             {
-                "label":"Optional Text",
-                "name": "text2",
-                "type":"text",
+                "label":"Optional Switch 2",
+                "name": "switch3",
+                "type":"switch",
+                "defaultValue" : true,
+                "textOff":"Off",
+                "textOn": "On",
                 "conditional":true,
                 "conditionTarget": "switch2",
                 "conditionValue":true
             },
             {
-                "label":" Checkbox",
-                "name": "checkbox",
-                "type":"checkbox"
+                "label":"True",
+                "name": "text2",
+                "type":"text",
+                "conditional":true,
+                "conditionTarget": "switch3",
+                "conditionValue":true
+            },
+            {
+                "label":"False",
+                "name": "text3",
+                "type":"text",
+                "conditional":true,
+                "conditionTarget": "switch3",
+                "conditionValue":false
             },
             {
                 "label":"Textboxes",
-                "name": "header",
                 "type":"header"
             },
             {
@@ -189,10 +184,20 @@
                 "inputMask" : "000.000.000.000;_"
             },
             {
+                "label":"",
+                "type":"header"
+            },
+            {
+                "label":"Checkbox",
+                "name": "checkbox",
+                "type":"checkbox"
+            },
+            {
                 "label":"Combo Box",
                 "description": "using an array as values",
                 "name": "combobox",
                 "type":"combobox",
+                "defaultValue":"0",
                 "values": ["Apple","Orange","Banana"]
             },
             {
@@ -200,6 +205,7 @@
                 "description": "using a map as values",
                 "name": "combobox2",
                 "type":"combobox",
+                "defaultValue":"value2",
                 "values": {"value1":"Apple","value2":"Orange","value3":"Banana"}
             },
             {

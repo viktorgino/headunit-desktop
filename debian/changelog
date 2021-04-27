@@ -1,3 +1,11 @@
+headunit-desktop (0.1-48) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (5f56b16db2a269bc472da6707ab6aa53f5b9fe3d)
+  * [Sample] Update Sample plugin settings to reflect theme changes
+
+ -- Gino <gino@gino-ubuntu>  Tue, 27 Apr 2021 02:43:11 +0000
+
 headunit-desktop (0.1-47) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
