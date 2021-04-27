@@ -49,21 +49,21 @@
                 "name": "resolution",
                 "type":"combobox",
                 "values": {"1":"800x480","2":"1280x720","3":"1920x1080"},
-                "defaultValue": 0
+                "defaultValue": "1"
             },
             {
                 "label":"Frame rate",
                 "name": "frame_rate",
                 "type":"combobox",
                 "values": {"1" : "30 FPS","2" : "60 FPS"},
-                "defaultValue": 0
+                "defaultValue": "1"
             },
             {
                 "label":"Transport type",
                 "name": "transport_type",
                 "type":"combobox",
                 "values": {"usb":"USB" ,"network":"Network"},
-                "defaultValue": 0
+                "defaultValue": "usb"
             },
             {
                 "label":"Network address",

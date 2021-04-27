@@ -1,3 +1,11 @@
+headunit-desktop (0.1-49) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (b2f03da5c6838e373913298d2492eaf86567e4d7)
+  * [AA] Fix config default values
+
+ -- Gino <gino@gino-ubuntu>  Tue, 27 Apr 2021 02:43:40 +0000
+
 headunit-desktop (0.1-48) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
