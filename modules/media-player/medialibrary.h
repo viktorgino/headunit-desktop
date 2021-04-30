@@ -13,6 +13,7 @@
 
 #include "mediascanner.h"
 #include "mediadb.h"
+
 class MediaLibrary : public QObject
 {
     Q_OBJECT

@@ -17,12 +17,13 @@
 #include <taglib/fileref.h>
 #include <taglib/taglib_config.h>
 #include <taglib/tpropertymap.h>
+#include <taglib/id3v2tag.h>
 
 class MediaScanner: public QThread
 {
 Q_OBJECT
 public:
-    MediaScanner();
+    explicit MediaScanner(MediaDB *mediadb, QObject *parent = nullptr);
     virtual void run() override;
     QVariantList getVolumes();
     int addLocation(MediaDB *mediadb, QString path);
@@ -38,11 +39,13 @@ private:
     QStringList imageFileTypes;
     QStringList mediaFileTypes;
     QQueue<QMap<QString, QVariant>> pathsToScan;
-    QString scanForThumbnail(QString path, bool tryParent, QString absPosition);
+    MediaDB *m_mediadb;
+    QString getStorageUUID(QString device);
+    bool isRunning;
+
     void scanForMediaFiles(MediaDB *mediadb, QString path, int folder_id);
     void scanForFolders(MediaDB *mediadb, QString path, bool is_root, int location_id, QString current_dir, qint64 last_modified);
-    bool isRunning;
-    QString getStorageUUID(QString device);
+    QString scanForThumbnail(QString path, bool tryParent, QString absPosition);
 };
 
 #endif // MEDIASCANNER_H

@@ -1,8 +1,9 @@
 #include "medialibrary.h"
 
-MediaLibrary::MediaLibrary(QObject *parent) : QObject(parent)
+MediaLibrary::MediaLibrary(QObject *parent) : QObject(parent), m_mediaDb(this)
 {
-    mediaScanner = new MediaScanner();
+    mediaScanner = new MediaScanner(&m_mediaDb, this);
+
     connect(mediaScanner,SIGNAL(scanningFinished()),this,SLOT(scanningFinished()));
 }
 const QVariantMap MediaLibrary::audioFolders() {

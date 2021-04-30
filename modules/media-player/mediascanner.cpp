@@ -1,6 +1,6 @@
 #include "mediascanner.h"
 
-MediaScanner::MediaScanner()
+MediaScanner::MediaScanner(MediaDB *mediadb, QObject *parent) : QThread(parent), m_mediadb(mediadb)
 {
     audioFileTypes << "*.mp3" << "*.flac" << "*.wav" << "*.ogg" << "*.aac" << "*.aiff";
     videoFileTypes << "*.avi" << "*.mkv" << "*.webm" << "*.flv" << "*.mov" << "*.mp4" << "*.mpg" << "*.mpeg";
@@ -11,8 +11,7 @@ MediaScanner::MediaScanner()
     videoFileTypes.replaceInStrings("*.", "");
     playlistFileTypes.replaceInStrings("*.", "");
 
-    MediaDB mediadb;
-    updateLocationsAvailability(&mediadb);
+    updateLocationsAvailability(mediadb);
 }
 //TODO: Add functionality that not just adds to the database, but compares folder contetents and structure with DB and removes non-existent files/folders from DB
 void MediaScanner::run(){
@@ -66,32 +65,32 @@ void MediaScanner::scanForMediaFiles(MediaDB *mediadb, QString path, int folder_
         int media_type = 0;
         TagLib::FileRef f(fileInfo.absoluteFilePath().toUtf8().data());
         TagLib::Tag *tag = f.tag();
-
-        if(audioFileTypes.contains(fileInfo.suffix())){
-            media_type = MediaDB::AUDIO;
-            if(!hasAudio)
-                hasAudio = true;
-            artist<<tag->artist().toCString();
-            title<<tag->title().toCString();
-            album<<tag->album().toCString();
-            genre<<tag->genre().toCString();
-        } else {
-            if(videoFileTypes.contains(fileInfo.suffix())){
-                media_type = MediaDB::VIDEO;
+        if(tag){
+            if(audioFileTypes.contains(fileInfo.suffix())){
+                media_type = MediaDB::AUDIO;
                 if(!hasAudio)
-                    hasVideo = true;
-            } else if(playlistFileTypes.contains(fileInfo.suffix())){
-                media_type = MediaDB::PLAYLIST;
+                    hasAudio = true;
+                artist<<tag->artist().toCString();
+                title<<tag->title().toCString();
+                album<<tag->album().toCString();
+                genre<<tag->genre().toCString();
+            } else {
+                if(videoFileTypes.contains(fileInfo.suffix())){
+                    media_type = MediaDB::VIDEO;
+                    if(!hasAudio)
+                        hasVideo = true;
+                } else if(playlistFileTypes.contains(fileInfo.suffix())){
+                    media_type = MediaDB::PLAYLIST;
+                }
+                artist<<"";
+                title<<"";
+                album<<"";
+                genre<<"";
             }
-            artist<<"";
-            title<<"";
-            album<<"";
-            genre<<"";
+            filenames<<fileInfo.fileName();
+            media_types<<media_type;
+            folder_ids<<folder_id;
         }
-
-        filenames<<fileInfo.fileName();
-        media_types<<media_type;
-        folder_ids<<folder_id;
     }
     mediadb->addMediaFiles(filenames,folder_ids,media_types,artist,title,album,genre);
     mediadb->updateFolderInfo(folder_id,hasAudio,hasVideo,scanForThumbnail(path, true, ""));

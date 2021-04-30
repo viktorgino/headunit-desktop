@@ -1,5 +1,6 @@
 {
     "name":"MediaPlayerPlugin",
+    "imageProvider": "MediaPlayer",
     "menu":{
         "text":"Music",
         "source":"qrc:/MediaPlayer/qml/MediaPlayerLayout.qml",

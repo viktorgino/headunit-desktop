@@ -5,6 +5,8 @@
 #include <plugininterface.h>
 
 #include "medialibrary.h"
+#include "mediaplayercoverimageprovider.h"
+
 class MediaPlayerPlugin : public QObject, PluginInterface
 {
     Q_OBJECT
@@ -14,9 +16,12 @@ public:
     explicit MediaPlayerPlugin(QObject *parent = nullptr);
     ~MediaPlayerPlugin() override;
     QObject *getContextProperty() override;
+    QQuickImageProvider *getImageProvider() override;
+
     void init() override;
 private:
     MediaLibrary mediaLibrary;
+    MediaPlayerCoverImageProvider m_imageProvider;
 
 signals:
     void message(QString id, QVariant message);

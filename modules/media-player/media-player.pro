@@ -11,6 +11,7 @@ PKGCONFIG += libudev taglib
 SOURCES += \
     mediadb.cpp \
     medialibrary.cpp \
+    mediaplayercoverimageprovider.cpp \
     mediascanner.cpp \
     mediaplayer.cpp
 
@@ -25,6 +26,7 @@ INSTALLS += target
 HEADERS += \
     mediadb.h \
     medialibrary.h \
+    mediaplayercoverimageprovider.h \
     mediascanner.h \
     mediaplayer.h
 

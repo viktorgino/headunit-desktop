@@ -4,6 +4,7 @@ import QtQuick.Layouts 1.0
 import QtMultimedia 5.7
 import Qt.labs.settings 1.0
 import QtGraphicalEffects 1.0
+import QtQml 2.3
 
 Item {
     id: __media_player_layout
@@ -34,128 +35,123 @@ Item {
     }
 
     Item {
-        id:background
-        anchors.fill: parent
-        visible : false
-        property alias imageSrc: thumbnail_image.source
-
-        onImageSrcChanged: {
-            if(imageSrc.toString()){
-                background.visible = true;
-                bgCanvas.loadImage(imageSrc)
-            } else {
-                background.visible = false;
-            }
-        }
-
-        Rectangle {
-            id:bgRec
-            anchors.fill: parent
-            visible: false
-        }
-
-        Image {
-            id: image
-            anchors.fill: parent
-            horizontalAlignment: Image.AlignRight
-            source: thumbnail_image.source
-            mipmap: true
-            fillMode: Image.PreserveAspectFit
-            smooth: true
-            visible: false
-        }
-        FastBlur {
-            id: imageBlur
-            anchors.fill: image
-            source: image
-            radius: 32
-            smooth: true
-            visible: false
-        }
-
-        LinearGradient {
-            id: mask
-            anchors.fill: parent
-            gradient: Gradient {
-                GradientStop { position: 0.4; color: "#00ffffff" }
-                GradientStop { position: 0.7; color: "#ffffffff" }
-            }
-            start: Qt.point(0, 0)
-            end: Qt.point(image.width, 0)
-            visible: false
-        }
-
-
-        OpacityMask {
-            id:opacityMask
-            anchors.fill: imageBlur
-            source: imageBlur
-            maskSource:mask
-            visible: false
-        }
-        Blend {
-            anchors.fill: parent
-            source: bgRec
-            foregroundSource: opacityMask
-            mode: "lighten"
-        }
-
-
-        Canvas {
-            anchors.fill: parent
-            visible: false
-            contextType: qsTr("")
-            id: bgCanvas
-            onPaint: {
-                var ctx = bgCanvas.getContext('2d');
-                var arr = ctx.getImageData(0, 0, 255, 255).data;
-                var len = arr.length;
-
-                var red = 0;
-                var green = 0;
-                var blue = 0;
-                var i = 0;
-
-                for (; i < len; i += 4) {
-                    red += arr[i];
-                    green += arr[i + 1];
-                    blue += arr[i + 2];
-                }
-                var count = i/4;
-
-                var r = Math.round(red / count).toString(16);
-                var g = Math.round(green / count).toString(16);
-                var b = Math.round(blue / count).toString(16);
-
-                var color = "#"+r + g + b;
-                bgRec.color = color;
-                bgRec.visible = true;
-            }
-            onImageLoaded: {
-                var ctx = bgCanvas.getContext('2d');
-                context.clearRect(0, 0, 255, 255);
-                ctx.drawImage(background.imageSrc,0,0, 255, 255)
-                requestPaint()
-            }
-        }
-    }
-
-    Item {
         id: main
         anchors.top: top_menu.bottom
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.left: parent.left
-        anchors.topMargin: 0
 
+        Item {
+            id: background
+            anchors.fill: parent
+            anchors.leftMargin: parent.width * 0.05
+            anchors.rightMargin: parent.width * 0.05
+            anchors.bottomMargin: parent.height * 0.05
+            anchors.topMargin: parent.height * 0.05
+            visible: (thumbnail_image.status === Image.Ready)
+            Rectangle {
+                id:bgRec
+                anchors.fill: parent
+                visible: false
+            }
+
+            Image {
+                id: background_image
+                anchors.fill: parent
+                horizontalAlignment: Image.AlignRight
+                source: thumbnail_image.source
+                mipmap: true
+                fillMode: Image.PreserveAspectCrop
+                smooth: true
+                visible: false
+                cache : true
+                onSourceChanged: {
+                    bgCanvas.loadImage(source)
+                    bgCanvas.requestPaint()
+                }
+            }
+            FastBlur {
+                id: imageBlur
+                anchors.fill: background_image
+                source: background_image
+                radius: 32
+                smooth: true
+                visible: false
+            }
+
+            LinearGradient {
+                id: mask
+                anchors.fill: parent
+                gradient: Gradient {
+                    GradientStop { position: 0.4; color: "#00ffffff" }
+                    GradientStop { position: 0.7; color: "#ffffffff" }
+                }
+                start: Qt.point(0, 0)
+                end: Qt.point(background_image.width, 0)
+                visible: false
+            }
+
+
+            OpacityMask {
+                id:opacityMask
+                anchors.fill: imageBlur
+                source: imageBlur
+                maskSource:mask
+                visible: false
+            }
+            Blend {
+                anchors.fill: parent
+                source: bgRec
+                foregroundSource: opacityMask
+                mode: "lighten"
+            }
+
+            Canvas {
+                anchors.fill: parent
+                visible: false
+                id: bgCanvas
+                renderStrategy : Canvas.Threaded
+                onPaint: {
+                    var ctx = bgCanvas.getContext('2d');
+                    ctx.clearRect(0, 0, 255, 255);
+                    ctx.drawImage(background_image.source,0,0, 255, 255)
+
+                    var arr = ctx.getImageData(0, 0, 255, 255).data;
+                    var len = arr.length;
+
+                    var red = 0;
+                    var green = 0;
+                    var blue = 0;
+                    var i = 0;
+
+                    for (; i < len; i += 4) {
+                        red += arr[i];
+                        green += arr[i + 1];
+                        blue += arr[i + 2];
+                    }
+                    var count = i/4;
+
+                    var r = Math.round(red / count).toString(16);
+                    var g = Math.round(green / count).toString(16);
+                    var b = Math.round(blue / count).toString(16);
+
+                    var color = "#"+r + g + b;
+                    bgRec.color = color;
+                    bgRec.visible = true;
+                }
+                onImageLoaded: {
+                    requestPaint()
+                }
+            }
+        }
 
         Item {
             id: wrapper
-            anchors.rightMargin: 15
-            anchors.leftMargin: 15
-            anchors.bottomMargin: 15
-            anchors.topMargin: 15
-            anchors.fill: parent
+            anchors.fill: background
+            anchors.rightMargin: 16
+            anchors.leftMargin: 16
+            anchors.bottomMargin: 16
+            anchors.topMargin: 16
 
             Item {
                 id: item6
@@ -189,6 +185,8 @@ Item {
                 anchors.leftMargin: 0
                 anchors.top: item6.bottom
                 mipmap:true
+                cache : true
+                source: "image://MediaPlayer/"+nowPlaying.currentItemSource
             }
 
             Item {
@@ -205,7 +203,6 @@ Item {
                 Text {
                     id: media_title
                     color: "#ffffff"
-                    text: mediaplayer.metaData.title?mediaplayer.metaData.title:""
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
@@ -391,10 +388,6 @@ Item {
                     anchors.topMargin: 0
                 }
             }
-
-
-
-
         }
 
         Rectangle {
@@ -420,11 +413,15 @@ Item {
             }
 
         }
+
     }
 
     Playlist{
         id: nowPlaying
         playbackMode : Playlist.Sequential
+        onCurrentIndexChanged: {
+            mediaplayer_settings.nowPlayingCurrentIndex = currentIndex
+        }
     }
 
 
@@ -433,6 +430,22 @@ Item {
         playlist: nowPlaying
         autoLoad: true
         audioRole: MediaPlayer.MusicRole
+
+        onError: {
+            console.log("Media Player error : " , error, errorString)
+        }
+
+        onStatusChanged: {
+            if(status === 3 || status === 6){
+                if(mediaplayer.metaData.title && mediaplayer.metaData.title !== ""){
+                    media_title.text = mediaplayer.metaData.title
+                } else {
+                    var url = String(nowPlaying.currentItemSource);
+                    media_title.text = url.substring(url.lastIndexOf('/')+1);
+                }
+            }
+        }
+
         onPaused: {
             playButton.imageSource = "qrc:/qml/icons/play.png";
         }
@@ -478,7 +491,7 @@ Item {
         onItemClicked: {
             changeState("button");
             nowPlayingList.model = model;
-            thumbnail_image.source = thumbnail;
+            //            thumbnail_image.source = thumbnail;
         }
         onBack: changeState("toContainer")
     }
@@ -521,11 +534,11 @@ Item {
                 changeState("button");
                 nowPlayingList.model = itemData.data;
 
-                if(itemData.thumbnail){
-                    thumbnail_image.source = "file:/" + itemData.thumbnail;
-                } else {
-                    thumbnail_image.source = ""
-                }
+                //                if(itemData.thumbnail){
+                //                    thumbnail_image.source = "file:/" + itemData.thumbnail;
+                //                } else {
+                //                    thumbnail_image.source = ""
+                //                }
                 return;
             default:
                 break;
@@ -726,8 +739,11 @@ Item {
     Settings {
         id: mediaplayer_settings
         property alias nowPlaying: nowPlayingList.model
-        property alias nowPlayingCurrentIndex: nowPlaying.currentIndex
+        property int nowPlayingCurrentIndex
         property alias thumbnailImage: thumbnail_image.source
+    }
+    Component.onCompleted : {
+        nowPlaying.currentIndex = mediaplayer_settings.nowPlayingCurrentIndex
     }
 
 }

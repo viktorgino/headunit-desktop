@@ -1,7 +1,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.1
-
+import QtQml 2.11
 import HUDTheme 1.0
 Item {
     id: root
@@ -238,6 +238,9 @@ Item {
 
     Connections {
         target: MediaPlayerPlugin
-        onMediaScanningFinished:mediaLocations.model = MediaPlayerPlugin.getLocations()
+        onScanningFinished:{
+            console.log("Media scanning finished")
+            mediaLocations.model = MediaPlayerPlugin.getLocations()
+        }
     }
 }
