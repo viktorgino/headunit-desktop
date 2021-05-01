@@ -32,7 +32,6 @@ MediaDB::MediaDB(QObject *parent) : QObject(parent)
                                      "`relative_path` TEXT,"
                                      "`last_modified` INTEGER,"
                                      "`has_audio` INTEGER,"
-                                     "`has_video` INTEGER,"
                                      "`thumbnail` TEXT,"
                                      "PRIMARY KEY(id)"
                                      ")";
@@ -88,8 +87,8 @@ MediaDB::MediaDB(QObject *parent) : QObject(parent)
     db.close();
 }
 
-QVariantMap MediaDB::executeQuery(QString query, QVariantMap values){
-    QVariantMap ret;
+QList<QVariantMap> MediaDB::executeQuery(QString query, QVariantMap values){
+    QList<QVariantMap> ret;
 
     if (!db.open()){
         qCWarning(MEDIAPLAYER) << Q_FUNC_INFO << ": db open error : " <<  db.lastError().text();
@@ -99,22 +98,33 @@ QVariantMap MediaDB::executeQuery(QString query, QVariantMap values){
 
     if (q.prepare(query)){
         QStringList keys = values.keys();
-        foreach(QString key, keys){
+        for(QString key : keys){
             q.bindValue(key, values.value(key));
         }
 
         if(q.exec()){
-            ret = getListWithFirstLetterFromQuery(q);
+            QSqlRecord record = q.record();
+
+            while (q.next()){
+                QVariantMap row;
+                for(int i = 0; i<record.count(); i++){
+                    row.insert(record.fieldName(i), q.value(i).toString());
+                }
+                ret.append(row);
+            }
         } else {
             qCWarning(MEDIAPLAYER) << Q_FUNC_INFO << ":" <<  q.lastError().text();
+            qCWarning(MEDIAPLAYER) << query;
         }
     } else {
         qCWarning(MEDIAPLAYER) << Q_FUNC_INFO << ":" <<  q.lastError().text();
+        qCWarning(MEDIAPLAYER) << query;
     }
 
     db.close();
     return ret;
 }
+
 int MediaDB::addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path){
     int ret = 0;
 
@@ -214,7 +224,7 @@ ret:
     return ret;
 }
 
-int MediaDB::addMediaFiles(QVariantList filenames, QVariantList folder_id, QVariantList media_types, QVariantList artist, QVariantList title, QVariantList album, QVariantList genre){
+int MediaDB::addMediaFiles(QList<MediaFile> mediaFiles){
     int ret = 0;
 
     if (!db.open()){
@@ -223,30 +233,32 @@ int MediaDB::addMediaFiles(QVariantList filenames, QVariantList folder_id, QVari
     }
     QSqlQuery q(db);
 
-    if (!q.prepare(QLatin1String("INSERT INTO `media_files`(`filename`,`folder_id`,`media_type`,`artist`,`title`,`album`,`genre`) "
-                                 "VALUES (:filenames,:folder_id,:media_types,:artist,:title,:album,:genre);"))){
-        qCWarning(MEDIAPLAYER) << Q_FUNC_INFO << ":" <<  q.lastError().text();
-        ret = -1;
-        goto ret;
-    }
-    q.bindValue(":filenames",filenames);
-    q.bindValue(":folder_id",folder_id);
-    q.bindValue(":media_types",media_types);
-    q.bindValue(":artist",artist);
-    q.bindValue(":title",title);
-    q.bindValue(":album",album);
-    q.bindValue(":genre",genre);
-    if(!q.execBatch()){
-        qCWarning(MEDIAPLAYER) << Q_FUNC_INFO << ":" <<  q.lastError().text();
-        ret = -1;
-        goto ret;
+    for(MediaFile mediaFile : mediaFiles){
+        if (!q.prepare(QLatin1String("INSERT INTO `media_files`(`filename`,`folder_id`,`media_type`,`artist`,`title`,`album`,`genre`) "
+                                     "VALUES (:filenames,:folder_id,:media_types,:artist,:title,:album,:genre);"))){
+            qCWarning(MEDIAPLAYER) << Q_FUNC_INFO << ":" <<  q.lastError().text();
+            ret = -1;
+            goto ret;
+        }
+        q.bindValue(":filenames",mediaFile.filename);
+        q.bindValue(":folder_id",mediaFile.folder_id);
+        q.bindValue(":media_types",mediaFile.media_type);
+        q.bindValue(":artist",mediaFile.artist);
+        q.bindValue(":title",mediaFile.title);
+        q.bindValue(":album",mediaFile.album);
+        q.bindValue(":genre",mediaFile.genre);
+        if(!q.exec()){
+            qCWarning(MEDIAPLAYER) << Q_FUNC_INFO << ":" <<  q.lastError().text();
+            ret = -1;
+            goto ret;
+        }
     }
 
 ret:
     db.close();
     return ret;
 }
-int MediaDB::updateFolderInfo(int folder_id, bool hasAudio, bool hasVideo, QString thumbnail){
+int MediaDB::updateFolderInfo(int folder_id, bool hasAudio, QString thumbnail){
     int ret = 0;
 
     if (!db.open()){
@@ -255,13 +267,12 @@ int MediaDB::updateFolderInfo(int folder_id, bool hasAudio, bool hasVideo, QStri
     }
     QSqlQuery q(db);
 
-    if (!q.prepare(QLatin1String("UPDATE `scanned_folders` SET `has_audio`=:hasAudio,`has_video`=:hasVideo,`thumbnail`=:thumbnail WHERE `id`=:folder_id;"))){
+    if (!q.prepare(QLatin1String("UPDATE `scanned_folders` SET `has_audio`=:hasAudio,`thumbnail`=:thumbnail WHERE `id`=:folder_id;"))){
         qCWarning(MEDIAPLAYER) << Q_FUNC_INFO << ":" <<  q.lastError().text();
         ret =  -1;
         goto ret;
     }
     q.bindValue(":hasAudio",(int)hasAudio);
-    q.bindValue(":hasVideo",(int)hasVideo);
     q.bindValue(":thumbnail",thumbnail);
     q.bindValue(":folder_id",folder_id);
     if(!q.exec()){
@@ -354,10 +365,11 @@ QVariantList MediaDB::getLocations(bool onlyAvailable){
     db.close();
     return ret;
 }
+
 //TODO: Create DB view for getMediaFolders
-QVariantMap MediaDB::getMediaFolders(int mediaType){
+QList<QVariantMap> MediaDB::getFolders(){
     QString queryString("SELECT locations.relative_path || scanned_folders.relative_path AS 'path', "
-                        "   scanned_folders.id,"
+                        "   scanned_folders.id AS 'folder_id', "
                         "   scanned_folders.name AS 'title', "
                         " CASE"
                         "       WHEN scanned_folders.thumbnail != ''"
@@ -366,68 +378,22 @@ QVariantMap MediaDB::getMediaFolders(int mediaType){
                         "   END AS 'thumbnail' "
                         "FROM  scanned_folders "
                         "LEFT JOIN locations "
-                        "ON locations.id=scanned_folders.location_id ");
-    switch(mediaType){
-    case AUDIO:
-        queryString.append("WHERE scanned_folders.has_audio = 1 ");
-        break;
-    case VIDEO:
-        queryString.append("WHERE scanned_folders.has_video = 1 ");
-        break;
-    }
-    queryString.append("AND locations.is_present=1;");
+                        "ON locations.id=scanned_folders.location_id "
+                        "WHERE scanned_folders.has_audio = 1 "
+                        "AND locations.is_present=1;");
 
     QVariantMap values;
 
     return executeQuery(queryString, values);
 }
 //TODO: Create DB view for getFolderContent
-QVariantMap MediaDB::getFolderContent(int folder_id, int mediaType){
+QList<QVariantMap> MediaDB::getFolderContent(QString folder_id, int mediaType){
     QString queryString("SELECT * FROM media_files_view "
                         "WHERE folder_id = :folder_id AND media_type = :media_type "
                         "ORDER BY cast(path as int) COLLATE NOCASE ASC");
     QVariantMap values;
     values.insert(":folder_id", folder_id);
     values.insert(":media_type", mediaType);
-
-    return executeQuery(queryString, values);
-}
-
-QVariantMap MediaDB::getAlbumContent(QString album){
-    QString queryString("SELECT * FROM media_files_view"
-                        "WHERE album = :album"
-                        "ORDER BY cast(path as int) COLLATE NOCASE ASC");
-    QVariantMap values;
-    values.insert(":album", album);
-    return executeQuery(queryString, values);
-}
-
-QVariantMap MediaDB::getPlaylists(){
-    QString queryString("SELECT locations.volume_path || locations.relative_path || scanned_folders.relative_path AS 'path', "
-                        " media_files.filename AS 'title', "
-                        "CASE "
-                        "WHEN scanned_folders.thumbnail != '' "
-                        "THEN locations.volume_path || locations.relative_path || scanned_folders.relative_path || '/' || scanned_folders.thumbnail "
-                        "ELSE '' "
-                        "END AS 'thumbnail' "
-                        "FROM  media_files "
-                        "LEFT JOIN scanned_folders "
-                        "ON media_files.folder_id=scanned_folders.id "
-                        "LEFT JOIN locations "
-                        "ON scanned_folders.location_id = locations.id "
-                        "WHERE media_files.media_type = :media_type "
-                        "ORDER BY cast(media_files.filename as int) COLLATE NOCASE ASC");
-    QVariantMap values;
-    values.insert(":media_type", PLAYLIST);
-    return executeQuery(queryString, values);
-}
-
-QVariantMap MediaDB::getAudioFiles(){
-    QString queryString("SELECT * FROM media_files_view "
-                        "WHERE media_type = :media_type "
-                        "ORDER BY `title` COLLATE NOCASE ASC");
-    QVariantMap values;
-    values.insert(":media_type", AUDIO);
     return executeQuery(queryString, values);
 }
 
@@ -445,32 +411,7 @@ QVariantList MediaDB::getListFromQuery(QSqlQuery q){
     return rows;
 }
 
-QVariantMap MediaDB::getListWithFirstLetterFromQuery(QSqlQuery q){
-    QSqlRecord record = q.record();
-    QVariantMap ret;
-    QVariantList rows;
-    QVariantMap letters;
-    while (q.next()){
-        QVariantMap row;
-        for(int i = 0; i<record.count(); i++){
-            row.insert(record.fieldName(i), q.value(i).toString());
-        }
-        if(row["title"].toString().isEmpty()){
-            if(!letters.contains("..."))
-                letters.insert("...", q.at());
-        } else {
-            QChar letter = row["title"].toString().at(0).toUpper();
-            if(!letters.contains(letter))
-                letters.insert(letter,q.at());
-        }
-        rows.append(row);
-    }
-    ret.insert("data",rows);
-    ret.insert("firstLetters",letters);
-    return ret;
-}
-
-QVariantMap MediaDB::getList(ListType listType){
+QList<QVariantMap> MediaDB::getMediaContainers(ListType listType){
     QString typeString;
     switch (listType){
     case albums:typeString = "album"; break;
@@ -478,33 +419,81 @@ QVariantMap MediaDB::getList(ListType listType){
     case genres:typeString = "genre"; break;
     case playlists:typeString = "playlist"; break;
     case songs:typeString = "songs"; break;
-    default: return QVariantMap();
+    default: return QList<QVariantMap>();
     }
-    QString queryString("SELECT "+typeString+" as 'title', "
-                        "thumbnail, "
-                        "COUNT("+typeString+") as 'count' "
-                        "FROM media_files_view "
-                        "GROUP BY "+typeString+" "
-                        "ORDER BY "+typeString+" COLLATE NOCASE ASC");
+    QString queryString = QString ("SELECT %1 as 'title', "
+                                   "thumbnail, "
+                                   "COUNT(%1) as 'count' "
+                                   "FROM media_files_view "
+                                   "GROUP BY %1 "
+                                   "ORDER BY %1 COLLATE NOCASE ASC").arg(typeString);
     QVariantMap values;
     return executeQuery(queryString, values);
 }
 
-QVariantMap MediaDB::getListContent(ListType listType, QString key){
+QList<QVariantMap> MediaDB::getMediaFiles(MediaTypes mediaType, ListType listType, QString key){
     QString typeString;
-    switch (listType){
-    case albums:typeString = "album"; break;
-    case artists:typeString = "artist"; break;
-    case genres:typeString = "genre"; break;
-    case playlists:typeString = "playlist"; break;
-    case songs:typeString = "songs"; break;
-    default: return QVariantMap();
+    switch (listType) {
+    case albums: typeString = "album"; break;
+    case artists: typeString = "artist"; break;
+    case genres: typeString = "genre"; break;
+    case playlists: typeString = "playlist"; break;
+    case songs: typeString = "song"; break;
+    case folders: typeString = "folder"; break;
+    default: typeString = "none"; break;
     }
-    QString queryString = QString ("SELECT * FROM media_files_view "
-                                   "WHERE %1 = :key AND media_type = :media_type "
-                                   "ORDER BY cast(path as int) COLLATE NOCASE ASC").arg(typeString);
+
+    QString queryString = QString ("SELECT * FROM media_files_view ");
     QVariantMap values;
-    values.insert(":key",key);
-    values.insert(":media_type", AUDIO);
+    QString filters;
+
+    if(typeString != "none" && !key.isEmpty()){
+        filters = QString ("WHERE %1 = :key AND media_type = :media_type ").arg(typeString);
+        values.insert(":key",key);
+    } else {
+        filters = QString("WHERE media_type = :media_type ");
+    }
+
+    queryString.append(filters);
+    values.insert(":media_type", mediaType);
+
+    queryString.append("ORDER BY cast(path as int) COLLATE NOCASE ASC");
+
     return executeQuery(queryString, values);
+}
+
+MediaDB::ListType MediaDB::stringToListType(QString type){
+    if(type == "albums"){
+        return MediaDB::albums;
+    } else if(type == "artists"){
+        return MediaDB::artists;
+    } else if(type == "genres"){
+        return MediaDB::genres;
+    } else if(type == "playlists"){
+        return MediaDB::playlists;
+    } else if(type == "songs"){
+        return MediaDB::songs;
+    } else if(type == "folders"){
+        return MediaDB::folders;
+    } else {
+        return MediaDB::none;
+    }
+}
+QString MediaDB::listTypeToString(ListType type){
+    switch (type) {
+    case albums:
+        return "albums";
+    case artists:
+        return "artists";
+    case genres:
+        return "genres";
+    case playlists:
+        return "playlists";
+    case songs:
+        return "songs";
+    case folders:
+        return "folders";
+    default:
+        return "none";
+    }
 }

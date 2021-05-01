@@ -1,17 +1,17 @@
 import QtQuick 2.11
 
 Item {
-    id: __media_list_item
+    id: __root
     height: 50
     width: parent.width
 
-    signal itemClicked(string path, int index)
-//    property string name: modelData.name
+    signal itemClicked()
+
     Text {
         id: label1
         height: 20
         color: "#ffffff"
-        text: modelData.title
+        text: title
         fontSizeMode: Text.VerticalFit
         clip: true
         verticalAlignment: Text.AlignVCenter
@@ -29,7 +29,7 @@ Item {
     Text {
         id: label2
         color: "#ffffff"
-        text:modelData.artist
+        text:artist
         elide: Text.ElideLeft
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 5
@@ -53,7 +53,7 @@ Item {
         anchors.top: parent.top
         anchors.rightMargin: 0
         onClicked: {
-            __media_list_item.itemClicked(modelData.path, index);
+            __root.itemClicked();
         }
     }
 

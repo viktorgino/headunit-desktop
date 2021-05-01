@@ -5,7 +5,7 @@ Item {
     id: __root
     signal menuClicked();
     property double bg_opacity: 0.5
-    property bool menuButtonActive: false
+    property alias menuButtonActive: menuButton.isActive
 
     Rectangle {
         id: overlay1
@@ -33,7 +33,7 @@ Item {
         anchors.top: parent.top
         anchors.bottom: parent.bottom
         MenuButton {
-            id: menuButton1
+            id: menuButton
             anchors.rightMargin: parent.height*0.2
             anchors.right: parent.right
             anchors.left: parent.left
@@ -42,7 +42,6 @@ Item {
             anchors.topMargin: parent.height*0.2
             anchors.bottom: parent.bottom
             anchors.bottomMargin: parent.height*0.2
-            isActive: __root.menuButtonActive
         }
 
         MouseArea {

@@ -5,8 +5,6 @@
         <file>qml/MediaContainerListItem.qml</file>
         <file>qml/MediaDrawer.qml</file>
         <file>qml/MediaDrawerItem.qml</file>
-        <file>qml/MediaFolderList.qml</file>
-        <file>qml/MediaFolderListItem.qml</file>
         <file>qml/MediaList.qml</file>
         <file>qml/MediaListItem.qml</file>
         <file>qml/MediaPlayerLayout.qml</file>
@@ -15,7 +13,6 @@
         <file>images/music-note.svg</file>
         <file>images/android-folder.png</file>
         <file>qml/MediaPlayerSettings.qml</file>
-        <file>qml/ImageButton.qml</file>
         <file>qml/TopMenu.qml</file>
         <file>qml/AlphabetScrollBar.qml</file>
         <file>qml/MenuButton.qml</file>

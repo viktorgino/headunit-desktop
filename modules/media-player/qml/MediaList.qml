@@ -2,13 +2,15 @@ import QtQuick 2.11
 import QtQuick.Controls 2.4
 
 Item {
-    id:__media_list
+    id:__root
     signal back()
-    property var model;
-    property string thumbnail: ""
-    property string title: ""
-    property string sub_title:""
-    signal itemClicked(string path)
+    property alias model : listView.model;
+
+    property alias title: titleLabel.text
+    property alias subtitle: subtitleLabel.text
+    property alias thumbnail: thumbnailImage.source
+
+    signal itemClicked(int index)
     Item {
         id: container_info
         height: parent.height*0.4
@@ -29,10 +31,9 @@ Item {
             anchors.topMargin: 8
 
             Image {
-                id: thumbnail
+                id: thumbnailImage
                 anchors.fill: parent
                 fillMode: Image.PreserveAspectCrop
-                source: __media_list.thumbnail
                 mipmap:true
             }
         }
@@ -47,9 +48,8 @@ Item {
             anchors.topMargin: 0
             anchors.left: parent.left
             Text {
-                id: title
+                id: titleLabel
                 color: "#ffffff"
-                text: __media_list.title
                 anchors.topMargin: 0
                 font.pixelSize: 18
                 anchors.bottomMargin: 152
@@ -58,9 +58,8 @@ Item {
             }
 
             Text {
-                id: sub_title
+                id: subtitleLabel
                 color: "#ffffff"
-                text: __media_list.sub_title
                 anchors.topMargin: 30
                 font.pixelSize: 12
                 anchors.horizontalCenter: parent.horizontalCenter
@@ -96,11 +95,9 @@ Item {
         anchors.bottom: parent.bottom
         anchors.left: parent.left
         anchors.topMargin: 0
-        model: __media_list.model
         delegate: MediaListItem{
             onItemClicked: {
-                __media_list.model[index].playNow = true;
-                __media_list.itemClicked(path);
+                __root.itemClicked(index);
             }
         }
         ScrollBar.vertical: ScrollBar {

@@ -1,38 +1,21 @@
 import QtQuick 2.11
-import QtQuick.Controls 1.4
+import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.0
 import QtMultimedia 5.7
 import Qt.labs.settings 1.0
 import QtGraphicalEffects 1.0
 import QtQml 2.3
 
+import HUDTheme 1.0
+
 Item {
-    id: __media_player_layout
+    id: __root
     function getReadableTime(milliseconds){
         var minutes = Math.floor(milliseconds / 60000);
         var seconds = ((milliseconds % 60000) / 1000).toFixed(0);
         return (seconds == 60 ? (minutes+1) + ":00" : minutes + ":" + (seconds < 10 ? "0" : "") + seconds);
     }
-    property bool isBase: false
     clip: true
-    function changeState(caller){
-        if(__media_player_layout.state == "" && caller == "button"){
-            __media_player_layout.state="drawer";
-            top_menu.menuButtonActive = true;
-            isBase = false;
-        } else if(caller == "button"){
-            __media_player_layout.state="";
-            top_menu.menuButtonActive = false;
-            isBase = false;
-        } else if(caller == "toList"){
-            __media_player_layout.state="media list";
-        } else if(caller == "toContainer"){
-            __media_player_layout.state="container list";
-        } else if(caller == "toNowPlaying"){
-            top_menu.menuButtonActive = true;
-            __media_player_layout.state="now playing";
-        }
-    }
 
     Item {
         id: main
@@ -143,6 +126,10 @@ Item {
                     requestPaint()
                 }
             }
+            Rectangle {
+                anchors.fill: parent
+                color: "#80000000"
+            }
         }
 
         Item {
@@ -153,49 +140,25 @@ Item {
             anchors.bottomMargin: 16
             anchors.topMargin: 16
 
-            Item {
-                id: item6
-                height: parent.height * 0.2
-                anchors.top: parent.top
-                anchors.topMargin: 0
-                anchors.right: parent.right
-                anchors.rightMargin: 0
-                anchors.left: parent.left
-                anchors.leftMargin: 0
-                ImageButton{
-                    width: height
-                    anchors.topMargin: parent.height * 0.2
-                    anchors.bottomMargin: parent.height * 0.2
-                    anchors.leftMargin: parent.height * 0.2
-                    anchors.left: parent.left
-                    anchors.bottom: parent.bottom
-                    anchors.top: parent.top
-                    imageSource: "qrc:/qml/icons/radio-waves.png"
-                    onClicked: changeState("toNowPlaying")
-                }
-            }
-
             Image {
                 id: thumbnail_image
                 width: parent.width * 0.3
                 height: width
-                anchors.topMargin: 0
+                anchors.verticalCenter: parent.verticalCenter
                 fillMode: Image.PreserveAspectCrop
                 anchors.left: parent.left
                 anchors.leftMargin: 0
-                anchors.top: item6.bottom
                 mipmap:true
                 cache : true
-                source: "image://MediaPlayer/"+nowPlaying.currentItemSource
+                source: "image://MediaPlayer/"+playlist.currentItemSource
             }
 
             Item {
                 id: track_info
-                anchors.top: item6.bottom
-                anchors.topMargin: 0
-                anchors.bottom: buttons.top
-                anchors.bottomMargin: 0
                 anchors.right: parent.right
+                anchors.top: parent.top
+                anchors.bottom: buttons.top
+                anchors.topMargin: 0
                 anchors.rightMargin: 8
                 anchors.left: thumbnail_image.right
                 anchors.leftMargin: 0
@@ -207,27 +170,29 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     anchors.right: parent.right
+                    anchors.bottom: media_author.top
                     anchors.rightMargin: 0
                     anchors.left: parent.left
                     anchors.leftMargin: 0
-                    anchors.top: parent.top
-                    anchors.topMargin: 0
                     font.pixelSize: 24
+                    renderType: Text.NativeRendering;
+                    font.hintingPreference: Font.PreferVerticalHinting
                 }
 
                 Text {
                     id: media_author
                     color: "#ffffff"
-                    text:mediaplayer.getArtist(mediaplayer.metaData)
+                    text:mediaplayer.metaData.contributingArtist?mediaplayer.metaData.contributingArtist:""
+                    anchors.verticalCenter: parent.verticalCenter
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.right: parent.right
                     anchors.rightMargin: 0
                     anchors.left: parent.left
                     anchors.leftMargin: 0
-                    anchors.top: media_title.bottom
-                    anchors.topMargin: 0
                     font.pixelSize: 16
+                    renderType: Text.NativeRendering;
+                    font.hintingPreference: Font.PreferVerticalHinting
                 }
 
                 Text {
@@ -244,6 +209,8 @@ Item {
                     anchors.top: media_author.bottom
                     anchors.topMargin: 0
                     font.pixelSize: 16
+                    renderType: Text.NativeRendering;
+                    font.hintingPreference: Font.PreferVerticalHinting
                 }
 
 
@@ -266,9 +233,9 @@ Item {
                     changeColorOnPress:false
                     onClicked: {
                         if(checked){
-                            nowPlaying.playbackMode = Playlist.Random
+                            playlist.playbackMode = Playlist.Random
                         } else {
-                            nowPlaying.playbackMode = Playlist.Sequential
+                            playlist.playbackMode = Playlist.Sequential
                         }
                     }
                 }
@@ -312,11 +279,11 @@ Item {
                     id: loop_button
                     Layout.fillHeight: true
                     Layout.fillWidth: true
-                    checked: (nowPlaying.playbackMode == Playlist.CurrentItemInLoop || nowPlaying.playbackMode == Playlist.Loop)
+                    checked: (playlist.playbackMode == Playlist.CurrentItemInLoop || playlist.playbackMode == Playlist.Loop)
                     imageSource: "qrc:/qml/icons/refresh.png"
                     changeColorOnPress:false
                     text: {
-                        switch(nowPlaying.playbackMode){
+                        switch(playlist.playbackMode){
                         case Playlist.CurrentItemInLoop:
                             return "1";
                         case Playlist.Loop:
@@ -327,12 +294,12 @@ Item {
                     }
                     onClicked: {
                         shuffle_button.checked = false
-                        if(nowPlaying.playbackMode == Playlist.Sequential || nowPlaying.playbackMode == Playlist.Random){
-                            nowPlaying.playbackMode = Playlist.CurrentItemInLoop;
-                        } else if (nowPlaying.playbackMode == Playlist.CurrentItemInLoop){
-                            nowPlaying.playbackMode = Playlist.Loop;
+                        if(playlist.playbackMode == Playlist.Sequential || playlist.playbackMode == Playlist.Random){
+                            playlist.playbackMode = Playlist.CurrentItemInLoop;
+                        } else if (playlist.playbackMode == Playlist.CurrentItemInLoop){
+                            playlist.playbackMode = Playlist.Loop;
                         } else {
-                            nowPlaying.playbackMode = Playlist.Sequential;
+                            playlist.playbackMode = Playlist.Sequential;
                         }
                     }
                 }
@@ -353,7 +320,7 @@ Item {
                     anchors.top: parent.top
                     anchors.topMargin: 0
                     value: mediaplayer.position
-                    maximumValue: mediaplayer.duration
+                    to: mediaplayer.duration
                     stepSize: 1
                     anchors.right: parent.right
                     anchors.rightMargin: 0
@@ -390,34 +357,24 @@ Item {
             }
         }
 
-        Rectangle {
-            id: overlay
-            color: "#00000000"
-            z: 10
-            anchors.topMargin: 0
-            visible: false
-            anchors.top: parent.top
-            anchors.right: parent.right
-            anchors.rightMargin: 0
-            anchors.left: parent.left
-            anchors.leftMargin: 0
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 0
-            opacity: 0.5
+    }
 
-            MouseArea {
-                id: mouseArea5
-                enabled: false
-                anchors.fill: parent
-                onClicked: changeState("button")
-            }
+    Rectangle {
+        id: overlay
+        color: "#000000"
+        opacity: 0
+        anchors.fill : parent
 
+        MouseArea {
+            id: mouseArea5
+            enabled: false
+            anchors.fill: parent
+            onClicked: __root.state=""
         }
-
     }
 
     Playlist{
-        id: nowPlaying
+        id: playlist
         playbackMode : Playlist.Sequential
         onCurrentIndexChanged: {
             mediaplayer_settings.nowPlayingCurrentIndex = currentIndex
@@ -427,7 +384,7 @@ Item {
 
     MediaPlayer {
         id: mediaplayer
-        playlist: nowPlaying
+        playlist: playlist
         autoLoad: true
         audioRole: MediaPlayer.MusicRole
 
@@ -440,7 +397,7 @@ Item {
                 if(mediaplayer.metaData.title && mediaplayer.metaData.title !== ""){
                     media_title.text = mediaplayer.metaData.title
                 } else {
-                    var url = String(nowPlaying.currentItemSource);
+                    var url = String(playlist.currentItemSource);
                     media_title.text = url.substring(url.lastIndexOf('/')+1);
                 }
             }
@@ -455,170 +412,109 @@ Item {
         onPlaying: {
             playButton.imageSource = "qrc:/qml/icons/pause.png";
         }
-
-        function getArtist(){
-            var m = metaData;
-            return m.contributingArtist?m.contributingArtist:
-                                         m.contributingArtist?m.leadPerformer:
-                                                               m.contributingArtist?m.albumArtist:
-                                                                                     m.contributingArtist?m.metaData.author:
-                                                                                                           m.contributingArtist?m.writer:"";
-        }
-        function setPlaylist(model){
-            playlist.clear();
-            var itemToPlay = 0;
-            for(var i=0; i<model.length; i++){
-                if(model[i].playNow)
-                    itemToPlay = i;
-                playlist.addItem("file://"+model[i].path);
-            }
-            nowPlaying.currentIndex = itemToPlay;
-            play();
-        }
     }
 
 
-    MediaList {
+    Component {
         id: mediaList
-        width: parent.width * 0.7
-        anchors.leftMargin: -1 * width
-        opacity: 0
-        anchors.top: top_menu.bottom
-        anchors.topMargin: 0
-        anchors.left: main.left
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0
-        onItemClicked: {
-            changeState("button");
-            nowPlayingList.model = model;
-            //            thumbnail_image.source = thumbnail;
+
+        MediaList {
+            model: MediaPlayerPlugin.MediaListModel
+
+            onItemClicked: {
+                playlist.clear();
+
+                MediaPlayerPlugin.PlaylistModel.setItems(MediaPlayerPlugin.MediaListModel.getItems());
+                playlist.addItems(MediaPlayerPlugin.PlaylistModel.sources);
+
+                __root.state = "";
+                mediaDrawer.state = ""
+
+                playlist.currentIndex = index;
+                mediaplayer.play();
+                stackView.clear()
+            }
+            onBack: stackView.pop()
         }
-        onBack: changeState("toContainer")
+
     }
 
+    Component {
+        id: mediaContainerList
+        MediaContainerList {
+            model:MediaPlayerPlugin.ContainerModel
 
-    MediaContainerList {
-        id: media_container_list
+            onItemClicked: {
+                var item = MediaPlayerPlugin.ContainerModel.getItem(index)
+
+                var filter = item.title
+                if(item_type === "folders"){
+                    filter = item.folder_id
+                } else if(item_type === "playlists"){
+                    filter = item.path
+                }
+
+                MediaPlayerPlugin.MediaListModel.setFilter(item_type, filter)
+                stackView.push(mediaList,{
+                                   "thumbnail" : "file://" + item.thumbnail,
+                                   "title" : item.title,
+                                   "subtitle" : item.subtitle }
+                               )
+                __root.state = "libraryView"
+            }
+        }
+    }
+
+    StackView {
+        id: stackView
         width: parent.width * 0.7
         anchors.leftMargin: parent.width
-        opacity: 0
         anchors.top: top_menu.bottom
         anchors.topMargin: 0
         anchors.left: main.left
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 0
-        onItemClicked: {
-            switch(itemData.item_type){
-            case "folders":
-                changeState("toList");
-                mediaList.model = MediaPlayerPlugin.audioFolderContent(itemData.id).data;
-                mediaList.sub_title = itemData.path;
-                break;
-            case "playlists":
-                changeState("toList");
-                mediaList.model = MediaPlayerPlugin.getPlaylistContent(itemData.path, itemData.title);
-                break;
-            case "artists":
-                changeState("toList");
-                mediaList.model = MediaPlayerPlugin.getArtistContent(itemData.title).data;
-                break;
-            case "albums":
-                changeState("toList");
-                mediaList.model = MediaPlayerPlugin.getAlbumContent(itemData.title).data;
-                break;
-            case "genres":
-                changeState("toList");
-                mediaList.model = MediaPlayerPlugin.getGenreContent(itemData.title).data;
-                break;
-            case "songs":
-                changeState("button");
-                nowPlayingList.model = itemData.data;
-
-                //                if(itemData.thumbnail){
-                //                    thumbnail_image.source = "file:/" + itemData.thumbnail;
-                //                } else {
-                //                    thumbnail_image.source = ""
-                //                }
-                return;
-            default:
-                break;
-            }
-            if(itemData.thumbnail){
-                mediaList.thumbnail = "file:/" + itemData.thumbnail;
-            } else {
-                mediaList.thumbnail = ""
-            }
-
-            mediaList.title = itemData.title;
-        }
     }
-
-
 
     MediaDrawer {
         id: mediaDrawer
         width: parent.width * 0.3
-        top_margin: top_menu.height
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: 0
-        anchors.top: parent.top
-        anchors.topMargin: 0
-        anchors.right: main.left
-        anchors.rightMargin: 0
-        onItemClicked: {
-            media_container_list.icon = icon;
-            media_container_list.name = name;
-            media_container_list.model = 0;
-            media_container_list.item_type = item_type;
-            switch(item_type){
-            case "folders":
-                media_container_list.model = MediaPlayerPlugin.audioFolders;
-                break;
-            case "playlists":
-                media_container_list.model = MediaPlayerPlugin.playlists;
-                break;
-            case "artists":
-                media_container_list.model = MediaPlayerPlugin.getArtists();
-                break;
-            case "albums":
-                media_container_list.model = MediaPlayerPlugin.getAlbums();
-                break;
-            case "genres":
-                media_container_list.model = MediaPlayerPlugin.getGenres();
-                break;
-            case "songs":
-                media_container_list.model = MediaPlayerPlugin.getSongs();
-                break;
-            default:
-                media_container_list.model = 0;
-                break;
-            }
-            __media_player_layout.changeState("toContainer");
-        }
-    }
-
-
-    NowPlayingList {
-        id: nowPlayingList
-        x: -1* parent.width * 0.3
-        width: parent.width * 0.3
-        transformOrigin: Item.Center
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 0
         anchors.top: top_menu.bottom
-        anchors.topMargin: 0
-        currentPlaying: nowPlaying.currentIndex
-        onItemClicked: {
-            nowPlaying.currentIndex = index;
-            changeState("button");
+        anchors.right: main.left
+        anchors.rightMargin: 0
+        currentPlaying: playlist.currentIndex
+        onPlayListItemClicked: {
+            playlist.currentIndex = index;
+            __root.state="";
             mediaplayer.play();
         }
-        onModelChanged: {
-            mediaplayer.setPlaylist(model)
+
+        onMediaPlayeritemClicked: {
+
+            stackView.clear()
+            switch(item_type){
+            case "folders":
+            case "playlists":
+            case "artists":
+            case "albums":
+            case "genres":
+                MediaPlayerPlugin.ContainerModel.setFilter(item_type);
+                stackView.push(mediaContainerList,{"icon" : icon, "name" : name, "item_type" : item_type})
+                break;
+            case "songs":
+                MediaPlayerPlugin.MediaListModel.setFilter("", "")
+                stackView.push(mediaList,{"icon" : icon, "name" : name, "item_type" : item_type})
+                break;
+            default:
+                break;
+            }
+            __root.state = "libraryView"
         }
     }
 
-    TopMenu{
+    TopMenu {
         id: top_menu
         height: parent.height*0.10
         anchors.top: parent.top
@@ -627,8 +523,15 @@ Item {
         anchors.leftMargin: 0
         anchors.right: parent.right
         anchors.rightMargin: 0
-        onMenuClicked: changeState("button")
-        bg_opacity: overlay.opacity
+        onMenuClicked: {
+            if(!menuButtonActive){
+                __root.state="drawer";
+            } else {
+                __root.state="";
+                stackView.clear()
+            }
+        }
+        bg_opacity: 0
     }
 
 
@@ -644,48 +547,7 @@ Item {
 
             PropertyChanges {
                 target: overlay
-                visible: true
-            }
-
-            PropertyChanges {
-                target: mouseArea5
-                enabled: true
-            }
-        },
-        State {
-            name: "media list"
-            PropertyChanges {
-                target: main
-                anchors.leftMargin: parent.width * 0.3
-                anchors.rightMargin: -1* parent.width * 0.3
-                anchors.topMargin: 0
-            }
-
-            PropertyChanges {
-                target: overlay
-                color: "#000000"
-                opacity: 0.9
-                visible: true
-            }
-
-            PropertyChanges {
-                target: __media_player_layout
-                clip: true
-            }
-
-            PropertyChanges {
-                target: mediaList
-                anchors.leftMargin: 0
-                opacity: 1
-                visible: true
-            }
-        },
-        State {
-            name: "now playing"
-
-            PropertyChanges {
-                target: nowPlayingList
-                x: 0
+                opacity: 0.5
             }
 
             PropertyChanges {
@@ -694,56 +556,55 @@ Item {
             }
 
             PropertyChanges {
-                target: overlay
-                visible: true
+                target: top_menu
+                menuButtonActive: true
             }
         },
         State {
-            name: "container list"
+            name: "libraryView"
             PropertyChanges {
                 target: main
                 anchors.topMargin: 0
-                anchors.rightMargin: -1* parent.width * 0.3
                 anchors.leftMargin: parent.width * 0.3
+                anchors.rightMargin: -1* parent.width * 0.3
             }
 
             PropertyChanges {
                 target: overlay
-                color: "#000000"
                 opacity: 0.9
-                visible: true
             }
 
             PropertyChanges {
-                target: media_container_list
-                opacity: 1
-                anchors.leftMargin: 0
-                visible: true
-            }
-
-            PropertyChanges {
-                target: __media_player_layout
+                target: __root
                 clip: true
+            }
+
+            PropertyChanges {
+                target: stackView
+                anchors.leftMargin: 0
+            }
+
+            PropertyChanges {
+                target: top_menu
+                menuButtonActive: true
             }
         }
     ]
-    transitions:
+    transitions:[
         Transition {
-        SequentialAnimation {
             NumberAnimation { properties: "anchors.leftMargin,anchors.rightMargin,opacity,width,x"; duration: 250}
-            NumberAnimation { properties: "visible"; duration: 1}
         }
-    }
-
+    ]
 
     Settings {
         id: mediaplayer_settings
-        property alias nowPlaying: nowPlayingList.model
         property int nowPlayingCurrentIndex
         property alias thumbnailImage: thumbnail_image.source
     }
+
     Component.onCompleted : {
-        nowPlaying.currentIndex = mediaplayer_settings.nowPlayingCurrentIndex
+        playlist.addItems(MediaPlayerPlugin.PlaylistModel.sources);
+        playlist.currentIndex = mediaplayer_settings.nowPlayingCurrentIndex;
     }
 
 }

@@ -1,15 +1,14 @@
 import QtQuick 2.11
 
 Item {
-    id: __media_container_list_item
+    id: __root
     height: 50
-    property string name: modelData.title
-    signal itemClicked(var itemData)
+    signal itemClicked()
     Text {
         id: label1
         height: 20
         color: "#ffffff"
-        text: modelData.title
+        text: title
         elide: Text.ElideLeft
         clip: true
         verticalAlignment: Text.AlignTop
@@ -27,7 +26,7 @@ Item {
     Text {
         id: label2
         color: "#ffffff"
-        text: modelData.count + (modelData.count==1? " Item" : " Items")
+        text: subtitle
         elide: Text.ElideLeft
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 5
@@ -46,10 +45,8 @@ Item {
     MouseArea {
         id: mouseArea
         anchors.fill: parent
-        onClicked: __media_container_list_item.itemClicked(modelData)
+        onClicked: __root.itemClicked()
     }
-
-
 
     Rectangle {
         id: rectangle

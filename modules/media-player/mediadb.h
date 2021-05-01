@@ -36,7 +36,6 @@
  *   - relative_path  (text) - The path to the folder relative to the location path (this excludes the folder name)
  *   - last_modified (text) - The last modified stamp of the folder (currently not used)
  *   - has_audio (integer) - Indicates whether if there are any audio files directly in the folder. possible values : 1 (true) | 0 (false)
- *   - has_video (integer) - Indicates whether if there are any video files directly in the folder. possible values : 1 (true) | 0 (false)
  *   - thumbnail (text) - The name of the thumbnail image
  *
  * ###media_files###
@@ -59,6 +58,23 @@ class MediaDB : public QObject
 {
     Q_OBJECT
 public:
+
+    enum MediaTypes {
+        AUDIO = 1, /**< Media type id used for AUDIO files */
+        VIDEO, /**< Media type id used for VIDEO files */
+        PLAYLIST /**< Media type id used for PLAYLIST files */
+    };
+
+    typedef struct MediaFile {
+        QString filename;
+        int folder_id;
+        MediaTypes media_type;
+        QString artist;
+        QString title;
+        QString album;
+        QString genre;
+    } MediaFile;
+
     /**
      * @brief Open the SQLITE DB file and checks if all the tables are created, if not it creates them.
      *
@@ -104,7 +120,7 @@ public:
      * @return Returns -1 if there is some error with accessing the database or binding values to the prepared statement. If the
      * folder is added successfully it returns 0.
      */
-    int addMediaFiles(QVariantList filenames, QVariantList folder_id, QVariantList media_types, QVariantList artist, QVariantList title, QVariantList album, QVariantList genre);
+    int addMediaFiles(QList<MediaFile> mediaFiles);
     /**
      * @brief Fetch the info for the location that matches location_id
      *
@@ -122,14 +138,13 @@ public:
      */
     QVariantMap getLocationInfo(int location_id);
     /**
-     * @brief Update the has_audio, has_video and thumbnail fields for the folder matched by folder_id
+     * @brief Update the has_audio and thumbnail fields for the folder matched by folder_id
      * @param folder_id
      * @param hasAudio
-     * @param hasVideo
      * @param thumbnail
      * @return If the row with location_id is successfully updated it returns 0. If there is an SQL error it returns -1.
      */
-    int updateFolderInfo(int folder_id, bool hasAudio, bool hasVideo, QString thumbnail);
+    int updateFolderInfo(int folder_id, bool hasAudio, QString thumbnail);
     /**
      * @brief Set the availability of location_id to isAvailable
      *
@@ -155,53 +170,31 @@ public:
      * @return QVariantList
      */
     QVariantList getListFromQuery(QSqlQuery q);
-    /**
-     * @brief
-     *
-     * @param q
-     * @return QVariantMap
-     */
-    QVariantMap getListWithFirstLetterFromQuery(QSqlQuery q);
+
     /**
      * @brief
      *
      * @param mediaType
      * @return QVariantMap
      */
-    QVariantMap getMediaFolders(int mediaType);
+    QList<QVariantMap> getFolders();
     /**
      * @brief
      *
      * @param folder_id
      * @param mediaType
-     * @return QVariantMap
+     * @return QList<QVariantMap>
      */
-    QVariantMap getFolderContent(int folder_id, int mediaType);
+    QList<QVariantMap> getFolderContent(QString folder_id, int mediaType);
+
     /**
-     * @brief
-     *
-     * @param album
-     * @return QVariantMap
-     */
-    QVariantMap getAlbumContent(QString album);
-    /**
-     * @brief
-     *
-     * @return QVariantMap
-     */
-    QVariantMap getPlaylists();
-    /**
-     * @brief
-     *
-     * @return QVariantMap
-     */
-    QVariantMap getAudioFiles();
-    /**
-     * @brief Contains all the possible list types that we can fetch from the database (albums,artists,genres)
+     * @brief Contains all the possible list types that we can fetch from the database (albums,artists,genres,playlists,songs,folders)
      *
      * @todo Remove playlists and songs
      */
-    enum ListType {albums,artists,genres,playlists,songs};
+    enum ListType {none,albums,artists,genres,playlists,songs,folders};
+
+    Q_ENUM(ListType)
 
     /**
      * @brief
@@ -209,25 +202,22 @@ public:
      * @param listType
      * @return QVariantMap
      */
-    QVariantMap getList(ListType listType);
+    QList<QVariantMap> getMediaContainers(ListType listType);
     /**
      * @brief
      *
+     * @param mediaType
      * @param listType
      * @param key
      * @return QVariantMap
      */
-    QVariantMap getListContent(ListType listType, QString key);
+    QList<QVariantMap> getMediaFiles(MediaTypes mediaType = AUDIO, ListType listType = none, QString key = "");
 
-    enum MediaTypes {
-        AUDIO = 1, /**< Media type id used for AUDIO files */
-        VIDEO, /**< Media type id used for VIDEO files */
-        PLAYLIST /**< Media type id used for PLAYLIST files */
-    };
-
+    static ListType stringToListType(QString type);
+    static QString listTypeToString(ListType type);
 private:
     QSqlDatabase db; /**< TODO: describe */
-    QVariantMap executeQuery(QString query, QVariantMap values);
+    QList<QVariantMap> executeQuery(QString query, QVariantMap values);
 signals:
 
 public slots:

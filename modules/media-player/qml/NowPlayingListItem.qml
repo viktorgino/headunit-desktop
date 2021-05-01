@@ -12,7 +12,7 @@ Item {
         id: label1
         height: 20
         color: "#ffffff"
-        text: modelData.title
+        text: title
         fontSizeMode: Text.VerticalFit
         clip: true
         verticalAlignment: Text.AlignVCenter
@@ -30,7 +30,7 @@ Item {
     Text {
         id: label2
         color: "#ffffff"
-        text:modelData.artist
+        text:artist
         elide: Text.ElideLeft
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 5
