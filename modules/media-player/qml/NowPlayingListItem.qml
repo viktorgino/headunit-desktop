@@ -1,48 +1,47 @@
 import QtQuick 2.11
 import QtGraphicalEffects 1.0
+import HUDTheme 1.0
 Item {
     id: __now_playing_list_item
     height: 50
     width: parent.width
-    property string path: modelData.path + "/" + modelData.name
+
     property int currentPlaying : 0
 
     signal itemClicked(int index)
-    Text {
+    ThemeText {
         id: label1
         height: 20
-        color: "#ffffff"
         text: title
-        fontSizeMode: Text.VerticalFit
         clip: true
-        verticalAlignment: Text.AlignVCenter
+
         anchors.top: parent.top
         anchors.topMargin: 5
         anchors.right: play_button.left
         anchors.rightMargin: 10
-        font.pointSize: 11
         anchors.left: parent.left
         anchors.leftMargin: 10
-        font.bold: true
+        fontSizeMode: Text.VerticalFit
+        verticalAlignment: Text.AlignVCenter
     }
 
 
-    Text {
+    ThemeText {
         id: label2
-        color: "#ffffff"
         text:artist
-        elide: Text.ElideLeft
+        subtext:true
+
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 5
-        font.bold: true
         anchors.rightMargin: 10
         anchors.leftMargin: 10
         anchors.topMargin: 0
-        wrapMode: Text.NoWrap
         anchors.top: label1.bottom
         anchors.left: parent.left
-        font.pointSize: 9
         anchors.right: play_button.left
+
+        elide: Text.ElideLeft
+        wrapMode: Text.NoWrap
         verticalAlignment: Text.AlignVCenter
     }
 

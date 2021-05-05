@@ -78,9 +78,9 @@ Item {
                 anchors.left: thumbnail_image.right
                 anchors.leftMargin: 0
 
-                Text {
+                ThemeHeaderText {
                     id: media_title
-                    color: "#ffffff"
+                    level: 5
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
@@ -89,14 +89,13 @@ Item {
                     anchors.rightMargin: 0
                     anchors.left: parent.left
                     anchors.leftMargin: 0
-                    font.pixelSize: 24
                     renderType: Text.NativeRendering;
                     font.hintingPreference: Font.PreferVerticalHinting
                 }
 
-                Text {
+                ThemeHeaderText {
                     id: media_author
-                    color: "#ffffff"
+                    level: 3
                     text:mediaplayer.metaData.contributingArtist?mediaplayer.metaData.contributingArtist:""
                     anchors.verticalCenter: parent.verticalCenter
                     verticalAlignment: Text.AlignVCenter
@@ -105,14 +104,13 @@ Item {
                     anchors.rightMargin: 0
                     anchors.left: parent.left
                     anchors.leftMargin: 0
-                    font.pixelSize: 16
                     renderType: Text.NativeRendering;
                     font.hintingPreference: Font.PreferVerticalHinting
                 }
 
-                Text {
+                ThemeHeaderText {
                     id: media_album_title
-                    color: "#ffffff"
+                    level: 1
                     text: mediaplayer.metaData.albumTitle?mediaplayer.metaData.albumTitle:""
                     verticalAlignment: Text.AlignTop
                     horizontalAlignment: Text.AlignHCenter
@@ -123,7 +121,6 @@ Item {
                     anchors.leftMargin: 0
                     anchors.top: media_author.bottom
                     anchors.topMargin: 0
-                    font.pixelSize: 16
                     renderType: Text.NativeRendering;
                     font.hintingPreference: Font.PreferVerticalHinting
                 }
@@ -248,25 +245,21 @@ Item {
                     }
                 }
 
-                Text {
+                ThemeText {
                     id: text1
-                    color: "#ffffff"
                     text: getReadableTime(mediaplayer.position)
                     anchors.top: sliderHorizontal1.bottom
                     anchors.topMargin: 0
                     anchors.left: parent.left
                     anchors.leftMargin: 0
-                    font.pixelSize: 12
                 }
 
-                Text {
+                ThemeText {
                     id: text2
-                    color: "#ffffff"
                     text: getReadableTime(mediaplayer.duration)
                     anchors.right: parent.right
                     anchors.rightMargin: 0
                     anchors.top: sliderHorizontal1.bottom
-                    font.pixelSize: 12
                     anchors.topMargin: 0
                 }
             }

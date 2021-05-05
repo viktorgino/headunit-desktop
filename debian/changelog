@@ -1,3 +1,11 @@
+headunit-desktop (0.1-59) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (5f761c0814ac0e32dc0a0d5e70e6d4790d7c5277)
+  * [MediaPlayer] Replace Text ThemeText items & minor layout changes
+
+ -- Gino <gino@gino-ubuntu>  Wed, 05 May 2021 05:39:32 +0000
+
 headunit-desktop (0.1-58) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

@@ -2,13 +2,16 @@ import QtQuick 2.11
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.0
 
+import HUDTheme 1.0
+
 Item {
     id: __root
     clip: true
     property alias model : listView.model
-    property url icon
-    property string name
-    property string item_type
+    property alias icon : image.source
+    property alias name : headerText.text
+    property string item_type: ""
+
     signal itemClicked(var index)
 
     ListView {
@@ -44,7 +47,7 @@ Item {
             anchors.fill: parent
         }
 
-        Image {
+        ImageIcon {
             id: image
             width: height
             anchors.left: parent.left
@@ -53,20 +56,16 @@ Item {
             anchors.bottomMargin: 10
             anchors.top: parent.top
             anchors.topMargin: 10
-            source: __root.icon
-            mipmap:true
         }
 
-        Text {
-            id: text1
-            color: "#ffffff"
-            text: qsTr(__root.name)
+        ThemeHeaderText {
+            id: headerText
+            level : 5
             anchors.left: image.right
             anchors.leftMargin: 10
             anchors.right: parent.right
             anchors.rightMargin: 10
             anchors.verticalCenter: parent.verticalCenter
-            font.pixelSize: 16
         }
     }
     //    AlphabetScrollBar {
@@ -127,3 +126,9 @@ Item {
     //        onPositionViewAtIndex: listView.positionViewAtIndex(index,mode);
     //    }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;height:480;width:640}
+}
+##^##*/

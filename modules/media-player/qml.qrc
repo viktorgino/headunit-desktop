@@ -4,7 +4,6 @@
         <file>qml/MediaContainerList.qml</file>
         <file>qml/MediaContainerListItem.qml</file>
         <file>qml/MediaDrawer.qml</file>
-        <file>qml/MediaDrawerItem.qml</file>
         <file>qml/MediaList.qml</file>
         <file>qml/MediaListItem.qml</file>
         <file>qml/MediaPlayerLayout.qml</file>

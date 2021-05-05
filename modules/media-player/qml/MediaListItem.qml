@@ -1,5 +1,6 @@
 import QtQuick 2.11
 
+import HUDTheme 1.0
 Item {
     id: __root
     height: 50
@@ -7,10 +8,9 @@ Item {
 
     signal itemClicked()
 
-    Text {
+    ThemeText {
         id: label1
         height: 20
-        color: "#ffffff"
         text: title
         fontSizeMode: Text.VerticalFit
         clip: true
@@ -22,25 +22,22 @@ Item {
         font.pointSize: 11
         anchors.left: parent.left
         anchors.leftMargin: 10
-        font.bold: true
     }
 
 
-    Text {
+    ThemeText {
         id: label2
-        color: "#ffffff"
         text:artist
+        subtext:true
         elide: Text.ElideLeft
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 5
-        font.bold: true
         anchors.rightMargin: 10
         anchors.leftMargin: 10
         anchors.topMargin: 0
         wrapMode: Text.NoWrap
         anchors.top: label1.bottom
         anchors.left: parent.left
-        font.pointSize: 9
         anchors.right: parent.right
         verticalAlignment: Text.AlignVCenter
     }

@@ -18,19 +18,18 @@ Item {
     Rectangle {
         id: nowPlayingButton
         height: 40
-        color: "#ffffff"
+        color: "#424242"
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.top: parent.top
         anchors.topMargin: 0
         anchors.leftMargin: 0
 
-        Text {
+        ThemeText {
             id: text1
             text: qsTr("Now Playing")
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
-            font.pixelSize: 12
             anchors.leftMargin: 16
         }
 
@@ -46,15 +45,14 @@ Item {
         id: mediaLibraryButton
         y: parent.height - height
         height: 40
-        color: "#ffffff"
+        color: "#424242"
         anchors.left: parent.left
         anchors.right: parent.right
-        Text {
+        ThemeText {
             id: text2
             text: qsTr("Media Library")
             anchors.verticalCenter: parent.verticalCenter
             anchors.left: parent.left
-            font.pixelSize: 12
             anchors.leftMargin: 16
         }
 
@@ -140,7 +138,6 @@ Item {
             ImageIcon {
                 id: image1
                 width: height
-                color: "#ffffff"
                 source : icon
                 anchors.left: parent.left
                 anchors.bottom: parent.bottom
@@ -149,11 +146,9 @@ Item {
                 anchors.topMargin: 4
                 anchors.bottomMargin: 4
             }
-            ThemeHeaderText {
+            ThemeText {
                 id: label1
                 text: name
-                font.bold: true
-
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
                 anchors.right: parent.right
@@ -161,7 +156,6 @@ Item {
                 verticalAlignment: Text.AlignVCenter
                 anchors.left: image1.right
                 anchors.leftMargin: 10
-
             }
 
             MouseArea {

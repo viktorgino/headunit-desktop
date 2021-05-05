@@ -1,6 +1,7 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 
+import HUDTheme 1.0
 Item {
     id:__root
     property alias model : listView.model;
@@ -44,19 +45,16 @@ Item {
             anchors.top: item1.bottom
             anchors.topMargin: 0
 
-            Text {
+            ThemeHeaderText {
                 id: titleLabel
-                color: "#ffffff"
+                level: 5
                 anchors.verticalCenter: parent.verticalCenter
-                font.pixelSize: 18
-                anchors.bottomMargin: 152
                 anchors.horizontalCenter: parent.horizontalCenter
             }
 
-            Text {
+            ThemeHeaderText {
                 id: subtitleLabel
-                color: "#ffffff"
-                font.pixelSize: 12
+                level: 3
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: titleLabel.bottom
             }
