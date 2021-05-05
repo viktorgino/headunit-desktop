@@ -12,6 +12,7 @@
 #include <QSettings>
 #include <QtDebug>
 #include <QLoggingCategory>
+#include <QTime>
 #include <unistd.h>
 
 #include "pluginmanager.h"
@@ -21,6 +22,8 @@ Q_DECLARE_LOGGING_CATEGORY(HEADUNIT)
 
 int main(int argc, char *argv[])
 {
+    QTime time;
+    time.start();
     setbuf(stdout, nullptr);
 
     QCoreApplication::setOrganizationName("viktorgino");
@@ -61,10 +64,9 @@ int main(int argc, char *argv[])
 
     QObject::connect(&pluginManager, &PluginManager::themeEvent, &themeManager, &ThemeManager::onEvent);
 
+    qDebug("Loading took : %d ms", time.elapsed());
 
     int ret = app.exec();
 
-//    delete &pluginManager;
-//    delete &themeManager;
     return ret;
 }

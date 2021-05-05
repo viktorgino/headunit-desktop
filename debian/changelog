@@ -1,3 +1,11 @@
+headunit-desktop (0.1-63) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (95defd715b625ec9e81638b0b7173102aa0b9da3)
+  * [App] Add load time timer
+
+ -- Gino <gino@gino-ubuntu>  Wed, 05 May 2021 06:01:22 +0000
+
 headunit-desktop (0.1-62) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
