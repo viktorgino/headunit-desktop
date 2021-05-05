@@ -1,3 +1,11 @@
+headunit-desktop (0.1-61) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (7ac799906162192fd4d1744407150acef39dd977)
+  * [HVAC] Set Sample plugin as default
+
+ -- Gino <gino@gino-ubuntu>  Wed, 05 May 2021 05:56:11 +0000
+
 headunit-desktop (0.1-60) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

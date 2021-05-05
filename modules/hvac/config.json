@@ -20,7 +20,7 @@
             "provider" : "plugin",
             "providerName" : "HVACPlugin",
             "providerProperty" : "carManufacturers",
-            "defaultValue": 0,
+            "defaultValue": "Sample",
             "autosave": true
         },
 
@@ -31,7 +31,7 @@
             "provider" : "plugin",
             "providerName" : "HVACPlugin",
             "providerProperty" : "cars",
-            "defaultValue": 0,
+            "defaultValue": "modules/hvac/cars/Sample/sample_car.json",
             "autosave": true
         }
         ]
