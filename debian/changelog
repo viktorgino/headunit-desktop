@@ -1,3 +1,11 @@
+headunit-desktop (0.1-64) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (406418854fe241bd83e58a51039b1f39ecbd401f)
+  * [MediaPlayer] Fix loading playlist & settings page
+
+ -- Gino <gino@gino-ubuntu>  Wed, 05 May 2021 06:25:31 +0000
+
 headunit-desktop (0.1-63) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

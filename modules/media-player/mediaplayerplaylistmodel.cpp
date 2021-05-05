@@ -6,10 +6,11 @@ MediaPlayerPlaylistModel::MediaPlayerPlaylistModel( QObject *parent) : QAbstract
 
 void MediaPlayerPlaylistModel::init(){
     m_settings.beginGroup("MediaPlayer");
-    if(m_settings.contains("nowPlaying")){
+    bool hasNowPlaying = m_settings.contains("nowPlaying");
+    m_settings.endGroup();
+    if(hasNowPlaying){
         setItems(m_settings.value("nowPlaying").toList());
     }
-    m_settings.endGroup();
 }
 
 QHash<int, QByteArray> MediaPlayerPlaylistModel::roleNames() const {

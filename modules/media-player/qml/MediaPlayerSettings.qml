@@ -3,6 +3,7 @@ import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.1
 import QtQml 2.11
 import HUDTheme 1.0
+
 Item {
     id: root
 
@@ -160,78 +161,32 @@ Item {
     }
 
 
-    Rectangle {
+    Item {
         id: rectangle2
         height: parent.height -16
         anchors.left: parent.left
         anchors.leftMargin: 8
         anchors.right: parent.right
         anchors.rightMargin: 8
-        color: "#eceff1"
         anchors.topMargin: parent.height + 8
         anchors.top: parent.top
-        border.width: 1
-        border.color: "#000000"
         FileBrowser {
             id: fileBrowser
-            anchors.bottom: rectangle3.top
+            anchors.bottom: parent.bottom
             anchors.right: parent.right
             anchors.left: parent.left
             anchors.top: parent.top
-            anchors.bottomMargin: 0
             folderSelectable:true
             showFiles:false
-        }
-
-        Rectangle {
-            id: rectangle3
-            height: 1
-            color: "#000000"
-            anchors.bottom: buttons1.top
-            anchors.bottomMargin: 0
-            anchors.rightMargin: 0
-            anchors.right: parent.right
-            anchors.leftMargin: 0
-            anchors.left: parent.left
-        }
-
-        Item {
-            id: buttons1
-            height: 40
-            anchors.rightMargin: 0
-            anchors.right: parent.right
-            anchors.leftMargin: 0
-            anchors.bottom: parent.bottom
-            Button {
-                id: button3
-                width: 100
-                height: 24
-                text: qsTr("Add")
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.leftMargin: 8
-                anchors.left: parent.left
-                onClicked: {
-                    MediaPlayerPlugin.addLocation(fileBrowser.folder)
-                    root.state = "base state"
-                    fileBrowser.reset()
-                }
+            onAccepted: {
+                MediaPlayerPlugin.addLocation(fileBrowser.folder)
+                root.state = "base state"
+                fileBrowser.reset()
             }
-
-            Button {
-                id: button4
-                width: 100
-                height: 24
-                text: qsTr("Cancel")
-                anchors.right: parent.right
-                anchors.rightMargin: 8
-                anchors.verticalCenter: parent.verticalCenter
-                onClicked: {
-                    root.state = "base state"
-                    fileBrowser.reset()
-                }
+            onRejected: {
+                root.state = "base state"
+                fileBrowser.reset()
             }
-            anchors.bottomMargin: 0
-            anchors.left: parent.left
         }
     }
 
@@ -244,3 +199,9 @@ Item {
         }
     }
 }
+
+/*##^##
+Designer {
+    D{i:0;autoSize:true;formeditorColor:"#4c4e50";height:480;width:640}
+}
+##^##*/
