@@ -1,3 +1,11 @@
+headunit-desktop (0.1-56) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (65a4826dae38c4b95ccac67c60eaf501b90b01a4)
+  * [MediaPlayer] Modify libary view layout & menu button behaviour
+
+ -- Gino <gino@gino-ubuntu>  Wed, 05 May 2021 04:20:59 +0000
+
 headunit-desktop (0.1-55) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

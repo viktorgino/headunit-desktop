@@ -10,6 +10,7 @@ import HUDTheme 1.0
 
 Item {
     id: __root
+    property alias menuButtonRectX: menuButtonRect.x
     function getReadableTime(milliseconds){
         var minutes = Math.floor(milliseconds / 60000);
         var seconds = ((milliseconds % 60000) / 1000).toFixed(0);
@@ -17,39 +18,38 @@ Item {
     }
     clip: true
 
+
+    Item {
+        id:backgroundImageWrapper
+        x: 0
+        y: 48
+        anchors.fill: parent
+        Image {
+            id:backgroundImage
+            anchors.fill: parent
+            source: "image://MediaPlayer/background/"+playlist.currentItemSource
+            fillMode: Image.PreserveAspectCrop
+            visible: false
+        }
+        FastBlur {
+            anchors.fill: parent
+            source: backgroundImage
+            radius: 32
+            smooth: true
+            visible: true
+        }
+    }
+
     Item {
         id: main
-        anchors.top: top_menu.bottom
+        anchors.top: menuButtonWrapper.bottom
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.left: parent.left
 
         Item {
-            id:backgroundImageWrapper
-            anchors.fill: parent
-            anchors.leftMargin: parent.width * 0.05
-            anchors.rightMargin: parent.width * 0.05
-            anchors.bottomMargin: parent.height * 0.05
-            anchors.topMargin: parent.height * 0.05
-            Image {
-                id:backgroundImage
-                anchors.fill: parent
-                source: "image://MediaPlayer/background/"+playlist.currentItemSource
-                fillMode: Image.PreserveAspectCrop
-                visible: false
-            }
-            FastBlur {
-                anchors.fill: parent
-                source: backgroundImage
-                radius: 32
-                smooth: true
-                visible: true
-            }
-        }
-
-        Item {
             id: wrapper
-            anchors.fill: backgroundImageWrapper
+            anchors.fill: parent
             anchors.leftMargin: parent.width * 0.05
             anchors.rightMargin: parent.width * 0.05
             anchors.bottomMargin: parent.height * 0.05
@@ -342,17 +342,18 @@ Item {
                 MediaPlayerPlugin.PlaylistModel.setItems(MediaPlayerPlugin.MediaListModel.getItems());
                 playlist.addItems(MediaPlayerPlugin.PlaylistModel.sources);
 
-                __root.state = "";
-                mediaDrawer.state = ""
 
                 playlist.currentIndex = index;
                 mediaplayer.play();
+
+                __root.state = "";
+                mediaDrawer.state = ""
                 stackView.clear()
             }
-            onBack: stackView.pop()
         }
 
     }
+
 
     Component {
         id: mediaContainerList
@@ -382,23 +383,21 @@ Item {
 
     StackView {
         id: stackView
-        width: parent.width * 0.7
-        anchors.leftMargin: parent.width
-        anchors.top: top_menu.bottom
-        anchors.topMargin: 0
-        anchors.left: main.left
+        x: parent.width
+        width: parent.width
+        visible: false
+        anchors.top: menuButtonWrapper.bottom
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 0
     }
 
     MediaDrawer {
         id: mediaDrawer
+        x: -width
         width: parent.width * 0.3
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 0
-        anchors.top: top_menu.bottom
-        anchors.right: main.left
-        anchors.rightMargin: 0
+        anchors.top: menuButtonWrapper.bottom
         currentPlaying: playlist.currentIndex
         onPlayListItemClicked: {
             playlist.currentIndex = index;
@@ -429,26 +428,102 @@ Item {
         }
     }
 
-    TopMenu {
-        id: top_menu
+
+    Rectangle {
+        id: menuButtonRect
+        x: - width
+        width: parent.width * 0.3
+        color: "#212121"
+        anchors.top: parent.top
+        anchors.bottom: menuButtonWrapper.bottom
+    }
+
+
+    Item {
+        id: menuButtonWrapper
+        width: height
         height: parent.height*0.10
         anchors.top: parent.top
         anchors.topMargin: 0
-        anchors.left: parent.left
-        anchors.leftMargin: 0
-        anchors.right: parent.right
-        anchors.rightMargin: 0
-        onMenuClicked: {
-            if(!menuButtonActive){
-                __root.state="drawer";
-            } else {
-                __root.state="";
-                stackView.clear()
+
+        Rectangle {
+            id: rectangle1
+            width:parent.width * 0.8
+            height: parent.height * 0.8
+            color: "#263238"
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            MenuButton {
+                id: menuButton
+                anchors.rightMargin: parent.height*0.2
+                anchors.right: parent.right
+                anchors.left: parent.left
+                anchors.leftMargin: parent.height*0.2
+                anchors.top: parent.top
+                anchors.topMargin: parent.height*0.2
+                anchors.bottom: parent.bottom
+                anchors.bottomMargin: parent.height*0.2
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked:{
+                    if(__root.state == ""){
+                        __root.state = "drawer";
+                    } else if(__root.state == "libraryView") {
+                        if(stackView.depth < 2){
+                            stackView.clear()
+                            __root.state = "drawer";
+                        }
+                        stackView.pop()
+                    }  else if(__root.state == "drawer") {
+                        stackView.clear()
+                        __root.state = "";
+                        mediaDrawer.state = "";
+                    }
+                }
             }
         }
-        bg_opacity: 0
     }
 
+    Item {
+        id: closeButtonWrapper
+        width: height
+        height: parent.height*0.1
+        visible: false
+        anchors.right: parent.right
+
+        Rectangle {
+            id: rectangle2
+            width: parent.width * 0.8
+            height: parent.height * 0.8
+            color: "#263238"
+            anchors.verticalCenter: parent.verticalCenter
+
+            Text {
+                id: text3
+                color: "#ffffff"
+                text: qsTr("X")
+                anchors.fill: parent
+                font.pixelSize: 100
+                horizontalAlignment: Text.AlignHCenter
+                verticalAlignment: Text.AlignVCenter
+                fontSizeMode: Text.Fit
+                font.bold: true
+            }
+
+            MouseArea {
+                anchors.fill: parent
+                onClicked: {
+                    stackView.clear()
+                    __root.state = "";
+                    mediaDrawer.state = "";
+                }
+            }
+
+            anchors.horizontalCenter: parent.horizontalCenter
+        }
+    }
 
     states: [
         State {
@@ -456,8 +531,6 @@ Item {
             PropertyChanges {
                 target: main
                 anchors.topMargin: 0
-                anchors.rightMargin: -1* parent.width * 0.3
-                anchors.leftMargin: parent.width * 0.3
             }
 
             PropertyChanges {
@@ -471,8 +544,24 @@ Item {
             }
 
             PropertyChanges {
-                target: top_menu
-                menuButtonActive: true
+                target: menuButton
+                isActive: true
+            }
+
+            PropertyChanges {
+                target: mediaDrawer
+                x: 0
+                anchors.rightMargin: 640
+            }
+
+            PropertyChanges {
+                target: closeButtonWrapper
+                visible: false
+            }
+
+            PropertyChanges {
+                target: menuButtonRect
+                x: 0
             }
         },
         State {
@@ -480,8 +569,6 @@ Item {
             PropertyChanges {
                 target: main
                 anchors.topMargin: 0
-                anchors.leftMargin: parent.width * 0.3
-                anchors.rightMargin: -1* parent.width * 0.3
             }
 
             PropertyChanges {
@@ -496,12 +583,25 @@ Item {
 
             PropertyChanges {
                 target: stackView
+                x: 0
+                visible: true
                 anchors.leftMargin: 0
             }
 
             PropertyChanges {
-                target: top_menu
-                menuButtonActive: true
+                target: menuButton
+                isActive : true
+            }
+
+            PropertyChanges {
+                target: closeButtonWrapper
+                visible: true
+            }
+
+            PropertyChanges {
+                target: menuButtonRect
+                x: 0
+                width: parent.width
             }
         }
     ]
@@ -511,11 +611,15 @@ Item {
         }
     ]
 
+
     Settings {
         id: mediaplayer_settings
         property int nowPlayingCurrentIndex
         property alias thumbnailImage: thumbnail_image.source
     }
+
+
+
 
     Component.onCompleted : {
         playlist.addItems(MediaPlayerPlugin.PlaylistModel.sources);
@@ -526,6 +630,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorColor:"#808080";height:480;width:640}
+    D{i:0;autoSize:true;formeditorColor:"#808080";height:480;width:640}D{i:29}D{i:31}
 }
 ##^##*/
