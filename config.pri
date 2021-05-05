@@ -1,7 +1,9 @@
+CONFIG += qtquickcompiler
+
 isEmpty(PREFIX) {
     PREFIX = /opt/headunit-desktop
 }
 
-defined(RPI){
-    DEFINES += RPI
+rpi{
+DEFINES += RPI
 }
