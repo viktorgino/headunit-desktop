@@ -1,3 +1,11 @@
+headunit-desktop (0.1-60) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (8ece4599436a057cf0ed3d1e7d109fe7211b94e2)
+  * [App] update PluginManager::loadConfigItems
+
+ -- Gino <gino@gino-ubuntu>  Wed, 05 May 2021 05:52:25 +0000
+
 headunit-desktop (0.1-59) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

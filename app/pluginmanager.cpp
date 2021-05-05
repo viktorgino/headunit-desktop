@@ -51,6 +51,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
         }
 
         QObject *plugin = pluginLoader.instance();
+//        plugin->setParent(this);
         if (!plugin) {
             qCDebug(PLUGINMANAGER) << "Error loading plugin : " << fileName << pluginLoader.errorString();
             continue;
@@ -213,18 +214,20 @@ void PluginManager::loadConfigItems(QQmlApplicationEngine *engine){
 QVariant PluginManager::getPluginProperty(QString plugin, QString property){
     if(plugins.keys().contains(plugin)){
         QObject *pluginObj = plugins[plugin].value<QObject *>();
+
+        QObject * pluginContext = qobject_cast<PluginInterface *>(pluginObj)->getContextProperty();
         QVariant ret;
 
-        ret = pluginObj->property(property.toLocal8Bit());
+        ret = pluginContext->property(property.toLocal8Bit());
         if(!ret.isValid()){
-            qDebug() << "Invalid property name when getting property : " << plugin << " : " << property;
+            qCWarning(PLUGINMANAGER) << "Invalid property name when getting property : " << plugin << " : " << property;
         }
 
         return ret;
 
 
     } else {
-        qDebug() << "Invalid plugin name when getting property : " << plugin;
+        qCWarning(PLUGINMANAGER) << "Invalid plugin name when getting property : " << plugin;
     }
     return QVariant();
 }
