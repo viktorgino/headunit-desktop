@@ -25,120 +25,35 @@ Item {
         anchors.left: parent.left
 
         Item {
-            id: background
+            id:backgroundImageWrapper
             anchors.fill: parent
             anchors.leftMargin: parent.width * 0.05
             anchors.rightMargin: parent.width * 0.05
             anchors.bottomMargin: parent.height * 0.05
             anchors.topMargin: parent.height * 0.05
-            visible: (thumbnail_image.status === Image.Ready)
-            Rectangle {
-                id:bgRec
-                anchors.fill: parent
-                visible: false
-            }
-
             Image {
-                id: background_image
+                id:backgroundImage
                 anchors.fill: parent
-                horizontalAlignment: Image.AlignRight
-                source: thumbnail_image.source
-                mipmap: true
+                source: "image://MediaPlayer/background/"+playlist.currentItemSource
                 fillMode: Image.PreserveAspectCrop
-                smooth: true
                 visible: false
-                cache : true
-                onSourceChanged: {
-                    bgCanvas.loadImage(source)
-                    bgCanvas.requestPaint()
-                }
             }
             FastBlur {
-                id: imageBlur
-                anchors.fill: background_image
-                source: background_image
+                anchors.fill: parent
+                source: backgroundImage
                 radius: 32
                 smooth: true
-                visible: false
-            }
-
-            LinearGradient {
-                id: mask
-                anchors.fill: parent
-                gradient: Gradient {
-                    GradientStop { position: 0.4; color: "#00ffffff" }
-                    GradientStop { position: 0.7; color: "#ffffffff" }
-                }
-                start: Qt.point(0, 0)
-                end: Qt.point(background_image.width, 0)
-                visible: false
-            }
-
-
-            OpacityMask {
-                id:opacityMask
-                anchors.fill: imageBlur
-                source: imageBlur
-                maskSource:mask
-                visible: false
-            }
-            Blend {
-                anchors.fill: parent
-                source: bgRec
-                foregroundSource: opacityMask
-                mode: "lighten"
-            }
-
-            Canvas {
-                anchors.fill: parent
-                visible: false
-                id: bgCanvas
-                renderStrategy : Canvas.Threaded
-                onPaint: {
-                    var ctx = bgCanvas.getContext('2d');
-                    ctx.clearRect(0, 0, 255, 255);
-                    ctx.drawImage(background_image.source,0,0, 255, 255)
-
-                    var arr = ctx.getImageData(0, 0, 255, 255).data;
-                    var len = arr.length;
-
-                    var red = 0;
-                    var green = 0;
-                    var blue = 0;
-                    var i = 0;
-
-                    for (; i < len; i += 4) {
-                        red += arr[i];
-                        green += arr[i + 1];
-                        blue += arr[i + 2];
-                    }
-                    var count = i/4;
-
-                    var r = Math.round(red / count).toString(16);
-                    var g = Math.round(green / count).toString(16);
-                    var b = Math.round(blue / count).toString(16);
-
-                    var color = "#"+r + g + b;
-                    bgRec.color = color;
-                    bgRec.visible = true;
-                }
-                onImageLoaded: {
-                    requestPaint()
-                }
-            }
-            Rectangle {
-                anchors.fill: parent
-                color: "#80000000"
+                visible: true
             }
         }
 
         Item {
             id: wrapper
-            anchors.fill: background
-            anchors.rightMargin: 16
-            anchors.leftMargin: 16
-            anchors.bottomMargin: 16
-            anchors.topMargin: 16
+            anchors.fill: backgroundImageWrapper
+            anchors.leftMargin: parent.width * 0.05
+            anchors.rightMargin: parent.width * 0.05
+            anchors.bottomMargin: parent.height * 0.05
+            anchors.topMargin: parent.height * 0.05
 
             Image {
                 id: thumbnail_image

@@ -6,6 +6,9 @@
 #include <QFileInfo>
 #include <QDirIterator>
 #include <QRandomGenerator>
+#include <QPainter>
+#include <QRectF>
+
 #include <taglib/taglib.h>
 #include <taglib/tag.h>
 #include <taglib/fileref.h>
@@ -26,6 +29,9 @@ public:
     MediaPlayerCoverImageProvider();
 
     QImage requestImage(const QString &id, QSize *size, const QSize &requestedSize) override;
+private :
+    QImage getImage(QString url);
+    QImage getRandomImage();
 };
 
 #endif // MEDIAPLAYERCOVERIMAGEPROVIDER_H

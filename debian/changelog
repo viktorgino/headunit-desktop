@@ -1,3 +1,11 @@
+headunit-desktop (0.1-55) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (a428b71b98861a8065f40cdc9033bacf6ab50669)
+  * [MediaPlayer] Change MediaPlayerCoverImageProvider behaviour
+
+ -- Gino <gino@gino-ubuntu>  Wed, 05 May 2021 02:51:39 +0000
+
 headunit-desktop (0.1-54) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
