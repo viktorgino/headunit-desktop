@@ -7,9 +7,12 @@ MediaPlayerPlaylistModel::MediaPlayerPlaylistModel( QObject *parent) : QAbstract
 void MediaPlayerPlaylistModel::init(){
     m_settings.beginGroup("MediaPlayer");
     bool hasNowPlaying = m_settings.contains("nowPlaying");
+    QVariantList items = m_settings.value("nowPlaying").toList();
     m_settings.endGroup();
     if(hasNowPlaying){
-        setItems(m_settings.value("nowPlaying").toList());
+        if(items.count() > 0){
+            setItems(items);
+        }
     }
 }
 
@@ -55,7 +58,7 @@ void MediaPlayerPlaylistModel::setItems(QVariantList items){
     endResetModel();
 
     m_settings.beginGroup("MediaPlayer");
-    m_settings.setValue("nowPlaying",QVariant::fromValue(m_playlistContent));
+    m_settings.setValue("nowPlaying",m_playlistContent);
     m_settings.endGroup();
     emit sourcesChanged();
 }

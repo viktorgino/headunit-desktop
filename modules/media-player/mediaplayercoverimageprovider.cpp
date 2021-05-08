@@ -85,7 +85,7 @@ QImage MediaPlayerCoverImageProvider::getRandomImage() {
 QImage MediaPlayerCoverImageProvider::getImage(QString url) {
     url.replace("file://","");
     QFileInfo file(url);
-    if (file.exists() && file.completeSuffix() == ".mp3") {
+    if (file.exists() && file.completeSuffix() == "mp3") {
         QString path = file.absoluteFilePath();
 
         TagLib::MPEG::File f(path.toUtf8().data());

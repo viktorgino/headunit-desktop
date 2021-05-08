@@ -1,3 +1,11 @@
+headunit-desktop (0.1-66) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (ebb73128f8154f734384bf09c147b2230cddf281)
+  * [MediaPlayer] Fix now playing playlist not loading on startup
+
+ -- Gino <gino@gino-ubuntu>  Sat, 08 May 2021 02:33:14 +0000
+
 headunit-desktop (0.1-65) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
