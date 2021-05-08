@@ -30,7 +30,9 @@ Item {
             }
             width: listView.width
         }
-
+        ScrollBar.vertical: ScrollBar {
+            active: true
+        }
     }
 
     Item {

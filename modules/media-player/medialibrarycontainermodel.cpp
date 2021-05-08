@@ -1,6 +1,6 @@
 #include "medialibrarycontainermodel.h"
 
-MediaLibraryContainerModel::MediaLibraryContainerModel(MediaDB *mediaDb, QObject *parent) : QAbstractListModel(parent), m_mediaDb(mediaDb)
+MediaLibraryContainerModel::MediaLibraryContainerModel(MediaDBManager *mediaDBManager, QObject *parent) : QAbstractListModel(parent), m_mediaDBManager(mediaDBManager)
 {
 
 }
@@ -72,13 +72,13 @@ void MediaLibraryContainerModel::setFilter(QString type){
     case MediaDB::albums:
     case MediaDB::artists:
     case MediaDB::genres:
-        m_containerContent = m_mediaDb->getMediaContainers(m_type);
+        m_containerContent = m_mediaDBManager->getMediaContainers(m_type);
         break;
     case MediaDB::folders:
-        m_containerContent = m_mediaDb->getFolders();
+        m_containerContent = m_mediaDBManager->getFolders();
         break;
     case MediaDB::playlists:
-        m_containerContent = m_mediaDb->getMediaFiles(MediaDB::PLAYLIST);
+        m_containerContent = m_mediaDBManager->getMediaFiles(MediaDB::PLAYLIST);
         break;
     default:
         m_containerContent.clear();

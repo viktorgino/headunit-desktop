@@ -24,12 +24,10 @@ class MediaScanner: public QThread
 Q_OBJECT
 public:
     explicit MediaScanner(MediaDB *mediadb, QObject *parent = nullptr);
-    void init();
+
     virtual void run() override;
-    QVariantList getVolumes();
-    int addLocation(QString path);
-    void scanLocation(int location_id);
-    void updateLocationsAvailability();
+
+    int scanLocation(QString path);
 signals:
     void scanningStarted();
     void scanningFinished();
@@ -40,7 +38,7 @@ private:
     QStringList mediaFileTypes;
     QQueue<QMap<QString, QVariant>> pathsToScan;
     MediaDB *m_mediadb;
-    QString getStorageUUID(QString device);
+
     bool isRunning;
 
     void scanForMediaFiles(QString path, int folder_id);

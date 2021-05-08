@@ -10,13 +10,13 @@
 #include <taglib/taglib_config.h>
 #include <taglib/tpropertymap.h>
 
-#include "mediadb.h"
+#include "mediadbmanager.h"
 
 class MediaLibraryMediaListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    explicit MediaLibraryMediaListModel(MediaDB *mediaDb, QObject *parent = 0);
+    explicit MediaLibraryMediaListModel(MediaDBManager *mediaDBManager, QObject *parent = 0);
 
     enum MediaLibraryMediaListModelRoles {
         TitleRole = Qt::UserRole + 1,
@@ -37,7 +37,7 @@ public slots:
     QVariant getItem(int index);
     QVariantList getItems();
 protected:
-    MediaDB *m_mediaDb;
+    MediaDBManager *m_mediaDBManager;
     QList<QVariantMap> m_containerContent;
     MediaDB::ListType m_type;
 

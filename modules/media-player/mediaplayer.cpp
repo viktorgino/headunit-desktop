@@ -2,11 +2,14 @@
 
 MediaPlayerPlugin::MediaPlayerPlugin(QObject *parent) : QObject(parent)
 {
-    m_mediaScanner = new MediaScanner(&m_mediaDb, this);
-    m_mediaLibraryContainerModel = new MediaLibraryContainerModel(&m_mediaDb, this);
-    m_mediaLibraryMediaListModel = new MediaLibraryMediaListModel(&m_mediaDb, this);
+//    m_mediaScanner = new MediaScanner(&m_mediaDb, this);
+
+    m_mediaDbManager = new MediaDBManager(this);
+    m_mediaLibraryContainerModel = new MediaLibraryContainerModel(m_mediaDbManager, this);
+    m_mediaLibraryMediaListModel = new MediaLibraryMediaListModel(m_mediaDbManager, this);
     m_mediaLibraryPlaylistModel = new MediaPlayerPlaylistModel(this);
-    connect(m_mediaScanner,SIGNAL(scanningFinished()),this,SLOT(scanningFinished()));
+
+    connect(m_mediaDbManager,SIGNAL(scanningFinished()),this,SLOT(scanningFinished()));
 }
 
 MediaPlayerPlugin::~MediaPlayerPlugin(){
@@ -21,18 +24,19 @@ QQuickImageProvider *MediaPlayerPlugin::getImageProvider() {
 }
 
 void MediaPlayerPlugin::init(){
-    m_mediaScanner->init();
+    m_mediaDbManager->init();
     m_mediaLibraryContainerModel->init();
     m_mediaLibraryMediaListModel->init();
     m_mediaLibraryPlaylistModel->init();
 }
 
 QVariantList MediaPlayerPlugin::getLocations() {
-    return m_mediaDb.getLocations(false);
+    return m_mediaDbManager->getLocations();
 }
 
 void MediaPlayerPlugin::addLocation(QString path){
-    m_mediaScanner->addLocation(path.remove("file://",Qt::CaseInsensitive));
+    m_mediaDbManager->addLocation(path.remove("file://",Qt::CaseInsensitive));
+    emit locationsUpdated();
 }
 
 void MediaPlayerPlugin::scanningFinished(){

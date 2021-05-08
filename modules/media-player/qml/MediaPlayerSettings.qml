@@ -5,8 +5,9 @@ import QtQml 2.11
 import HUDTheme 1.0
 
 Item {
-    id: root
+    id: __root
 
+    signal push(var qml, var properties)
     Component {
         id: highlight
         Rectangle {
@@ -15,12 +16,13 @@ Item {
             anchors.left: parent.left
             color: "lightsteelblue"
             y: mediaLocations.currentItem.y
-            Behavior on y {
-                SpringAnimation {
-                    spring: 3
-                    damping: 0.2
-                }
-            }
+        }
+    }
+
+    Connections{
+        target:MediaPlayerPlugin
+        onLocationsUpdated : {
+            mediaLocations.model = MediaPlayerPlugin.MediaLocations
         }
     }
 
@@ -56,9 +58,9 @@ Item {
                 delegate: Item {
                     height: 40
                     width:parent.width
-                    property string path : modelData.volume_path + modelData.relative_path
                     Text {
-                        text: modelData.name  + " ("+path+")"
+                        x:8
+                        text: modelData.relative_path
                         font.bold: true
                         anchors.verticalCenter: parent.verticalCenter
                     }
@@ -68,13 +70,13 @@ Item {
                         onClicked: parent.ListView.view.currentIndex = index
                     }
                 }
-                model: MediaPlayerPlugin.getLocations()
+                model: MediaPlayerPlugin.MediaLocations
 
                 ScrollBar.vertical: ScrollBar {
                 }
                 highlight: highlight
                 highlightFollowsCurrentItem: false
-                focus: true
+                currentIndex: -1
             }
         }
 
@@ -108,7 +110,9 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
                 anchors.leftMargin: 8
-                onClicked: root.state = "file browser"
+                onClicked: {
+                    __root.push("qrc:/MediaPlayer/qml/MediaPlayerSettingsFileBrowser.qml", {})
+                }
             }
 
             Button {
@@ -121,75 +125,8 @@ Item {
                 anchors.right: parent.right
                 anchors.rightMargin: 8
             }
-
-            Button {
-                id: button2
-                width: 100
-                height: 24
-                text: qsTr("Edit")
-                enabled: false
-                anchors.verticalCenter: parent.verticalCenter
-                anchors.right: button1.left
-                anchors.rightMargin: 6
-            }
-        }
-
-
-    }
-
-    states: [
-        State {
-            name: "file browser"
-
-            PropertyChanges {
-                target: rectangle
-                anchors.topMargin: -parent.height + 8
-                clip: true
-                anchors.bottomMargin: parent.height
-            }
-
-            PropertyChanges {
-                target: rectangle2
-                anchors.topMargin: 8
-            }
-        }
-    ]
-
-    transitions:
-        Transition {
-        NumberAnimation { properties: "anchors.topMargin,anchors.bottomMargin"; duration: 250}
-    }
-
-
-    Item {
-        id: rectangle2
-        height: parent.height -16
-        anchors.left: parent.left
-        anchors.leftMargin: 8
-        anchors.right: parent.right
-        anchors.rightMargin: 8
-        anchors.topMargin: parent.height + 8
-        anchors.top: parent.top
-        FileBrowser {
-            id: fileBrowser
-            anchors.bottom: parent.bottom
-            anchors.right: parent.right
-            anchors.left: parent.left
-            anchors.top: parent.top
-            folderSelectable:true
-            showFiles:false
-            onAccepted: {
-                MediaPlayerPlugin.addLocation(fileBrowser.folder)
-                root.state = "base state"
-                fileBrowser.reset()
-            }
-            onRejected: {
-                root.state = "base state"
-                fileBrowser.reset()
-            }
         }
     }
-
 
     Connections {
         target: MediaPlayerPlugin

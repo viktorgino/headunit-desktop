@@ -20,6 +20,7 @@ class MediaPlayerPlugin : public QObject, PluginInterface
     Q_PROPERTY(MediaLibraryContainerModel *ContainerModel MEMBER m_mediaLibraryContainerModel CONSTANT)
     Q_PROPERTY(MediaLibraryMediaListModel *MediaListModel MEMBER m_mediaLibraryMediaListModel CONSTANT)
     Q_PROPERTY(MediaPlayerPlaylistModel *PlaylistModel MEMBER m_mediaLibraryPlaylistModel CONSTANT)
+    Q_PROPERTY(QVariantList MediaLocations READ getLocations NOTIFY locationsUpdated)
 public:
     explicit MediaPlayerPlugin(QObject *parent = nullptr);
     ~MediaPlayerPlugin() override;
@@ -35,6 +36,7 @@ signals:
     void message(QString id, QVariant message);
     void libraryUpdated();
     void mediaNotification(QString id, QString message);
+    void locationsUpdated();
 
 public slots:
     void scanningFinished();
@@ -42,11 +44,11 @@ public slots:
 private:
     MediaPlayerCoverImageProvider m_imageProvider;
     //TODO: Consider only creating mediaScanner when needed
-    MediaDB m_mediaDb;
-    MediaScanner *m_mediaScanner = nullptr;
+
     MediaLibraryContainerModel *m_mediaLibraryContainerModel = nullptr;
     MediaLibraryMediaListModel  *m_mediaLibraryMediaListModel = nullptr;
     MediaPlayerPlaylistModel *m_mediaLibraryPlaylistModel = nullptr;
+    MediaDBManager *m_mediaDbManager = nullptr;
 
 };
 

@@ -1,6 +1,6 @@
 #include "medialibrarymedialistmodel.h"
 
-MediaLibraryMediaListModel::MediaLibraryMediaListModel(MediaDB *mediaDb, QObject *parent) : QAbstractListModel(parent), m_mediaDb(mediaDb)
+MediaLibraryMediaListModel::MediaLibraryMediaListModel(MediaDBManager *mediaDBManager, QObject *parent) : QAbstractListModel(parent), m_mediaDBManager(mediaDBManager)
 {
 }
 
@@ -87,7 +87,7 @@ void MediaLibraryMediaListModel::setFilter(QString type, QString key){
 
     switch(m_type){
     case MediaDB::folders:
-        m_containerContent = m_mediaDb->getFolderContent(key, MediaDB::AUDIO);
+        m_containerContent = m_mediaDBManager->getFolderContent(key, MediaDB::AUDIO);
         break;
     case MediaDB::playlists:
         m_containerContent = getPlaylistContent(key);
@@ -96,7 +96,7 @@ void MediaLibraryMediaListModel::setFilter(QString type, QString key){
     case MediaDB::artists:
     case MediaDB::genres:
     default:
-        m_containerContent = m_mediaDb->getMediaFiles(MediaDB::AUDIO, m_type, key);
+        m_containerContent = m_mediaDBManager->getMediaFiles(MediaDB::AUDIO, m_type, key);
         break;
     }
     endResetModel();

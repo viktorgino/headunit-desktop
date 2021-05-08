@@ -7,6 +7,7 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
+#include <QMutex>
 
 /**
  * @brief Database abstraction class, used to fetch and insert/update data to/from the media library's SQLITE database
@@ -24,9 +25,6 @@
  *
  *   - name (text) - Used to store the drive label. This field is purely for display purposes.
  *   - relative_path (text) - The path to the location relative to the mounting point of the volume
- *   - volume_unique_id (text) - The UUID of the volume (on Linux this may be found in /dev/disk/by-uuid)
- *   - volume_path (text) - The path to the volume (on Linux this is the mount point on Windows its the drive letter)
- *   - is_present (integer) - This indicates whether if the volume is mounted and accessible or not. Possible values : 1 (true) | 0 (false). If this field is set
  * to 0 the media files and folders from this location will be excluded from all queries.
  *
  * ###scanned_folders###
@@ -80,18 +78,15 @@ public:
      *
      * @param parent
      */
-    explicit MediaDB(QObject *parent = 0);
+    explicit MediaDB(QString path, QObject *parent = 0);
     /**
      * @brief Check if a location already exits in the database and if not then adds the location to the database
      *
-     * @param name Name of the location
-     * @param v_unique_id UUID of the volume the location is at
-     * @param v_path The path for the volume (mounting point or drive letter)
      * @param relative_path The path to the location relative to the root of the partition
      * @return Returns -1 if there is some error with accessing the database or binding values to the prepared statement,
      * return -2 if the location exits. Otherwise it returns the ID of the newly created locations
      */
-    int addLocation(QString name, QString v_unique_id, QString v_path, QString relative_path);
+    int addLocation(QString relative_path);
     /**
      * @brief Check if a folder is in the database if not then adds it to the DB.
      *
@@ -128,8 +123,7 @@ public:
      *
      *     {
      *         name : QString,
-     *         relative_path: QString,
-     *         volume_path: QString
+     *         relative_path: QString
      *     }
      *
      * @param location_id The id of the record to fetch
@@ -137,6 +131,8 @@ public:
      * is an error with the query it returns an empty QVariantMap
      */
     QVariantMap getLocationInfo(int location_id);
+    int getFolderID(QString relative_path);
+    int getLocationID(QString relative_path);
     /**
      * @brief Update the has_audio and thumbnail fields for the folder matched by folder_id
      * @param folder_id
@@ -146,30 +142,12 @@ public:
      */
     int updateFolderInfo(int folder_id, bool hasAudio, QString thumbnail);
     /**
-     * @brief Set the availability of location_id to isAvailable
-     *
-     * When the availability of a location is set to true the media files and folders from that location will show up on all the
-     * lists ...etc, set the availability of a location to false whenever it is unmounted/not available and it won't cause any error for
-     * the media player.
-     * @param location_id
-     * @param isAvailable
-     * @return If the location availability  is successfully updated it returns 0. If there is an SQL error it returns -1.
-     */
-    int setLocationAvailability(int location_id, bool isAvailable);
-    /**
      * @brief Fetch a list of locations
      *
      * @param onlyAvailable Set this to true to only get available locations
      * @return QVariantList
      */
-    QVariantList getLocations(bool onlyAvailable);
-    /**
-     * @brief
-     *
-     * @param q
-     * @return QVariantList
-     */
-    QVariantList getListFromQuery(QSqlQuery q);
+    QVariantList getLocations();
 
     /**
      * @brief
@@ -213,11 +191,14 @@ public:
      */
     QList<QVariantMap> getMediaFiles(MediaTypes mediaType = AUDIO, ListType listType = none, QString key = "");
 
+    QString getPath();
     static ListType stringToListType(QString type);
     static QString listTypeToString(ListType type);
 private:
     QSqlDatabase db; /**< TODO: describe */
     QList<QVariantMap> executeQuery(QString query, QVariantMap values);
+    QString m_path;
+    QMutex m_dbMutex;
 signals:
 
 public slots:

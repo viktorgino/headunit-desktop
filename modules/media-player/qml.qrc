@@ -82,5 +82,6 @@
         <file>images/artwork/wlodzimierz-jaworski-4BgqEgCDbc4-unsplash.jpg</file>
         <file>images/artwork/wolfgang-hasselmann-UiFcTunJozw-unsplash.jpg</file>
         <file>images/musical-notes-sharp.svg</file>
+        <file>qml/MediaPlayerSettingsFileBrowser.qml</file>
     </qresource>
 </RCC>

@@ -4,14 +4,14 @@
 #include <QObject>
 #include <QAbstractItemModel>
 
-#include "mediadb.h"
+#include "mediadbmanager.h"
 
 class MediaLibraryContainerModel : public QAbstractListModel
 {
     Q_OBJECT
 
 public:
-    explicit MediaLibraryContainerModel(MediaDB *mediaDb, QObject *parent = 0);
+    explicit MediaLibraryContainerModel(MediaDBManager *mediaDBManager, QObject *parent = 0);
 
     enum MediaLibraryContainerRoles {
         TitleRole = Qt::UserRole + 1,
@@ -29,7 +29,7 @@ public slots:
     void setFilter(QString type);
     QVariant getItem(int index);
 private:
-    MediaDB *m_mediaDb;
+    MediaDBManager *m_mediaDBManager;
     QList<QVariantMap> m_containerContent;
     MediaDB::ListType m_type;
 };
