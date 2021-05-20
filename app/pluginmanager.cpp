@@ -51,7 +51,9 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
         }
 
         QObject *plugin = pluginLoader.instance();
-//        plugin->setParent(this);
+
+        plugin->setParent(this);
+
         if (!plugin) {
             qCDebug(PLUGINMANAGER) << "Error loading plugin : " << fileName << pluginLoader.errorString();
             continue;
