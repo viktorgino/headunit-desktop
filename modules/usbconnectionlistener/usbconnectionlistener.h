@@ -9,12 +9,13 @@
 #include <QDirIterator>
 #include <QDebug>
 #include <libusb.h>
+#include <sys/time.h>
 
-class UsbConnectionListener : public QObject, public QRunnable
+class UsbConnectionListener : public QThread
 {
     Q_OBJECT
 public:
-    UsbConnectionListener();
+    UsbConnectionListener(QObject *parent = nullptr);
     ~UsbConnectionListener() override;
     virtual void run() override;
     void stop();

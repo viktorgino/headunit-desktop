@@ -1,11 +1,11 @@
 #include "usbconnectionlistenerplugin.h"
 
-UsbConnectionListenerPlugin::UsbConnectionListenerPlugin(QObject *parent) : QObject (parent), connectionListener()
+UsbConnectionListenerPlugin::UsbConnectionListenerPlugin(QObject *parent) : QObject (parent), connectionListener(this)
 {
     connect(&connectionListener, &UsbConnectionListener::usbDeviceAdded, this, &UsbConnectionListenerPlugin::usbDeviceAdded);
     connect(&connectionListener, &UsbConnectionListener::usbDeviceRemoved, this, &UsbConnectionListenerPlugin::usbDeviceRemoved);
 
-    QThreadPool::globalInstance()->start(&connectionListener);
+    connectionListener.start();
     m_pluginSettings.events = QStringList() << "UsbDeviceAdded" << "UsbDeviceRemoved";
 }
 
@@ -17,8 +17,9 @@ QObject *UsbConnectionListenerPlugin::getContextProperty(){
 }
 
 void UsbConnectionListenerPlugin::usbDeviceAdded(QVariantMap deviceDetails){
+    qDebug() << "UsbDeviceAdded";
     QJsonDocument json = QJsonDocument::fromVariant(deviceDetails);
-    emit message("UsbDeviceAdded", json.toJson(QJsonDocument::Compact));
+    emit message("UsbDeviceAdded", deviceDetails);
 
     QVariantMap notificationDetails;
     QString notificationText = QString("%1 %2").arg(deviceDetails.value("manufacturer").toString())
@@ -33,7 +34,8 @@ void UsbConnectionListenerPlugin::usbDeviceAdded(QVariantMap deviceDetails){
 }
 
 void UsbConnectionListenerPlugin::usbDeviceRemoved(QVariantMap deviceDetails){
+    qDebug() << "UsbDeviceRemoved";
     QJsonDocument json = QJsonDocument::fromVariant(deviceDetails);
-    emit message("UsbDeviceRemoved", json.toJson(QJsonDocument::Compact));
+    emit message("UsbDeviceRemoved", QVariant());
 }
 

@@ -1,6 +1,6 @@
 #include "usbconnectionlistener.h"
 
-UsbConnectionListener::UsbConnectionListener(){
+UsbConnectionListener::UsbConnectionListener(QObject *parent) : QThread(parent){
     if (libusb_init(&hotplug_context) < 0)
     {
         qDebug ("Error libusb_init usb_err failed");
@@ -22,11 +22,15 @@ UsbConnectionListener::UsbConnectionListener(){
 }
 
 UsbConnectionListener::~UsbConnectionListener(){
-    stop();
+    qDebug() << "Exiting UsbConnectionListener";
+
     if (libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG)) {
         libusb_hotplug_deregister_callback(hotplug_context, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED |
                                            LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
     }
+
+    stop();
+
     libusb_exit(hotplug_context);
 }
 
@@ -74,14 +78,18 @@ void UsbConnectionListener::usbDeviceRemove(QString device){
 }
 
 void UsbConnectionListener::run() {
+    int rc;
+    struct timeval tv = {0,0};
+
     while(!done){
         newDevices.clear();
-        int rc;
-        rc = libusb_handle_events_completed(hotplug_context,nullptr);
+
+        rc = libusb_handle_events_timeout_completed(hotplug_context, &tv, nullptr);
         if (rc < 0) {
             qDebug("libusb_handle_events() failed: %s", libusb_error_name(rc));
             break;
         }
+
         if(newDevices.length() > 0){
             libusb_device** devices = nullptr;
             ssize_t dev_count = libusb_get_device_list(hotplug_context, &devices);

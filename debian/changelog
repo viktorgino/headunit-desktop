@@ -1,3 +1,12 @@
+headunit-desktop (0.1-68) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (657d919e9c215908bf799f38c0905f9065ac88ce)
+  * [USBConnectionListener] Change listener to QThread, set parent, use
+    non blocking event handling
+
+ -- Gino <gino@gino-ubuntu>  Thu, 20 May 2021 22:27:34 +0000
+
 headunit-desktop (0.1-67) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
