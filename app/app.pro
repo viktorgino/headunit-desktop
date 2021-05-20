@@ -8,6 +8,7 @@ INCLUDEPATH += $${PWD}/includes
 include("../config.pri")
 
 SOURCES += main.cpp \
+    mediamanager.cpp \
     pluginmanager.cpp \
     settingsloader.cpp \
     thememanager.cpp
@@ -15,6 +16,8 @@ SOURCES += main.cpp \
 HEADERS += \
     ../includes/plugininterface.h \
     ../includes/hvac-common.h \
+    ../includes/mediainterface.h \
+    mediamanager.h \
     pluginmanager.h \
     settingsloader.h \
     thememanager.h

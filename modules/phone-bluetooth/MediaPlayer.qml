@@ -47,7 +47,6 @@ Item {
 //        Layout.fillWidth: true
 //        checkable: true
 //        imageSource: "qrc:/qml/icons/shuffle.png"
-//        changeColorOnPress:false
 //        checked : __root.mediaPlayerObj.shuffle
 //        onClicked: {
 //            if(checked)
@@ -97,7 +96,6 @@ Item {
         Layout.fillWidth: true
         checked: true
         imageSource: "qrc:/qml/icons/refresh.png"
-        changeColorOnPress:false
         text: {
             switch(__root.mediaPlayerObj.repeat){
             case BluezQt.MediaPlayer.RepeatOff:

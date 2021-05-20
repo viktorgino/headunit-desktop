@@ -11,9 +11,9 @@
 	path = modules/welle-io/welle.io
 	url = https://github.com/viktorgino/welle.io
 	branch = master
-[submodule "modules/volume-control/qml/plasma-pa"]
-	path = modules/volume-control/qml/plasma-pa
-	url = https://github.com/KDE/plasma-pa.git
 [submodule "modules/navit/navit"]
 	path = modules/navit/navit
 	url = https://github.com/viktorgino/navit
+[submodule "modules/volume-control/pulseaudio-qt"]
+	path = modules/volume-control/pulseaudio-qt
+	url = https://invent.kde.org/libraries/pulseaudio-qt.git

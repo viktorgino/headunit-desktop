@@ -1,3 +1,11 @@
+headunit-desktop (0.1-67) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (7ef1f2de7dd570cfa9609919b969898170e1108c)
+  * [Theme] Update ImageButton qml elements
+
+ -- Gino <gino@gino-ubuntu>  Thu, 20 May 2021 19:19:33 +0000
+
 headunit-desktop (0.1-66) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

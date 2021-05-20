@@ -18,6 +18,7 @@
 #include "../includes/plugininterface.h"
 #include "settingsloader.h"
 #include "../includes/hvac-common.h"
+#include "mediamanager.h"
 
 
 class PluginManager : public QObject
@@ -43,6 +44,7 @@ private:
     QVariantMap plugins;
     QMap<QString, QJsonObject> pluginConfigs;
     QList<QPluginLoader *>pluginLoaders;
+    MediaManager m_mediaManager;
 //    QList<SettingsLoader *>pluginSettings;
 
     void settingsChanged(QString key, QVariant value);

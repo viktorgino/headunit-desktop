@@ -2,7 +2,7 @@
 
 Q_LOGGING_CATEGORY(PLUGINMANAGER, "Plugin Manager")
 
-PluginManager::PluginManager(QQmlApplicationEngine *engine, bool filter, QStringList filterList, QObject *parent) : QObject(parent)
+PluginManager::PluginManager(QQmlApplicationEngine *engine, bool filter, QStringList filterList, QObject *parent) : QObject(parent), m_mediaManager(this)
 {
     loadPlugins(engine, filter, filterList);
     initPlugins();
@@ -35,7 +35,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 #endif
     pluginsDir.cd("plugins");
     //Load plugins
-    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
+    for (QString fileName : pluginsDir.entryList(QDir::Files)) {
 
         QString fileBaseName=fileName.section(".",0,0);
         if (filter && !filterList.contains(fileBaseName,Qt::CaseInsensitive)) {
@@ -68,7 +68,6 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 
         QJsonObject metaData = pluginLoader.metaData().value("MetaData").toObject();
         QString pluginName = metaData.value("name").toString();
-
         const QMetaObject *pluginMeta = plugin->metaObject();
 
         QStringList methods;
@@ -80,6 +79,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
                 connect(plugin, SIGNAL(action(QString, QVariant)), this, SLOT(actionHandler(QString, QVariant)));
             }
         }
+
         PluginSettings *pluginSettings = pluginObject->getPluginSettings();
         for(QString event : pluginSettings->eventListeners){
             if(connections.contains(event)){
@@ -124,13 +124,21 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
             m_settings.insert(pluginName,  QVariant::fromValue<QQmlPropertyMap *>(settingsMap));
             settingsItems.append(settingsObject.toVariantMap());
         }
-        pluginLoaders<< &pluginLoader;
-	pluginObject->onLoad();
+
+        MediaInterface * mediaInterface = dynamic_cast<MediaInterface *>(plugin);
+
+        if(mediaInterface){
+            QString interfaceName = metaData.value("displayName").toString();
+            m_mediaManager.addInterface(interfaceName.isEmpty() ? pluginName : interfaceName, mediaInterface);
+        }
+
+        pluginLoaders << &pluginLoader;
+        pluginObject->onLoad();
     }
     //Load QML plugins
     pluginsDir.cd("qml");
-    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
-	qDebug() << "Loading qml plugin: " << fileName;
+    for (QString fileName : pluginsDir.entryList(QDir::Files)) {
+        qDebug() << "Loading qml plugin: " << fileName;
         QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
         QJsonValue uri = pluginLoader.metaData().value("MetaData").toObject().value("uri");
         QList<QQmlError> errors;
@@ -144,6 +152,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
     engine->rootContext()->setContextProperty("HUDSettings", m_settings);
     engine->rootContext()->setContextProperty("HUDOverlays", m_overlays);
     engine->rootContext()->setContextProperty("HUDPlugins", this);
+    engine->rootContext()->setContextProperty("HUDMediaManager", &m_mediaManager);
 
     emit pluginsUpdated();
     return true;

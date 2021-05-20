@@ -142,7 +142,6 @@ Item {
                     Layout.fillWidth: true
                     checkable: true
                     imageSource: "qrc:/qml/icons/shuffle.png"
-                    changeColorOnPress:false
                     onClicked: {
                         if(checked){
                             playlist.playbackMode = Playlist.Random
@@ -193,8 +192,7 @@ Item {
                     Layout.fillWidth: true
                     checked: (playlist.playbackMode == Playlist.CurrentItemInLoop || playlist.playbackMode == Playlist.Loop)
                     imageSource: "qrc:/qml/icons/refresh.png"
-                    changeColorOnPress:false
-                    text: {
+                    text : {
                         switch(playlist.playbackMode){
                         case Playlist.CurrentItemInLoop:
                             return "1";
@@ -204,14 +202,14 @@ Item {
                             return "";
                         }
                     }
+
                     onClicked: {
-                        shuffle_button.checked = false
-                        if(playlist.playbackMode == Playlist.Sequential || playlist.playbackMode == Playlist.Random){
-                            playlist.playbackMode = Playlist.CurrentItemInLoop;
-                        } else if (playlist.playbackMode == Playlist.CurrentItemInLoop){
+                        if (playlist.playbackMode == Playlist.CurrentItemInLoop){
                             playlist.playbackMode = Playlist.Loop;
-                        } else {
+                        } else if (playlist.playbackMode == Playlist.Loop) {
                             playlist.playbackMode = Playlist.Sequential;
+                        } else {
+                            playlist.playbackMode = Playlist.CurrentItemInLoop;
                         }
                     }
                 }
