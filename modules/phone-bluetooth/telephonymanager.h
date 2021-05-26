@@ -2,6 +2,8 @@
 
 #include <QObject>
 #include <plugininterface.h>
+#include <mediainterface.h>
+
 #include <qofonomanager.h>
 #include <qofonophonebook.h>
 #include <qofonovoicecallmanager.h>
@@ -27,7 +29,7 @@
 
 #include "bluezagent.h"
 
-class TelephonyManager : public QObject, PluginInterface
+class TelephonyManager : public QObject, PluginInterface, public MediaInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.viktorgino.headunit.phonebluetooth" FILE "config.json")
@@ -69,7 +71,8 @@ public:
     QStringList getAdapters() {
         updateAdapters();
         return m_adapters;
-    }
+    }    
+
 
 signals:
     void adaptersUpdated();
@@ -82,6 +85,14 @@ signals:
 
     void action(QString id, QVariant message);
 
+    void start() override;
+    void stop() override;
+    void prevTrack() override;
+    void nextTrack() override;
+    void setMediaVolume(uint8_t volume) override;
+
+    void playbackStarted() override;
+
 public slots:
     void answerCall(QString call_path);
     void declineCall(QString call_path);
@@ -90,6 +101,10 @@ public slots:
     void enablePairing();
     void disablePairing();
     void connectToDevice(QString ubi);
+
+    void mediaPlaybackStarted();
+
+    void eventMessage(QString id, QVariant message) override;
 
 private slots:
     void initOfono(QString ubi);
@@ -127,6 +142,8 @@ private:
     BluezQt::Adapter *m_bluez_adapter = nullptr;
     BluezQt::ObexManager m_obexManager;
     BluezQt::Agent *bluez_agent;
+
+    bool m_androidAutoConnected = false;
 
     void getPhonebooks(QString destination);
     void setBluezDevice(BluezQt::Device* device);

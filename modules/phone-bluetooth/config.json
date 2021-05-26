@@ -1,5 +1,6 @@
 {
     "name":"PhoneBluetooth",
+    "displayName" : "Bluetooth Audio",
     "menu":{
         "text":"Phone",
         "source":"qrc:/PhoneBluetooth/Phone.qml",

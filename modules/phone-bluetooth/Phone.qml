@@ -12,6 +12,18 @@ Item {
     property QtObject bluezManager : BluezQt.Manager
     property QtObject bluezDevice : bluezManager.deviceForUbi(PhoneBluetooth.activeDevice)
     property QtObject bluezMediaPlayer : bluezDevice.mediaPlayer
+    property QtObject bluezMediaTransport : bluezDevice.mediaTransport
+
+
+    Connections{
+        target: bluezMediaPlayer
+        ignoreUnknownSignals: true
+        onStatusChanged : {
+            if(bluezMediaPlayer.status === 0 ){
+                PhoneBluetooth.mediaPlaybackStarted()
+            }
+        }
+    }
 
     ToolBar {
         id: toolBar
@@ -341,7 +353,24 @@ Item {
     //            }
     //        }
     //    }
-
+    Connections{
+        target: PhoneBluetooth
+        onStart : {
+            bluezMediaPlayer.play()
+        }
+        onStop : {
+            bluezMediaPlayer.stop()
+        }
+        onPrevTrack : {
+            bluezMediaPlayer.next()
+        }
+        onNextTrack : {
+            bluezMediaPlayer.next()
+        }
+        onSetMediaVolume : {
+            bluezMediaTransport
+        }
+    }
     Rectangle {
         id: connectionOverlay
         color: HUDStyle.Colors.formBackground

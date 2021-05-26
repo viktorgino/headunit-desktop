@@ -11,6 +11,10 @@ TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent), m_ofonoMa
 {
     m_contactsFolder = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/contacts";
 
+    m_interfaceSettings.mediaStream = true;
+
+    m_pluginSettings.eventListeners = QStringList() << "AndroidAuto::connected";
+
 }
 TelephonyManager::~TelephonyManager(){
 //    delete m_activeDevice;
@@ -385,3 +389,14 @@ void TelephonyManager::connectToDevice(QString ubi){
         device->connectToDevice();
     }
 }
+void TelephonyManager::mediaPlaybackStarted() {
+    if(!m_androidAutoConnected){
+        emit playbackStarted();
+    }
+}
+void TelephonyManager::eventMessage(QString id, QVariant message) {
+    if(id == "AndroidAuto::connected"){
+        m_androidAutoConnected = message.toBool();
+    }
+}
+
