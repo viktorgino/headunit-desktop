@@ -78,6 +78,13 @@ public:
     int videoHeight();
     hu_status status();
 
+    void startMedia();
+    void stopMedia();
+    void prevTrack();
+    void nextTrack();
+    void setMediaVolume(uint8_t volume);
+    void setVoiceVolume(uint8_t volume);
+
     QAbstractVideoSurface* videoSurface() const { return m_surface; }
     void setVideoSurface(QAbstractVideoSurface *surface);
 
@@ -98,6 +105,8 @@ signals:
     void statusChanged();
 
     void receivedVideoFrame(const QVideoFrame &frame);
+
+    void playbackStarted();
 
 public slots:
     bool mouseDown(QPoint point);

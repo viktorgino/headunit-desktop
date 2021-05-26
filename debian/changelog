@@ -1,3 +1,11 @@
+headunit-desktop (0.1-72) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (64a165989c014119dd8303535383af3015082a1a)
+  * [AA] Add MediaInterface
+
+ -- Gino <gino@gino-ubuntu>  Wed, 26 May 2021 00:41:24 +0000
+
 headunit-desktop (0.1-71) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

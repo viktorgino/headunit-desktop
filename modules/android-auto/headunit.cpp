@@ -131,7 +131,7 @@ int Headunit::init(){
                                 #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Music\""
                                 #else
-                                    "pulsesink sync=true client-name=\"Android Auto Music\""
+                                    "pulsesink name=mediasink sync=true client-name=\"Android Auto Music\" stream-properties=\"props,media.name=AndroidAutoMusic\""
                                 #endif
                                     , &error);
     if (error != NULL) {
@@ -149,7 +149,7 @@ int Headunit::init(){
                                 #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Voice\""
                                 #else
-                                    "pulsesink sync=true client-name=\"Android Auto Voice\""
+                                    "pulsesink name=voicesink sync=true client-name=\"Android Auto Voice\""
                                 #endif
                                     , &error);
 
@@ -422,7 +422,91 @@ void Headunit::setStatus(hu_status status){
     m_status = status;
     emit statusChanged();
 }
-//static uint64_t init_ts = 0;
+
+void Headunit::startMedia() {
+    if(huStarted){
+        g_hu->hu_queue_command([](IHUConnectionThreadInterface & s) {
+            HU::InputEvent inputEvent;
+            inputEvent.set_timestamp(get_cur_timestamp());
+            HU::ButtonInfo* buttonInfo = inputEvent.mutable_button()->add_button();
+            buttonInfo->set_is_pressed(true);
+            buttonInfo->set_meta(0);
+            buttonInfo->set_long_press(false);
+            buttonInfo->set_scan_code(HUIB_START);
+
+            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            buttonInfo->set_is_pressed(false);
+            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        });
+    }
+}
+
+void Headunit::stopMedia() {
+    if(huStarted){
+        g_hu->hu_queue_command([](IHUConnectionThreadInterface & s) {
+            HU::InputEvent inputEvent;
+            inputEvent.set_timestamp(get_cur_timestamp());
+            HU::ButtonInfo* buttonInfo = inputEvent.mutable_button()->add_button();
+            buttonInfo->set_is_pressed(true);
+            buttonInfo->set_meta(0);
+            buttonInfo->set_long_press(false);
+            buttonInfo->set_scan_code(HUIB_STOP);
+
+            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            buttonInfo->set_is_pressed(false);
+            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        });
+    }
+}
+
+void Headunit::prevTrack() {
+    if(huStarted){
+        g_hu->hu_queue_command([](IHUConnectionThreadInterface & s) {
+            HU::InputEvent inputEvent;
+            inputEvent.set_timestamp(get_cur_timestamp());
+            HU::ButtonInfo* buttonInfo = inputEvent.mutable_button()->add_button();
+            buttonInfo->set_is_pressed(true);
+            buttonInfo->set_meta(0);
+            buttonInfo->set_long_press(false);
+            buttonInfo->set_scan_code(HUIB_PREV);
+
+            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            buttonInfo->set_is_pressed(false);
+            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        });
+    }
+}
+
+void Headunit::nextTrack() {
+    if(huStarted){
+        g_hu->hu_queue_command([](IHUConnectionThreadInterface & s) {
+            HU::InputEvent inputEvent;
+            inputEvent.set_timestamp(get_cur_timestamp());
+            HU::ButtonInfo* buttonInfo = inputEvent.mutable_button()->add_button();
+            buttonInfo->set_is_pressed(true);
+            buttonInfo->set_meta(0);
+            buttonInfo->set_long_press(false);
+            buttonInfo->set_scan_code(HUIB_NEXT);
+
+            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            buttonInfo->set_is_pressed(false);
+            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        });
+    }
+}
+
+void Headunit::setMediaVolume(uint8_t volume) {
+    GstElement *media_sink = gst_bin_get_by_name(GST_BIN(aud_pipeline), "mediasink");
+    g_object_set (media_sink, "volume", (volume * 2) / 100.00, NULL);
+    gst_object_unref(media_sink);
+}
+
+void Headunit::setVoiceVolume(uint8_t volume) {
+    GstElement *voice_sink = gst_bin_get_by_name(GST_BIN(au1_pipeline), "voicesink");
+    g_object_set (voice_sink, "volume", (volume * 2) / 100.00, NULL);
+    gst_object_unref(voice_sink);
+}
+
 int DesktopEventCallbacks::MediaPacket(int chan, uint64_t timestamp, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;
 
@@ -459,6 +543,7 @@ int DesktopEventCallbacks::MediaStart(int chan) {
         break;
     case AA_CH_AUD:
         gst_element_set_state(headunit->aud_pipeline, GST_STATE_PLAYING);
+        headunit->playbackStarted();
         break;
     case AA_CH_AU1:
         gst_element_set_state(headunit->au1_pipeline, GST_STATE_PLAYING);

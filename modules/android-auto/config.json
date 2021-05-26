@@ -1,5 +1,6 @@
 {
     "name":"AndroidAuto",
+    "displayName" : "Android Auto",
     "menu":{
         "text":"Android Auto",
         "source":"qrc:/AndroidAuto/nativeAA.qml",
