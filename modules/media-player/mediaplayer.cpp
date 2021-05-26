@@ -2,7 +2,7 @@
 
 MediaPlayerPlugin::MediaPlayerPlugin(QObject *parent) : QObject(parent)
 {
-//    m_mediaScanner = new MediaScanner(&m_mediaDb, this);
+    m_interfaceSettings.mediaStream = true;
 
     m_mediaDbManager = new MediaDBManager(this);
     m_mediaLibraryContainerModel = new MediaLibraryContainerModel(m_mediaDbManager, this);
@@ -34,6 +34,10 @@ QVariantList MediaPlayerPlugin::getLocations() {
     return m_mediaDbManager->getLocations();
 }
 
+qreal MediaPlayerPlugin::getVolume(){
+    return m_volume;
+}
+
 void MediaPlayerPlugin::addLocation(QString path){
     m_mediaDbManager->addLocation(path.remove("file://",Qt::CaseInsensitive));
     emit locationsUpdated();
@@ -42,4 +46,9 @@ void MediaPlayerPlugin::addLocation(QString path){
 void MediaPlayerPlugin::scanningFinished(){
     emit libraryUpdated();
     emit message("GUI::Notification","{\"image\":\"qrc:/qml/icons/android-search.png\", \"title\":\"Media Scanning finished\", \"description\":\"\"}");
+}
+
+void MediaPlayerPlugin::setMediaVolume(uint8_t volume) {
+    m_volume = volume / 100.00;
+    emit volumeUpdated();
 }

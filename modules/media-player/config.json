@@ -1,5 +1,6 @@
 {
     "name":"MediaPlayerPlugin",
+    "displayName" : "Media Player",
     "imageProvider": "MediaPlayer",
     "menu":{
         "text":"Music",

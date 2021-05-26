@@ -293,7 +293,7 @@ Item {
         playlist: playlist
         autoLoad: true
         audioRole: MediaPlayer.MusicRole
-
+        volume: MediaPlayerPlugin.Volume
         onError: {
             console.log("Media Player error : " , error, errorString)
         }
@@ -317,6 +317,7 @@ Item {
         }
         onPlaying: {
             playButton.imageSource = "qrc:/qml/icons/pause.png";
+            MediaPlayerPlugin.playbackStarted()
         }
     }
 
@@ -513,6 +514,22 @@ Item {
             }
 
             anchors.horizontalCenter: parent.horizontalCenter
+        }
+    }
+
+    Connections{
+        target: MediaPlayerPlugin
+        onStart : {
+            mediaplayer.play()
+        }
+        onStop : {
+            mediaplayer.stop()
+        }
+        onPrevTrack : {
+            playlist.previous()
+        }
+        onNextTrack : {
+            playlist.next()
         }
     }
 
