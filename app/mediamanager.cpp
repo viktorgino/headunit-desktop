@@ -9,39 +9,83 @@ MediaManager::MediaManager(QObject *parent) : QObject(parent), m_mediaVolumes(ne
     connect(m_voiceVolumes, &QQmlPropertyMap::valueChanged, this, &MediaManager::setVoiceVolume);
 }
 
-void MediaManager::addInterface(QString name, MediaInterface * object){
-    if(object){
-        m_mediaInterfaces[name] = object;
+void MediaManager::init () {
+    for(QString interface : m_mediaVolumes->keys()){
+        if(m_mediaInterfaces.contains(interface)){
+            m_mediaInterfaces[interface]->setMediaVolume(m_mediaVolumes->value(interface).toInt());
+        }
+    }
+
+    for(QString interface : m_voiceVolumes->keys()){
+        if(m_mediaInterfaces.contains(interface)){
+            m_mediaInterfaces[interface]->setVoiceVolume(m_voiceVolumes->value(interface).toInt());
+        }
+    }
+}
+
+void MediaManager::addInterface(QString name, QObject *object){
+    MediaInterface * mediaInterface = dynamic_cast<MediaInterface *>(object);
+    if(mediaInterface){
+        m_mediaInterfaces[name] = mediaInterface;
         emit intefacesChanged();
 
-        if(object->getSettings().mediaStream) {
-            m_mediaVolumes->insert(name,  100);
+        QSettings settings;
+
+        if(mediaInterface->getSettings().mediaStream) {
+            m_mediaVolumes->insert(name, settings.value("MediaManager/MediaVolumes" + name, 100).toInt());
         }
-        if(object->getSettings().voiceStream) {
-            m_voiceVolumes->insert(name,  100);
+        if(mediaInterface->getSettings().voiceStream) {
+            m_voiceVolumes->insert(name, settings.value("MediaManager/VoiceVolumes" + name, 100).toInt());
         }
+
+        const QMetaObject *pluginMeta = object->metaObject();
+
+        for(int i = pluginMeta->methodOffset(); i < pluginMeta->methodCount(); ++i){
+            if(pluginMeta->method(i).methodSignature() == "playbackStarted()"){
+                connect(object, SIGNAL(playbackStarted()), this, SLOT(playbackStartedHandler()));
+            }
+        }
+    }
+}
+
+void MediaManager::playbackStartedHandler(){
+    MediaInterface * sender = dynamic_cast<MediaInterface *>(QObject::sender());
+    if(sender){
+        QString senderName = m_mediaInterfaces.key(sender);
+        qDebug() << "Playback started : " << senderName;
+        setActiveMediaPlayer(senderName);
     }
 }
 
 void MediaManager::setActiveMediaPlayer(QString name){
-    m_activeMediaPlayer = name;
+    if(m_activeMediaPlayer != name) {
+        m_activeMediaPlayer = name;
 
-    QSettings settings;
-    settings.setValue("MediaManager/ActiveMediaPlayer", m_activeMediaPlayer);
+        QSettings settings;
+        settings.setValue("MediaManager/ActiveMediaPlayer", m_activeMediaPlayer);
 
-    emit activeMediaPlayerChanged();
+        for(QString interfaceName : m_mediaInterfaces.keys()) {
+            if(name != interfaceName){
+                m_mediaInterfaces[interfaceName]->stop();
+            }
+        }
+
+        emit activeMediaPlayerChanged();
+    }
 }
 
 void MediaManager::setVoiceVolume(QString interface, QVariant value){
-    qDebug () << interface << value;
     if(m_mediaInterfaces.contains(interface)){
-        m_mediaInterfaces[interface]->setVolume(value.toInt());
+        m_mediaInterfaces[interface]->setVoiceVolume(value.toInt());
+        QSettings settings;
+        settings.setValue("MediaManager/VoiceVolumes" + interface, value.toInt());
     }
 }
 void MediaManager::setMediaVolume(QString interface, QVariant value){
-    qDebug () << interface << value;
     if(m_mediaInterfaces.contains(interface)){
-        m_mediaInterfaces[interface]->setVolume(value.toInt());
+        m_mediaInterfaces[interface]->setMediaVolume(value.toInt());
+        QSettings settings;
+        settings.setValue("MediaManager/MediaVolumes" + interface, value.toInt());
     }
 }
 
@@ -67,7 +111,7 @@ void MediaManager::nextTrack(){
 }
 void MediaManager::setVolume(uint8_t volume){
     if(m_mediaInterfaces.contains(m_activeMediaPlayer)){
-        m_mediaInterfaces[m_activeMediaPlayer]->setVolume(volume);
+        m_mediaInterfaces[m_activeMediaPlayer]->setMediaVolume(volume);
     }
 }
 

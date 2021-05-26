@@ -6,6 +6,7 @@ PluginManager::PluginManager(QQmlApplicationEngine *engine, bool filter, QString
 {
     loadPlugins(engine, filter, filterList);
     initPlugins();
+    m_mediaManager.init();
 }
 
 void PluginManager::settingsChanged(QString key, QVariant value){

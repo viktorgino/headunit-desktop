@@ -6,6 +6,9 @@
 #include <QSettings>
 #include <QQmlPropertyMap>
 #include <QDebug>
+#include <QSettings>
+#include <QMetaObject>
+#include <QMetaMethod>
 
 #include "../includes/mediainterface.h"
 
@@ -19,8 +22,8 @@ class MediaManager : public QObject
 public:
     explicit MediaManager(QObject *parent = nullptr);
 
-    void addInterface(QString name, MediaInterface * object);
-
+    void init();
+    void addInterface(QString name, QObject *object);
 
 signals:
     void intefacesChanged();
@@ -36,6 +39,7 @@ public slots:
 private slots:
     void setVoiceVolume(QString interface, QVariant value);
     void setMediaVolume(QString interface, QVariant value);
+    void playbackStartedHandler();
 
 private:
     QHash<QString, MediaInterface *> m_mediaInterfaces;
