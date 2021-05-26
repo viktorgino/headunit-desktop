@@ -13,10 +13,8 @@ void PluginManager::settingsChanged(QString key, QVariant value){
 }
 
 void PluginManager::initPlugins(){
-    for(QVariant plugin : plugins){
-        QObject * plug = plugin.value<QObject *>();
-        PluginInterface * pluginObject = qobject_cast<PluginInterface *>(plug);
-        pluginObject->init();
+    for(PluginInterface * plugin : m_plugins){
+        plugin->init();
     }
 }
 
@@ -52,12 +50,12 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 
         QObject *plugin = pluginLoader.instance();
 
-        plugin->setParent(this);
-
         if (!plugin) {
             qCDebug(PLUGINMANAGER) << "Error loading plugin : " << fileName << pluginLoader.errorString();
             continue;
         }
+
+        plugin->setParent(this);
 
         PluginInterface * pluginObject = qobject_cast<PluginInterface *>(plugin);
 
@@ -84,14 +82,14 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 
         PluginSettings *pluginSettings = pluginObject->getPluginSettings();
         for(QString event : pluginSettings->eventListeners){
-            if(connections.contains(event)){
-                connections[event].append(pluginMeta->className());
+            if(m_connections.contains(event)){
+                m_connections[event].append(pluginName);
             } else {
-                connections.insert(event, QStringList() << pluginMeta->className());
+                m_connections.insert(event, QStringList() << pluginName);
             }
         }
 
-        plugins.insert(pluginName, QVariant::fromValue(plugin));
+        m_plugins.insert(pluginName, pluginObject);
 
         QObject * contextProperty = pluginObject->getContextProperty();
         if(contextProperty){
@@ -105,7 +103,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 
         QJsonValue menu = metaData.value("menu");
         if(menu.type() == QJsonValue::Object){
-            menuItems << menu.toObject().toVariantMap();
+            m_menuItems << menu.toObject().toVariantMap();
         }
 
         QJsonValue overlay = metaData.value("overlay");
@@ -124,17 +122,17 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
             QQmlPropertyMap * settingsMap = settings->getSettingsMap();
 
             m_settings.insert(pluginName,  QVariant::fromValue<QQmlPropertyMap *>(settingsMap));
-            settingsItems.append(settingsObject.toVariantMap());
+            m_settingsItems.append(settingsObject.toVariantMap());
         }
 
         MediaInterface * mediaInterface = dynamic_cast<MediaInterface *>(plugin);
 
         if(mediaInterface){
             QString interfaceName = metaData.value("displayName").toString();
-            m_mediaManager.addInterface(interfaceName.isEmpty() ? pluginName : interfaceName, mediaInterface);
+            m_mediaManager.addInterface(interfaceName.isEmpty() ? pluginName : interfaceName, plugin);
         }
 
-        pluginLoaders << &pluginLoader;
+        m_pluginLoaders << &pluginLoader;
         pluginObject->onLoad();
     }
     //Load QML plugins
@@ -150,7 +148,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
     loadConfigItems(engine);
     loadMenuItems(engine);
 
-    engine->rootContext()->setContextProperty("HUDSettingsMenu", settingsItems);
+    engine->rootContext()->setContextProperty("HUDSettingsMenu", m_settingsItems);
     engine->rootContext()->setContextProperty("HUDSettings", m_settings);
     engine->rootContext()->setContextProperty("HUDOverlays", m_overlays);
     engine->rootContext()->setContextProperty("HUDPlugins", this);
@@ -163,7 +161,14 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 void PluginManager::messageHandler(QString id, QVariant message){
     QStringList messageId = id.split("::");
 
-    QString senderName = sender()->metaObject()->className();
+
+    PluginInterface * pluginObject = qobject_cast<PluginInterface *>(sender());
+    if(!pluginObject){
+        qWarning () << "messageHandler() : Sender is not a PluginInterface : " << sender()->metaObject()->className();
+        return;
+    }
+
+    QString senderName = m_plugins.key(pluginObject);
 
     if(messageId.size() == 2 && messageId[0] == "GUI") {
         emit themeEvent(senderName,messageId[1], message);
@@ -171,12 +176,15 @@ void PluginManager::messageHandler(QString id, QVariant message){
     }
     QString event = QString("%1::%2").arg(senderName).arg(id);
 
-    if(connections.contains(event)){
-        QStringList listeners = connections.value(event);
+    if(m_connections.contains(event)){
+        QStringList listeners = m_connections.value(event);
         for(QString listener : listeners){
-            QObject *plugin = plugins[listener].value<QObject *>();
-            PluginInterface * pluginObject = qobject_cast<PluginInterface *>(plugin);
-            pluginObject->eventMessage(event, message);
+            PluginInterface * receiverObject = m_plugins[listener];
+            if(receiverObject){
+                receiverObject->eventMessage(event, message);
+            } else {
+                qWarning () << "messageHandler() : Invalid plugin object " << listener << id;
+            }
         }
     }
 }
@@ -186,14 +194,19 @@ void PluginManager::actionHandler(QString id, QVariant message){
 
     if(messageId.size() == 2){
         if(messageId[0] == "GUI") {
+            PluginInterface * pluginObject = qobject_cast<PluginInterface *>(sender());
+            if(!pluginObject){
+                qWarning () << "actionHandler() : Sender is not a PluginInterface : " << sender()->metaObject()->className();
+                return;
+            }
 
-            QString senderName = sender()->metaObject()->className();
+            QString senderName = m_plugins.key(pluginObject);
+
             emit themeEvent(senderName,messageId[1], message);
 
-        } else if(plugins.keys().contains(messageId[0])){
+        } else if(m_plugins.keys().contains(messageId[0])){
+            PluginInterface *pluginObject = m_plugins[messageId[0]];
 
-            QObject *plugin = plugins[messageId[0]].value<QObject *>();
-            PluginInterface *pluginObject = qobject_cast<PluginInterface *>(plugin);
             PluginSettings *pluginSettings = pluginObject->getPluginSettings();
 
             if(pluginSettings->actions.contains(messageId[1])){
@@ -210,23 +223,21 @@ void PluginManager::actionHandler(QString id, QVariant message){
 }
 
 void PluginManager::loadMenuItems(QQmlApplicationEngine *engine){
-    menuItems << QJsonObject {{"source","qrc:/qml/SettingsPage/SettingsPage.qml"},{"image","icons/svg/gear-a.svg"},{"text","Settings"},{"color","#4CAF50"}}.toVariantMap();
-    engine->rootContext()->setContextProperty("menuItems", menuItems);
+    m_menuItems << QJsonObject {{"source","qrc:/qml/SettingsPage/SettingsPage.qml"},{"image","icons/svg/gear-a.svg"},{"text","Settings"},{"color","#4CAF50"}}.toVariantMap();
+    engine->rootContext()->setContextProperty("menuItems", m_menuItems);
 }
 
 void PluginManager::loadConfigItems(QQmlApplicationEngine *engine){
-    settingsItems << QJsonObject {{"name","theme"},{"iconImage","qrc:/qml/icons/android-color-palette.png"},{"label","Theme"},{"type","loader"},{"section","General"},{"source","qrc:/qml/SettingsPage/SettingsPageTheme.qml"}}.toVariantMap()
-                  << QJsonObject {{"name","quit"},{"iconImage","qrc:/qml/icons/log-out.png"},{"label","Quit headunit-desktop"},{"type","action"},{"action","Qt.quit()"},{"section","Other"},{"source",""}}.toVariantMap();
+    m_settingsItems << QJsonObject {{"name","theme"},{"iconImage","qrc:/qml/icons/android-color-palette.png"},{"label","Theme"},{"type","loader"},{"section","General"},{"source","qrc:/qml/SettingsPage/SettingsPageTheme.qml"}}.toVariantMap()
+                    << QJsonObject {{"name","quit"},{"iconImage","qrc:/qml/icons/log-out.png"},{"label","Quit headunit-desktop"},{"type","action"},{"action","Qt.quit()"},{"section","Other"},{"source",""}}.toVariantMap();
 
-    engine->rootContext()->setContextProperty("configItems", configItems);
+    engine->rootContext()->setContextProperty("configItems", m_configItems);
 }
 
 
 QVariant PluginManager::getPluginProperty(QString plugin, QString property){
-    if(plugins.keys().contains(plugin)){
-        QObject *pluginObj = plugins[plugin].value<QObject *>();
-
-        QObject * pluginContext = qobject_cast<PluginInterface *>(pluginObj)->getContextProperty();
+    if(m_plugins.keys().contains(plugin)){
+        QObject * pluginContext = m_plugins[plugin]->getContextProperty();
         QVariant ret;
 
         ret = pluginContext->property(property.toLocal8Bit());

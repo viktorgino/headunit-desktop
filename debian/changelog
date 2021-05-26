@@ -1,3 +1,11 @@
+headunit-desktop (0.1-70) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (d3e06598e57fba8619492328eb0e6daedf3a6007)
+  * [App] Fix plugin messaging
+
+ -- Gino <gino@gino-ubuntu>  Wed, 26 May 2021 00:34:21 +0000
+
 headunit-desktop (0.1-69) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

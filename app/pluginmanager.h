@@ -24,7 +24,6 @@
 class PluginManager : public QObject
 {
     Q_OBJECT
-    Q_PROPERTY(QVariantMap plugins READ getPlugins NOTIFY pluginsUpdated)
 public:
     explicit PluginManager(QQmlApplicationEngine *engine, bool filter, QStringList filterList, QObject *parent = nullptr);
     ~PluginManager();
@@ -37,32 +36,23 @@ private slots:
     void messageHandler(QString id, QVariant message);
     void actionHandler(QString id, QVariant message);
 private:
+    QVariantList m_menuItems;
+    QVariantList m_configItems;
+    QMap<QString, PluginInterface *> m_plugins;
+    QMap<QString, QJsonObject> m_pluginConfigs;
+    QList<QPluginLoader *> m_pluginLoaders;
+    MediaManager m_mediaManager;
+    QVariantList m_settingsItems;
+    QVariantMap m_settings;
+    QHash<QString, QStringList> m_connections;
+    QVariantMap m_overlays;
+
     bool loadPlugins(QQmlApplicationEngine *engine, bool filter, QStringList filterList);
     void initPlugins();
-    QVariantList menuItems;
-    QVariantList configItems;
-    QVariantMap plugins;
-    QMap<QString, QJsonObject> pluginConfigs;
-    QList<QPluginLoader *>pluginLoaders;
-    MediaManager m_mediaManager;
-//    QList<SettingsLoader *>pluginSettings;
-
     void settingsChanged(QString key, QVariant value);
-//    QQmlPropertyMap settings;
-    QVariantList settingsItems;
-
     void loadMenuItems(QQmlApplicationEngine *engine);
     void loadConfigItems(QQmlApplicationEngine *engine);
     void processPluginEvents(QStringList events);
-    QVariantMap m_settings;
-    QHash<QString, QStringList> connections;
-
-    QVariantMap m_overlays;
-
-    QVariantMap getPlugins(){
-        return plugins;
-    }
-
 };
 
 #endif // PLUGINMANAGER_H
