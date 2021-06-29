@@ -1,7 +1,7 @@
 #include "androidauto.h"
 
 
-AndroidAuto::AndroidAuto(QObject *parent) : QObject (parent)
+AndroidAutoPlugin::AndroidAutoPlugin(QObject *parent) : QObject (parent)
 {
     m_pluginSettings.eventListeners = QStringList() << "UsbConnectionListenerPlugin::UsbDeviceAdded";
     m_pluginSettings.events = QStringList() << "connected";
@@ -10,15 +10,15 @@ AndroidAuto::AndroidAuto(QObject *parent) : QObject (parent)
     m_interfaceSettings.mediaStream = true;
     m_interfaceSettings.voiceStream = true;
 
-    connect(headunit, &Headunit::playbackStarted, this, &AndroidAuto::playbackStarted);
-    connect(headunit, &Headunit::statusChanged, this, &AndroidAuto::huStatusChanged);
+    connect(headunit, &Headunit::playbackStarted, this, &AndroidAutoPlugin::playbackStarted);
+    connect(headunit, &Headunit::statusChanged, this, &AndroidAutoPlugin::huStatusChanged);
 }
 
-QObject *AndroidAuto::getContextProperty(){
+QObject *AndroidAutoPlugin::getContextProperty(){
     return qobject_cast<QObject *>(headunit);
 }
 
-void AndroidAuto::eventMessage(QString id, QVariant message){
+void AndroidAutoPlugin::eventMessage(QString id, QVariant message){
     if(id == "UsbConnectionListenerPlugin::UsbDeviceAdded"){
         if(headunit->status() != Headunit::RUNNING){
             headunit->startHU();
@@ -26,30 +26,30 @@ void AndroidAuto::eventMessage(QString id, QVariant message){
     } else if(id == "UsbConnectionListenerPlugin::UsbDeviceRemoved"){
     }
 }
-void AndroidAuto::init(){
+void AndroidAutoPlugin::init(){
     headunit->init();
     headunit->startHU();
 }
 
-void AndroidAuto::start() {
+void AndroidAutoPlugin::start() {
     headunit->startMedia();
 }
-void AndroidAuto::stop() {
+void AndroidAutoPlugin::stop() {
     headunit->stopMedia();
 }
-void AndroidAuto::prevTrack() {
+void AndroidAutoPlugin::prevTrack() {
     headunit->prevTrack();
 }
-void AndroidAuto::nextTrack() {
+void AndroidAutoPlugin::nextTrack() {
     headunit->nextTrack();
 }
-void AndroidAuto::setMediaVolume(uint8_t volume) {
+void AndroidAutoPlugin::setMediaVolume(uint8_t volume) {
     headunit->setMediaVolume(volume);
 }
-void AndroidAuto::setVoiceVolume(uint8_t volume) {
+void AndroidAutoPlugin::setVoiceVolume(uint8_t volume) {
     headunit->setVoiceVolume(volume);
 }
 
-void AndroidAuto::huStatusChanged(){
+void AndroidAutoPlugin::huStatusChanged(){
     emit message("connected", (headunit->status() > Headunit::NO_CONNECTION));
 }

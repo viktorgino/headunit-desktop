@@ -8,13 +8,13 @@
 #include <mediainterface.h>
 #include "headunit.h"
 
-class AndroidAuto : public QObject, PluginInterface, public MediaInterface
+class AndroidAutoPlugin : public QObject, PluginInterface, public MediaInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.viktorgino.headunit.androidauto" FILE "config.json")
     Q_INTERFACES(PluginInterface)
 public:
-    explicit AndroidAuto(QObject *parent = nullptr);
+    explicit AndroidAutoPlugin(QObject *parent = nullptr);
     QObject *getContextProperty() override;
     void init() override;
 

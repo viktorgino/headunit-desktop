@@ -1,3 +1,11 @@
+headunit-desktop (0.1-75) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (4d49d43d80c30b9a0b1767ebfd9cd6c7a6915adc)
+  * [AA] Use latest libheadunit
+
+ -- Gino <gino@gino-ubuntu>  Tue, 29 Jun 2021 13:35:55 +0000
+
 headunit-desktop (0.1-74) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

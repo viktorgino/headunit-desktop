@@ -75,9 +75,9 @@ int Headunit::startHU(){
     aa_settings["ts_height"] = std::to_string(m_videoHeight);
     aa_settings["ts_width"] = std::to_string(m_videoWidth);
 
-    headunit = new HUServer(callbacks, aa_settings);
+    headunit = new AndroidAuto::HUServer(callbacks, aa_settings);
 
-    int ret = headunit->hu_aap_start(false, false);
+    int ret = headunit->start();
     if ( ret >= 0) {
         g_hu = &headunit->GetAnyThreadInterface();
         huStarted = true;
@@ -267,8 +267,8 @@ GstFlowReturn Headunit::read_mic_data(GstElement *appsink, Headunit *_this) {
     uint64_t bufTimestamp = GST_BUFFER_TIMESTAMP(gstbuf);
     uint64_t timestamp = GST_CLOCK_TIME_IS_VALID(bufTimestamp) ? (bufTimestamp / 1000) : get_cur_timestamp();
 
-    _this->g_hu->hu_queue_command([timestamp, mapInfo](IHUConnectionThreadInterface & s) {
-        int ret = s.hu_aap_enc_send_media_packet(1, AA_CH_MIC, HU_PROTOCOL_MESSAGE::MediaDataWithTimestamp, timestamp, mapInfo.data, mapInfo.size);
+    _this->g_hu->queueCommand([timestamp, mapInfo](AndroidAuto::IHUConnectionThreadInterface & s) {
+      int ret = s.sendEncodedMediaPacket(1, AndroidAuto::MicrophoneChannel, AndroidAuto::HU_PROTOCOL_MESSAGE::MediaDataWithTimestamp, timestamp, mapInfo.data, mapInfo.size);
         if (ret < 0) {
             qDebug("read_mic_data(): hu_aap_enc_send() failed with (%d)", ret);
         }
@@ -376,7 +376,7 @@ void Headunit::touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point) {
     unsigned int y = (unsigned int) (normy * m_videoHeight);
 
     if(huStarted){
-        g_hu->hu_queue_command([action, x, y](IHUConnectionThreadInterface & s) {
+        g_hu->queueCommand([action, x, y](AndroidAuto::IHUConnectionThreadInterface & s) {
             HU::InputEvent inputEvent;
             inputEvent.set_timestamp(Headunit::get_cur_timestamp());
             HU::TouchInfo* touchEvent = inputEvent.mutable_touch();
@@ -388,7 +388,7 @@ void Headunit::touchEvent(HU::TouchInfo::TOUCH_ACTION action, QPoint *point) {
 
             /* Send touch event */
 
-            int ret = s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            int ret = s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
             if (ret < 0) {
                 qDebug("aa_touch_event(): hu_aap_enc_send() failed with (%d)", ret);
             }
@@ -425,72 +425,72 @@ void Headunit::setStatus(hu_status status){
 
 void Headunit::startMedia() {
     if(huStarted){
-        g_hu->hu_queue_command([](IHUConnectionThreadInterface & s) {
+        g_hu->queueCommand([](AndroidAuto::IHUConnectionThreadInterface & s) {
             HU::InputEvent inputEvent;
             inputEvent.set_timestamp(get_cur_timestamp());
             HU::ButtonInfo* buttonInfo = inputEvent.mutable_button()->add_button();
             buttonInfo->set_is_pressed(true);
             buttonInfo->set_meta(0);
             buttonInfo->set_long_press(false);
-            buttonInfo->set_scan_code(HUIB_START);
+            buttonInfo->set_scan_code(AndroidAuto::HUIB_START);
 
-            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
             buttonInfo->set_is_pressed(false);
-            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
         });
     }
 }
 
 void Headunit::stopMedia() {
     if(huStarted){
-        g_hu->hu_queue_command([](IHUConnectionThreadInterface & s) {
+        g_hu->queueCommand([](AndroidAuto::IHUConnectionThreadInterface & s) {
             HU::InputEvent inputEvent;
             inputEvent.set_timestamp(get_cur_timestamp());
             HU::ButtonInfo* buttonInfo = inputEvent.mutable_button()->add_button();
             buttonInfo->set_is_pressed(true);
             buttonInfo->set_meta(0);
             buttonInfo->set_long_press(false);
-            buttonInfo->set_scan_code(HUIB_STOP);
+            buttonInfo->set_scan_code(AndroidAuto::HUIB_STOP);
 
-            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
             buttonInfo->set_is_pressed(false);
-            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
         });
     }
 }
 
 void Headunit::prevTrack() {
     if(huStarted){
-        g_hu->hu_queue_command([](IHUConnectionThreadInterface & s) {
+        g_hu->queueCommand([](AndroidAuto::IHUConnectionThreadInterface & s) {
             HU::InputEvent inputEvent;
             inputEvent.set_timestamp(get_cur_timestamp());
             HU::ButtonInfo* buttonInfo = inputEvent.mutable_button()->add_button();
             buttonInfo->set_is_pressed(true);
             buttonInfo->set_meta(0);
             buttonInfo->set_long_press(false);
-            buttonInfo->set_scan_code(HUIB_PREV);
+            buttonInfo->set_scan_code(AndroidAuto::HUIB_PREV);
 
-            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
             buttonInfo->set_is_pressed(false);
-            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
         });
     }
 }
 
 void Headunit::nextTrack() {
     if(huStarted){
-        g_hu->hu_queue_command([](IHUConnectionThreadInterface & s) {
+      g_hu->queueCommand([](AndroidAuto::IHUConnectionThreadInterface & s) {
             HU::InputEvent inputEvent;
             inputEvent.set_timestamp(get_cur_timestamp());
             HU::ButtonInfo* buttonInfo = inputEvent.mutable_button()->add_button();
             buttonInfo->set_is_pressed(true);
             buttonInfo->set_meta(0);
             buttonInfo->set_long_press(false);
-            buttonInfo->set_scan_code(HUIB_NEXT);
+            buttonInfo->set_scan_code(AndroidAuto::HUIB_NEXT);
 
-            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
             buttonInfo->set_is_pressed(false);
-            s.hu_aap_enc_send_message(0, AA_CH_TOU, HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+            s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
         });
     }
 }
@@ -507,14 +507,14 @@ void Headunit::setVoiceVolume(uint8_t volume) {
     gst_object_unref(voice_sink);
 }
 
-int DesktopEventCallbacks::MediaPacket(int chan, uint64_t timestamp, const byte * buf, int len) {
+int DesktopEventCallbacks::MediaPacket(AndroidAuto::ServiceChannels chan, uint64_t timestamp, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;
 
-    if (chan == AA_CH_VID) {
+    if (chan == AndroidAuto::VideoChannel) {
         gst_src = headunit->m_vid_src;
-    } else if (chan == AA_CH_AUD) {
+    } else if (chan == AndroidAuto::MediaAudioChannel) {
         gst_src = headunit->m_aud_src;
-    } else if (chan == AA_CH_AU1) {
+    } else if (chan == AndroidAuto::Audio1Channel) {
         gst_src = headunit->m_au1_src;
     }
 
@@ -533,22 +533,22 @@ int DesktopEventCallbacks::MediaPacket(int chan, uint64_t timestamp, const byte 
     return 0;
 }
 
-int DesktopEventCallbacks::MediaStart(int chan) {
+int DesktopEventCallbacks::MediaStart(AndroidAuto::ServiceChannels chan) {
     switch(chan){
-    case AA_CH_VID:
+    case AndroidAuto::VideoChannel:
         gst_element_set_state(headunit->vid_pipeline, GST_STATE_PLAYING);
         headunit->setStatus(Headunit::RUNNING);
 
         GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(headunit->vid_pipeline),GST_DEBUG_GRAPH_SHOW_VERBOSE, "vid_pipeline");
         break;
-    case AA_CH_AUD:
+    case AndroidAuto::MediaAudioChannel:
         gst_element_set_state(headunit->aud_pipeline, GST_STATE_PLAYING);
         headunit->playbackStarted();
         break;
-    case AA_CH_AU1:
+    case AndroidAuto::Audio1Channel:
         gst_element_set_state(headunit->au1_pipeline, GST_STATE_PLAYING);
         break;
-    case AA_CH_MIC:
+    case AndroidAuto::MicrophoneChannel:
         gst_element_set_state(headunit->mic_pipeline, GST_STATE_PLAYING);
         break;
     default:
@@ -558,19 +558,19 @@ int DesktopEventCallbacks::MediaStart(int chan) {
     return 0;
 }
 
-int DesktopEventCallbacks::MediaStop(int chan) {
+int DesktopEventCallbacks::MediaStop(AndroidAuto::ServiceChannels chan) {
     switch(chan){
-    case AA_CH_VID:
+    case AndroidAuto::VideoChannel:
         gst_element_set_state(headunit->vid_pipeline, GST_STATE_READY);
         headunit->setStatus(Headunit::VIDEO_WAITING);
         break;
-    case AA_CH_AUD:
+    case AndroidAuto::MediaAudioChannel:
         gst_element_set_state(headunit->aud_pipeline, GST_STATE_READY);
         break;
-    case AA_CH_AU1:
+    case AndroidAuto::Audio1Channel:
         gst_element_set_state(headunit->au1_pipeline, GST_STATE_READY);
         break;
-    case AA_CH_MIC:
+    case AndroidAuto::MicrophoneChannel:
         gst_element_set_state(headunit->mic_pipeline, GST_STATE_READY);
         break;
     default:
@@ -584,15 +584,15 @@ void DesktopEventCallbacks::DisconnectionOrError() {
     headunit->setStatus(Headunit::NO_CONNECTION);
 }
 
-void DesktopEventCallbacks::CustomizeOutputChannel(int /* unused */, HU::ChannelDescriptor::OutputStreamChannel& /* unused */) {
+void DesktopEventCallbacks::CustomizeOutputChannel(AndroidAuto::ServiceChannels /* unused */, HU::ChannelDescriptor::OutputStreamChannel& /* unused */) {
 
 }
-void DesktopEventCallbacks::MediaSetupComplete(int chan) {
-    if (chan == AA_CH_VID) {
+void DesktopEventCallbacks::MediaSetupComplete(AndroidAuto::ServiceChannels chan) {
+    if (chan == AndroidAuto::VideoChannel) {
         VideoFocusHappened(true, true);
     }
 }
-void DesktopEventCallbacks::AudioFocusRequest(int chan, const HU::AudioFocusRequest &request)  {
+void DesktopEventCallbacks::AudioFocusRequest(AndroidAuto::ServiceChannels chan, const HU::AudioFocusRequest &request)  {
     run_on_main_thread([this, chan, request](){
         HU::AudioFocusResponse response;
         if (request.focus_type() == HU::AudioFocusRequest::AUDIO_FOCUS_RELEASE) {
@@ -601,32 +601,32 @@ void DesktopEventCallbacks::AudioFocusRequest(int chan, const HU::AudioFocusRequ
             response.set_focus_type(HU::AudioFocusResponse::AUDIO_FOCUS_STATE_GAIN);
         }
 
-        headunit->g_hu->hu_queue_command([chan, response](IHUConnectionThreadInterface & s) {
-            s.hu_aap_enc_send_message(0, chan, HU_PROTOCOL_MESSAGE::AudioFocusResponse, response);
+        headunit->g_hu->queueCommand([chan, response](AndroidAuto::IHUConnectionThreadInterface & s) {
+            s.sendEncodedMessage(0, chan, AndroidAuto::HU_PROTOCOL_MESSAGE::AudioFocusResponse, response);
         });
         return false;
     });
 }
 
-void DesktopEventCallbacks::VideoFocusRequest(int /* unused */, const HU::VideoFocusRequest &request) {
+void DesktopEventCallbacks::VideoFocusRequest(AndroidAuto::ServiceChannels /* unused */, const HU::VideoFocusRequest &request) {
     VideoFocusHappened(request.mode() == HU::VIDEO_FOCUS_MODE_FOCUSED, false);
 }
 
 void DesktopEventCallbacks::VideoFocusHappened(bool hasFocus, bool unrequested) {
     run_on_main_thread([this, hasFocus, unrequested](){
-        headunit->g_hu->hu_queue_command([hasFocus, unrequested](IHUConnectionThreadInterface & s) {
+        headunit->g_hu->queueCommand([hasFocus, unrequested](AndroidAuto::IHUConnectionThreadInterface & s) {
             HU::VideoFocus videoFocusGained;
             videoFocusGained.set_mode(hasFocus ? HU::VIDEO_FOCUS_MODE_FOCUSED : HU::VIDEO_FOCUS_MODE_UNFOCUSED);
             videoFocusGained.set_unrequested(unrequested);
-            s.hu_aap_enc_send_message(0, AA_CH_VID, HU_MEDIA_CHANNEL_MESSAGE::VideoFocus, videoFocusGained);
+            s.sendEncodedMessage(0, AndroidAuto::VideoChannel, AndroidAuto::HU_MEDIA_CHANNEL_MESSAGE::VideoFocus, videoFocusGained);
         });
 
         //Set speed to 0
         HU::SensorEvent sensorEvent;
         sensorEvent.add_location_data()->set_speed(0);
-        headunit->g_hu->hu_queue_command([sensorEvent](IHUConnectionThreadInterface& s)
+        headunit->g_hu->queueCommand([sensorEvent](AndroidAuto::IHUConnectionThreadInterface& s)
         {
-            s.hu_aap_enc_send_message(0, AA_CH_SEN, HU_SENSOR_CHANNEL_MESSAGE::SensorEvent, sensorEvent);
+            s.sendEncodedMessage(0, AndroidAuto::SensorChannel, AndroidAuto::HU_SENSOR_CHANNEL_MESSAGE::SensorEvent, sensorEvent);
         });
         return false;
     });
