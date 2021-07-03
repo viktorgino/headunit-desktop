@@ -1,3 +1,11 @@
+headunit-desktop (0.1-77) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (6dde1d86d6c41cea3a1f539e19f88d84066229d0)
+  * [Theme] Update submodule
+
+ -- Gino <gino@gino-ubuntu>  Sat, 03 Jul 2021 02:01:57 +0000
+
 headunit-desktop (0.1-76) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

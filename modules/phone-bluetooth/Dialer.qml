@@ -22,7 +22,7 @@ Item {
         anchors.right: parent.right
         anchors.top: parent.top
         color: "#ffffff"
-        placeholderTextColor : "#cecece"
+//        placeholderTextColor : "#cecece"
         validator: RegExpValidator { regExp :/[+]?[0-9#*]*/}
 
         background: Rectangle {
