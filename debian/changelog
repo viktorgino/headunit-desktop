@@ -1,3 +1,11 @@
+headunit-desktop (0.1-78) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (c382491ca46ee876dc649291ab31c24fa7c07090)
+  * [Volume] Update to new pulseaudio-qt library
+
+ -- Gino <gino@gino-ubuntu>  Sat, 03 Jul 2021 06:55:20 +0000
+
 headunit-desktop (0.1-77) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

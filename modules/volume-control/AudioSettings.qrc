@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/AudioSettings">
+        <file>volume.png</file>
+        <file>VolumeControl.qml</file>
+        <file>DeviceListItem.qml</file>
+        <file>ModuleListItem.qml</file>
+        <file>DefaultDeviceControl.qml</file>
+    </qresource>
+</RCC>

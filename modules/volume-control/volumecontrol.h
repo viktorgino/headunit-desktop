@@ -2,7 +2,9 @@
 #define VOLUMECONTROL_H
 
 #include <QObject>
+#include <QQmlEngine>
 #include <plugininterface.h>
+#include "pulseaudio-qt/src/models.h"
 
 class VolumeControl : public QObject, PluginInterface
 {
@@ -11,17 +13,8 @@ class VolumeControl : public QObject, PluginInterface
     Q_INTERFACES(PluginInterface)
 public:
     explicit VolumeControl(QObject *parent = nullptr);
+    void init() override;
     QObject *getContextProperty() override;
-    QQuickImageProvider *getImageProvider() override;
-    QStringList eventListeners() override;
-    QStringList events() override;
-    QStringList actions() override;
-
-signals:
-
-public slots:
-    void eventMessage(QString id, QString message) override;
-    void actionMessage(QString id, QString message) override;
 };
 
 #endif // VOLUMECONTROL_H
