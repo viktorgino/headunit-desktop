@@ -9,11 +9,16 @@ import HUDTheme 1.0
 
 Item {
     id:__root
-    property QtObject bluezManager : BluezQt.Manager
-    property QtObject bluezDevice : bluezManager.deviceForUbi(PhoneBluetooth.activeDevice)
-    property QtObject bluezMediaPlayer : bluezDevice.mediaPlayer
-    property QtObject bluezMediaTransport : bluezDevice.mediaTransport
+    property BluezQt.Manager bluezManager : BluezQt.Manager
+    property BluezQt.Device bluezDevice : bluezManager.deviceForUbi(PhoneBluetooth.activeDevice)
+    property BluezQt.MediaPlayer bluezMediaPlayer : bluezDevice.mediaPlayer
 
+    Connections {
+        target: bluezManager
+        onInitFinished : {
+            bluezDevice = bluezManager.deviceForUbi(PhoneBluetooth.activeDevice)
+        }
+    }
 
     Connections{
         target: bluezMediaPlayer
@@ -367,8 +372,13 @@ Item {
         onNextTrack : {
             bluezMediaPlayer.next()
         }
-        onSetMediaVolume : {
-            bluezMediaTransport
+        onActiveDeviceChanged: {
+            if(PhoneBluetooth.activeDevice){
+                bluezDevice = bluezManager.deviceForUbi(PhoneBluetooth.activeDevice)
+            } else {
+                console.log("Active device removed")
+                bluezDevice = 0
+            }
         }
     }
     Rectangle {

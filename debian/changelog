@@ -1,3 +1,11 @@
+headunit-desktop (0.1-80) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (88b00c6f079dea14e353733c9ba63f07d738bdab)
+  * [Phone] Fix MediaPlayer not loading on application start
+
+ -- Gino <gino@gino-ubuntu>  Sat, 03 Jul 2021 07:03:33 +0000
+
 headunit-desktop (0.1-79) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
