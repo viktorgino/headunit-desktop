@@ -7,3 +7,6 @@ isEmpty(PREFIX) {
 rpi{
 DEFINES += RPI
 }
+
+HEADERS += \
+    $$PWD/includes/mediainterface.h
