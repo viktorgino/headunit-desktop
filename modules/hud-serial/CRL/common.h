@@ -51,6 +51,7 @@ typedef struct ClimateControlCommandFrame {
 #endif
 typedef enum CommandTypes {
     NoCommand,
+    Acknowledge,
     ClimateControlCommand,
     MediaInputCommand,
     ButtonInputCommand,

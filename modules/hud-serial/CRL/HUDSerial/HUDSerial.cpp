@@ -15,237 +15,222 @@ HUDSerial::HUDSerial()
 
 void HUDSerial::sendBusMessage(BusNumber bus, uint32_t id, uint8_t len, uint8_t *buf) {}
 
-static char receivedCmd[32] = {0};
-static uint8_t receivedCmdLen = 0;
 void HUDSerial::receiveByte(char receivedByte) {
-    if (receivedCmdLen >= 31) {
-        receivedCmdLen = 0;
-    }
-
-    receivedCmd[receivedCmdLen++] = receivedByte;
 
     switch (m_receiverState) {
-        case CommandByte: {
-            if (receivedByte <= CustomCommand) {
-                m_currentCommand = static_cast<CommandTypes>(receivedByte);
-                m_receiverState = SizeByte;
-            }
-            break;
+    case CommandByte: {
+        if (receivedByte <= CustomCommand) {
+            m_currentCommand = static_cast<CommandTypes>(receivedByte);
+            m_receiverState = SizeByte;
         }
-        case SizeByte: {
-            m_frameSize = receivedByte;
-            m_dataBufferIndex = 0;
-            memset(m_receivedBuffer, 0, sizeof m_receivedBuffer);
+        break;
+    }
+    case SizeByte: {
+        m_frameSize = receivedByte;
+        m_dataBufferIndex = 0;
+        memset(m_receivedBuffer, 0, sizeof m_receivedBuffer);
 
-            m_crcIndex = 0;
-            m_crc = 0;
+        m_crcIndex = 0;
+        m_crc = 0;
 
-            m_receiverState = DataBuffer;
-            break;
-        }
-        case DataBuffer: {
-            if (m_dataBufferIndex < m_frameSize) {
-                m_receivedBuffer[m_dataBufferIndex] = receivedByte;
-                switch (m_currentCommand) {
-                    case ClimateControlCommand: {
-                        switch (m_dataBufferIndex) {
-                            case 0: {
-                                m_receivedAcControlFrame.Front.Left.Direction.Up = receivedByte & (1 << 0);
-                                m_receivedAcControlFrame.Front.Left.Direction.Center = receivedByte & (1 << 1);
-                                m_receivedAcControlFrame.Front.Left.Direction.Down = receivedByte & (1 << 2);
-                                m_receivedAcControlFrame.Front.Left.Direction.Auto = receivedByte & (1 << 3);
-                                m_receivedAcControlFrame.Front.Right.Direction.Up = receivedByte & (1 << 4);
-                                m_receivedAcControlFrame.Front.Right.Direction.Center = receivedByte & (1 << 5);
-                                m_receivedAcControlFrame.Front.Right.Direction.Down = receivedByte & (1 << 6);
-                                m_receivedAcControlFrame.Front.Right.Direction.Auto = receivedByte & (1 << 7);
-                                break;
-                            }
-                            case 1: {
-                                m_receivedAcControlFrame.Rear.Left.Direction.Up = receivedByte & (1 << 0);
-                                m_receivedAcControlFrame.Rear.Left.Direction.Center = receivedByte & (1 << 1);
-                                m_receivedAcControlFrame.Rear.Left.Direction.Down = receivedByte & (1 << 2);
-                                m_receivedAcControlFrame.Rear.Left.Direction.Auto = receivedByte & (1 << 3);
-                                m_receivedAcControlFrame.Rear.Right.Direction.Up = receivedByte & (1 << 4);
-                                m_receivedAcControlFrame.Rear.Right.Direction.Center = receivedByte & (1 << 5);
-                                m_receivedAcControlFrame.Rear.Right.Direction.Down = receivedByte & (1 << 6);
-                                m_receivedAcControlFrame.Rear.Right.Direction.Auto = receivedByte & (1 << 7);
-                                break;
-                            }
-                            case 2: {
-                                m_receivedAcControlFrame.Front.Left.Fan = receivedByte;
-                            } break;
-                            case 3: {
-                                m_receivedAcControlFrame.Front.Right.Fan = receivedByte;
-                            } break;
-                            case 4: {
-                                m_receivedAcControlFrame.Rear.Left.Fan = receivedByte;
-                            } break;
-                            case 5: {
-                                m_receivedAcControlFrame.Rear.Right.Fan = receivedByte;
-                            } break;
-                            case 6: {
-                                m_receivedAcControlFrame.Front.Left.Temperature = receivedByte;
-                            } break;
-                            case 7: {
-                                m_receivedAcControlFrame.Front.Right.Temperature = receivedByte;
-                            } break;
-                            case 8: {
-                                m_receivedAcControlFrame.Rear.Left.Temperature = receivedByte;
-                            } break;
-                            case 9: {
-                                m_receivedAcControlFrame.Rear.Right.Temperature = receivedByte;
-                            } break;
-                            case 10: {
-                                m_receivedAcControlFrame.Front.Left.SeatHeating = receivedByte;
-                            } break;
-                            case 11: {
-                                m_receivedAcControlFrame.Front.Right.SeatHeating = receivedByte;
-                            } break;
-                            case 12: {
-                                m_receivedAcControlFrame.Rear.Left.SeatHeating = receivedByte;
-                            } break;
-                            case 13: {
-                                m_receivedAcControlFrame.Rear.Right.SeatHeating = receivedByte;
-                            } break;
-                            case 14: {
-                                m_receivedAcControlFrame.TempSelectLeft = receivedByte & (1 << 0);
-                                m_receivedAcControlFrame.TempSelectRight = receivedByte & (1 << 1);
-                                m_receivedAcControlFrame.FanSelectLeft = receivedByte & (1 << 2);
-                                m_receivedAcControlFrame.FanSelectRight = receivedByte & (1 << 3);
-                                m_receivedAcControlFrame.ProgAuto = receivedByte & (1 << 4);
-                                m_receivedAcControlFrame.ProgAutoFanFront = receivedByte & (1 << 5);
-                                m_receivedAcControlFrame.ProgAutoFanRear = receivedByte & (1 << 6);
-                                m_receivedAcControlFrame.ProgWindscreen = receivedByte & (1 << 7);
-                                break;
-                            }
-                            case 15: {
-                                m_receivedAcControlFrame.Recirculate = receivedByte & (1 << 0);
-                                m_receivedAcControlFrame.RearDefrost = receivedByte & (1 << 1);
-                                m_receivedAcControlFrame.AC = receivedByte & (1 << 2);
-                                m_receiverState = CrcBuffer;
-                                break;
-                            }
-                        }
+        m_receiverState = DataBuffer;
+        break;
+    }
+    case DataBuffer: {
+        if (m_dataBufferIndex < m_frameSize) {
+            m_receivedBuffer[m_dataBufferIndex] = receivedByte;
+            switch (m_currentCommand) {
+            case  Acknowledge: {
 
-                        break;
-                    }
-                    case CustomCommand: {
-                        switch (m_dataBufferIndex) {
-                            case 0: {
-                                m_receivedCustomCommandFrame.Bits[0] = receivedByte & (1 << 0);
-                                m_receivedCustomCommandFrame.Bits[1] = receivedByte & (1 << 1);
-                                m_receivedCustomCommandFrame.Bits[2] = receivedByte & (1 << 2);
-                                m_receivedCustomCommandFrame.Bits[3] = receivedByte & (1 << 3);
-                                m_receivedCustomCommandFrame.Bits[4] = receivedByte & (1 << 4);
-                                m_receivedCustomCommandFrame.Bits[5] = receivedByte & (1 << 5);
-                                m_receivedCustomCommandFrame.Bits[6] = receivedByte & (1 << 6);
-                                m_receivedCustomCommandFrame.Bits[7] = receivedByte & (1 << 7);
-                                break;
-                            }
-                            case 1: {
-                                m_receivedCustomCommandFrame.Bits[8] = receivedByte & (1 << 0);
-                                m_receivedCustomCommandFrame.Bits[9] = receivedByte & (1 << 1);
-                                m_receivedCustomCommandFrame.Bits[10] = receivedByte & (1 << 2);
-                                m_receivedCustomCommandFrame.Bits[11] = receivedByte & (1 << 3);
-                                m_receivedCustomCommandFrame.Bits[12] = receivedByte & (1 << 4);
-                                m_receivedCustomCommandFrame.Bits[13] = receivedByte & (1 << 5);
-                                m_receivedCustomCommandFrame.Bits[14] = receivedByte & (1 << 6);
-                                m_receivedCustomCommandFrame.Bits[15] = receivedByte & (1 << 7);
-                                break;
-                            }
-                            case 2: {
-                                m_receivedCustomCommandFrame.Bytes[0] = receivedByte;
-                                break;
-                            }
-                            case 3: {
-                                m_receivedCustomCommandFrame.Bytes[1] = receivedByte;
-                                break;
-                            }
-                            case 4: {
-                                m_receivedCustomCommandFrame.Bytes[2] = receivedByte;
-                                break;
-                            }
-                            case 5: {
-                                m_receivedCustomCommandFrame.Bytes[3] = receivedByte;
-                                break;
-                            }
-                            case 6: {
-                                m_receivedCustomCommandFrame.Bytes[4] = receivedByte;
-                                break;
-                            }
-                            case 7: {
-                                m_receivedCustomCommandFrame.Bytes[5] = receivedByte;
-                                m_receiverState = CrcBuffer;
-                                break;
-                            }
-                        }
-                        break;
-                    }
-                    case DebugMessageCommand: {
-                        if(m_dataBufferIndex < 64){
-                            m_debugMessage[m_dataBufferIndex] = receivedByte;
-                        } else {
-                            m_receiverState = CrcBuffer;
-                        }
-                    } break;
-                    case ButtonInputCommand: {
-                        m_callbacks->ButtonInputCommandCallback((Keys)receivedByte);
-                    } break;
-                    default:
-                        break;
-                }
-
-                m_dataBufferIndex++;
-            }
-            if (m_dataBufferIndex >= m_frameSize) {
-                m_receiverState = CrcBuffer;
-            }
-            break;
-        }
-        case CrcBuffer: {
-            switch (m_crcIndex++) {
+            } break;
+            case ClimateControlCommand: {
+                switch (m_dataBufferIndex) {
                 case 0: {
-                    m_crc = ((uint8_t)receivedByte) << 8;
-                } break;
-                case 1:{
-                    m_crc = ((uint8_t) receivedByte) | m_crc;
-                    m_receiverState = EndOfFrame;
+                    m_receivedAcControlFrame.Front.Left.Direction.Up = receivedByte & (1 << 0);
+                    m_receivedAcControlFrame.Front.Left.Direction.Center = receivedByte & (1 << 1);
+                    m_receivedAcControlFrame.Front.Left.Direction.Down = receivedByte & (1 << 2);
+                    m_receivedAcControlFrame.Front.Left.Direction.Auto = receivedByte & (1 << 3);
+                    m_receivedAcControlFrame.Front.Right.Direction.Up = receivedByte & (1 << 4);
+                    m_receivedAcControlFrame.Front.Right.Direction.Center = receivedByte & (1 << 5);
+                    m_receivedAcControlFrame.Front.Right.Direction.Down = receivedByte & (1 << 6);
+                    m_receivedAcControlFrame.Front.Right.Direction.Auto = receivedByte & (1 << 7);
+                    break;
                 }
-                default: {
+                case 1: {
+                    m_receivedAcControlFrame.Rear.Left.Direction.Up = receivedByte & (1 << 0);
+                    m_receivedAcControlFrame.Rear.Left.Direction.Center = receivedByte & (1 << 1);
+                    m_receivedAcControlFrame.Rear.Left.Direction.Down = receivedByte & (1 << 2);
+                    m_receivedAcControlFrame.Rear.Left.Direction.Auto = receivedByte & (1 << 3);
+                    m_receivedAcControlFrame.Rear.Right.Direction.Up = receivedByte & (1 << 4);
+                    m_receivedAcControlFrame.Rear.Right.Direction.Center = receivedByte & (1 << 5);
+                    m_receivedAcControlFrame.Rear.Right.Direction.Down = receivedByte & (1 << 6);
+                    m_receivedAcControlFrame.Rear.Right.Direction.Auto = receivedByte & (1 << 7);
+                    break;
+                }
+                case 2: {
+                    m_receivedAcControlFrame.Front.Left.Fan = receivedByte;
                 } break;
+                case 3: {
+                    m_receivedAcControlFrame.Front.Right.Fan = receivedByte;
+                } break;
+                case 4: {
+                    m_receivedAcControlFrame.Rear.Left.Fan = receivedByte;
+                } break;
+                case 5: {
+                    m_receivedAcControlFrame.Rear.Right.Fan = receivedByte;
+                } break;
+                case 6: {
+                    m_receivedAcControlFrame.Front.Left.Temperature = receivedByte;
+                } break;
+                case 7: {
+                    m_receivedAcControlFrame.Front.Right.Temperature = receivedByte;
+                } break;
+                case 8: {
+                    m_receivedAcControlFrame.Rear.Left.Temperature = receivedByte;
+                } break;
+                case 9: {
+                    m_receivedAcControlFrame.Rear.Right.Temperature = receivedByte;
+                } break;
+                case 10: {
+                    m_receivedAcControlFrame.Front.Left.SeatHeating = receivedByte;
+                } break;
+                case 11: {
+                    m_receivedAcControlFrame.Front.Right.SeatHeating = receivedByte;
+                } break;
+                case 12: {
+                    m_receivedAcControlFrame.Rear.Left.SeatHeating = receivedByte;
+                } break;
+                case 13: {
+                    m_receivedAcControlFrame.Rear.Right.SeatHeating = receivedByte;
+                } break;
+                case 14: {
+                    m_receivedAcControlFrame.TempSelectLeft = receivedByte & (1 << 0);
+                    m_receivedAcControlFrame.TempSelectRight = receivedByte & (1 << 1);
+                    m_receivedAcControlFrame.FanSelectLeft = receivedByte & (1 << 2);
+                    m_receivedAcControlFrame.FanSelectRight = receivedByte & (1 << 3);
+                    m_receivedAcControlFrame.ProgAuto = receivedByte & (1 << 4);
+                    m_receivedAcControlFrame.ProgAutoFanFront = receivedByte & (1 << 5);
+                    m_receivedAcControlFrame.ProgAutoFanRear = receivedByte & (1 << 6);
+                    m_receivedAcControlFrame.ProgWindscreen = receivedByte & (1 << 7);
+                    break;
+                }
+                case 15: {
+                    m_receivedAcControlFrame.Recirculate = receivedByte & (1 << 0);
+                    m_receivedAcControlFrame.RearDefrost = receivedByte & (1 << 1);
+                    m_receivedAcControlFrame.AC = receivedByte & (1 << 2);
+                    m_receiverState = CrcBuffer;
+                    break;
+                }
+                }
+            } break;
+            case CustomCommand: {
+                switch (m_dataBufferIndex) {
+                case 0: {
+                    m_receivedCustomCommandFrame.Bits[0] = receivedByte & (1 << 0);
+                    m_receivedCustomCommandFrame.Bits[1] = receivedByte & (1 << 1);
+                    m_receivedCustomCommandFrame.Bits[2] = receivedByte & (1 << 2);
+                    m_receivedCustomCommandFrame.Bits[3] = receivedByte & (1 << 3);
+                    m_receivedCustomCommandFrame.Bits[4] = receivedByte & (1 << 4);
+                    m_receivedCustomCommandFrame.Bits[5] = receivedByte & (1 << 5);
+                    m_receivedCustomCommandFrame.Bits[6] = receivedByte & (1 << 6);
+                    m_receivedCustomCommandFrame.Bits[7] = receivedByte & (1 << 7);
+                    break;
+                }
+                case 1: {
+                    m_receivedCustomCommandFrame.Bits[8] = receivedByte & (1 << 0);
+                    m_receivedCustomCommandFrame.Bits[9] = receivedByte & (1 << 1);
+                    m_receivedCustomCommandFrame.Bits[10] = receivedByte & (1 << 2);
+                    m_receivedCustomCommandFrame.Bits[11] = receivedByte & (1 << 3);
+                    m_receivedCustomCommandFrame.Bits[12] = receivedByte & (1 << 4);
+                    m_receivedCustomCommandFrame.Bits[13] = receivedByte & (1 << 5);
+                    m_receivedCustomCommandFrame.Bits[14] = receivedByte & (1 << 6);
+                    m_receivedCustomCommandFrame.Bits[15] = receivedByte & (1 << 7);
+                    break;
+                }
+                case 2: {
+                    m_receivedCustomCommandFrame.Bytes[0] = receivedByte;
+                    break;
+                }
+                case 3: {
+                    m_receivedCustomCommandFrame.Bytes[1] = receivedByte;
+                    break;
+                }
+                case 4: {
+                    m_receivedCustomCommandFrame.Bytes[2] = receivedByte;
+                    break;
+                }
+                case 5: {
+                    m_receivedCustomCommandFrame.Bytes[3] = receivedByte;
+                    break;
+                }
+                case 6: {
+                    m_receivedCustomCommandFrame.Bytes[4] = receivedByte;
+                    break;
+                }
+                case 7: {
+                    m_receivedCustomCommandFrame.Bytes[5] = receivedByte;
+                    m_receiverState = CrcBuffer;
+                    break;
+                }
+                }
+            } break;
+            case DebugMessageCommand: {
+                if(m_dataBufferIndex < 64){
+                    m_debugMessage[m_dataBufferIndex] = receivedByte;
+                } else {
+                    m_receiverState = CrcBuffer;
+                }
+            } break;
+            case ButtonInputCommand: {
+                m_callbacks->ButtonInputCommandCallback((Keys)receivedByte);
+            } break;
+            default:
+                break;
             }
 
-        } break;
-        case EndOfFrame: {
-
-            if (receivedByte == '\n') {
-                m_receiverState = CommandByte;
-                receivedCmdLen = 0;
-                uint16_t crc = HAL::calculateCRC16(m_receivedBuffer, m_dataBufferIndex);
-
-                if(crc == m_crc) {
-                    switch (m_currentCommand) {
-                        case ClimateControlCommand: {
-                            m_callbacks->ClimateControlCallback(m_receivedAcControlFrame);
-                            break;
-                        }
-                        case CustomCommand: {
-                            m_callbacks->CustomCommandCallback(m_receivedCustomCommandFrame);
-                            break;
-                        }
-                        case DebugMessageCommand: {
-                            m_callbacks->PrintString(m_debugMessage);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
-                }
-            }
-            break;
+            m_dataBufferIndex++;
         }
-        default:
-            break;
+        if (m_dataBufferIndex >= m_frameSize) {
+            m_receiverState = CrcBuffer;
+        }
+        break;
+    }
+    case CrcBuffer: {
+        switch (m_crcIndex++) {
+        case 0: {
+            m_crc = ((uint8_t)receivedByte) << 8;
+        } break;
+        case 1:{
+            m_crc = ((uint8_t) receivedByte) | m_crc;
+            m_receiverState = CommandByte;
+            uint16_t crc = HAL::calculateCRC16(m_receivedBuffer, m_dataBufferIndex);
+
+            if(crc == m_crc) {
+                switch (m_currentCommand) {
+                case ClimateControlCommand: {
+                    m_callbacks->ClimateControlCallback(m_receivedAcControlFrame);
+                    break;
+                }
+                case CustomCommand: {
+                    m_callbacks->CustomCommandCallback(m_receivedCustomCommandFrame);
+                    break;
+                }
+                case DebugMessageCommand: {
+                    m_callbacks->PrintString(m_debugMessage);
+                    break;
+                }
+                default:
+                    break;
+                }
+            }
+        }
+        default: {
+        } break;
+        }
+
+    } break;
+    default:
+        break;
     }
 }
 
@@ -262,8 +247,6 @@ void HUDSerial::sendMessage(CommandTypes messageType, uint8_t length, char *mess
 
     m_callbacks->SendMessageCallback(crcMSB);
     m_callbacks->SendMessageCallback(crcLSB);
-    m_callbacks->SendMessageCallback('\r');
-    m_callbacks->SendMessageCallback('\n');
 }
 
 void HUDSerial::sendClimateControlCommand(ClimateControlCommandFrame controlFrame) {
@@ -341,11 +324,11 @@ void HUDSerial::sendCustomCommand() {
 
 void HUDSerial::loop() {
     switch (timerCount++) {
-        case 500:
-            sendClimateControlCommand();
-            break;
-        default:
-            break;
+    case 500:
+        sendClimateControlCommand();
+        break;
+    default:
+        break;
     }
     if (timerCount >= 1000) {
         timerCount = 0;
