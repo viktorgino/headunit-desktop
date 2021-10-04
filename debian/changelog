@@ -1,3 +1,11 @@
+headunit-desktop (0.1-83) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (ba823945ba5b024c1b60f4dd823cf47c5ec55636)
+  * [App] Add message MediaInput and KeyInput to message handler
+
+ -- Gino <gino@gino-ubuntu>  Mon, 04 Oct 2021 03:46:44 +0000
+
 headunit-desktop (0.1-82) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

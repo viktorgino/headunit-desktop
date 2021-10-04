@@ -170,12 +170,22 @@ void PluginManager::messageHandler(QString id, QVariant message){
     }
 
     QString senderName = m_plugins.key(pluginObject);
+    QString event;
 
     if(messageId.size() == 2 && messageId[0] == "GUI") {
         emit themeEvent(senderName,messageId[1], message);
         return;
+    } else if(id == "MediaInput"){
+        if(message == "Next"){
+            m_mediaManager.nextTrack();
+        } else if(message == "Previous"){
+            m_mediaManager.prevTrack();
+        }
+    } else if(id == "KeyInput"){
+        event = "KeyInput";
+    } else {
+        event = QString("%1::%2").arg(senderName).arg(id);
     }
-    QString event = QString("%1::%2").arg(senderName).arg(id);
 
     if(m_connections.contains(event)){
         QStringList listeners = m_connections.value(event);
