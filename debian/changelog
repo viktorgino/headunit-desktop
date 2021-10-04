@@ -1,3 +1,11 @@
+headunit-desktop (0.1-85) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (d54ce5ab3557750cc2218d737947a2cab3489d39)
+  * Enable volume control build
+
+ -- Gino <gino@gino-ubuntu>  Mon, 04 Oct 2021 03:48:23 +0000
+
 headunit-desktop (0.1-84) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

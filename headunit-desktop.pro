@@ -2,7 +2,7 @@ TEMPLATE = subdirs
 
 SUBDIRS = \
           app \
-#          modules/volume-control \
+          modules/volume-control \
           modules/phone-bluetooth \
           modules/android-auto \
           modules/media-player \
