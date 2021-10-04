@@ -12,9 +12,24 @@ VolumeControl::VolumeControl(QObject *parent) : QObject (parent)
 }
 
 void VolumeControl::init(){
+    m_pluginSettings.actions = QStringList() << "VolumeUp" << "VolumeDown";
 
 }
 QObject *VolumeControl::getContextProperty(){
     return this;
 }
 
+void VolumeControl::actionMessage(QString id, QVariant message){
+    PulseAudioQt::SinkModel sink;
+    PulseAudioQt::Sink * defaultSink = sink.defaultSink();
+
+    int volume = 0;
+    if(id == "VolumeUp"){
+        volume = defaultSink->volume() + 655;
+    } else if(id == "VolumeDown") {
+        volume = defaultSink->volume() - 655;
+    }
+    if(volume <= PulseAudioQt::maximumVolume() && volume >= PulseAudioQt::minimumVolume()){
+        defaultSink->setVolume(volume);
+    }
+}

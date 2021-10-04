@@ -1,3 +1,11 @@
+headunit-desktop (0.1-82) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (954a658c6c0dfaecfac14ea6a98cf203dc304638)
+  * [Volume] Add volume up/down action
+
+ -- Gino <gino@gino-ubuntu>  Mon, 04 Oct 2021 03:45:16 +0000
+
 headunit-desktop (0.1-81) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

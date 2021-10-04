@@ -48,9 +48,7 @@ Item {
         from: 0
         to: 100
         enabled: VolumeWritable
-        Component.onCompleted: {
-            value = Math.round(Volume / (655.36))
-        }
+        value: Math.round(Volume / (655.36))
         onValueChanged: {
             Volume = value * 655.36
         }

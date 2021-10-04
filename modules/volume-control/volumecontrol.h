@@ -3,8 +3,11 @@
 
 #include <QObject>
 #include <QQmlEngine>
+#include <QDebug>
 #include <plugininterface.h>
 #include "pulseaudio-qt/src/models.h"
+#include "pulseaudio-qt/src/sink.h"
+#include "pulseaudio-qt/src/context.h"
 
 class VolumeControl : public QObject, PluginInterface
 {
@@ -15,6 +18,8 @@ public:
     explicit VolumeControl(QObject *parent = nullptr);
     void init() override;
     QObject *getContextProperty() override;
+public slots:
+    void actionMessage(QString id, QVariant message) override;
 };
 
 #endif // VOLUMECONTROL_H
