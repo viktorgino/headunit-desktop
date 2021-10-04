@@ -10,6 +10,7 @@
 #include <plugininterface.h>
 #include <hvac-common.h>
 #include "CRL/HUDSerial/HUDSerial.h"
+#include "CRL/common.h"
 
 
 class HUDSerialPlugin : public QObject, PluginInterface, PlatformCallbacks
@@ -26,11 +27,13 @@ public:
     void init() override;
     QObject *getContextProperty() override;
 
-    void ClimateControlCallback(ClimateControlCommandFrame controlFrame) override;
-    void CustomCommandCallback(CustomCommandFrame commandFrame) override;
+    void ClimateControlCallback(const ClimateControlCommandFrame &controlFrame) override;
+    void CustomCommandCallback(const CustomCommandFrame &commandFrame) override;
+    void BodyControlCommandCallback(const BodyControlCommandFrame &controlFrame) override;
+    void DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame &controlFrame) override;
     void ButtonInputCommandCallback(Keys key) override;
     void SendMessageCallback(uint8_t sendByte) override;
-    void PrintString(char * message) override;
+    void PrintString(char * message, int length) override;
 
 public slots:
     void eventMessage(QString id, QVariant message) override;
@@ -47,7 +50,7 @@ private slots:
 private:
     QSerialPort m_serial;
     QVariantMap m_ports;
-    HUDSerial m_serialProtocol;
+    HUDSerial::HUDSerial m_serialProtocol;
     bool m_connected;
 
     void updatePorts();

@@ -5,6 +5,7 @@ HUDSerialPlugin::HUDSerialPlugin(QObject *parent) : QObject (parent), m_serial(t
     m_serialProtocol.setCallbacks(this);
 
     m_pluginSettings.eventListeners = QStringList() << "HVACPlugin::Update";
+    m_pluginSettings.events = QStringList() << "KeyInput" << "MediaInput";
 }
 
 void HUDSerialPlugin::init() {
@@ -54,6 +55,7 @@ void HUDSerialPlugin::serialConnect(){
     } else {
         qDebug() << "Connected to Serial : " << m_serial.portName() << m_serial.baudRate();
         m_connected = true;
+        m_serialProtocol.sendUpdateRequest();
         emit connectedUpdated();
     }
 }
@@ -72,7 +74,7 @@ void HUDSerialPlugin::serialRestart(){
     serialConnect();
 }
 void HUDSerialPlugin::handleSerialError(QSerialPort::SerialPortError error){
-    if(error > 0){
+    if(error == QSerialPort::ReadError){
         if(m_serial.isOpen()){
             m_serial.close();
         }
@@ -160,13 +162,38 @@ QString buttonToString(Keys key) {
     }
 }
 
-void HUDSerialPlugin::ClimateControlCallback(ClimateControlCommandFrame commandFrame){
+void HUDSerialPlugin::ClimateControlCallback(const ClimateControlCommandFrame &commandFrame){
     emit action("HVACPlugin::Update", QVariant::fromValue(commandFrame));
 }
-void HUDSerialPlugin::CustomCommandCallback(CustomCommandFrame commandFrame){
+void HUDSerialPlugin::CustomCommandCallback(const CustomCommandFrame &commandFrame){
+}
+
+void HUDSerialPlugin::BodyControlCommandCallback(const BodyControlCommandFrame &controlFrame) {
+
+}
+void HUDSerialPlugin::DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame &controlFrame) {
+
 }
 void HUDSerialPlugin::ButtonInputCommandCallback(Keys key){
     qDebug() << "Key pressed " << buttonToString(key);
+
+    switch (key) {
+    case Key_Next:
+        emit message("MediaInput", "Next");
+        break;
+    case Key_Previous:
+        emit message("MediaInput", "Previous");
+        break;
+    case Key_VolumeUp:
+        emit action("VolumeControl::VolumeUp", 0);
+        break;
+    case Key_VolumeDown:
+        emit action("VolumeControl::VolumeDown", 0);
+        break;
+    default:
+        break;
+    }
+
 }
 void HUDSerialPlugin::SendMessageCallback(uint8_t receivedByte){
     if(m_serial.isOpen()){
@@ -175,7 +202,7 @@ void HUDSerialPlugin::SendMessageCallback(uint8_t receivedByte){
     }
 }
 
-void HUDSerialPlugin::PrintString(char *message) {
+void HUDSerialPlugin::PrintString(char *message, int length) {
     qDebug() << "HCU DEBUG : " << message;
 }
 

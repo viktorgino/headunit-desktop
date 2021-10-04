@@ -1,3 +1,11 @@
+headunit-desktop (0.1-84) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (b8f7bfad7dffec472b07c1a56d49c12c35e63b1a)
+  * [HUDSerial] Update serial protocol to latest version
+
+ -- Gino <gino@gino-ubuntu>  Mon, 04 Oct 2021 03:47:12 +0000
+
 headunit-desktop (0.1-83) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

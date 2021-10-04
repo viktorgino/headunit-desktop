@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include "HAL/hal.h"
 
 typedef enum {
     Bus_Can0 = 0,
@@ -12,6 +13,7 @@ typedef enum {
 } BusNumber;
 
 #ifndef QT_VERSION
+
 typedef struct ClimateControlZoneControl
 {
     struct {
@@ -48,26 +50,49 @@ typedef struct ClimateControlCommandFrame {
     bool RearDefrost = false;
     bool AC = false;
 } ClimateControlCommandFrame;
-#endif
-typedef enum CommandTypes {
-    NoCommand,
-    Acknowledge,
-    ClimateControlCommand,
-    MediaInputCommand,
-    ButtonInputCommand,
-    WriteBackCommand,
-    DebugMessageCommand,
-    CustomCommand
-} CommandTypes;
 
+#endif
 typedef struct CustomCommandFrame {
     bool Bits[16] = { false };
     uint8_t Bytes[6] = { 0 };
 } CustomCommandFrame;
 
+typedef struct BodyControlCommandFrame {
+    bool IndicatorLeft = false;
+    bool IndicatorRight = false;
+    bool Braking = false;
+    bool Reversing = false;
+    bool HandBrake = false;
+    bool SeatBelt = false;
+
+    bool PassengerSeatOccupied = false;
+    bool RearLeftOccupied  = false;
+    bool RearMiddleOccupied  = false;
+    bool RearRightOccupied  = false;
+    bool PassengerSeatBelt = false;
+    bool RearLeftSeatBelt = false;
+    bool RearMiddleSeatBelt = false;
+    bool RearRightSeatBelt = false;
+
+    uint8_t DashBrightness = false;
+    bool NightLight = false;
+} BodyControlCommandFrame;
+
+typedef struct DriveTrainControlCommandFrame {
+    uint16_t speed;
+    uint16_t engineRpm;
+
+    uint16_t frontLeftWheelSpeed;
+    uint16_t frontRightWheelSpeed;
+    uint16_t rearLeftWheelSpeed;
+    uint16_t rearRightWheelSpeed;
+} DriveTrainControlCommandFrame;
+
+
 typedef enum Keys {
     //Numbers
-    Key_1 = 0,
+    Key_0 = 0,
+    Key_1,
     Key_2,
     Key_3,
     Key_4,
@@ -76,7 +101,6 @@ typedef enum Keys {
     Key_7,
     Key_8,
     Key_9,
-    Key_0,
     //Letters
     Key_A,
     Key_B,
@@ -119,6 +143,8 @@ typedef enum Keys {
     Key_VolumeDown,
     Key_TuneUp,
     Key_TuneDown,
+    Key_Previous,
+    Key_Next,
     Key_Sound,
     Key_AMFM,
     Key_CD,
@@ -129,9 +155,11 @@ typedef enum Keys {
 
 class PlatformCallbacks {
 public:
-    virtual void ClimateControlCallback(ClimateControlCommandFrame) = 0;
-    virtual void CustomCommandCallback(CustomCommandFrame) = 0;
+    virtual void ClimateControlCallback(const ClimateControlCommandFrame&) = 0;
+    virtual void CustomCommandCallback(const CustomCommandFrame&) = 0;
     virtual void ButtonInputCommandCallback(Keys) = 0;
     virtual void SendMessageCallback(uint8_t) = 0;
-    virtual void PrintString(char *) = 0;
+    virtual void PrintString(char *, int) = 0;
+    virtual void BodyControlCommandCallback(const BodyControlCommandFrame&) = 0;
+    virtual void DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame&) = 0;
 };

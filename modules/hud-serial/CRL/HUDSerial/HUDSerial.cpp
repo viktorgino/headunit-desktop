@@ -1,8 +1,10 @@
 #include "HUDSerial.h"
 
+namespace HUDSerial {
+
 HUDSerial::HUDSerial()
     : m_acControlFrame(),
-      m_commandFrame(),
+      m_customCommandFrame(),
       m_currentCommand(NoCommand),
       m_receiverState(CommandByte),
       m_frameSize(0),
@@ -11,12 +13,11 @@ HUDSerial::HUDSerial()
       m_crcIndex(0),
       m_crc(0),
       m_receivedCustomCommandFrame(),
-      m_receivedAcControlFrame() {}
-
-void HUDSerial::sendBusMessage(BusNumber bus, uint32_t id, uint8_t len, uint8_t *buf) {}
+      m_receivedAcControlFrame(),
+      m_receivedBodyControlCommandFrame(),
+      m_receivedDriveTrainControlCommandFrame() {}
 
 void HUDSerial::receiveByte(char receivedByte) {
-
     switch (m_receiverState) {
     case CommandByte: {
         if (receivedByte <= CustomCommand) {
@@ -32,21 +33,43 @@ void HUDSerial::receiveByte(char receivedByte) {
 
         m_crcIndex = 0;
         m_crc = 0;
-
-        m_receiverState = DataBuffer;
+        if (m_frameSize > MESSAGE_MAX_LENGTH) {
+            m_frameSize = MESSAGE_MAX_LENGTH;
+        } else if (m_frameSize > 0) {
+            m_receiverState = DataBuffer;
+        } else {
+            m_receiverState = CrcBuffer;
+        }
         break;
     }
     case DataBuffer: {
         if (m_dataBufferIndex < m_frameSize) {
             m_receivedBuffer[m_dataBufferIndex] = receivedByte;
             switch (m_currentCommand) {
-            case  Acknowledge: {
+            case Acknowledge: {
+                switch (receivedByte) {
+                case ClimateControlCommand:
+                    m_climateControlCommandAck = false;
+                    break;
+                case CustomCommand:
+                    m_customCommandAck = false;
+                    break;
+                case DriveTrainControlCommand:
+                    m_driveTrainControlCommandAck = false;
+                    break;
+                case BodyControlCommand:
+                    m_bodyControlCommandAck = false;
+                    break;
+                default:
+                    break;
+                }
 
+                m_receiverState = CrcBuffer;
             } break;
             case ClimateControlCommand: {
                 switch (m_dataBufferIndex) {
                 case 0: {
-                    m_receivedAcControlFrame.Front.Left.Direction.Up = receivedByte & (1 << 0);
+                    m_receivedAcControlFrame.Front.Left.Direction.Up = receivedByte & 1;
                     m_receivedAcControlFrame.Front.Left.Direction.Center = receivedByte & (1 << 1);
                     m_receivedAcControlFrame.Front.Left.Direction.Down = receivedByte & (1 << 2);
                     m_receivedAcControlFrame.Front.Left.Direction.Auto = receivedByte & (1 << 3);
@@ -57,7 +80,7 @@ void HUDSerial::receiveByte(char receivedByte) {
                     break;
                 }
                 case 1: {
-                    m_receivedAcControlFrame.Rear.Left.Direction.Up = receivedByte & (1 << 0);
+                    m_receivedAcControlFrame.Rear.Left.Direction.Up = receivedByte & 1;
                     m_receivedAcControlFrame.Rear.Left.Direction.Center = receivedByte & (1 << 1);
                     m_receivedAcControlFrame.Rear.Left.Direction.Down = receivedByte & (1 << 2);
                     m_receivedAcControlFrame.Rear.Left.Direction.Auto = receivedByte & (1 << 3);
@@ -104,7 +127,7 @@ void HUDSerial::receiveByte(char receivedByte) {
                     m_receivedAcControlFrame.Rear.Right.SeatHeating = receivedByte;
                 } break;
                 case 14: {
-                    m_receivedAcControlFrame.TempSelectLeft = receivedByte & (1 << 0);
+                    m_receivedAcControlFrame.TempSelectLeft = receivedByte & 1;
                     m_receivedAcControlFrame.TempSelectRight = receivedByte & (1 << 1);
                     m_receivedAcControlFrame.FanSelectLeft = receivedByte & (1 << 2);
                     m_receivedAcControlFrame.FanSelectRight = receivedByte & (1 << 3);
@@ -115,7 +138,7 @@ void HUDSerial::receiveByte(char receivedByte) {
                     break;
                 }
                 case 15: {
-                    m_receivedAcControlFrame.Recirculate = receivedByte & (1 << 0);
+                    m_receivedAcControlFrame.Recirculate = receivedByte & 1;
                     m_receivedAcControlFrame.RearDefrost = receivedByte & (1 << 1);
                     m_receivedAcControlFrame.AC = receivedByte & (1 << 2);
                     m_receiverState = CrcBuffer;
@@ -126,7 +149,7 @@ void HUDSerial::receiveByte(char receivedByte) {
             case CustomCommand: {
                 switch (m_dataBufferIndex) {
                 case 0: {
-                    m_receivedCustomCommandFrame.Bits[0] = receivedByte & (1 << 0);
+                    m_receivedCustomCommandFrame.Bits[0] = receivedByte & 1;
                     m_receivedCustomCommandFrame.Bits[1] = receivedByte & (1 << 1);
                     m_receivedCustomCommandFrame.Bits[2] = receivedByte & (1 << 2);
                     m_receivedCustomCommandFrame.Bits[3] = receivedByte & (1 << 3);
@@ -137,7 +160,7 @@ void HUDSerial::receiveByte(char receivedByte) {
                     break;
                 }
                 case 1: {
-                    m_receivedCustomCommandFrame.Bits[8] = receivedByte & (1 << 0);
+                    m_receivedCustomCommandFrame.Bits[8] = receivedByte & 1;
                     m_receivedCustomCommandFrame.Bits[9] = receivedByte & (1 << 1);
                     m_receivedCustomCommandFrame.Bits[10] = receivedByte & (1 << 2);
                     m_receivedCustomCommandFrame.Bits[11] = receivedByte & (1 << 3);
@@ -174,11 +197,97 @@ void HUDSerial::receiveByte(char receivedByte) {
                 }
                 }
             } break;
-            case DebugMessageCommand: {
-                if(m_dataBufferIndex < 64){
-                    m_debugMessage[m_dataBufferIndex] = receivedByte;
-                } else {
-                    m_receiverState = CrcBuffer;
+            case BodyControlCommand: {
+                switch (m_dataBufferIndex) {
+                case 0: {
+                    m_receivedBodyControlCommandFrame.IndicatorLeft = receivedByte & 1;
+                    m_receivedBodyControlCommandFrame.IndicatorRight = receivedByte & (1 << 1);
+                    m_receivedBodyControlCommandFrame.Braking = receivedByte & (1 << 2);
+                    m_receivedBodyControlCommandFrame.Reversing = receivedByte & (1 << 3);
+                    m_receivedBodyControlCommandFrame.HandBrake = receivedByte & (1 << 4);
+                    m_receivedBodyControlCommandFrame.SeatBelt = receivedByte & (1 << 5);
+                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 6); // Reserved
+                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 7); // Reserved
+                    break;
+                }
+                case 1: {
+                    m_receivedBodyControlCommandFrame.PassengerSeatOccupied = receivedByte & 1;
+                    m_receivedBodyControlCommandFrame.RearLeftOccupied = receivedByte & (1 << 1);
+                    m_receivedBodyControlCommandFrame.RearMiddleOccupied = receivedByte & (1 << 2);
+                    m_receivedBodyControlCommandFrame.RearRightOccupied = receivedByte & (1 << 3);
+                    m_receivedBodyControlCommandFrame.PassengerSeatBelt = receivedByte & (1 << 4);
+                    m_receivedBodyControlCommandFrame.RearLeftSeatBelt = receivedByte & (1 << 5);
+                    m_receivedBodyControlCommandFrame.RearMiddleSeatBelt = receivedByte & (1 << 6);
+                    m_receivedBodyControlCommandFrame.RearRightSeatBelt = receivedByte & (1 << 7);
+                    break;
+                }
+                case 2: {
+                    m_receivedBodyControlCommandFrame.DashBrightness = receivedByte;
+                    break;
+                }
+                case 3: {
+                    m_receivedBodyControlCommandFrame.NightLight = receivedByte & 1;
+                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 1); //Reserved
+                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 2); //Reserved
+                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 3); //Reserved
+                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 4); //Reserved
+                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 5); //Reserved
+                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 6); //Reserved
+                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 7); //Reserved
+                    break;
+                }
+                }
+            } break;
+            case DriveTrainControlCommand: {
+                switch (m_dataBufferIndex) {
+                case 0: {
+                    m_receivedDriveTrainControlCommandFrame.speed = receivedByte;
+                    break;
+                }
+                case 1: {
+                    m_receivedDriveTrainControlCommandFrame.speed |= receivedByte << 8;
+                    break;
+                }
+                case 2: {
+                    m_receivedDriveTrainControlCommandFrame.engineRpm = receivedByte;
+                    break;
+                }
+                case 3: {
+                    m_receivedDriveTrainControlCommandFrame.engineRpm |= receivedByte << 8;
+                    break;
+                }
+                case 4: {
+                    m_receivedDriveTrainControlCommandFrame.frontLeftWheelSpeed = receivedByte;
+                    break;
+                }
+                case 5: {
+                    m_receivedDriveTrainControlCommandFrame.frontLeftWheelSpeed |= receivedByte << 8;
+                    break;
+                }
+                case 6: {
+                    m_receivedDriveTrainControlCommandFrame.frontRightWheelSpeed = receivedByte;
+                    break;
+                }
+                case 7: {
+                    m_receivedDriveTrainControlCommandFrame.frontRightWheelSpeed |= receivedByte << 8;
+                    break;
+                }
+                case 8: {
+                    m_receivedDriveTrainControlCommandFrame.rearLeftWheelSpeed = receivedByte;
+                    break;
+                }
+                case 9: {
+                    m_receivedDriveTrainControlCommandFrame.rearLeftWheelSpeed |= receivedByte << 8;
+                    break;
+                }
+                case 10: {
+                    m_receivedDriveTrainControlCommandFrame.rearRightWheelSpeed = receivedByte;
+                    break;
+                }
+                case 11: {
+                    m_receivedDriveTrainControlCommandFrame.rearRightWheelSpeed |= receivedByte << 8;
+                    break;
+                }
                 }
             } break;
             case ButtonInputCommand: {
@@ -200,25 +309,43 @@ void HUDSerial::receiveByte(char receivedByte) {
         case 0: {
             m_crc = ((uint8_t)receivedByte) << 8;
         } break;
-        case 1:{
-            m_crc = ((uint8_t) receivedByte) | m_crc;
+        case 1: {
+            m_crc = ((uint8_t)receivedByte) | m_crc;
             m_receiverState = CommandByte;
             uint16_t crc = HAL::calculateCRC16(m_receivedBuffer, m_dataBufferIndex);
 
-            if(crc == m_crc) {
+            if (crc == m_crc) {
                 switch (m_currentCommand) {
                 case ClimateControlCommand: {
                     m_callbacks->ClimateControlCallback(m_receivedAcControlFrame);
-                    break;
-                }
+                    sendAcknowledge(ClimateControlCommand);
+                } break;
                 case CustomCommand: {
                     m_callbacks->CustomCommandCallback(m_receivedCustomCommandFrame);
-                    break;
-                }
+                    sendAcknowledge(CustomCommand);
+                } break;
                 case DebugMessageCommand: {
-                    m_callbacks->PrintString(m_debugMessage);
-                    break;
-                }
+                    m_callbacks->PrintString(m_receivedBuffer, m_dataBufferIndex);
+                } break;
+                case UpdateRequest: {
+                    sendClimateControlCommand();
+                    sendCustomCommand();
+                    sendBodyControlCommand();
+                    sendDriveTrainControlCommand();
+                    sendDebugMessageCommand("----------------------------");
+                    sendDebugMessageCommand("HUD Serial 1.0");
+                    sendDebugMessageCommand("by viktorgino");
+                    sendDebugMessageCommand("build id: #00001 VOLVO P1 v1");
+                    sendDebugMessageCommand("----------------------------");
+                } break;
+                case BodyControlCommand: {
+                    m_callbacks->BodyControlCommandCallback(m_receivedBodyControlCommandFrame);
+                    sendAcknowledge(BodyControlCommand);
+                } break;
+                case DriveTrainControlCommand: {
+                    m_callbacks->DriveTrainControlCommandCallback(m_receivedDriveTrainControlCommandFrame);
+                    sendAcknowledge(DriveTrainControlCommand);
+                } break;
                 default:
                     break;
                 }
@@ -249,10 +376,58 @@ void HUDSerial::sendMessage(CommandTypes messageType, uint8_t length, char *mess
     m_callbacks->SendMessageCallback(crcLSB);
 }
 
-void HUDSerial::sendClimateControlCommand(ClimateControlCommandFrame controlFrame) {
+void HUDSerial::sendUpdateRequest() { sendMessage(UpdateRequest, 0, nullptr); }
+
+void HUDSerial::sendAcknowledge(CommandTypes command) {
+    char buf[1];
+    switch (command) {
+    case ClimateControlCommand:
+    case CustomCommand:
+    case DriveTrainControlCommand:
+    case BodyControlCommand:
+        buf[0] = command;
+        sendMessage(Acknowledge, 1, buf);
+        break;
+    default:
+        return;
+    }
+}
+
+void HUDSerial::sendClimateControlCommand(const ClimateControlCommandFrame &controlFrame) {
     memcpy(&m_acControlFrame, &controlFrame, sizeof(ClimateControlCommandFrame));
+
     sendClimateControlCommand();
 }
+
+void HUDSerial::sendButtonInputCommand(const Keys key) {
+    char buffer[1];
+    buffer[0] = key;
+
+    sendMessage(ButtonInputCommand, 1, buffer);
+}
+
+void HUDSerial::sendDebugMessageCommand(const char *message) {
+    int len = strlen(message);
+    sendMessage(DebugMessageCommand, len, (char *)message);
+}
+
+void HUDSerial::sendCustomCommand(const CustomCommandFrame &commandFrame) {
+    memcpy(&m_customCommandFrame, &commandFrame, sizeof(CustomCommandFrame));
+
+    sendCustomCommand();
+}
+
+void HUDSerial::sendBodyControlCommand(const BodyControlCommandFrame &controlFrame) {
+    memcpy(&m_bodyControlCommandFrame, &controlFrame, sizeof(BodyControlCommandFrame));
+
+    sendBodyControlCommand();
+}
+void HUDSerial::sendDriveTrainControlCommand(const DriveTrainControlCommandFrame &controlFrame) {
+    memcpy(&m_driveTrainControlCommandFrame, &controlFrame, sizeof(DriveTrainControlCommandFrame));
+
+    sendDriveTrainControlCommand();
+}
+
 void HUDSerial::sendClimateControlCommand() {
     char ACControlBuffer[16];
     ACControlBuffer[0] =
@@ -281,56 +456,102 @@ void HUDSerial::sendClimateControlCommand() {
                           m_acControlFrame.FanSelectLeft << 2 | m_acControlFrame.FanSelectRight << 3 |
                           m_acControlFrame.ProgAuto << 4 | m_acControlFrame.ProgAutoFanFront << 5 |
                           m_acControlFrame.ProgAutoFanRear << 6 | m_acControlFrame.ProgWindscreen << 7;
-    ACControlBuffer[15] = m_acControlFrame.Recirculate |  m_acControlFrame.RearDefrost << 1 | m_acControlFrame.AC << 2;
+    ACControlBuffer[15] = m_acControlFrame.Recirculate | m_acControlFrame.RearDefrost << 1 | m_acControlFrame.AC << 2;
 
     sendMessage(ClimateControlCommand, 16, ACControlBuffer);
-}
-
-void HUDSerial::sendButtonInputCommand(Keys key) {
-    char buffer[1];
-    buffer[0] = key;
-
-    sendMessage(ButtonInputCommand, 1, buffer);
-}
-
-void HUDSerial::sendDebugMessageCommand(const char * message) {
-    int len = strlen(message);
-    sendMessage(DebugMessageCommand, len, (char*) message);
-}
-
-void HUDSerial::sendCustomCommand(CustomCommandFrame commandFrame) {
-    memcpy(&m_commandFrame, &commandFrame, sizeof(CustomCommandFrame));
-
-    sendCustomCommand();
+    m_climateControlCommandAck = true;
 }
 
 void HUDSerial::sendCustomCommand() {
     char CustomCommandBuffer[8];
-    CustomCommandBuffer[0] = m_commandFrame.Bits[0] | m_commandFrame.Bits[1] << 1 | m_commandFrame.Bits[2] << 2 |
-                             m_commandFrame.Bits[3] << 3 | m_commandFrame.Bits[4] << 4 | m_commandFrame.Bits[5] << 5 |
-                             m_commandFrame.Bits[6] << 6 | m_commandFrame.Bits[7] << 7;
-    CustomCommandBuffer[1] = m_commandFrame.Bits[8] | m_commandFrame.Bits[9] << 1 | m_commandFrame.Bits[10] << 2 |
-                             m_commandFrame.Bits[11] << 3 | m_commandFrame.Bits[12] << 4 |
-                             m_commandFrame.Bits[13] << 5 | m_commandFrame.Bits[14] << 6 | m_commandFrame.Bits[15] << 7;
-    CustomCommandBuffer[2] = m_commandFrame.Bytes[0];
-    CustomCommandBuffer[3] = m_commandFrame.Bytes[1];
-    CustomCommandBuffer[4] = m_commandFrame.Bytes[2];
-    CustomCommandBuffer[5] = m_commandFrame.Bytes[3];
-    CustomCommandBuffer[6] = m_commandFrame.Bytes[4];
-    CustomCommandBuffer[7] = m_commandFrame.Bytes[5];
+    CustomCommandBuffer[0] = m_customCommandFrame.Bits[0] | m_customCommandFrame.Bits[1] << 1 |
+                             m_customCommandFrame.Bits[2] << 2 | m_customCommandFrame.Bits[3] << 3 |
+                             m_customCommandFrame.Bits[4] << 4 | m_customCommandFrame.Bits[5] << 5 |
+                             m_customCommandFrame.Bits[6] << 6 | m_customCommandFrame.Bits[7] << 7;
+    CustomCommandBuffer[1] = m_customCommandFrame.Bits[8] | m_customCommandFrame.Bits[9] << 1 |
+                             m_customCommandFrame.Bits[10] << 2 | m_customCommandFrame.Bits[11] << 3 |
+                             m_customCommandFrame.Bits[12] << 4 | m_customCommandFrame.Bits[13] << 5 |
+                             m_customCommandFrame.Bits[14] << 6 | m_customCommandFrame.Bits[15] << 7;
+    CustomCommandBuffer[2] = m_customCommandFrame.Bytes[0];
+    CustomCommandBuffer[3] = m_customCommandFrame.Bytes[1];
+    CustomCommandBuffer[4] = m_customCommandFrame.Bytes[2];
+    CustomCommandBuffer[5] = m_customCommandFrame.Bytes[3];
+    CustomCommandBuffer[6] = m_customCommandFrame.Bytes[4];
+    CustomCommandBuffer[7] = m_customCommandFrame.Bytes[5];
 
     sendMessage(CustomCommand, 8, CustomCommandBuffer);
+    m_customCommandAck = true;
+}
+
+void HUDSerial::sendBodyControlCommand() {
+    char BodyControlCommandBuffer[4];
+    BodyControlCommandBuffer[0] = m_bodyControlCommandFrame.IndicatorLeft |
+                                  m_bodyControlCommandFrame.IndicatorRight << 1 |
+                                  m_bodyControlCommandFrame.Braking << 2 | m_bodyControlCommandFrame.Reversing << 3 |
+                                  m_bodyControlCommandFrame.HandBrake << 4 | m_bodyControlCommandFrame.SeatBelt << 5;
+    BodyControlCommandBuffer[1] =
+        m_bodyControlCommandFrame.PassengerSeatOccupied | m_bodyControlCommandFrame.RearLeftOccupied << 1 |
+        m_bodyControlCommandFrame.RearMiddleOccupied << 2 | m_bodyControlCommandFrame.RearRightOccupied << 3 |
+        m_bodyControlCommandFrame.PassengerSeatBelt << 4 | m_bodyControlCommandFrame.RearLeftSeatBelt << 5 |
+        m_bodyControlCommandFrame.RearMiddleSeatBelt << 6 | m_bodyControlCommandFrame.RearRightSeatBelt << 7;
+    BodyControlCommandBuffer[2] = m_bodyControlCommandFrame.DashBrightness;
+    BodyControlCommandBuffer[3] = m_bodyControlCommandFrame.NightLight;
+    sendMessage(BodyControlCommand, 4, BodyControlCommandBuffer);
+    m_bodyControlCommandAck = true;
+}
+
+void HUDSerial::sendDriveTrainControlCommand() {
+    char BodyControlCommandBuffer[12];
+
+    BodyControlCommandBuffer[0] = m_driveTrainControlCommandFrame.speed & 0x00FF;
+    BodyControlCommandBuffer[1] = (m_driveTrainControlCommandFrame.speed & 0XFF00) >> 8;
+
+    BodyControlCommandBuffer[2] = m_driveTrainControlCommandFrame.engineRpm & 0x00FF;
+    BodyControlCommandBuffer[3] = (m_driveTrainControlCommandFrame.engineRpm & 0XFF00) >> 8;
+
+    BodyControlCommandBuffer[4] = m_driveTrainControlCommandFrame.frontLeftWheelSpeed & 0x00FF;
+    BodyControlCommandBuffer[5] = (m_driveTrainControlCommandFrame.frontLeftWheelSpeed & 0XFF00) >> 8;
+
+    BodyControlCommandBuffer[6] = m_driveTrainControlCommandFrame.frontRightWheelSpeed & 0x00FF;
+    BodyControlCommandBuffer[7] = (m_driveTrainControlCommandFrame.frontRightWheelSpeed & 0XFF00) >> 8;
+
+    BodyControlCommandBuffer[8] = m_driveTrainControlCommandFrame.rearLeftWheelSpeed & 0x00FF;
+    BodyControlCommandBuffer[9] = (m_driveTrainControlCommandFrame.rearLeftWheelSpeed & 0XFF00) >> 8;
+
+    BodyControlCommandBuffer[10] = m_driveTrainControlCommandFrame.rearRightWheelSpeed & 0x00FF;
+    BodyControlCommandBuffer[11] = (m_driveTrainControlCommandFrame.rearRightWheelSpeed & 0XFF00) >> 8;
+
+    sendMessage(DriveTrainControlCommand, 12, BodyControlCommandBuffer);
+    m_driveTrainControlCommandAck = true;
 }
 
 void HUDSerial::loop() {
     switch (timerCount++) {
-    case 500:
-        sendClimateControlCommand();
+    case 0:
+        if (m_climateControlCommandAck) {
+            sendClimateControlCommand();
+        }
+        break;
+    case 50:
+        if (m_customCommandAck) {
+            sendCustomCommand();
+        }
+        break;
+    case 100:
+        if (m_driveTrainControlCommandAck) {
+            sendDriveTrainControlCommand();
+        }
+        break;
+    case 150:
+        if (m_bodyControlCommandAck) {
+            sendBodyControlCommand();
+        }
         break;
     default:
         break;
     }
-    if (timerCount >= 1000) {
+    if (timerCount >= 200) {
         timerCount = 0;
     }
 }
+}  // namespace HUDSerial
