@@ -89,6 +89,13 @@ void MediaManager::setMediaVolume(QString interface, QVariant value){
     }
 }
 
+void MediaManager::mediaInput(QString input){
+    if(input == "Next"){
+        nextTrack();
+    } else if(input == "Previous"){
+        prevTrack();
+    }
+}
 void MediaManager::start(){
     if(m_mediaInterfaces.contains(m_activeMediaPlayer)){
         m_mediaInterfaces[m_activeMediaPlayer]->start();

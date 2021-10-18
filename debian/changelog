@@ -1,3 +1,11 @@
+headunit-desktop (0.1-87) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (5aeb287f1d973037e098bc26f1e1f28998a8c591)
+  * Add key input to mediamanger
+
+ -- Gino <gino@gino-ubuntu>  Mon, 18 Oct 2021 02:57:10 +0000
+
 headunit-desktop (0.1-86) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

@@ -24,6 +24,7 @@ public:
 
     void init();
     void addInterface(QString name, QObject *object);
+    void mediaInput(QString input);
 
 signals:
     void intefacesChanged();
