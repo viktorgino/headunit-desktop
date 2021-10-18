@@ -3,7 +3,9 @@ import QtQuick.Layouts 1.3
 
 Item {
     id:__root
-    property bool inverted: false
+//    property bool inverted: false
+    property bool inverted: true
+
 
     property string zone : ""
 
@@ -42,8 +44,7 @@ Item {
             Item {
                 id: columnLayout
                 anchors.fill: parent
-
-
+                visible: !HVACPlugin.parameters[__root.zone].DirAuto
                 Image {
                     id: directionUpImage
                     source: "qrc:/HVAC/icons/zone-top.png"
@@ -101,6 +102,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorColor:"#808080";height:480;width:640}D{i:1}D{i:2}
+    D{i:0;autoSize:true;formeditorColor:"#808080";height:480;width:640}
 }
 ##^##*/

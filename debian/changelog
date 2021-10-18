@@ -1,3 +1,13 @@
+headunit-desktop (0.1-90) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (3cbc0b42ef6a8ad4ab541a7640e14de0adbb2238)
+  * [HVAC] Remove car settings from HVAC module
+  * Add interface for loading car settings using actions
+  * Minor fixes
+
+ -- Gino <gino@gino-ubuntu>  Mon, 18 Oct 2021 03:36:49 +0000
+
 headunit-desktop (0.1-89) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

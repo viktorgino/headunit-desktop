@@ -22,7 +22,7 @@ Item {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 zone:"FrontLeft"
-                visible: HVACPlugin.hvacSettings["FrontLeft"].Direction !== undefined | HVACPlugin.hvacSettings["FrontLeft"].Fan === true
+                visible: HVACPlugin.hvacSettings["FrontLeft"]
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.maximumWidth: parent.width/2
             }
@@ -32,7 +32,7 @@ Item {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 zone:"FrontRight"
-                visible: HVACPlugin.hvacSettings["FrontRight"].Direction !== undefined | HVACPlugin.hvacSettings["FrontRight"].Fan === true
+                visible: HVACPlugin.hvacSettings["FrontRight"]
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.maximumWidth: parent.width/2
             }
@@ -47,7 +47,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 zone:"RearLeft"
-                visible: HVACPlugin.hvacSettings["RearLeft"].Direction !== undefined | HVACPlugin.hvacSettings["RearLeft"].Fan === true
+                visible: HVACPlugin.hvacSettings["RearLeft"]
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.maximumWidth: parent.width/2
             }
@@ -57,7 +57,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 zone:"RearRight"
-                visible: HVACPlugin.hvacSettings["RearRight"].Direction !== undefined | HVACPlugin.hvacSettings["RearRight"].Fan === true
+                visible: HVACPlugin.hvacSettings["RearRight"]
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.maximumWidth: parent.width/2
             }

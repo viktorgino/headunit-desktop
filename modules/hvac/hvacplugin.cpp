@@ -2,24 +2,14 @@
 
 HVACPlugin::HVACPlugin(QObject *parent) : QObject (parent)
 {
-    m_pluginSettings.actions = QStringList() << "Update";
+    m_pluginSettings.actions = QStringList() << "Update" << "HvacSettingsUpdate";
     m_pluginSettings.events = QStringList() << "Update";
-    connect(&m_settings, &QQmlPropertyMap::valueChanged, this, &HVACPlugin::settingsUpdated);
+
+    updateHVACParameters();
     resetHVACSettings();
 }
 
 void HVACPlugin::init() {
-    updateHVACParameters();
-    updateManufacturers();
-    updateCars();
-    loadHVACSettings(m_settings["car"].toString());
-}
-void HVACPlugin::settingsUpdated(QString key, QVariant value){
-    if(key == "car_make"){
-        updateCars();
-    } else if(key == "car") {
-        loadHVACSettings(m_settings["car"].toString());
-    }
 }
 
 QObject *HVACPlugin::getContextProperty(){
@@ -32,10 +22,21 @@ void HVACPlugin::actionMessage(QString id, QVariant message){
             m_commandFrame = qvariant_cast<ClimateControlCommandFrame>(message);
             updateHVACParameters();
         }
+    } else if("HvacSettingsUpdate") {
+        if(message.canConvert<QVariantMap>()){
+            resetHVACSettings();
+//            m_hvacSettings = m_hvacSettings.unite(;
+            QVariantMap map = message.toMap();
+            for(auto i = map.constBegin(); i != map.constEnd(); ++i){
+                m_hvacSettings.insert(i.key(), i.value());
+            }
+            emit settingsChanged();
+        }
     }
 }
 
 void HVACPlugin::resetHVACSettings(){
+    m_hvacSettings.clear();
     m_hvacSettings["readOnly"] = false;
     m_hvacSettings["FanStepSize"] = 0;
     m_hvacSettings["TemperatureSteps"] = 0;
@@ -51,66 +52,9 @@ void HVACPlugin::resetHVACSettings(){
     m_hvacSettings["Ac"] = false;
     m_hvacSettings["FrontDefrost"] = false;
     m_hvacSettings["RearDefrost"] = false;
-}
-void HVACPlugin::loadHVACSettings(QString fileName){
-    if(fileName.isEmpty()){
-        return;
-    }
-    resetHVACSettings();
-
-    qDebug() << "Loading hvac settings : " << fileName;
-    QFile file;
-    file.setFileName(fileName);
-    file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-    QString configFile = file.readAll();
-    file.close();
-    QJsonParseError error;
-    QJsonDocument doc = QJsonDocument::fromJson(configFile.toUtf8(), &error);
-    if(doc.isNull()){
-        qDebug() << "JSON Parse error : " << error.errorString();
-    }
-    QJsonObject json = doc.object();
-
-    for (auto it = json.constBegin(); it != json.constEnd(); it++) {
-        m_hvacSettings.insert(it.key(), it.value());
-    }
     emit settingsChanged();
 }
-void HVACPlugin::updateManufacturers(){
-    QDir dir("modules/hvac/cars");
-    for(QString info : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)){
-        m_manufacturers.insert(info,info);
-    }
-    emit carsUpdated();
 
-}
-void HVACPlugin::updateCars(){
-    m_cars.clear();
-    QDir dir("modules/hvac/cars");
-    if(dir.cd(m_settings["car_make"].toString())){
-        dir.setNameFilters(QStringList("*.json"));
-        for(QFileInfo info : dir.entryInfoList()){
-            QFile file;
-            file.setFileName(info.filePath());
-            file.open(QIODevice::ReadOnly | QIODevice::Text);
-
-            QString configFile = file.readAll();
-            file.close();
-            QJsonObject json = QJsonDocument::fromJson(configFile.toUtf8()).object();
-            QString name;
-            if(json.contains("name")){
-                name = json["name"].toString();
-            } else {
-                name = info.fileName();
-            }
-            m_cars.insert(info.filePath(),name);
-        }
-
-        emit carsUpdated();
-        emit settingsProviderUpdated();
-    }
-}
 void HVACPlugin::updateHVACParameters(){
     QVariantMap hvacControlArray;
     QVariantMap controlZoneFrontLeft;

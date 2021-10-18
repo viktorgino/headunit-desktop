@@ -10,6 +10,7 @@ Item {
     property int steps : HVACPlugin.hvacSettings.TemperatureSteps
     property double stepSize : HVACPlugin.hvacSettings.TemperatureStepSize
     property int offset : HVACPlugin.hvacSettings.TemperatureOffset
+    property alias back_tempHeight: back_temp.height
 
     Item {
         id: item2
@@ -19,13 +20,16 @@ Item {
         anchors.topMargin: parent.height * 0.1
         Text {
             id: back_temp
+            height: parent*height * 0.5
             color: "#ffffff"
             visible: (__root.value != __root.steps/__root.stepSize && __root.value !== 0)
             text: __root.offset + (__root.stepSize * __root.value)
-            anchors.horizontalCenter: parent.horizontalCenter
             font.family: "Tahoma"
             font.pixelSize: parent.height*0.6
+            fontSizeMode: Text.Fit
             anchors.verticalCenter: parent.verticalCenter
+            anchors.left: parent.left
+            anchors.right: tempUnit.left
         }
 
         Text {
@@ -33,10 +37,9 @@ Item {
             visible: back_temp.visible
             color: "#ffffff"
             text: "°C"
-            anchors.leftMargin: 0
+            anchors.right: parent.right
             anchors.topMargin: 0
             font.pixelSize: parent.height*0.2
-            anchors.left: back_temp.right
             anchors.top: back_temp.top
         }
 

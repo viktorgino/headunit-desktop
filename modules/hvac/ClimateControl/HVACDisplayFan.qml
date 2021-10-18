@@ -20,10 +20,8 @@ Item {
     }
 
     Item {
+        id: item1
         anchors.fill: parent
-        anchors.rightMargin: parent.width * 0.1
-        anchors.leftMargin: parent.width * 0.1
-        anchors.topMargin: parent.height * 0.1
 
         Item {
             id: fanSelectWrapper
@@ -49,6 +47,8 @@ Item {
             anchors.right: parent.right
             anchors.top: parent.top
             anchors.bottom: fanSelectWrapper.top
+            anchors.bottomMargin: 5
+            anchors.topMargin: parent.height * 0.1
             Item{
                 id: fanLevelWrapper
                 width: parent.height * 2 >= parent.width ? parent.width : height * 2
@@ -67,23 +67,25 @@ Item {
 
                     Path {
                         id:outlinePath
-                        startX: canvas.width - 10; startY: canvas.height - 10
-                        PathLine { x: canvas.width - 10; y: 10 }
-                        PathLine { x: 10; y: canvas.height - 10 }
-                        PathLine { x: canvas.width - 10; y: canvas.height - 10 }
+//                        property var 2: (__root.width / 60)
+                        startX: canvas.width - 2; startY: canvas.height - 2
+                        PathLine { x: canvas.width - 2; y: 2 }
+                        PathLine { x: 2; y: canvas.height - 2 }
+                        PathLine { x: canvas.width - 2; y: canvas.height - 2 }
                     }
                     Path {
                         id:outlinePathInverted
-                        startX: 10; startY: canvas.height - 10
-                        PathLine { x: 10; y: 10 }
-                        PathLine { x: canvas.width - 10; y: canvas.height - 10 }
-                        PathLine { x: 10; y: canvas.height - 10 }
+//                        property var 2: (__root.width / 60)
+                        startX: 2; startY: canvas.height - 2
+                        PathLine { x: 2; y: 2 }
+                        PathLine { x: canvas.width - 2; y: canvas.height - 2 }
+                        PathLine { x: 2; y: canvas.height - 2 }
                     }
 
                     onPaint: {
                         if(context){
                             context.strokeStyle = "#999999";
-                            context.lineWidth = 5;
+                            context.lineWidth = 2;
                             context.path = __root.inverted ? outlinePathInverted : outlinePath;
                             context.stroke();
 
@@ -160,6 +162,6 @@ Item {
 
 /*##^##
 Designer {
-    D{i:0;autoSize:true;formeditorColor:"#c0c0c0";height:300;width:300}D{i:1}
+    D{i:0;autoSize:true;formeditorColor:"#c0c0c0";formeditorZoom:4;height:50;width:50}
 }
 ##^##*/

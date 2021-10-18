@@ -54,5 +54,6 @@
         <file>ClimateControl/HVACOverlayTempSlider.qml</file>
         <file>ClimateControl/HVACBottomBar.qml</file>
         <file>ClimateControl/HVACControlFanDirection.qml</file>
+        <file>ClimateControl/SettingsPage.qml</file>
     </qresource>
 </RCC>
