@@ -7,6 +7,12 @@
 #include <QStringList>
 #include <QDebug>
 #include <QByteArray>
+#include <QTimer>
+#include <QFile>
+#include <QFileInfo>
+#include <QDir>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <plugininterface.h>
 #include <hvac-common.h>
 #include "CRL/HUDSerial/HUDSerial.h"
@@ -21,6 +27,11 @@ class HUDSerialPlugin : public QObject, PluginInterface, PlatformCallbacks
 
     Q_PROPERTY(QVariantMap ports READ getPorts NOTIFY portsUpdated)
     Q_PROPERTY(bool connected MEMBER m_connected NOTIFY connectedUpdated)
+    Q_PROPERTY(QVariantMap carManufacturers READ carManufacturers NOTIFY carsUpdated)
+    Q_PROPERTY(QVariantMap cars READ cars NOTIFY carsUpdated)
+    Q_PROPERTY(QVariantList carSettings READ getCarSettings NOTIFY carSettingsUpdated)
+    Q_PROPERTY(QVariantList customBits READ getCustomBits NOTIFY customCommandUpdated)
+    Q_PROPERTY(QVariantList customBytes READ getCustomBytes NOTIFY customCommandUpdated)
 public:
     explicit HUDSerialPlugin(QObject *parent = nullptr);
 
@@ -38,10 +49,15 @@ public:
 public slots:
     void eventMessage(QString id, QVariant message) override;
     void serialRestart();
+    void setCustomBit(uint bitNumber, bool value);
+    void setCustomByte(uint byteNumber, uint value);
 signals:
     void portsUpdated();
     void message(QString id, QVariant message);
     void connectedUpdated();
+    void customCommandUpdated();
+    void carsUpdated();
+    void carSettingsUpdated();
     void action(QString id, QVariant message);
 private slots:
     void handleSerialReadyRead();
@@ -52,14 +68,40 @@ private:
     QVariantMap m_ports;
     HUDSerial::HUDSerial m_serialProtocol;
     bool m_connected;
+    QTimer m_serialRetryTimer;
+    QVariantMap m_manufacturers;
+    QVariantMap m_cars;
+    QVariantList m_carSettings;
+    QVariantList m_customBits;
+    QVariantList m_customBytes;
 
     void updatePorts();
     void serialConnect();
     void serialDisconnect();
 
+    void updateManufacturers();
+    void updateCars();
+    void loadCarSettings(QString fileName);
+
     QVariantMap getPorts() {
         updatePorts();
         return m_ports;
+    }
+
+    QVariantMap carManufacturers(){
+        return m_manufacturers;
+    }
+    QVariantMap cars(){
+        return m_cars;
+    }
+    QVariantList getCarSettings(){
+        return m_carSettings;
+    }
+    QVariantList getCustomBits(){
+        return m_customBits;
+    }
+    QVariantList getCustomBytes(){
+        return m_customBytes;
     }
 };
 

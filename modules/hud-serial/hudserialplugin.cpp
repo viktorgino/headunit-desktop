@@ -1,20 +1,23 @@
 #include "hudserialplugin.h"
 
-HUDSerialPlugin::HUDSerialPlugin(QObject *parent) : QObject (parent), m_serial(this), m_serialProtocol()
+HUDSerialPlugin::HUDSerialPlugin(QObject *parent) : QObject (parent), m_serial(this), m_serialProtocol(), m_serialRetryTimer(this)
 {
     m_serialProtocol.setCallbacks(this);
-
-    m_pluginSettings.eventListeners = QStringList() << "HVACPlugin::Update";
+    m_pluginSettings.eventListeners = QStringList() << "HVACPlugin::Update" << "HVACPlugin::CustomCommandUpdate";
     m_pluginSettings.events = QStringList() << "KeyInput" << "MediaInput";
 }
 
 void HUDSerialPlugin::init() {
     updatePorts();
+    updateManufacturers();
+    updateCars();
+    loadCarSettings(m_settings["car"].toString());
 
     serialConnect();
     connect(&m_serial, &QSerialPort::readyRead, this, &HUDSerialPlugin::handleSerialReadyRead);
     connect(&m_serial, &QSerialPort::errorOccurred, this, &HUDSerialPlugin::handleSerialError);
     connect(&m_settings, &QQmlPropertyMap::valueChanged, this, &HUDSerialPlugin::settingsChanged);
+    connect(&m_serialRetryTimer, &QTimer::timeout, this, &HUDSerialPlugin::serialConnect);
 }
 
 QObject *HUDSerialPlugin::getContextProperty(){
@@ -26,12 +29,38 @@ void HUDSerialPlugin::eventMessage(QString id, QVariant message) {
         if(message.canConvert<ClimateControlCommandFrame>()){
             m_serialProtocol.sendClimateControlCommand(qvariant_cast<ClimateControlCommandFrame>(message));
         }
+    } else if (id == "HVACPlugin::CustomCommandUpdate") {
+        if(message.canConvert(QMetaType::QVariantMap)){
+            QVariantMap map = message.toMap();
+            if(map.contains("bits") && map.contains("bytes")){
+
+                CustomCommandFrame commandFrame;
+                QVariantList customBits = map["bits"].toList();
+                QVariantList customBytes = map["bytes"].toList();
+                for(int i = 0; i < customBits.size(); i++) {
+                    commandFrame.Bits[i] = customBits[i].toBool();
+                }
+                for(int i = 0; i < customBytes.size(); i++) {
+                    commandFrame.Bytes[i] = customBytes[i].toUInt();
+                }
+                m_serialProtocol.sendCustomCommand(commandFrame);
+            }
+        }
     }
 }
 void HUDSerialPlugin::settingsChanged(const QString &key, const QVariant &){
     if(key == "serial_port" || key == "serial_speed"){
         serialDisconnect();
         serialConnect();
+    } else if(key == "car_make"){
+        updateCars();
+        if(m_cars.size() > 0){
+            m_settings["car"] = m_cars.keys()[0];
+            loadCarSettings(m_settings["car"].toString());
+            emit m_settings.valueChanged("car", m_settings["car"]);
+        }
+    } else if(key == "car") {
+        loadCarSettings(m_settings["car"].toString());
     }
 }
 
@@ -45,12 +74,13 @@ void HUDSerialPlugin::updatePorts() {
 }
 
 void HUDSerialPlugin::serialConnect(){
+//    m_serialRetryTimer.stop();
     m_serial.setPortName(m_settings.value("serial_port").toString());
     m_serial.setBaudRate(m_settings.value("serial_speed").toString().toInt());
 
     if (!m_serial.open(QIODevice::ReadWrite)) {
         qDebug() << QObject::tr("Failed to open port %1, error: %2")
-                    .arg(m_settings.value("port").toString(), m_serial.errorString())
+                        .arg(m_settings.value("port").toString(), m_serial.errorString())
                  << "\n";
     } else {
         qDebug() << "Connected to Serial : " << m_serial.portName() << m_serial.baudRate();
@@ -74,7 +104,13 @@ void HUDSerialPlugin::serialRestart(){
     serialConnect();
 }
 void HUDSerialPlugin::handleSerialError(QSerialPort::SerialPortError error){
-    if(error == QSerialPort::ReadError){
+    switch (error) {
+    case QSerialPort::WriteError:
+    case QSerialPort::ReadError:
+    case QSerialPort::NotOpenError:
+    case QSerialPort::DeviceNotFoundError:
+    case QSerialPort::PermissionError:
+    case QSerialPort::TimeoutError:
         if(m_serial.isOpen()){
             m_serial.close();
         }
@@ -82,6 +118,11 @@ void HUDSerialPlugin::handleSerialError(QSerialPort::SerialPortError error){
         m_connected = false;
         emit connectedUpdated();
         qDebug() << "Error : " << error;
+//        m_serialRetryTimer.start(1000);
+
+        break;
+    default:
+        break;
     }
 }
 
@@ -166,6 +207,16 @@ void HUDSerialPlugin::ClimateControlCallback(const ClimateControlCommandFrame &c
     emit action("HVACPlugin::Update", QVariant::fromValue(commandFrame));
 }
 void HUDSerialPlugin::CustomCommandCallback(const CustomCommandFrame &commandFrame){
+    m_customBits.clear();
+    m_customBytes.clear();
+    for(int i = 0; i < 16; i++) {
+        m_customBits.append(commandFrame.Bits[i]);
+    }
+    for(int i = 0; i < 6; i++) {
+        m_customBytes.append(commandFrame.Bytes[i]);
+    }
+
+    emit customCommandUpdated();
 }
 
 void HUDSerialPlugin::BodyControlCommandCallback(const BodyControlCommandFrame &controlFrame) {
@@ -206,4 +257,97 @@ void HUDSerialPlugin::PrintString(char *message, int length) {
     qDebug() << "HCU DEBUG : " << message;
 }
 
+void HUDSerialPlugin::setCustomBit(uint bitNumber, bool value){
+    if(m_customBytes.size() > bitNumber){
+        QVariantList customBits(m_customBits);
+        customBits[bitNumber] = value;
 
+        CustomCommandFrame commandFrame;
+
+        for(int i = 0; i < customBits.size(); i++) {
+            commandFrame.Bits[i] = customBits[i].toBool();
+        }
+        for(int i = 0; i < m_customBytes.size(); i++) {
+            commandFrame.Bytes[i] = m_customBytes[i].toUInt();
+        }
+        m_serialProtocol.sendCustomCommand(commandFrame);
+    }
+}
+
+void HUDSerialPlugin::setCustomByte(uint byteNumber, uint value){
+    if(m_customBytes.size() > byteNumber){
+        QVariantList customBytes(m_customBytes);
+        customBytes[byteNumber] = value;
+
+        CustomCommandFrame commandFrame;
+
+        for(int i = 0; i < m_customBits.size(); i++) {
+            commandFrame.Bits[i] = m_customBits[i].toBool();
+        }
+        for(int i = 0; i < customBytes.size(); i++) {
+            commandFrame.Bytes[i] = customBytes[i].toUInt();
+        }
+        m_serialProtocol.sendCustomCommand(commandFrame);
+    }
+}
+
+void HUDSerialPlugin::loadCarSettings(QString fileName){
+    if(fileName.isEmpty()){
+        return;
+    }
+//    resetHVACSettings();
+
+    QFile file;
+    file.setFileName(fileName);
+    file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    QString configFile = file.readAll();
+    file.close();
+    QJsonParseError error;
+    QJsonDocument doc = QJsonDocument::fromJson(configFile.toUtf8(), &error);
+    if(doc.isNull()){
+        qDebug() << "JSON Parse error : " << error.errorString();
+    }
+    QJsonObject json = doc.object();
+    QVariantMap carSettings;
+    for (auto it = json.constBegin(); it != json.constEnd(); it++) {
+        carSettings.insert(it.key(), it.value());
+    }
+    m_carSettings = carSettings.value("CarSettings").toList();
+    emit action("HVACPlugin::HvacSettingsUpdate", carSettings.value("AcSettings").toMap());
+    emit carSettingsUpdated();
+    qDebug() << "Loaded car settings : " << fileName;
+}
+void HUDSerialPlugin::updateManufacturers(){
+    QDir dir("modules/hud-serial/cars");
+    for(QString info : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)){
+        m_manufacturers.insert(info,info);
+    }
+    emit carsUpdated();
+
+}
+void HUDSerialPlugin::updateCars(){
+    m_cars.clear();
+    QDir dir("modules/hud-serial/cars");
+    if(dir.cd(m_settings["car_make"].toString())){
+        dir.setNameFilters(QStringList("*.json"));
+        for(QFileInfo info : dir.entryInfoList()){
+            QFile file;
+            file.setFileName(info.filePath());
+            file.open(QIODevice::ReadOnly | QIODevice::Text);
+
+            QString configFile = file.readAll();
+            file.close();
+            QJsonObject json = QJsonDocument::fromJson(configFile.toUtf8()).object();
+            QString name;
+            if(json.contains("name")){
+                name = json["name"].toString();
+            } else {
+                name = info.fileName();
+            }
+            m_cars.insert(info.filePath(),name);
+        }
+
+        emit carsUpdated();
+    }
+}

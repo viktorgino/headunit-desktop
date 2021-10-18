@@ -34,3 +34,17 @@ DISTFILES += \
 RESOURCES += \
     qml.qrc
 
+cars.path = $$PREFIX/modules/hud-serial/cars/
+cars.files += cars/Volvo/*
+cars.files += cars/Sample/*
+
+INSTALLS += cars
+
+##recursively copy the theme folder
+car_files_copy.commands = $(COPY_DIR) $${PWD}/cars $$OUT_PWD
+##attach the copy command to make target
+first.depends = $(first) car_files_copy
+##export variables to global scope
+export(first.depends)
+export(car_files_copy.commands)
+QMAKE_EXTRA_TARGETS += first car_files_copy

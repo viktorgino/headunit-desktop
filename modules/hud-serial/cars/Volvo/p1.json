@@ -1,0 +1,95 @@
+{
+        "name": "P1",
+        "AcSettings": {
+                "readOnly": true,
+                "FanSteps": 10,
+                "TemperatureSteps": 18,
+                "TemperatureStepSize": 1,
+                "TemperatureOffset": 16,
+                "FrontLeft": {
+                        "Direction": true,
+                        "DirUp": true,
+                        "DirCenter": true,
+                        "DirDown": true,
+                        "DirAuto": true,
+                        "Fan": true,
+                        "Temperature": true
+                },
+                "FrontRight": {
+                        "Temperature": true
+                },
+                "Auto": true,
+                "FrontDefrost": true
+        },
+        "CarSettings": [
+                {
+                        "type": "bit",
+                        "label": "A/C Recirculate Timer",
+                        "bit": 0
+                },
+                {
+                        "type": "byte",
+                        "itemType": "combobox",
+                        "label": "Auto Blower Time",
+                        "values": [
+                                "30 Seconds",
+                                "60 Seconds",
+                                "90 Seconds"
+                        ],
+                        "byte": 0
+                },
+                {
+                        "type": "bit",
+                        "label": "Lock Confirm Lights",
+                        "bit": 1
+                },
+                {
+                        "type": "bit",
+                        "label": "Unlock Confirm Lights",
+                        "bit": 2
+                },
+                {
+                        "type": "bit",
+                        "label": "Doors Auto lock",
+                        "bit": 3
+                },
+                {
+                        "type": "bit",
+                        "label": "Doors Unlock, driver then all",
+                        "bit": 4
+                },
+                {
+                        "type": "byte",
+                        "itemType": "combobox",
+                        "label": "Auto Blower Time",
+                        "values": [
+                                "30 Seconds",
+                                "60 Seconds",
+                                "90 Seconds"
+                        ],
+                        "byte": 1
+                },
+                {
+                        "type": "byte",
+                        "itemType": "combobox",
+                        "label": "Approach Light",
+                        "values": [
+                                "30 Seconds",
+                                "60 Seconds",
+                                "90 Seconds"
+                        ],
+                        "byte": 2
+                },
+                {
+                        "type": "byte",
+                        "itemType": "combobox",
+                        "label": "Home Safe Light",
+                        "values": [
+                                "30 Seconds",
+                                "60 Seconds",
+                                "90 Seconds"
+                        ],
+                        "byte": 3
+                }
+        ]
+}

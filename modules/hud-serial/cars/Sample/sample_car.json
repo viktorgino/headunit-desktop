@@ -1,0 +1,56 @@
+{
+        "name": "Sample Car",
+        "readOnly": false,
+        "AcSettings": {
+                "FanSteps": 10,
+                "TemperatureSteps": 18,
+                "TemperatureStepSize": 1,
+                "TemperatureOffset": 16,
+                "SeatHeatSteps": 5,
+                "FrontLeft": {
+                        "Direction": true,
+                        "DirUp": true,
+                        "DirCenter": true,
+                        "DirDown": true,
+                        "DirAuto": true,
+                        "Fan": true,
+                        "Temperature": true,
+                        "SeatHeating": true
+                },
+                "FrontRight": {
+                        "Direction": true,
+                        "DirUp": true,
+                        "DirCenter": true,
+                        "DirDown": true,
+                        "DirAuto": true,
+                        "Fan": true,
+                        "Temperature": true,
+                        "SeatHeating": true
+                },
+                "RearLeft": {
+                        "Direction": true,
+                        "DirUp": true,
+                        "DirCenter": true,
+                        "DirDown": true,
+                        "DirAuto": true,
+                        "Fan": true,
+                        "Temperature": true,
+                        "SeatHeating": true
+                },
+                "RearRight": {
+                        "Direction": true,
+                        "DirUp": true,
+                        "DirCenter": true,
+                        "DirDown": true,
+                        "DirAuto": true,
+                        "Fan": true,
+                        "Temperature": true,
+                        "SeatHeating": true
+                },
+                "Recirculate": true,
+                "Auto": true,
+                "Ac": true,
+                "FrontDefrost": true,
+                "RearDefrost": true
+        }
+}

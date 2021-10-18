@@ -1,0 +1,40 @@
+{
+        "name": "Sample Car 2",
+        "AcSettings": {
+                "FanSteps": 20,
+                "TemperatureSteps": 30,
+                "TemperatureStepSize": 0.5,
+                "TemperatureOffset": 10,
+                "SeatHeatSteps": 3,
+                "FrontLeft": {
+                        "Direction": true,
+                        "DirUp": true,
+                        "DirDown": true,
+                        "DirAuto": true,
+                        "Fan": true,
+                        "Temperature": true,
+                        "SeatHeating": true
+                },
+                "FrontRight": {
+                        "Direction": true,
+                        "DirUp": true,
+                        "DirDown": true,
+                        "DirAuto": true,
+                        "Fan": true,
+                        "Temperature": true,
+                        "SeatHeating": true
+                },
+                "RearLeft": {
+                        "Direction": true,
+                        "DirCenter": true,
+                        "DirDown": true,
+                        "Fan": true,
+                        "Temperature": true
+                },
+                "Recirculate": true,
+                "Auto": true,
+                "Ac": true,
+                "FrontDefrost": true,
+                "RearDefrost": true
+        }
+}

@@ -1,3 +1,11 @@
+headunit-desktop (0.1-91) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (4998769cc0b9199aca63f99952d4bf4e184e6896)
+  * [HUDSerial] Add car settings here
+
+ -- Gino <gino@gino-ubuntu>  Mon, 18 Oct 2021 03:37:36 +0000
+
 headunit-desktop (0.1-90) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
