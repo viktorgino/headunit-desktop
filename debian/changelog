@@ -1,3 +1,11 @@
+headunit-desktop (0.1-89) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (3dc55100874035d4e6f5072def108c08d1cb0af0)
+  * [AA] Minor protocol fixes
+
+ -- Gino <gino@gino-ubuntu>  Mon, 18 Oct 2021 03:33:34 +0000
+
 headunit-desktop (0.1-88) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

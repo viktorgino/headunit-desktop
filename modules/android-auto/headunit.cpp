@@ -114,8 +114,6 @@ int Headunit::init(){
 
     g_signal_connect(vid_sink, "new-sample", G_CALLBACK(&Headunit::newVideoSample), this);
 
-//    GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(vid_pipeline),GST_DEBUG_GRAPH_SHOW_VERBOSE, "vid_pipeline");
-
     if (error != NULL) {
         qDebug("Could not construct video pipeline: %s", error->message);
         g_clear_error(&error);
@@ -131,7 +129,8 @@ int Headunit::init(){
                                 #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Music\""
                                 #else
-                                    "pulsesink name=mediasink sync=true client-name=\"Android Auto Music\" stream-properties=\"props,media.name=AndroidAutoMusic\""
+                                    "pulsesink name=mediasink sync=true client-name=\"Android Auto Music\" "
+                                    "stream-properties=\"props,media.name=AndroidAutoMusic,media.role=music\""
                                 #endif
                                     , &error);
     if (error != NULL) {
@@ -150,6 +149,7 @@ int Headunit::init(){
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Voice\""
                                 #else
                                     "pulsesink name=voicesink sync=true client-name=\"Android Auto Voice\""
+                                    "stream-properties=\"props,media.name=AndroidAutoVoice,media.role=music\""
                                 #endif
                                     , &error);
 
@@ -182,12 +182,14 @@ int Headunit::init(){
     g_signal_connect(mic_sink, "new-sample", G_CALLBACK(&Headunit::read_mic_data), this);
     gst_object_unref(mic_sink);
 
-    gst_element_set_state(mic_pipeline, GST_STATE_READY);
-
-
     m_vid_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_src"));
     m_aud_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(aud_pipeline), "audsrc"));
     m_au1_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(au1_pipeline), "au1src"));
+
+    gst_element_set_state(mic_pipeline, GST_STATE_PAUSED);
+    gst_element_set_state(vid_pipeline, GST_STATE_PAUSED);
+    gst_element_set_state(aud_pipeline, GST_STATE_PAUSED);
+    gst_element_set_state(au1_pipeline, GST_STATE_PAUSED);
 
     return 0;
 }
@@ -230,8 +232,6 @@ void Headunit::setVideoSurface(QAbstractVideoSurface *surface)
         m_surface->stop();
     }
     m_surface = surface;
-//    if (m_surface)
-//        m_surface->start(m_format);
 }
 void Headunit::videoFrameHandler(const QVideoFrame &frame)
 {
@@ -496,15 +496,21 @@ void Headunit::nextTrack() {
 }
 
 void Headunit::setMediaVolume(uint8_t volume) {
-    GstElement *media_sink = gst_bin_get_by_name(GST_BIN(aud_pipeline), "mediasink");
-    g_object_set (media_sink, "volume", (volume * 2) / 100.00, NULL);
-    gst_object_unref(media_sink);
+    m_mediaPipelineVolume = volume;
+    if(aud_pipeline) {
+        GstElement *media_sink = gst_bin_get_by_name(GST_BIN(aud_pipeline), "mediasink");
+        g_object_set (media_sink, "volume", m_mediaPipelineVolume / 100.00, NULL);
+        gst_object_unref(media_sink);
+    }
 }
 
 void Headunit::setVoiceVolume(uint8_t volume) {
-    GstElement *voice_sink = gst_bin_get_by_name(GST_BIN(au1_pipeline), "voicesink");
-    g_object_set (voice_sink, "volume", (volume * 2) / 100.00, NULL);
-    gst_object_unref(voice_sink);
+    m_voicePipelineVolume = volume;
+    if(au1_pipeline) {
+        GstElement *voice_sink = gst_bin_get_by_name(GST_BIN(au1_pipeline), "voicesink");
+        g_object_set (voice_sink, "volume", m_voicePipelineVolume / 100.00, NULL);
+        gst_object_unref(voice_sink);
+    }
 }
 
 int DesktopEventCallbacks::MediaPacket(AndroidAuto::ServiceChannels chan, uint64_t timestamp, const byte * buf, int len) {
@@ -516,6 +522,8 @@ int DesktopEventCallbacks::MediaPacket(AndroidAuto::ServiceChannels chan, uint64
         gst_src = headunit->m_aud_src;
     } else if (chan == AndroidAuto::Audio1Channel) {
         gst_src = headunit->m_au1_src;
+    } else {
+        qDebug () << "Unknown channel : " << chan;
     }
 
     if (gst_src) {
@@ -538,8 +546,6 @@ int DesktopEventCallbacks::MediaStart(AndroidAuto::ServiceChannels chan) {
     case AndroidAuto::VideoChannel:
         gst_element_set_state(headunit->vid_pipeline, GST_STATE_PLAYING);
         headunit->setStatus(Headunit::RUNNING);
-
-        GST_DEBUG_BIN_TO_DOT_FILE_WITH_TS(GST_BIN(headunit->vid_pipeline),GST_DEBUG_GRAPH_SHOW_VERBOSE, "vid_pipeline");
         break;
     case AndroidAuto::MediaAudioChannel:
         gst_element_set_state(headunit->aud_pipeline, GST_STATE_PLAYING);
@@ -561,17 +567,17 @@ int DesktopEventCallbacks::MediaStart(AndroidAuto::ServiceChannels chan) {
 int DesktopEventCallbacks::MediaStop(AndroidAuto::ServiceChannels chan) {
     switch(chan){
     case AndroidAuto::VideoChannel:
-        gst_element_set_state(headunit->vid_pipeline, GST_STATE_READY);
+        gst_element_set_state(headunit->vid_pipeline, GST_STATE_PAUSED);
         headunit->setStatus(Headunit::VIDEO_WAITING);
         break;
     case AndroidAuto::MediaAudioChannel:
-        gst_element_set_state(headunit->aud_pipeline, GST_STATE_READY);
+        gst_element_set_state(headunit->aud_pipeline, GST_STATE_PAUSED);
         break;
     case AndroidAuto::Audio1Channel:
-        gst_element_set_state(headunit->au1_pipeline, GST_STATE_READY);
+        gst_element_set_state(headunit->au1_pipeline, GST_STATE_PAUSED);
         break;
     case AndroidAuto::MicrophoneChannel:
-        gst_element_set_state(headunit->mic_pipeline, GST_STATE_READY);
+        gst_element_set_state(headunit->mic_pipeline, GST_STATE_PAUSED);
         break;
     default:
         qDebug() << "Media Stop Unknown chan : " << chan;
@@ -642,4 +648,21 @@ std::string DesktopEventCallbacks::GetCarBluetoothAddress(){
 
 void DesktopEventCallbacks::PhoneBluetoothReceived(std::string address){
     emit headunit->btConnectionRequest(QString::fromStdString(address));
+}
+
+void DesktopEventCallbacks::HandlePhoneStatus(AndroidAuto::IHUConnectionThreadInterface& stream,
+                                              const HU::PhoneStatus& phoneStatus){
+
+}
+void DesktopEventCallbacks::HandleNaviStatus(AndroidAuto::IHUConnectionThreadInterface& stream,
+                                             const HU::NAVMessagesStatus& request){
+
+}
+void DesktopEventCallbacks::HandleNaviTurn(AndroidAuto::IHUConnectionThreadInterface& stream,
+                                           const HU::NAVTurnMessage& request){
+
+}
+void DesktopEventCallbacks::HandleNaviTurnDistance(AndroidAuto::IHUConnectionThreadInterface& stream,
+                                                   const HU::NAVDistanceMessage& request){
+
 }

@@ -26,28 +26,36 @@
 class Headunit;
 
 class DesktopEventCallbacks : public AndroidAuto::IHUConnectionThreadEventCallbacks {
-   private:
+private:
     Headunit *headunit;
 
-   public:
+public:
     DesktopEventCallbacks(Headunit *hu) { headunit = hu; }
-    virtual int MediaPacket(AndroidAuto::ServiceChannels chan, uint64_t timestamp, const byte *buf,
-                            int len) override;
-    virtual int MediaStart(AndroidAuto::ServiceChannels chan) override;
-    virtual int MediaStop(AndroidAuto::ServiceChannels chan) override;
-    virtual void MediaSetupComplete(AndroidAuto::ServiceChannels chan) override;
-    virtual void DisconnectionOrError() override;
-    virtual void CustomizeOutputChannel(
+    int MediaPacket(AndroidAuto::ServiceChannels chan, uint64_t timestamp, const byte *buf,
+                    int len) override;
+    int MediaStart(AndroidAuto::ServiceChannels chan) override;
+    int MediaStop(AndroidAuto::ServiceChannels chan) override;
+    void MediaSetupComplete(AndroidAuto::ServiceChannels chan) override;
+    void DisconnectionOrError() override;
+    void CustomizeOutputChannel(
         AndroidAuto::ServiceChannels chan,
         HU::ChannelDescriptor::OutputStreamChannel &streamChannel) override;
-    virtual void AudioFocusRequest(
+    void AudioFocusRequest(
         AndroidAuto::ServiceChannels chan, const HU::AudioFocusRequest &request) override;
-    virtual void VideoFocusRequest(
+    void VideoFocusRequest(
         AndroidAuto::ServiceChannels chan, const HU::VideoFocusRequest &request) override;
-    virtual std::string GetCarBluetoothAddress() override;
-    virtual void PhoneBluetoothReceived(std::string address) override;
+    std::string GetCarBluetoothAddress() override;
+    void PhoneBluetoothReceived(std::string address) override;
 
     void VideoFocusHappened(bool hasFocus, bool unrequested);
+    void HandlePhoneStatus(AndroidAuto::IHUConnectionThreadInterface& stream,
+                           const HU::PhoneStatus& phoneStatus) override;
+    void HandleNaviStatus(AndroidAuto::IHUConnectionThreadInterface& stream,
+                          const HU::NAVMessagesStatus& request) override;
+    void HandleNaviTurn(AndroidAuto::IHUConnectionThreadInterface& stream,
+                        const HU::NAVTurnMessage& request) override;
+    void HandleNaviTurnDistance(AndroidAuto::IHUConnectionThreadInterface& stream,
+                                const HU::NAVDistanceMessage& request) override;
 };
 
 class Headunit : public QObject {
@@ -60,7 +68,7 @@ class Headunit : public QObject {
     Q_PROPERTY(QAbstractVideoSurface *videoSurface READ videoSurface WRITE
                    setVideoSurface)
 
-   public:
+public:
     Headunit(QObject *parent = nullptr);
     ~Headunit();
     int startHU();
@@ -95,8 +103,11 @@ class Headunit : public QObject {
     GstAppSrc *m_aud_src = nullptr;
     GstAppSrc *m_au1_src = nullptr;
 
+    uint8_t m_mediaPipelineVolume = 100;
+    uint8_t m_voicePipelineVolume = 100;
+
     AndroidAuto::IHUAnyThreadInterface *g_hu = nullptr;
-   signals:
+signals:
     void outputResized();
     void videoResized();
     void deviceConnected(QVariantMap notification);
@@ -107,7 +118,7 @@ class Headunit : public QObject {
 
     void playbackStarted();
 
-   public slots:
+public slots:
     bool mouseDown(QPoint point);
     bool mouseMove(QPoint point);
     bool mouseUp(QPoint point);
@@ -115,7 +126,7 @@ class Headunit : public QObject {
 
     void videoFrameHandler(const QVideoFrame &frame);
 
-   private:
+private:
     AndroidAuto::HUServer *headunit;
     DesktopEventCallbacks callbacks;
     HU::TouchInfo::TOUCH_ACTION lastAction =
