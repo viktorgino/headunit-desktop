@@ -52,7 +52,6 @@ void MediaManager::playbackStartedHandler(){
     MediaInterface * sender = dynamic_cast<MediaInterface *>(QObject::sender());
     if(sender){
         QString senderName = m_mediaInterfaces.key(sender);
-        qDebug() << "Playback started : " << senderName;
         setActiveMediaPlayer(senderName);
     }
 }

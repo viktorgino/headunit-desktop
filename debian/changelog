@@ -1,3 +1,11 @@
+headunit-desktop (0.1-88) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (369c2a316d3a5eeaccc7cc31956f1fd95cca961f)
+  * Add settings property to plugin configs + minor clean up
+
+ -- Gino <gino@gino-ubuntu>  Mon, 18 Oct 2021 02:59:27 +0000
+
 headunit-desktop (0.1-87) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

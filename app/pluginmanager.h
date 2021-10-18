@@ -51,7 +51,7 @@ private:
     void initPlugins();
     void settingsChanged(QString key, QVariant value);
     void loadMenuItems(QQmlApplicationEngine *engine);
-    void loadConfigItems(QQmlApplicationEngine *engine);
+    void loadConfigItems();
     void processPluginEvents(QStringList events);
 };
 

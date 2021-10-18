@@ -36,9 +36,6 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine *engine = new QQmlApplicationEngine();
 
-    QVariantList menuItems;
-    QVariantList configItems;
-
     QCommandLineParser parser;
     parser.setApplicationDescription("helper");
     parser.addHelpOption();

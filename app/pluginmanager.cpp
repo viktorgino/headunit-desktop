@@ -117,12 +117,22 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
             QJsonObject settingsObject = config.toObject();
             settingsObject.insert("name", pluginName);
 
-            SettingsLoader *settings = new SettingsLoader(settingsObject, pluginObject->getSettings(), this);
-//            pluginSettings << settings;
+            SettingsLoader *settings = nullptr;
+            if(settingsObject.contains("items")){
+                settings = new SettingsLoader(settingsObject, pluginObject->getSettings(), this);
+            } else if(settingsObject.contains("settings")) {
+                QJsonObject configSettingsMap;
+                configSettingsMap.insert("name", pluginName);
+                configSettingsMap.insert("type", "items");
+                configSettingsMap.insert("items", settingsObject["settings"].toArray());
 
-            QQmlPropertyMap * settingsMap = settings->getSettingsMap();
+                settings = new SettingsLoader(configSettingsMap, pluginObject->getSettings(), this);
+            }
+            if(settings){
+                QQmlPropertyMap * settingsMap = settings->getSettingsMap();
 
-            m_settings.insert(pluginName,  QVariant::fromValue<QQmlPropertyMap *>(settingsMap));
+                m_settings.insert(pluginName,  QVariant::fromValue<QQmlPropertyMap *>(settingsMap));
+            }
             m_settingsItems.append(settingsObject.toVariantMap());
         }
 
@@ -146,7 +156,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
         engine->importPlugin(pluginsDir.absoluteFilePath(fileName),uri.toString(),&errors);
     }
 
-    loadConfigItems(engine);
+    loadConfigItems();
     loadMenuItems(engine);
 
     engine->rootContext()->setContextProperty("HUDSettingsMenu", m_settingsItems);
@@ -176,13 +186,11 @@ void PluginManager::messageHandler(QString id, QVariant message){
         emit themeEvent(senderName,messageId[1], message);
         return;
     } else if(id == "MediaInput"){
-        if(message == "Next"){
-            m_mediaManager.nextTrack();
-        } else if(message == "Previous"){
-            m_mediaManager.prevTrack();
-        }
+        m_mediaManager.mediaInput(message.toString());
+        return;
     } else if(id == "KeyInput"){
         event = "KeyInput";
+        return;
     } else {
         event = QString("%1::%2").arg(senderName).arg(id);
     }
@@ -197,6 +205,8 @@ void PluginManager::messageHandler(QString id, QVariant message){
                 qWarning () << "messageHandler() : Invalid plugin object " << listener << id;
             }
         }
+    } else {
+        qWarning () << "messageHandler() : There is no such event : " << event;
     }
 }
 
@@ -238,11 +248,9 @@ void PluginManager::loadMenuItems(QQmlApplicationEngine *engine){
     engine->rootContext()->setContextProperty("menuItems", m_menuItems);
 }
 
-void PluginManager::loadConfigItems(QQmlApplicationEngine *engine){
+void PluginManager::loadConfigItems(){
     m_settingsItems << QJsonObject {{"name","theme"},{"iconImage","qrc:/qml/icons/android-color-palette.png"},{"label","Theme"},{"type","loader"},{"section","General"},{"source","qrc:/qml/SettingsPage/SettingsPageTheme.qml"}}.toVariantMap()
                     << QJsonObject {{"name","quit"},{"iconImage","qrc:/qml/icons/log-out.png"},{"label","Quit headunit-desktop"},{"type","action"},{"action","Qt.quit()"},{"section","Other"},{"source",""}}.toVariantMap();
-
-    engine->rootContext()->setContextProperty("configItems", m_configItems);
 }
 
 
