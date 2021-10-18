@@ -52,6 +52,11 @@ private:
         {"file",QMetaType::QString},
         {"folder",QMetaType::QString},
         {"tumbler",QMetaType::Double},
+            {"string",QMetaType::QString},
+            {"int",QMetaType::Int},
+            {"double",QMetaType::Double},
+            {"long",QMetaType::Long},
+            {"bool",QMetaType::Bool},
     };
 };
 

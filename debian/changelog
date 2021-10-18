@@ -1,3 +1,11 @@
+headunit-desktop (0.1-86) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (7c7ea3dc9a887cf9190473a0d9aebbb0b36a2e94)
+  * Add settings types to settingsloader
+
+ -- Gino <gino@gino-ubuntu>  Mon, 18 Oct 2021 02:56:13 +0000
+
 headunit-desktop (0.1-85) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
