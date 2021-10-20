@@ -1,3 +1,11 @@
+headunit-desktop (0.1-94) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (906cf945911372bf94672f6e7d827d8b9d4fcb6f)
+  * Update default theme to latest
+
+ -- Gino <gino@gino-ubuntu>  Wed, 20 Oct 2021 04:09:28 +0000
+
 headunit-desktop (0.1-93) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
