@@ -27,14 +27,19 @@ Item {
             anchors.rightMargin: parent.width * 0.1
             anchors.bottomMargin: parent.height * 0.1
             anchors.topMargin: parent.height * 0.1
-
+            Rectangle {
+                color: HUDStyle.Colors.formBackground
+                anchors.fill: parent
+            }
             Item {
                 id: track_info
                 anchors.right: parent.right
                 anchors.top: parent.top
                 anchors.bottom: buttons.top
-                anchors.leftMargin: 8
-                anchors.rightMargin: 8
+                anchors.bottomMargin: 16
+                anchors.topMargin: 16
+                anchors.leftMargin: 16
+                anchors.rightMargin: 16
                 anchors.left: parent.left
                 RowLayout {
                     id: signalStrength
@@ -79,12 +84,13 @@ Item {
                 }
                 ThemeText {
                     id: dabMode
-                    width: parent.width / 2
                     text: (WelleIoPlugin.RadioController.isDAB ? "DAB" : "DAB+")
                           + " " + WelleIoPlugin.RadioController.audioMode
+                    anchors.left: signalStrength.right
                     verticalAlignment: Text.AlignTop
                     horizontalAlignment: Text.AlignRight
                     wrapMode: Text.WordWrap
+                    anchors.leftMargin: 16
                     anchors.right: parent.right
                     anchors.top: parent.top
                     anchors.rightMargin: 0
@@ -113,12 +119,11 @@ Item {
                     id: title
                     level: 3
                     text : WelleIoPlugin.RadioController.title.trim()
+                    anchors.verticalCenter: parent.verticalCenter
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                    anchors.bottomMargin: 4
                     anchors.right: parent.right
-                    anchors.bottom: radioText.top
                     anchors.rightMargin: 0
                     anchors.left: parent.left
                     anchors.leftMargin: 0
@@ -131,11 +136,13 @@ Item {
                     id: radioText
                     level: 1
                     text:WelleIoPlugin.RadioController.text.trim()
-                    anchors.verticalCenter: parent.verticalCenter
                     verticalAlignment: Text.AlignVCenter
                     wrapMode: Text.WordWrap
+                    anchors.bottomMargin: 8
                     horizontalAlignment: Text.AlignHCenter
                     anchors.right: parent.right
+                    anchors.top: title.bottom
+                    anchors.bottom: stationType.top
                     anchors.rightMargin: 0
                     anchors.left: parent.left
                     anchors.leftMargin: 0
@@ -151,7 +158,6 @@ Item {
                     horizontalAlignment: Text.AlignHCenter
                     verticalAlignment: Text.AlignTop
                     wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                    anchors.bottomMargin: 8
                     anchors.horizontalCenter: parent.horizontalCenter
                     renderType: Text.NativeRendering
                     font.hintingPreference: Font.PreferVerticalHinting
@@ -166,11 +172,12 @@ Item {
                 height: parent.height*0.15
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.bottom: parent.bottom
+                anchors.bottomMargin: 16
 
                 ImageButton {
                     Layout.fillHeight: true
                     Layout.fillWidth: true
-                    imageSource: WelleIoPlugin.RadioController.isPlaying ? "qrc:/qml/icons/stop.png" : "qrc:/qml/icons/play.png"
+                    imageSource: WelleIoPlugin.RadioController.isPlaying ? "qrc:/qml/icons/pause.png" : "qrc:/qml/icons/play.png"
                     id:playButton
                     onClicked: {
                         if(WelleIoPlugin.RadioController.isPlaying){
