@@ -1,4 +1,27 @@
 var searchData=
 [
-  ['headunit',['Headunit',['../classHeadunit.html',1,'']]]
+  ['dabhelper_91',['DABHelper',['../classDABHelper.html',1,'DABHelper'],['../classDABHelper.html#a5e6f8434e0efac42f3a437402c28895d',1,'DABHelper::DABHelper()']]],
+  ['dabhelper_2ecpp_92',['dabHelper.cpp',['../dabHelper_8cpp.html',1,'']]],
+  ['dabhelper_2eh_93',['dabHelper.h',['../dabHelper_8h.html',1,'']]],
+  ['dashbrightness_94',['DashBrightness',['../structBodyControlCommandFrame.html#ab93295674de0592c3468e51a9d95a90e',1,'BodyControlCommandFrame']]],
+  ['data_95',['data',['../classMediaLibraryContainerModel.html#a015fea0bd57111b6b21674e5e2ba9509',1,'MediaLibraryContainerModel::data()'],['../classMediaLibraryMediaListModel.html#ac81f49ae943e6351f388edb0d42678c8',1,'MediaLibraryMediaListModel::data()'],['../classMediaPlayerPlaylistModel.html#aa5aad54ecf882163399f388cda4664d5',1,'MediaPlayerPlaylistModel::data()']]],
+  ['databuffer_96',['DataBuffer',['../namespaceHUDSerial.html#ab306bd7884b51598469e850c8c57092fa6c8d441175aea0aacd95cd5cc690fa86',1,'HUDSerial']]],
+  ['debug_2ecpp_97',['debug.cpp',['../debug_8cpp.html',1,'']]],
+  ['debug_2eh_98',['debug.h',['../debug_8h.html',1,'']]],
+  ['debugmessagecommand_99',['DebugMessageCommand',['../namespaceHUDSerial.html#a5f871e2e33a4cd30c2d15d2e4bdb8a24a634b65863b3d5609196577cfe266ab25',1,'HUDSerial']]],
+  ['declinecall_100',['declineCall',['../classTelephonyManager.html#ac0c7bd4baeda171fb77b9cfc6725b477',1,'TelephonyManager']]],
+  ['defaulttheme_101',['DefaultTheme',['../classDefaultTheme.html',1,'']]],
+  ['defaulttheme_2ecpp_102',['defaulttheme.cpp',['../defaulttheme_8cpp.html',1,'']]],
+  ['defaulttheme_2eh_103',['defaulttheme.h',['../defaulttheme_8h.html',1,'']]],
+  ['desktopeventcallbacks_104',['DesktopEventCallbacks',['../classDesktopEventCallbacks.html',1,'DesktopEventCallbacks'],['../classDesktopEventCallbacks.html#ab501c9834c97040bf1b261c07395ad39',1,'DesktopEventCallbacks::DesktopEventCallbacks()']]],
+  ['deviceconnected_105',['deviceConnected',['../classHeadunit.html#ac7430904ab04039e4323010d1e92dc15',1,'Headunit']]],
+  ['direction_106',['Direction',['../structClimateControlZoneControl.html#ab99b8627a1f6ce90295f5a6904f0e53b',1,'ClimateControlZoneControl::Direction()'],['../structClimateControlZoneControl.html#a9e90ef7225d9ba5368ecf8aa545461fe',1,'ClimateControlZoneControl::Direction()']]],
+  ['disablepairing_107',['disablePairing',['../classTelephonyManager.html#a12706d0829c59942b4fb57bbb0ff3446',1,'TelephonyManager']]],
+  ['disconnectionorerror_108',['DisconnectionOrError',['../classDesktopEventCallbacks.html#a9fd17eddbfd601bfdc5ab8696b5d80ed',1,'DesktopEventCallbacks']]],
+  ['displaypasskey_109',['displayPasskey',['../classBluezAgent.html#ad7c390effb7bbe5f111967d1c3cbda64',1,'BluezAgent']]],
+  ['displaypincode_110',['displayPinCode',['../classBluezAgent.html#a2a9f47cb2ef10f7a71c356bcd331c09f',1,'BluezAgent']]],
+  ['down_111',['Down',['../structClimateControlZoneControl.html#aed6bc16a3969a82cd99fc99dde8dc65b',1,'ClimateControlZoneControl']]],
+  ['drivetraincontrolcommand_112',['DriveTrainControlCommand',['../namespaceHUDSerial.html#a5f871e2e33a4cd30c2d15d2e4bdb8a24a57584d4273dc4484b8b53b0e9025efd5',1,'HUDSerial']]],
+  ['drivetraincontrolcommandcallback_113',['DriveTrainControlCommandCallback',['../classPlatformCallbacks.html#afb8bc72919d1dd42841830d7c27c16dc',1,'PlatformCallbacks::DriveTrainControlCommandCallback()'],['../classHUDSerialPlugin.html#af669f0ad42cc464d7ac6c0058d4f751a',1,'HUDSerialPlugin::DriveTrainControlCommandCallback()']]],
+  ['drivetraincontrolcommandframe_114',['DriveTrainControlCommandFrame',['../structDriveTrainControlCommandFrame.html',1,'DriveTrainControlCommandFrame'],['../common_8h.html#ab713b30c03abf43a2737dbcbd4a95597',1,'DriveTrainControlCommandFrame():&#160;common.h']]]
 ];

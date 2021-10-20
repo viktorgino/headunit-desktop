@@ -1,2 +1,4 @@
 <map id="MediaDB" name="MediaDB">
+<area shape="rect" id="node1" title="Database abstraction class, used to fetch and insert/update data to/from the media library&#39;s SQLITE d..." alt="" coords="5,80,87,107"/>
+<area shape="rect" id="node2" title=" " alt="" coords="9,5,83,32"/>
 </map>
