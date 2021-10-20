@@ -4,9 +4,6 @@
 [submodule "themes/default-theme"]
 	path = themes/default-theme
 	url = https://github.com/viktorgino/headunit-gui.git
-[submodule "doxygen-bootstrapped"]
-	path = doxygen-bootstrapped
-	url = https://github.com/Velron/doxygen-bootstrapped.git
 [submodule "welle.io"]
 	path = modules/welle-io/welle.io
 	url = https://github.com/viktorgino/welle.io
