@@ -74,8 +74,8 @@ Item {
                 __root.itemClicked(index);
             }
         }
-        ScrollBar.vertical: ScrollBar {
-            active: true
+        ScrollBar.vertical: ThemeScrollBar {
+
         }
     }
 }

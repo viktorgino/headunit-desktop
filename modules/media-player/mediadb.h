@@ -78,6 +78,7 @@ public:
      *
      * @param parent
      */
+    //TODO : add flag for read only
     explicit MediaDB(QString path, QObject *parent = 0);
     /**
      * @brief Check if a location already exits in the database and if not then adds the location to the database

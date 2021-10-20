@@ -30,8 +30,8 @@ Item {
             }
             width: listView.width
         }
-        ScrollBar.vertical: ScrollBar {
-            active: true
+        ScrollBar.vertical: ThemeScrollBar {
+
         }
     }
 

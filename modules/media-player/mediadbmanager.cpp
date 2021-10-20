@@ -8,7 +8,7 @@ MediaDBManager::MediaDBManager(QObject *parent) : QObject(parent)
 void MediaDBManager::init(){
     for (QStorageInfo storage : QStorageInfo::mountedVolumes()) {
         if (storage.isValid() && storage.isReady()) {
-            if (!storage.isReadOnly() && storage.fileSystemType() != "tmpfs" && storage.fileSystemType() != "squashfs") {
+            if (/*!storage.isReadOnly() && */storage.fileSystemType() != "tmpfs" && storage.fileSystemType() != "squashfs") {
                 QDir path(storage.rootPath());
                 if(path.entryList().contains("media_database")){
                     qDebug() << "Adding : " << storage.rootPath();

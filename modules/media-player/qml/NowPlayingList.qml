@@ -1,6 +1,8 @@
 import QtQuick 2.11
 import QtQuick.Controls 2.4
 
+import HUDTheme 1.0
+
 Item {
     id: __now_playing_list
     clip: true
@@ -31,7 +33,8 @@ Item {
             onItemClicked: __now_playing_list.itemClicked(index)
         }
 
-        ScrollBar.vertical: ScrollBar {
+        ScrollBar.vertical: ThemeScrollBar {
+
         }
     }
 

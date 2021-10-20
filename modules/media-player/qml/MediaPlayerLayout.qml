@@ -225,7 +225,7 @@ Item {
                 anchors.right: parent.right
                 anchors.rightMargin: 8
 
-                Slider {
+                ThemeSlider {
                     id: sliderHorizontal1
                     anchors.top: parent.top
                     anchors.topMargin: 0
