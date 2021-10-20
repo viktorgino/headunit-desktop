@@ -17,7 +17,7 @@ public:
     void init() override;
 
 public slots:
-    void settingChanged(QString id, QVariant val);
+    void settingsChanged(const QString &key, const QVariant &value);
 };
 
 #endif // RPIPLUGIN_H

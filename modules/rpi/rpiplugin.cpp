@@ -5,9 +5,9 @@
 
 RPiPlugin::RPiPlugin(QObject *parent) : QObject (parent)
 {
-    connect(&m_settings,&QQmlPropertyMap::valueChanged, this, &RPiPlugin::settingChanged);
 }
 void RPiPlugin::init(){
+    connect(&m_settings, &QQmlPropertyMap::valueChanged, this, &RPiPlugin::settingsChanged);
     if (m_settings.contains("brightness")) {
         applyBrightness(m_settings.value("brightness").toInt());
     } else {
@@ -23,7 +23,7 @@ void RPiPlugin::applyBrightness(int v) {
     if(v > 255){
         v = 255;
     }else if(v < 10){
-        v =10;
+        v = 10;
     }
 
     QFile file("/sys/class/backlight/rpi_backlight/brightness");
@@ -34,9 +34,10 @@ void RPiPlugin::applyBrightness(int v) {
     }
 }
 
-void RPiPlugin::settingChanged(QString id, QVariant val){
-    if (id == "brightness") {
-        applyBrightness(val.toInt());
+void RPiPlugin::settingsChanged(const QString &key, const QVariant &value){
+    if (key == "brightness") {
+        qDebug() << "settingChanged : " << value;
+        applyBrightness(value.toInt());
     }
 }
 
