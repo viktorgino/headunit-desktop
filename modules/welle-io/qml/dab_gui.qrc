@@ -1,14 +1,11 @@
 <RCC>
     <qresource prefix="/WelleIoPlugin">
-        <file>main.qml</file>
-        <file>qtquickcontrols2.conf</file>
-        <file>DABLayout.qml</file>
-        <file>Style.qml</file>
-        <file>style/Style.qml</file>
-        <file>style/TouchSlider.qml</file>
-        <file>style/TouchSwitch.qml</file>
-        <file>style/ErrorMessagePopup.qml</file>
         <file>radio-waves.svg</file>
+        <file>DABLayout.qml</file>
+        <file>StationDrawer.qml</file>
+        <file>StationList.qml</file>
+        <file>StationListItem.qml</file>
+        <file>StationListModel.qml</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

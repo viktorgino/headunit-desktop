@@ -1,10 +1,151 @@
 {
-    "name":"WelleIoPlugin",
+    "name": "WelleIoPlugin",
     "imageProvider": "motslideshow",
-    "menu":{
-        "source":"qrc:/WelleIoPlugin/DABLayout.qml",
-        "image":"qrc:/WelleIoPlugin/radio-waves.svg",
-        "text":"DAB",
-        "color":"#9C27B0"
+    "menu": {
+        "source": "qrc:/WelleIoPlugin/DABLayout.qml",
+        "image": "qrc:/WelleIoPlugin/radio-waves.svg",
+        "text": "DAB",
+        "color": "#9C27B0"
+    },
+    "config": {
+        "label": "DAB settings",
+        "name": "DAB",
+        "type": "items",
+        "iconImage": "qrc:/WelleIoPlugin/radio-waves.svg",
+        "autoSave": true,
+        "items": [{
+                "label": "Automatic RF gain",
+                "name": "auto_gain",
+                "type": "switch",
+                "defaultValue": true
+            }, {
+                "label": "Gain",
+                "name": "gain",
+                "type": "slider",
+                "defaultValue": 10,
+                "minimum": 0,
+                "maximum": 20,
+                "stepSize": 0.1,
+                "conditional": true,
+                "conditionTarget": "auto_gain",
+                "conditionValue": false
+            }, {
+                "label": "Receiver Settings",
+                "type": "header"
+            }, {
+                "label": "Automatic receiver detect",
+                "name": "auto_receiver",
+                "type": "switch",
+                "defaultValue": true
+            }, {
+                "label": "Receiver",
+                "name": "receiver",
+                "type": "combobox",
+                "defaultValue": "0",
+                "values": ["None", "Airspy", "rtl-sdr", "SoapySDR", "rtl-tcp", "RAW file"],
+                "conditional": true,
+                "conditionTarget": "auto_receiver",
+                "conditionValue": false
+            }, {
+                "label": "Enable bias tee",
+                "name": "airspy_bias_tee",
+                "type": "switch",
+                "defaultValue": false,
+                "conditional": true,
+                "conditionTarget": "receiver",
+                "conditionValue": 1
+            }, {
+                "label": "Enable bias tee",
+                "name": "rtlsdr_bias_tee",
+                "type": "switch",
+                "defaultValue": false,
+                "conditional": true,
+                "conditionTarget": "receiver",
+                "conditionValue": 2
+            }, {
+                "label": "Antenna",
+                "name": "soapysdr_antenna",
+                "type": "textfield",
+                "textType": "string",
+                "conditional": true,
+                "conditionTarget": "receiver",
+                "conditionValue": 3
+            }, {
+                "label": "Clock source",
+                "name": "soapysdr_clock",
+                "type": "textfield",
+                "textType": "string",
+                "conditional": true,
+                "conditionTarget": "receiver",
+                "conditionValue": 3
+            }, {
+                "label": "Driver Arguments",
+                "name": "soapysdr_driver_args",
+                "type": "textfield",
+                "textType": "string",
+                "conditional": true,
+                "conditionTarget": "receiver",
+                "conditionValue": 3
+            }, {
+                "label": "IP Address/hostname",
+                "name": "rtltcp_host",
+                "type": "textfield",
+                "textType": "regexp",
+                "defaultValue": "127.0.0.1",
+                "regexp": "^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\\-]*[a-zA-Z0-9])\\.)*([A-Za-z0-9]|[A-Za-z0-9][A-Za-z0-9\\-]*[A-Za-z0-9])$",
+                "conditional": true,
+                "conditionTarget": "receiver",
+                "conditionValue": 4
+            }, {
+                "label": "Port",
+                "name": "rtltcp_port",
+                "type": "tumbler",
+                "defaultValue": 1234,
+                "minimum": 1,
+                "maximum": 65535,
+                "stepSize": 1,
+                "conditional": true,
+                "conditionTarget": "receiver",
+                "conditionValue": 4
+            }, {
+                "label": "File",
+                "name": "raw_file",
+                "type": "file",
+                "browserType": "file",
+                "conditional": true,
+                "conditionTarget": "receiver",
+                "conditionValue": 5
+            }, {
+                "label": "Type",
+                "description": "using an array as values",
+                "name": "raw_type",
+                "type": "combobox",
+                "defaultValue": "0",
+                "values": ["Auto", "u8", "s8", "s16le", "s16be", "cf32"],
+                "conditional": true,
+                "conditionTarget": "receiver",
+                "conditionValue": 5
+            }, {
+                "label": "Expert Settings",
+                "type": "header"
+            }, {
+                "label": "Enable coarse corrector (for receivers with >1kHz error)",
+                "name": "coarse_corrector",
+                "type": "switch",
+                "defaultValue": true
+            }, {
+                "label": "Coarse Corrector Algorithm",
+                "name": "coarse_corrector_algo",
+                "type": "combobox",
+                "defaultValue": "1",
+                "values": ["GetMiddle", "CorrelatePRS", "PatternOfZeros"]
+            }, {
+                "label": "FFT Window placement algorithm",
+                "name": "fft_window_algo",
+                "type": "combobox",
+                "defaultValue": "1",
+                "values": ["Strongest Peak", "Earliest Peak With Binning", "Threshold Before Peak"]
+            }
+        ]
     }
 }
