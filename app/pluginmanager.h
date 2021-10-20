@@ -32,6 +32,7 @@ signals:
     void pluginsUpdated();
 public slots:
     QVariant getPluginProperty(QString plugin, QString property);
+    void callPluginSlot(QString pluginName, QString slot);
 private slots:
     void messageHandler(QString id, QVariant message);
     void actionHandler(QString id, QVariant message);

@@ -1,3 +1,11 @@
+headunit-desktop (0.1-92) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (4c3d07cd01b5a837a056d496c2f7de05a2789ebe)
+  * Add callPluginSlot to plugin manager
+
+ -- Gino <gino@gino-ubuntu>  Wed, 20 Oct 2021 04:04:26 +0000
+
 headunit-desktop (0.1-91) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

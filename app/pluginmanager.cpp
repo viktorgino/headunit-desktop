@@ -125,6 +125,7 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
                 configSettingsMap.insert("name", pluginName);
                 configSettingsMap.insert("type", "items");
                 configSettingsMap.insert("items", settingsObject["settings"].toArray());
+                configSettingsMap.insert("autoSave", settingsObject["settingsAutoSave"].toBool());
 
                 settings = new SettingsLoader(configSettingsMap, pluginObject->getSettings(), this);
             }
@@ -273,6 +274,16 @@ QVariant PluginManager::getPluginProperty(QString plugin, QString property){
     return QVariant();
 }
 
+void PluginManager::callPluginSlot(QString pluginName, QString slot){
+    if(m_plugins.keys().contains(pluginName)){
+        if(slot == "settingsPageDestroyed"){
+            QObject * pluginObject = m_plugins[pluginName]->getContextProperty();
+            if(pluginObject){
+                QMetaObject::invokeMethod(pluginObject,"onSettingsPageDestroyed");
+            }
+        }
+    }
+}
 
 PluginManager::~PluginManager(){
     qCDebug(PLUGINMANAGER) << "Plugin manager died";
