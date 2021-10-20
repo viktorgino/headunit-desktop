@@ -16,82 +16,9 @@ Item {
         anchors.bottomMargin: 8
         anchors.topMargin: 8
 
-        RowLayout {
-            id: mediaInterfaces
-            height: 40
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.leftMargin: 0
-
-            Repeater{
-                model : HUDMediaManager.Interfaces
-                Item {
-                    id: item4
-                    Layout.fillHeight: true
-                    Layout.fillWidth: true
-                    ThemeFormText{
-                        text:modelData
-                        anchors.verticalCenter: parent.verticalCenter
-                        anchors.horizontalCenter: parent.horizontalCenter
-                        color: HUDMediaManager.ActiveMediaPlayer == modelData ? "#00ff00" : HUDStyle.Colors.formText
-                    }
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: HUDMediaManager.setActiveMediaPlayer(modelData)
-                    }
-                }
-            }
-        }
-        RowLayout {
-            id: mediaControls
-            height: 40
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: mediaInterfaces.bottom
-            spacing: 10
-            anchors.leftMargin: 0
-
-            Button {
-                id: button
-                text: qsTr("<<")
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                onClicked: HUDMediaManager.prevTrack()
-            }
-
-            Button {
-                id: button1
-                text: qsTr("Start")
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                onClicked: HUDMediaManager.start()
-            }
-
-            Button {
-                id: bustton2
-                text: qsTr("Stop")
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                onClicked: HUDMediaManager.stop()
-            }
-
-            Button {
-                id: button3
-                text: qsTr(">>")
-                Layout.fillHeight: true
-                Layout.fillWidth: true
-                onClicked: HUDMediaManager.nextTrack()
-            }
-
-        }
-
         Flickable {
             id: layout
-            anchors.left: parent.left
-            anchors.right: parent.right
-            anchors.top: mediaControls.bottom
-            anchors.bottom: parent.bottom
-            anchors.topMargin: 8
+            anchors.fill: parent
             clip: true
             flickableDirection: Flickable.VerticalFlick
             contentHeight : column.height
@@ -105,9 +32,49 @@ Item {
                 spacing: 6
                 anchors.rightMargin: 18
                 Item {
+                    id: outputsHeader
+                    height: 30
+                    width: parent.width
+
+                    ThemeFormText {
+                        text: "Outputs"
+                        anchors.verticalCenter: parent.verticalCenter
+                        font.bold: true
+                    }
+
+
+
+                    Rectangle {
+                        height: 1
+                        color: "#979797"
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.bottom: parent.bottom
+                        anchors.leftMargin: 20
+                    }
+                }
+
+                Repeater {
+                    model: SinkModel  {}
+                    delegate: DeviceListItem {
+                        x :20
+                        width: parent.width - 20
+                    }
+                }
+
+                Item {
                     id: voiceHeader
                     height: 30
                     width: parent.width
+
+                    Rectangle {
+                        height: 1
+                        color: HUDStyle.Colors.formText
+                        anchors.left: parent.left
+                        anchors.right: parent.right
+                        anchors.top: parent.top
+                    }
+
                     ThemeFormText {
                         id: voiceLabel
                         text: "Voice"
@@ -124,6 +91,8 @@ Item {
                         anchors.leftMargin: 20
                     }
                 }
+
+
                 Repeater {
                     model: HUDMediaManager.VoiceVolumes.keys()
                     delegate: ModuleListItem {
@@ -135,6 +104,8 @@ Item {
                         }
                     }
                 }
+
+
                 Item {
                     id: mediaHeader
                     height: 30
@@ -165,6 +136,8 @@ Item {
                     }
                 }
 
+
+
                 Repeater{
                     model: HUDMediaManager.MediaVolumes.keys()
                     delegate: ModuleListItem {
@@ -177,44 +150,7 @@ Item {
                     }
                 }
 
-                Item {
-                    id: outputsHeader
-                    height: 30
-                    width: parent.width
 
-                    Rectangle {
-                        height: 1
-                        color: HUDStyle.Colors.formText
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.top: parent.top
-                    }
-
-                    ThemeFormText {
-                        text: "Outputs"
-                        anchors.verticalCenter: parent.verticalCenter
-                        font.bold: true
-                    }
-
-
-
-                    Rectangle {
-                        height: 1
-                        color: "#979797"
-                        anchors.left: parent.left
-                        anchors.right: parent.right
-                        anchors.bottom: parent.bottom
-                        anchors.leftMargin: 20
-                    }
-                }
-
-                Repeater {
-                    model: SinkModel  {}
-                    delegate: DeviceListItem {
-                        x :20
-                        width: parent.width - 20
-                    }
-                }
 
                 Item {
                     id: inputsHeader

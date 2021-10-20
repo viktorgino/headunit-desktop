@@ -36,7 +36,7 @@ Item {
         }
     }
 
-    Slider {
+    ThemeSlider {
         id:slider
         height: 20
         anchors.left: parent.left

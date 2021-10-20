@@ -1,3 +1,11 @@
+headunit-desktop (0.1-97) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (bcccdeeb67b450253bfc7c2a6b9b131ea6224d90)
+  * [VolumeControl] Update volume control UI
+
+ -- Gino <gino@gino-ubuntu>  Wed, 20 Oct 2021 04:24:35 +0000
+
 headunit-desktop (0.1-96) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

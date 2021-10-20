@@ -20,16 +20,20 @@ QObject *VolumeControl::getContextProperty(){
 }
 
 void VolumeControl::actionMessage(QString id, QVariant message){
-    PulseAudioQt::SinkModel sink;
-    PulseAudioQt::Sink * defaultSink = sink.defaultSink();
-
-    int volume = 0;
-    if(id == "VolumeUp"){
-        volume = defaultSink->volume() + 655;
-    } else if(id == "VolumeDown") {
-        volume = defaultSink->volume() - 655;
-    }
-    if(volume <= PulseAudioQt::maximumVolume() && volume >= PulseAudioQt::minimumVolume()){
-        defaultSink->setVolume(volume);
+    PulseAudioQt::Sink * defaultSink = m_sinkModel.defaultSink();
+    if( defaultSink != nullptr) {
+        int volume = 0;
+        if(id == "VolumeUp"){
+            volume = defaultSink->volume() + (655 * 4);
+        } else if(id == "VolumeDown") {
+            volume = defaultSink->volume() - (655 * 4);
+        }
+        if(volume > PulseAudioQt::normalVolume()){
+            defaultSink->setVolume(PulseAudioQt::normalVolume());
+        } else if (volume < PulseAudioQt::minimumVolume()) {
+            defaultSink->setVolume(PulseAudioQt::minimumVolume());
+        } else {
+            defaultSink->setVolume(volume);
+        }
     }
 }
