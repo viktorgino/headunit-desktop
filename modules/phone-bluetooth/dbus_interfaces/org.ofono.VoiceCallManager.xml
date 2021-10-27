@@ -1,0 +1,55 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="">
+        <interface name="org.ofono.VoiceCallManager">
+                <method name="GetProperties">
+                        <arg type="a{sv}" direction="out"/>
+                        <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="QVariantMap"/>
+                </method>
+                <method name="Dial">
+                        <arg type="s" direction="in"/>
+                        <arg type="s" direction="in"/>
+                        <arg type="o" direction="out"/>
+                </method>
+                <method name="Transfer"/>
+                <method name="SwapCalls"/>
+                <method name="ReleaseAndAnswer"/>
+                <method name="HoldAndAnswer"/>
+                <method name="HangupAll"/>
+                <method name="PrivateChat">
+                        <arg type="o" direction="in"/>
+                        <arg type="ao" direction="out"/>
+                </method>
+                <method name="CreateMultiparty">
+                        <arg type="ao" direction="out"/>
+                </method>
+                <method name="HangupMultiparty"/>
+                <method name="SendTones">
+                        <arg type="s" direction="in"/>
+                </method>
+                <method name="GetCalls">
+                        <arg type="a(oa{sv})" direction="out"/>
+                        <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="ObjectPathPropertiesList"/>
+                </method>
+                <signal name="PropertyChanged">
+                        <arg type="s"/>
+                        <arg type="v"/>
+                </signal>
+                <signal name="CallAdded">
+                        <arg type="o"/>
+                        <arg type="a{sv}"/>
+                        <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QVariantMap"/>
+                </signal>
+                <signal name="CallRemoved">
+                        <arg type="o"/>
+                </signal>
+                <signal name="BarringActive">
+                        <arg type="s"/>
+                </signal>
+                <signal name="Forwarded">
+                        <arg type="s"/>
+                </signal>
+        </interface>
+
+</node>
+

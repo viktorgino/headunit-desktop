@@ -1,3 +1,11 @@
+headunit-desktop (0.1-101) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (d3396fbec39db0d789a24e37d7a75af248fce3be)
+  * [Phone] Remove qofono and create OfonoManager
+
+ -- Gino <gino@gino-ubuntu>  Wed, 27 Oct 2021 02:08:11 +0000
+
 headunit-desktop (0.1-100) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

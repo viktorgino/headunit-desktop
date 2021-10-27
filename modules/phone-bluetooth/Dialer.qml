@@ -1,5 +1,4 @@
 import QtQuick 2.6
-import MeeGo.QOfono 0.2
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 
@@ -8,9 +7,6 @@ import HUDTheme 1.0
 Item {
     id: __root
 
-    signal dial(string number)
-    signal voice_rec(bool state)
-    signal hangup()
     property alias dialed_num: dialer_num.text
 
     TextField {
@@ -138,11 +134,11 @@ Item {
             id:dial
             width: height
             color: "#558b2f"
-            anchors.left: parent.left
-            anchors.leftMargin: 8
+            radius: height/2
             anchors.top: parent.top
             anchors.topMargin: 8
             anchors.bottom: parent.bottom
+            anchors.horizontalCenter: parent.horizontalCenter
             anchors.bottomMargin: 8
 
             Image {
@@ -158,65 +154,8 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    __root.dial(dialer_num.text);
-                }
-            }
-        }
-
-        Rectangle {
-            id:mic
-            width: height
-            color: "#1e88e5"
-            anchors.horizontalCenter: parent.horizontalCenter
-            anchors.top: parent.top
-            anchors.topMargin: 8
-            anchors.bottom: parent.bottom
-            anchors.bottomMargin: 8
-
-            Image {
-                anchors.rightMargin: parent.width*0.1
-                anchors.leftMargin: parent.width*0.1
-                anchors.bottomMargin: parent.height*0.1
-                anchors.topMargin: parent.height*0.1
-                fillMode: Image.PreserveAspectFit
-                anchors.fill: parent
-                source: "qrc:/qml/icons/svg/mic-a.svg"
-            }
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    __root.voice_rec(true);
-                }
-            }
-        }
-
-        Rectangle {
-            id:hangup
-            width: height
-            color: "#c62828"
-            anchors.right: parent.right
-            anchors.rightMargin: 8
-            anchors.top: parent.top
-            anchors.bottomMargin: 8
-            anchors.topMargin: 8
-            anchors.bottom: parent.bottom
-
-            Image {
-                id: image2
-                anchors.bottomMargin: 0
-                anchors.rightMargin: parent.width*0.1
-                anchors.leftMargin: parent.width*0.1
-                anchors.topMargin: parent.height*0.15
-                rotation: 135
-                anchors.fill: parent
-                source: "qrc:/qml/icons/svg/android-call.svg"
-                fillMode: Image.PreserveAspectFit
-            }
-
-            MouseArea {
-                anchors.fill: parent
-                onClicked: {
-                    __root.hangup()
+                    PhoneBluetooth.Handsfree.dialNumber(dialer_num.text);
+                    dialer_num.text = "";
                 }
             }
         }

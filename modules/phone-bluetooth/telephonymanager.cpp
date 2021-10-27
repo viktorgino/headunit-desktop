@@ -1,12 +1,11 @@
 #include "telephonymanager.h"
-#include  "qofonovoicecallmanager.h"
-#include  "qofonovoicecall.h"
+//#include  "qofonovoicecallmanager.h"
+//#include  "qofonovoicecall.h"
 
 Q_LOGGING_CATEGORY(HEADUNIT, "telephony")
 Q_LOGGING_CATEGORY(OFONO, "telephony [qoFono]")
 Q_LOGGING_CATEGORY(BLUEZ, "telephony [BluezQt]")
-TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent), m_ofonoManager(this), m_ofonoModem(this),
-    m_ofonoVoiceCallManager(this), m_ofonoHandsFree(this),  m_ofonoVoiceCall(this),
+TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent),
     m_bluez_manager(this), m_obexManager(this)
 {
     m_contactsFolder = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/contacts";
@@ -29,9 +28,8 @@ void TelephonyManager::init() {
     job->start();
     connect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::initBluez);
 
-    connect(&m_ofonoManager, &QOfonoManager::availableChanged, this, &TelephonyManager::ofonoAvailableChanged);
-    connect(&m_ofonoVoiceCallManager, &QOfonoVoiceCallManager::callAdded, this, &TelephonyManager::callAdded);
-    connect(&m_ofonoVoiceCall, &QOfonoVoiceCall::stateChanged, this, &TelephonyManager::voiceCallStateChanged);
+    connect(&m_ofonoManagerClass, &OfonoManager::showOverlay, this, &TelephonyManager::showOverlay);
+    connect(&m_ofonoManagerClass, &OfonoManager::hideOverlay, this, &TelephonyManager::hideOverlay);
 
     connect(&m_obexManager, &BluezQt::ObexManager::sessionAdded, this, &TelephonyManager::obexPullPhonebook);
 
@@ -52,6 +50,13 @@ void TelephonyManager::initObex (BluezQt::InitObexManagerJob *job){
     }
 }
 
+void TelephonyManager::showOverlay(){
+    emit action("GUI::OpenOverlay", QVariant());
+}
+
+void TelephonyManager::hideOverlay() {
+    emit action("GUI::CloseOverlay", QVariant());
+}
 void TelephonyManager::initBluez (BluezQt::InitManagerJob *job){
     disconnect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::initBluez);
     if(job->error() == BluezQt::Job::Error::NoError){
@@ -123,23 +128,14 @@ void TelephonyManager::initAdapter(BluezQt::AdapterPtr adapter) {
         qCDebug(BLUEZ)  << "No device connected, trying to connect";
         connectToNextDevice();
     }
-
 }
 
 void TelephonyManager::initOfono(QString ubi){
+
     qCDebug(OFONO) << "Init oFono";
-    if(m_ofonoManager.available()){
-        QStringList modems = m_ofonoManager.modems();
-        QString fullPath = "/hfp" + ubi;
-        if(modems.contains(fullPath)){
-            m_ofonoModem.setModemPath(fullPath);
-            m_ofonoVoiceCallManager.setModemPath(m_ofonoModem.modemPath());
-            m_ofonoHandsFree.setModemPath(m_ofonoModem.modemPath());
-        } else {
-            qCWarning(OFONO)  << ": No modem found";
-        }
-    } else {
-        qCWarning(OFONO) << "Ofono not available";
+
+    if(!m_ofonoManagerClass.setDefaultModem("/hfp" + ubi)){
+        qCWarning(OFONO)  << ": No modem found";
     }
 }
 
@@ -156,47 +152,6 @@ void TelephonyManager::ofonoAvailableChanged(bool available){
     if(available && m_activeDevice){
         initOfono(m_activeDevice->ubi());
     }
-}
-
-void TelephonyManager::toggleVoice(){
-    m_ofonoHandsFree.setVoiceRecognition(!m_ofonoHandsFree.voiceRecognition());
-}
-
-void TelephonyManager::callAdded(const QString &call)
-{
-    qCDebug(OFONO) << "call added : " << call;
-    m_ofonoVoiceCall.setVoiceCallPath(call);
-}
-void TelephonyManager::voiceCallStateChanged(const QString &state){
-    qCDebug(OFONO) << "voiceCallStateChanged : " << state;
-    if(state == "incoming"){
-        qCDebug(OFONO) << "Incoming call from name:" << m_ofonoVoiceCall.name()
-                          << " | information:"<< m_ofonoVoiceCall.information()
-                          << " | voiceCallPath:"<< m_ofonoVoiceCall.voiceCallPath()
-                          << " | lineIdentification:"<< m_ofonoVoiceCall.lineIdentification()
-                          << " | incomingLine:"<< m_ofonoVoiceCall.incomingLine()
-                          << " | state:"<< m_ofonoVoiceCall.state()
-                          << " | startTime:"<< m_ofonoVoiceCall.startTime();
-        emit incomingCall(m_ofonoVoiceCall.name(), m_ofonoVoiceCall.lineIdentification(), m_ofonoVoiceCall.voiceCallPath());
-
-        QVariantMap props;
-        //        props.insert("caller", voiceCall->name());
-        props.insert("caller", m_ofonoVoiceCall.lineIdentification());
-        props.insert("callPath", m_ofonoVoiceCall.voiceCallPath());
-        emit action("GUI::OpenOverlay", props);
-    } else if(state == "disconnected"){
-        emit action("GUI::CloseOverlay", QVariant());
-    }
-}
-
-void TelephonyManager::answerCall(QString call_path){
-    m_ofonoVoiceCall.setVoiceCallPath(call_path);
-    m_ofonoVoiceCall.answer();
-}
-
-void TelephonyManager::declineCall(QString call_path){
-    m_ofonoVoiceCall.setVoiceCallPath(call_path);
-    m_ofonoVoiceCall.hangup();
 }
 
 void TelephonyManager::obexPullPhonebook (BluezQt::ObexSessionPtr session){

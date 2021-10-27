@@ -4,12 +4,12 @@
 #include <plugininterface.h>
 #include <mediainterface.h>
 
-#include <qofonomanager.h>
-#include <qofonophonebook.h>
-#include <qofonovoicecallmanager.h>
-#include <qofonovoicecall.h>
-#include <qofonomodem.h>
-#include <qofonohandsfree.h>
+//#include <qofonomanager.h>
+//#include <qofonophonebook.h>
+//#include <qofonovoicecallmanager.h>
+//#include <qofonovoicecall.h>
+//#include <qofonomodem.h>
+//#include <qofonohandsfree.h>
 #include <BluezQt/Manager>
 #include <BluezQt/Agent>
 #include <BluezQt/Adapter>
@@ -27,6 +27,8 @@
 #include <QStandardPaths>
 #include <QLoggingCategory>
 
+
+#include "ofonomanager.h"
 #include "bluezagent.h"
 
 class TelephonyManager : public QObject, PluginInterface, public MediaInterface
@@ -38,6 +40,7 @@ class TelephonyManager : public QObject, PluginInterface, public MediaInterface
     Q_PROPERTY(QString activeDevice READ getActiveDevice NOTIFY activeDeviceChanged)
     Q_PROPERTY(QVariantMap pairedDevices READ getPairedDevices NOTIFY pairedDevicesChanged)
     Q_PROPERTY(QString activeDeviceName READ getActiveDeviceName NOTIFY activeDeviceChanged)
+    Q_PROPERTY(OfonoManager *Handsfree READ getOfonoManager CONSTANT)
 
     Q_INTERFACES(PluginInterface)
 public:
@@ -46,10 +49,6 @@ public:
 
     QObject *getContextProperty() override;
     void init() override;
-
-    QString getContactsFolder() const {
-        return m_contactsFolder;
-    }
 
     QString getActiveDevice() {
       if(m_activeDevice) {
@@ -65,14 +64,13 @@ public:
         return "";
       }
     }
-    QVariantMap getPairedDevices() {
-      return m_pairedDevices;
-    }
     QStringList getAdapters() {
         updateAdapters();
         return m_adapters;
-    }    
-
+    }
+    QString getContactsFolder() const {return m_contactsFolder;}
+    QVariantMap getPairedDevices() {return m_pairedDevices;}
+    OfonoManager *getOfonoManager() {return &m_ofonoManagerClass;}
 
 signals:
     void adaptersUpdated();
@@ -94,10 +92,6 @@ signals:
     void playbackStarted() override;
 
 public slots:
-    void answerCall(QString call_path);
-    void declineCall(QString call_path);
-    void toggleVoice();
-
     void enablePairing();
     void disablePairing();
     void connectToDevice(QString ubi);
@@ -111,12 +105,8 @@ private slots:
     void initBluez (BluezQt::InitManagerJob *job);
     void initObex (BluezQt::InitObexManagerJob *job);
 
-    void ofonoAvailableChanged(bool available);
-
-    void callAdded(const QString &call);
-    void voiceCallStateChanged(const QString &state);
-
-
+    void showOverlay();
+    void hideOverlay();
     void obexPullPhonebook (BluezQt::ObexSessionPtr session);
     void deviceAdded(BluezQt::DevicePtr device);
     void deviceRemoved(BluezQt::DevicePtr device);
@@ -127,13 +117,6 @@ private slots:
 
     void settingsChanged(const QString &key, const QVariant &value);
 private:
-    QOfonoManager m_ofonoManager;
-    QOfonoModem m_ofonoModem;
-
-    QOfonoVoiceCallManager m_ofonoVoiceCallManager;
-    QOfonoHandsfree m_ofonoHandsFree;
-    QOfonoVoiceCall m_ofonoVoiceCall;
-    QString modemPath = "";
     QString m_contactsFolder = "contacts/";
 
     BluezQt::Manager m_bluez_manager;
@@ -153,6 +136,8 @@ private:
     QStringList m_adapters;
     void updateAdapters();
     void connectToNextDevice();
+
+    OfonoManager m_ofonoManagerClass;
 };
 
 #endif // TelephonyManager_H

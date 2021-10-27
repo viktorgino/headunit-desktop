@@ -1,0 +1,19 @@
+<!DOCTYPE node PUBLIC "-//freedesktop//DTD D-BUS Object Introspection 1.0//EN"
+"http://www.freedesktop.org/standards/dbus/1.0/introspect.dtd">
+<node name="">
+        <interface name="org.ofono.Manager">
+                <method name="GetModems">
+                        <arg type="a{oa{sv}}" direction="out"/>
+                        <annotation name="org.qtproject.QtDBus.QtTypeName.Out0" value="ObjectPathPropertiesList"/>-->
+
+                 </method>
+                <signal name="ModemAdded">
+                        <arg type="o"/>
+                        <arg type="a{sv}"/>
+                        <annotation name="org.qtproject.QtDBus.QtTypeName.In1" value="QVariantMap"/>
+                </signal>
+                <signal name="ModemRemoved">
+                        <arg type="o"/>
+                </signal>
+        </interface>
+</node>

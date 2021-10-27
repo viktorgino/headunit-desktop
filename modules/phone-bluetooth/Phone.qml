@@ -1,6 +1,6 @@
 import QtQml 2.2
 import QtQuick 2.6
-import MeeGo.QOfono 0.2
+
 import QtQuick.Controls 2.0
 import QtQuick.Layouts 1.3
 import QtBluetooth 5.7
@@ -207,34 +207,52 @@ Item {
                 PhoneBluetooth.enablePairing()
             }
         }
+        ImageButton {
+            width: 30
+            height: 30
+            anchors.verticalCenter: parent.verticalCenter
+            color: HUDStyle.Colors.headingText1
+            anchors.right: networkName.left
+            anchors.rightMargin: 16
+            imageSource: "qrc:/qml/icons/svg/mic-a.svg"
+            visible: PhoneBluetooth.Handsfree.online
+            onClicked: {
+                PhoneBluetooth.Handsfree.activateVoiceControl()
+
+            }
+        }
 
         ThemeHeaderText {
-            text: netreg.name?netreg.name:"No Connection"
+            id: networkName
+            text: PhoneBluetooth.Handsfree.networkName
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: batteryLevel.left
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             anchors.rightMargin: 16
+            visible: PhoneBluetooth.Handsfree.online
         }
 
         ThemeHeaderText {
             id: batteryLevel
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: signal.left
-            //                text: qsTr("Battery: ")+hands_free.batteryChargeLevel
+            text: qsTr("Battery: ") + PhoneBluetooth.Handsfree.batteryCharge
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
             anchors.rightMargin: 16
+            visible: PhoneBluetooth.Handsfree.online
         }
 
         ThemeHeaderText {
             id: signal
-            text: qsTr("Signal: ")+netreg.strength + "%"
+            text: qsTr("Signal: ") + PhoneBluetooth.Handsfree.signalStrength + "%"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
             anchors.rightMargin: 8
+            visible: PhoneBluetooth.Handsfree.online
         }
 
 
@@ -262,11 +280,6 @@ Item {
                 id:dialer
                 Layout.fillHeight: true
                 Layout.fillWidth: true
-                onDial: vcm.dial(number,"")
-                onHangup: vcm.hangupAll()
-                onVoice_rec: {
-                    PhoneBluetooth.toggleVoice()
-                }
             }
             Contacts{
                 id:phoneStack
@@ -274,7 +287,7 @@ Item {
                 Layout.fillWidth: true
                 dialed_num: dialer.dialed_num
                 onDial: {
-                    vcm.dial(number,"")
+                    PhoneBluetooth.Handsfree.dialNumber(number);
                 }
             }
         }
@@ -403,32 +416,6 @@ Item {
             bluezManager : __root.bluezManager
         }
     }
-
-    OfonoNetworkRegistration {
-        id: netreg
-        modemPath : "/hfp" + PhoneBluetooth.activeDevice
-    }
-
-    OfonoModem{
-        id:ofonomodem
-        modemPath : "/hfp" + PhoneBluetooth.activeDevice
-    }
-
-    OfonoVoiceCallManager{
-        id:vcm
-        modemPath : "/hfp" + PhoneBluetooth.activeDevice
-    }
-
-
-    OfonoHandsfree{
-        id:hands_free
-        modemPath : "/hfp" + PhoneBluetooth.activeDevice
-        onModemPathChanged : {
-            batteryLevel.text = "Battery : " + batteryChargeLevel
-        }
-    }
-
-
 }
 
 /*##^##

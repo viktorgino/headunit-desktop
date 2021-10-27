@@ -7,9 +7,10 @@ INCLUDEPATH += $${PWD}/../../includes
 DESTDIR = $${OUT_PWD}/../../plugins
 QMAKE_LIBS += -lKF5BluezQt
 
-PKGCONFIG += qofono-qt5
 
 SOURCES += \
+    ofono_dbus_types.cpp \
+    ofonomanager.cpp \
     telephonymanager.cpp \
     bluezagent.cpp
 
@@ -20,6 +21,8 @@ target.path = $${PREFIX}/plugins
 INSTALLS += target
 
 HEADERS += \
+    ofono_dbus_types.h \
+    ofonomanager.h \
     telephonymanager.h \
     bluezagent.h
 
@@ -29,4 +32,19 @@ DISTFILES += \
 RESOURCES += \
     phonebluetooth.qrc
 
-DBUS_INTERFACES += org.bluez.obex.PhonebookAccess1.xml
+DBUS_INTERFACES += dbus_interfaces/org.bluez.obex.PhonebookAccess1.xml
+DBUS_INTERFACES += dbus_interfaces/org.ofono.Modem.xml
+DBUS_INTERFACES += dbus_interfaces/org.ofono.Handsfree.xml
+DBUS_INTERFACES += dbus_interfaces/org.ofono.VoiceCall.xml
+
+ofon_manager.files = dbus_interfaces/org.ofono.Manager.xml
+ofon_manager.header_flags = -i ofono_dbus_types.h
+DBUS_INTERFACES += ofon_manager
+
+ofon_voicecallmanager.files = dbus_interfaces/org.ofono.VoiceCallManager.xml
+ofon_voicecallmanager.header_flags = -i ofono_dbus_types.h
+DBUS_INTERFACES += ofon_voicecallmanager
+
+ofon_networkregistartion.files = dbus_interfaces/org.ofono.NetworkRegistration.xml
+ofon_networkregistartion.header_flags = -i ofono_dbus_types.h
+DBUS_INTERFACES += ofon_networkregistartion
