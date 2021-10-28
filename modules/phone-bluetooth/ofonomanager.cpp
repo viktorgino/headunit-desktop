@@ -6,6 +6,9 @@ OfonoManager::OfonoManager(QObject *parent) : QObject(parent),
       m_dbusConnection(QDBusConnection::connectToBus(QDBusConnection::SystemBus, "hud_ofono")),
       m_manager("org.ofono","/", m_dbusConnection)
 {
+}
+
+void OfonoManager::init() {
     qDBusRegisterMetaType<ObjectPathProperties>();
     qDBusRegisterMetaType<ObjectPathPropertiesList>();
 
@@ -114,6 +117,7 @@ void OfonoManager::CallAdded(const QDBusObjectPath &path, const QVariantMap &pro
 
 void OfonoManager::CallRemoved(const QDBusObjectPath &path) {
     emit hideOverlay();
+    emit callFinished();
     stopCallTimer();
     m_voicecall.clear();
 }

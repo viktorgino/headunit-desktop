@@ -9,5 +9,13 @@
         <file>CallNotification.qml</file>
         <file>MenuSwitch.qml</file>
         <file>ConnectionOverlay.qml</file>
+        <file>ContactDetails.qml</file>
+        <file>icons/incoming-call.svg</file>
+        <file>icons/missed-call.svg</file>
+        <file>icons/outgoing-call.svg</file>
+        <file>icons/history.svg</file>
+        <file>icons/contacts.svg</file>
+        <file>ContactList.qml</file>
+        <file>CallHistoryList.qml</file>
     </qresource>
 </RCC>

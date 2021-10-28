@@ -4,6 +4,7 @@ QT += qml quick bluetooth dbus BluezQt
 TARGET = $$qtLibraryTarget(phone-bluetooth-plugin)
 DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += $${PWD}/../../includes
+INCLUDEPATH += $${PWD}/vCard_reader
 DESTDIR = $${OUT_PWD}/../../plugins
 QMAKE_LIBS += -lKF5BluezQt
 
@@ -11,8 +12,15 @@ QMAKE_LIBS += -lKF5BluezQt
 SOURCES += \
     ofono_dbus_types.cpp \
     ofonomanager.cpp \
+    phonebookmodel.cpp \
     telephonymanager.cpp \
-    bluezagent.cpp
+    bluezagent.cpp \
+    qversitreader/qversitdocument.cpp \
+    qversitreader/qversitdocument_p.cpp \
+    qversitreader/qversitproperty_p.cpp \
+    qversitreader/qversitreader.cpp \
+    qversitreader/qversitreader_p.cpp \
+    qversitreader/qversitutils_p.cpp
 
 include("../../config.pri")
 
@@ -23,9 +31,17 @@ INSTALLS += target
 HEADERS += \
     ofono_dbus_types.h \
     ofonomanager.h \
+    phonebookmodel.h \
     telephonymanager.h \
-    bluezagent.h
-
+    bluezagent.h \
+    qversitreader/qversitdocument.h \
+    qversitreader/qversitdocument_p.h \
+    qversitreader/qversitproperty.h \
+    qversitreader/qversitproperty_p.h \
+    qversitreader/qversitreader.h \
+    qversitreader/qversitreader_p.h \
+    vCard_reader/qversitutils_p.h
+    qversitreader
 DISTFILES += \
     config.json
 

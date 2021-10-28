@@ -30,17 +30,19 @@
 
 #include "ofonomanager.h"
 #include "bluezagent.h"
+#include "phonebookmodel.h"
 
 class TelephonyManager : public QObject, PluginInterface, public MediaInterface
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "org.viktorgino.headunit.phonebluetooth" FILE "config.json")
     Q_PROPERTY(QStringList adapters READ getAdapters NOTIFY adaptersUpdated)
-    Q_PROPERTY(QString contactsFolder READ getContactsFolder NOTIFY contactsFolderChanged)
     Q_PROPERTY(QString activeDevice READ getActiveDevice NOTIFY activeDeviceChanged)
     Q_PROPERTY(QVariantMap pairedDevices READ getPairedDevices NOTIFY pairedDevicesChanged)
     Q_PROPERTY(QString activeDeviceName READ getActiveDeviceName NOTIFY activeDeviceChanged)
     Q_PROPERTY(OfonoManager *Handsfree READ getOfonoManager CONSTANT)
+    Q_PROPERTY(PhonebookModel *PhonebookModel READ getPhonebookModel CONSTANT)
+    Q_PROPERTY(PhonebookModel *CallHistoryModel READ getCallHistoryModel CONSTANT)
 
     Q_INTERFACES(PluginInterface)
 public:
@@ -71,13 +73,14 @@ public:
     QString getContactsFolder() const {return m_contactsFolder;}
     QVariantMap getPairedDevices() {return m_pairedDevices;}
     OfonoManager *getOfonoManager() {return &m_ofonoManagerClass;}
+    PhonebookModel *getPhonebookModel() {return &m_phonebookModel;}
+    PhonebookModel *getCallHistoryModel() {return &m_callHistoryModel;}
+
 
 signals:
     void adaptersUpdated();
     void messageReceived(const QString &sender, const QString &message);
     void incomingCall(QString caller, QString caller_number, QString call_path);
-    void phonebookChanged();
-    void contactsFolderChanged();
     void activeDeviceChanged();
     void pairedDevicesChanged();
 
@@ -107,7 +110,7 @@ private slots:
 
     void showOverlay();
     void hideOverlay();
-    void obexPullPhonebook (BluezQt::ObexSessionPtr session);
+    void pullCallHistory();
     void deviceAdded(BluezQt::DevicePtr device);
     void deviceRemoved(BluezQt::DevicePtr device);
     void deviceDiscoveringChanged(bool discovering);
@@ -128,9 +131,10 @@ private:
 
     bool m_androidAutoConnected = false;
 
-    void getPhonebooks(QString destination);
+    void getPhonebooks(QString destination, bool callHistoryOnly = false);
     void setBluezDevice(BluezQt::Device* device);
     void initAdapter(BluezQt::AdapterPtr adapter);
+    void pullPhonebook (QString path, QString type, QString output);
 
     QVariantMap m_pairedDevices;
     QStringList m_adapters;
@@ -138,6 +142,8 @@ private:
     void connectToNextDevice();
 
     OfonoManager m_ofonoManagerClass;
+    PhonebookModel m_phonebookModel;
+    PhonebookModel m_callHistoryModel;
 };
 
 #endif // TelephonyManager_H

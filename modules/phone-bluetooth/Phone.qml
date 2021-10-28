@@ -223,6 +223,18 @@ Item {
         }
 
         ThemeHeaderText {
+            id: notConnected
+            text: "Not Connected"
+            anchors.verticalCenter: parent.verticalCenter
+            anchors.horizontalCenter: parent.horizontalCenter
+            horizontalAlignment: Text.AlignHCenter
+            verticalAlignment: Text.AlignVCenter
+            anchors.rightMargin: 16
+            visible: !PhoneBluetooth.Handsfree.online
+        }
+
+
+        ThemeHeaderText {
             id: networkName
             text: PhoneBluetooth.Handsfree.networkName
             anchors.verticalCenter: parent.verticalCenter
@@ -256,6 +268,16 @@ Item {
         }
 
 
+    }
+
+    Rectangle {
+        color: HUDStyle.Colors.formBackground
+        anchors.top: toolBar.bottom
+        anchors.bottom: parent.bottom
+        anchors.left: parent.left
+        anchors.right: parent.right
+        anchors.rightMargin: 8
+        anchors.leftMargin: 8
     }
 
     property Component currentComponent : phoneComponent
@@ -307,48 +329,47 @@ Item {
         id: bottomButtons
         height: 40
         anchors.left: parent.left
-        anchors.leftMargin: 8
+        anchors.leftMargin: 16
         anchors.right: parent.right
-        anchors.rightMargin: 8
+        anchors.rightMargin: 16
         anchors.bottom: parent.bottom
         anchors.bottomMargin: 8
 
-        Rectangle {
-            color: HUDStyle.Colors.formBox
-            anchors.fill: parent
-        }
-
         RowLayout {
-            spacing: 0
+            spacing: 8
             anchors.fill: parent
-            Item{
+            Rectangle{
+                color: HUDStyle.Colors.formBox
                 Layout.fillHeight: true
                 Layout.fillWidth: true
 
                 ImageButton{
-                    height: parent.height * 0.8
-                    width: height
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: parent.height * 0.2
+                    anchors.topMargin: parent.height * 0.2
                     imageSource: "qrc:/qml/icons/android-call.png"
-                    color: HUDStyle.Colors.headingText1
                     onClicked: {
                         currentComponent = phoneComponent
                     }
                 }
             }
 
-            Item{
+            Rectangle {
+                color: HUDStyle.Colors.formBox
                 Layout.fillHeight: true
                 Layout.fillWidth: true
 
                 ImageButton{
-                    height: parent.height * 0.8
-                    width: height
-                    anchors.verticalCenter: parent.verticalCenter
-                    anchors.horizontalCenter: parent.horizontalCenter
+                    anchors.left: parent.left
+                    anchors.right: parent.right
+                    anchors.top: parent.top
+                    anchors.bottom: parent.bottom
+                    anchors.bottomMargin: parent.height * 0.2
+                    anchors.topMargin: parent.height * 0.2
                     imageSource: "qrc:/qml/icons/music-note.png"
-                    color: HUDStyle.Colors.headingText1
                     onClicked: {
                         currentComponent = mediaPlayerComponent
                     }

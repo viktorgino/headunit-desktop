@@ -1,3 +1,12 @@
+headunit-desktop (0.1-102) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (264d34d3f7b15908a5f02563a79aba6f8624b4b1)
+  * [Phone] Remove QtPim dependency & add call history pulling & minor
+    fixes
+
+ -- Gino <gino@gino-ubuntu>  Thu, 28 Oct 2021 05:10:05 +0000
+
 headunit-desktop (0.1-101) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

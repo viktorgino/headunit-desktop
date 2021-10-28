@@ -34,6 +34,7 @@ public:
     QStringList getModems();
     int setDefaultModem(QString path);
     int setModem(QString path);
+    void init();
 
 public slots:
     void answerCall();
@@ -51,6 +52,7 @@ signals:
     void signalStrengthChanged();
     void networkNameChanged();
     void onlineChanged();
+    void callFinished();
 
 private:
     QDBusConnection m_dbusConnection;
@@ -97,8 +99,6 @@ private slots :
     void updateCallTime();
     void ModemAdded(const QDBusObjectPath &path, const QVariantMap &properties);
     void ModemRemoved(const QDBusObjectPath &path);
-
-    void test(QObject *obj);
 };
 
 #endif // OFONOMANAGER_H

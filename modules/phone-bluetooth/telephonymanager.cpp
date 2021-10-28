@@ -6,17 +6,16 @@ Q_LOGGING_CATEGORY(HEADUNIT, "telephony")
 Q_LOGGING_CATEGORY(OFONO, "telephony [qoFono]")
 Q_LOGGING_CATEGORY(BLUEZ, "telephony [BluezQt]")
 TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent),
-    m_bluez_manager(this), m_obexManager(this)
+      m_bluez_manager(this), m_obexManager(this), m_ofonoManagerClass(this), m_phonebookModel(this), m_callHistoryModel(this)
 {
     m_contactsFolder = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/contacts";
 
     m_interfaceSettings.mediaStream = true;
 
     m_pluginSettings.eventListeners = QStringList() << "AndroidAuto::connected";
-
 }
 TelephonyManager::~TelephonyManager(){
-//    delete m_activeDevice;
+    //    delete m_activeDevice;
 }
 
 QObject *TelephonyManager::getContextProperty(){
@@ -24,18 +23,21 @@ QObject *TelephonyManager::getContextProperty(){
 }
 
 void TelephonyManager::init() {
+    m_ofonoManagerClass.init();
+    qDBusRegisterMetaType<QPair<QString,QString>>();
+    qDBusRegisterMetaType<QList<QPair<QString,QString>>>();
+
     BluezQt::InitManagerJob *job = m_bluez_manager.init();
     job->start();
     connect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::initBluez);
 
     connect(&m_ofonoManagerClass, &OfonoManager::showOverlay, this, &TelephonyManager::showOverlay);
     connect(&m_ofonoManagerClass, &OfonoManager::hideOverlay, this, &TelephonyManager::hideOverlay);
-
-    connect(&m_obexManager, &BluezQt::ObexManager::sessionAdded, this, &TelephonyManager::obexPullPhonebook);
+    connect(&m_ofonoManagerClass, &OfonoManager::callFinished, this, &TelephonyManager::pullCallHistory);
 
     connect(&m_bluez_manager, &BluezQt::Manager::deviceAdded, this, &TelephonyManager::deviceAdded);
     connect(&m_bluez_manager, &BluezQt::Manager::deviceRemoved, this, &TelephonyManager::deviceRemoved);
-    emit contactsFolderChanged();
+
 }
 
 void TelephonyManager::initObex (BluezQt::InitObexManagerJob *job){
@@ -57,6 +59,10 @@ void TelephonyManager::showOverlay(){
 void TelephonyManager::hideOverlay() {
     emit action("GUI::CloseOverlay", QVariant());
 }
+void TelephonyManager::pullCallHistory() {
+    getPhonebooks(m_activeDevice->address(), true);
+}
+
 void TelephonyManager::initBluez (BluezQt::InitManagerJob *job){
     disconnect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::initBluez);
     if(job->error() == BluezQt::Job::Error::NoError){
@@ -107,10 +113,10 @@ void TelephonyManager::initAdapter(BluezQt::AdapterPtr adapter) {
     m_bluez_adapter->setPowered(true);
     m_bluez_adapter->setDiscoverable(false);
     m_bluez_adapter->setPairable(false);
-//    qCDebug(BLUEZ)  << "Starting discovery";
-//    if(!m_bluez_adapter->isDiscovering()){
-//        m_bluez_adapter->startDiscovery();
-//    }
+    //    qCDebug(BLUEZ)  << "Starting discovery";
+    //    if(!m_bluez_adapter->isDiscovering()){
+    //        m_bluez_adapter->startDiscovery();
+    //    }
     //If the newly added device is trusted then disconnect from all other devices and connect to it
 
     for(BluezQt::DevicePtr p_device : m_bluez_manager.devices()) {
@@ -147,56 +153,65 @@ void TelephonyManager::updateAdapters(){
     emit adaptersUpdated();
 }
 
-void TelephonyManager::ofonoAvailableChanged(bool available){
-    qCDebug(OFONO) << "ofonoAvailableChanged : " << available;
-    if(available && m_activeDevice){
-        initOfono(m_activeDevice->ubi());
-    }
-}
-
-void TelephonyManager::obexPullPhonebook (BluezQt::ObexSessionPtr session){
-    qCDebug(BLUEZ) << "obex session added";
-
+void TelephonyManager::pullPhonebook (QString path, QString type, QString output) {
     qCDebug(BLUEZ)  << "Pulling phonebook";
-    QString path = session.data()->objectPath().path();
 
-    qDBusRegisterMetaType<QPair<QString,QString>>();
-    qDBusRegisterMetaType<QList<QPair<QString,QString>>>();
-
-    org::bluez::obex::PhonebookAccess1 *pbapAccess;
-    pbapAccess = new org::bluez::obex::PhonebookAccess1("org.bluez.obex", path, QDBusConnection::sessionBus(), this);
+    org::bluez::obex::PhonebookAccess1 pbapAccess("org.bluez.obex", path, QDBusConnection::sessionBus(), this);
 
     //Select phone's internal phonebook
-    QDBusPendingCall pcall = pbapAccess->Select("int", "pb");
-    pcall.waitForFinished();
+    QDBusPendingCall selectCall = pbapAccess.Select("int", type);
+    selectCall.waitForFinished();
 
-    if(pcall.isError()){
-        qCWarning(BLUEZ)  << "Error phonebook select:"<< pcall.error().message();
+    if(selectCall.isError()){
+        qCWarning(BLUEZ)  << "Error phonebook select:"<< selectCall.error().message();
         return;
     }
-
-    //Delete and recreate contact dir to avoid conflicts
-    QDir dir(m_contactsFolder);
-    if(dir.exists())
-        dir.removeRecursively();
-    dir.mkpath(m_contactsFolder);
 
     //Pull all entries from the phone's internal phonebook
-    pcall = pbapAccess->PullAll(m_contactsFolder + "/contacts.vcf", QVariantMap());
-    pcall.waitForFinished();
-    if(pcall.isError()){
-        qCWarning(BLUEZ)  << "Error phonebook pull:"<< pcall.error().message();
+
+    QDBusPendingCall pullCall = pbapAccess.PullAll(output, QVariantMap());
+
+    pullCall.waitForFinished();
+    if(pullCall.isError()){
+        qCWarning(BLUEZ)  << "Error phonebook pull:"<< pullCall.error().message();
         return;
     }
-    qCDebug(BLUEZ)  << "Got phonebook";
-    emit phonebookChanged();
 }
 
-void TelephonyManager::getPhonebooks(QString destination){
+void TelephonyManager::getPhonebooks(QString destination, bool callHistoryOnly){
     if(m_obexManager.isOperational()){
+        QDir dir(m_contactsFolder);
+        if(dir.exists())
+            dir.removeRecursively();
+        dir.mkpath(m_contactsFolder);
+
         QVariantMap args;
         args.insert("Target", "PBAP");
-        m_obexManager.createSession(destination, args);
+        BluezQt::PendingCall * call = m_obexManager.createSession(destination, args);
+
+        connect(call, &BluezQt::PendingCall::finished, this,
+                [=]() {
+                    if(call->value().canConvert<QDBusObjectPath>()) {
+                        QDBusObjectPath objectPath = qvariant_cast<QDBusObjectPath>(call->value());
+                        pullPhonebook(objectPath.path(), "cch", m_contactsFolder + "/callHistory.vcf");
+                        QThread::msleep(1000); //ofono seems to be slow writing the vcard file ?
+                        m_callHistoryModel.importContacts(QUrl::fromLocalFile(m_contactsFolder + "/callHistory.vcf"));
+                    }
+                }
+                );
+        if(!callHistoryOnly) {
+            connect(call, &BluezQt::PendingCall::finished, this,
+                    [=]( ) {
+                        if(call->value().canConvert<QDBusObjectPath>()) {
+                            QDBusObjectPath objectPath = qvariant_cast<QDBusObjectPath>(call->value());
+                            pullPhonebook(objectPath.path(), "pb", m_contactsFolder + "/contacts.vcf");
+                            //TODO: Look into this
+                            QThread::msleep(1000); //ofono seems to be slow writing the vcard file ?
+                            m_phonebookModel.importContacts(QUrl::fromLocalFile(m_contactsFolder + "/contacts.vcf"), true);
+                        }
+                    }
+                    );
+        }
     } else {
         qCWarning(BLUEZ)  << "obexManager is not operational";
         return;
