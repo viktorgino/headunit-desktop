@@ -1,3 +1,11 @@
+headunit-desktop (0.1-105) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (5211886876b80fccfe2430b029a3ad62e1c60447)
+  * [Phone] Fix QString::SplitBehavior missing
+
+ -- Gino <gino@gino-ubuntu>  Thu, 28 Oct 2021 12:11:43 +0000
+
 headunit-desktop (0.1-104) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
