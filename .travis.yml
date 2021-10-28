@@ -1,78 +1,28 @@
 language: cpp
 compiler: gcc
-dist: bionic
-
-addons:
-  apt:
-    packages:
-    - binfmt-support
-    - devscripts
-    - dh-make
-    - debhelper
-    - dpkg-sig
-    - systemd-container
-
-before_install:
-  - sudo apt-get -y upgrade
-  - mkdir $HOME/rpi
-  - cd $HOME/rpi
-  - wget https://downloads.raspberrypi.org/raspbian_lite_latest
-  - unzip raspbian_lite_latest
-  - img_file=("*raspbian-buster-lite.img*")
-  - img_loop=$(sudo losetup -P -f --show $img_file)
-  - sudo mkdir -p /mnt/rootfs/boot 
-  - sudo mount $img_loop"p2" -o rw /mnt/rootfs
-  - sudo mount $img_loop"p1" -o rw /mnt/rootfs/boot
-  - sudo rsync -axHAX /mnt/rootfs .
-  - sudo umount /mnt/rootfs/boot
-  - sudo umount /mnt/rootfs
-  - sudo losetup -d $img_loop
+dist: focal
 
 install:
   - sudo apt-get install -y git libglib2.0-dev libfdt-dev libpixman-1-dev zlib1g-dev
-  - sudo apt-get install -y libaio-dev libbluetooth-dev libbrlapi-dev libbz2-dev
-  - sudo apt-get install -y libcap-dev libcap-ng-dev libcurl4-gnutls-dev libgtk-3-dev
-  - sudo apt-get install -y libibverbs-dev libjpeg8-dev libncurses5-dev libnuma-dev
-  - sudo apt-get install -y librbd-dev librdmacm-dev
-  - sudo apt-get install -y libsasl2-dev libsdl1.2-dev libseccomp-dev libsnappy-dev libssh2-1-dev
-  - sudo apt-get install -y libvde-dev libvdeplug-dev libvte-2.91-dev libxen-dev liblzo2-dev
-  - sudo apt-get install -y valgrind xfslibs-dev 
-  - sudo apt-get install -y libnfs-dev libiscsi-dev
-  - cd $HOME
-  - git clone git://git.qemu-project.org/qemu.git
-  - cd qemu
-  - mkdir build
-  - cd build
-  - ../configure --target-list=arm-linux-user --static
-  - make
-  - echo ':qemu-arm:M::\x7fELF\x01\x01\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x02\x00\x28\x00:\xff\xff\xff\xff\xff\xff\xff\x00\xff\xff\xff\xff\xff\xff\xff\xff\xfe\xff\xff\xff:/home/travis/qemu/build/arm-linux-user/qemu-arm:OCF' | sudo tee -a /proc/sys/fs/binfmt_misc/register
-  - ROOTFS_DIR=$HOME/rpi/rootfs
-  - cd $ROOTFS_DIR
-  - sudo rm $ROOTFS_DIR/etc/ld.so.preload
-  - sudo touch $ROOTFS_DIR/etc/ld.so.preload
-  - sudo mkdir $ROOTFS_DIR/opt/packaging
-  - sudo rsync -r $TRAVIS_BUILD_DIR $ROOTFS_DIR/opt/packaging
 
-before_script:
-  - sudo wget http://apt.viktorgino.me/public-buster.asc
-  - sudo systemd-nspawn -D $ROOTFS_DIR /usr/bin/apt-key add - < public-buster.asc
-  - sudo sh -c 'echo "deb http://apt.viktorgino.me buster/" >> etc/apt/sources.list'
-  - sudo systemd-nspawn -D $ROOTFS_DIR /usr/bin/apt-get update -y
-  - sudo systemd-nspawn -D $ROOTFS_DIR /usr/bin/apt-get -y install devscripts dh-make debhelper dpkg-sig
-  - sudo systemd-nspawn -D $ROOTFS_DIR /usr/bin/apt-get -y install qt5-default qml-module-qtquick2 qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins qml-module-qtquick* qml-module-qtmultimedia qml-module-qt-labs-settings qml-module-qt-labs-folderlistmodel  build-essential cmake protobuf-compiler  libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev libboost-dev libudev-dev libtag1-dev libprotobuf-dev  gstreamer1.0-x gstreamer1.0-omx gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-alsa gstreamer1.0-libav  alsa-utils  libgstreamer1.0-dev gstreamer1.0-plugins-base-apps gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libgstreamer-plugins-base1.0-dev gstreamer1.0-pulseaudio  libfaad-dev libfftw3-dev librtlsdr-dev libusb-1.0-0-dev mesa-common-dev libglu1-mesa-dev zlib1g-dev  portaudio19-dev libsndfile1-dev libsamplerate0-dev   ofono ofono-dev ofono-phonesim pulseaudio bluez bluez-obexd pulseaudio-module-bluetooth   libqt5xmlpatterns5-dev libqt5bluetooth5 qtconnectivity5-dev qml-module-qtbluetooth libkf5bluezqt-dev qml-module-org-kde-bluezqt  qtbase5-private-dev  libqt5gstreamer-dev libqt5gstreamerquick-1.0-0 libqt5gstreamer-1.0-0 libqt5charts5-dev qml-module-qtcharts  gstreamer1.0-omx gstreamer1.0-omx-rpi gstreamer1.0-omx-rpi-config  git  libcanberra-dev libgconf2-dev libpulse-dev  libgl1-mesa-dri  xorg xinit  raspberrypi-artwork  policykit-1  gvfs  rfkill  gldriver-test  fonts-droid-fallback  fonts-liberation2  obconf  arandr  plymouth  libairspy0 libpulse0 libmp3lame0 libsoapysdr0.6 libmpg123-0 libqofono-qt5-0 libqt5gstreamerquick-1.0-0 libqt5contacts5  qml-module-qtgstreamer qml-module-ofono qml-module-qtcontacts  libqofono-dev libqt5gstreamer-dev libmpg123-dev libsoapysdr-dev libmp3lame-dev libpulse-dev libairspy-dev
-    
+  - sudo apt-get install -y build-essential protobuf-compiler libusb-1.0-0-dev libssl-dev openssl libglib2.0-dev
+  - sudo apt-get install -y libboost-dev libudev-dev libtag1-dev libprotobuf-dev libgstreamer1.0-dev gstreamer1.0-plugins-base-apps
+  - sudo apt-get install -y gstreamer1.0-plugins-good gstreamer1.0-plugins-bad gstreamer1.0-libav gstreamer1.0-alsa libgstreamer-plugins-base1.0-dev
+  - sudo apt-get install -y gstreamer1.0-pulseaudio libfaad-dev libfftw3-dev librtlsdr-dev libairspy-dev libusb-1.0-0-dev mesa-common-dev
+  - sudo apt-get install -y libglu1-mesa-dev zlib1g-dev  portaudio19-dev libsndfile1-dev libsamplerate0-dev ofono ofono-dev
+  - sudo apt-get install -y ofono-phonesim pulseaudio bluez bluez-obexd pulseaudio-module-bluetooth qtconnectivity5-dev
+  - sudo apt-get install -y qml-module-qtbluetooth libkf5bluezqt-dev qml-module-org-kde-bluezqt qtbase5-private-dev libcanberra-dev
+  - sudo apt-get install -y libqt5charts5 libqt5charts5-dev qml-module-qtcharts libqt5serialport5-dev
+  - sudo apt-get install -y libgconf2-dev libpulse-dev libmp3lame-dev libsoapysdr-dev libmpg123-dev
+  - sudo apt-get install -y qt5-default qtdeclarative5-dev qtmultimedia5-dev libqt5multimedia5-plugins
+  - sudo apt-get install -y libqt5xmlpatterns5-dev libqt5bluetooth5 qtconnectivity5-dev libqt5charts5 libqt5serialport5
+  - sudo apt-get install -y qml-module-qtquick2 qml-module-qtquick-layouts qml-module-qtquick-dialogs qml-module-qtquick-controls2
+  - sudo apt-get install -y qml-module-qtquick-extras qml-module-qtquick-window2 qml-module-qtmultimedia qml-module-qt-labs-settings
+  - sudo apt-get install -y qml-module-qt-labs-folderlistmodel qml-module-qt-labs-platform qml-module-qtbluetooth qml-module-qtcharts
+  - sudo apt-get install -y qml-module-qtgraphicaleffects
     
 script:
-  - sudo systemd-nspawn -D $ROOTFS_DIR --chdir=/opt/packaging/headunit-desktop fakeroot debian/rules binary
-
-before_deploy:
-  - sed -i 's/###VERSION###/'$TRAVIS_COMMIT'/' bintray-deploy.json
-  - PI_DEBS="${ROOTFS_DIR}opt/packaging/headunit-desktop/deb/"
-  - sed -i 's~###PI_DEBS###~'${ROOTFS_DIR}opt/packaging/headunit-desktop/deb/'~' bintray-deploy.json
-
-deploy:
-  provider: bintray
-  file: "bintray-deploy.json"
-  user: "viktorgino"
-  key:
-    secure: "MjeUVKT7UrSyRC1eMPUXDpHWJdj5Hwv/QAbrnWnc7oGDILDJtB4fSH3swnbG9/6OhB2+eJhuW36ZZKtI36ag6ZQQHlX2X40CWrZ1b5QVipFHszcSdNdQAv/78BAADQOWen8aLxoC2Vwzt8FHpnwFUICtQL/EHmPp4fBre0FVPb5wRLgeMjOAPxq/gPTbxFjrch0EVNP7dBBwdPJswccrHKAFq2FktXwFLaEEkAkhaPfonz2FU59/9sLW+p/I0sXn3taH1gwHWCx4/6IqwgvCqMAEKISlyKuOuz+OMdBOZ31rquGOYfpm8R8EfBRpBJzOWm4BwePZ/rQGObd8mVuLwVYPARxfYXUr6D9+hUcYRn+ogYy7OWG0CVitMJ29yZzzgTRlhwSRVtAkqd0jijKdYD803RdbTwkCqliuyEPkZ/0bAyFvH+7YWRXvRaAMC7hoKUbsiU82bUqcGIFdT6n/1rc6SWQYehPx5HQB8d3dhu3UpvEM/pBnG9mq0I6OV9ABaAavG10upuD9e4yXNMGuLOkxH+vh4U1fvBIDeF63o6nVqj3l+qb2aukmjRkx6TBYayhfxKxxPZ6IZNSOVY4h5YQewgCK8RopZgkS+TDeyIS9T/cUDMYGiW8HGjRc741JaAKwpeKlmPzWuHU1xV3uBh0nw0vZVruq0TENKmlh4iE="
+  - protoc --proto_path=modules/android-auto/headunit/hu/ --cpp_out=modules/android-auto/headunit/hu/generated.x64/ modules/android-auto/headunit/hu/hu.pro
+  - mkdir build && cd build
+  - qmake ../headunit-desktop.pro
+  - make -j8

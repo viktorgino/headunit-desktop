@@ -1,3 +1,11 @@
+headunit-desktop (0.1-104) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (fd0089803ecc611de3f0d5c662f4a7a2d033a4dc)
+  * Update .travis.yml
+
+ -- Gino <gino@gino-ubuntu>  Thu, 28 Oct 2021 05:26:00 +0000
+
 headunit-desktop (0.1-103) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
