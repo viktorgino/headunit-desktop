@@ -26,6 +26,7 @@
 #include "phonebookaccess1_interface.h"
 #include <QStandardPaths>
 #include <QLoggingCategory>
+#include <QFileSystemWatcher>
 
 
 #include "ofonomanager.h"
@@ -119,6 +120,9 @@ private slots:
     void connectToDeviceCallback(BluezQt::PendingCall *call);
 
     void settingsChanged(const QString &key, const QVariant &value);
+
+    void contactsFolderChanged(const QString &path);
+    void contactsChanged(const QString &path);
 private:
     QString m_contactsFolder = "contacts/";
 
@@ -129,6 +133,7 @@ private:
     BluezQt::ObexManager m_obexManager;
     BluezQt::Agent *bluez_agent;
 
+    QFileSystemWatcher m_phonebookWatcher;
     bool m_androidAutoConnected = false;
 
     void getPhonebooks(QString destination, bool callHistoryOnly = false);

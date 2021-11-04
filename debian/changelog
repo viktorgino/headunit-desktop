@@ -1,3 +1,11 @@
+headunit-desktop (0.1-107) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (43ca4e2c16b7339d87439f2b175ddf572f3674ca)
+  * [Phone] Add file watcher for contact files
+
+ -- Gino <gino@gino-ubuntu>  Thu, 04 Nov 2021 15:06:06 +0000
+
 headunit-desktop (0.1-106) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

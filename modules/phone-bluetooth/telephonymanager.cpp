@@ -38,6 +38,12 @@ void TelephonyManager::init() {
     connect(&m_bluez_manager, &BluezQt::Manager::deviceAdded, this, &TelephonyManager::deviceAdded);
     connect(&m_bluez_manager, &BluezQt::Manager::deviceRemoved, this, &TelephonyManager::deviceRemoved);
 
+    connect(&m_phonebookWatcher, &QFileSystemWatcher::fileChanged, this, &TelephonyManager::contactsChanged);
+    connect(&m_phonebookWatcher, &QFileSystemWatcher::directoryChanged, this, &TelephonyManager::contactsFolderChanged);
+
+    m_phonebookWatcher.addPath(m_contactsFolder);
+    m_phonebookWatcher.addPath(m_contactsFolder + "/callHistory.vcf");
+    m_phonebookWatcher.addPath(m_contactsFolder + "/contacts.vcf");
 }
 
 void TelephonyManager::initObex (BluezQt::InitObexManagerJob *job){
@@ -50,17 +56,6 @@ void TelephonyManager::initObex (BluezQt::InitObexManagerJob *job){
     } else {
         qCWarning(BLUEZ)  << "initObex : "<< job->error() << job->errorText();
     }
-}
-
-void TelephonyManager::showOverlay(){
-    emit action("GUI::OpenOverlay", QVariant());
-}
-
-void TelephonyManager::hideOverlay() {
-    emit action("GUI::CloseOverlay", QVariant());
-}
-void TelephonyManager::pullCallHistory() {
-    getPhonebooks(m_activeDevice->address(), true);
 }
 
 void TelephonyManager::initBluez (BluezQt::InitManagerJob *job){
@@ -153,8 +148,29 @@ void TelephonyManager::updateAdapters(){
     emit adaptersUpdated();
 }
 
+void TelephonyManager::contactsChanged(const QString &path) {
+    QFile file(path);
+    if(file.exists()){
+        if(QUrl(path).fileName() == "contacts.vcf"){
+            m_phonebookModel.importContacts(QUrl::fromLocalFile(m_contactsFolder + "/contacts.vcf"));
+        } else  if(QUrl(path).fileName() == "callHistory.vcf") {
+            m_callHistoryModel.importContacts(QUrl::fromLocalFile(m_contactsFolder + "/callHistory.vcf"));
+        }
+    }
+}
+
+void TelephonyManager::contactsFolderChanged(const QString &path) {
+    QDir dir(path);
+    if(dir.exists()){
+        m_phonebookWatcher.addPath(path+"/contacts.vcf");
+        m_phonebookWatcher.addPath(path+"/callHistory.vcf");
+    }
+}
+
 void TelephonyManager::pullPhonebook (QString path, QString type, QString output) {
     qCDebug(BLUEZ)  << "Pulling phonebook";
+
+    QFile::remove(output);
 
     org::bluez::obex::PhonebookAccess1 pbapAccess("org.bluez.obex", path, QDBusConnection::sessionBus(), this);
 
@@ -168,22 +184,16 @@ void TelephonyManager::pullPhonebook (QString path, QString type, QString output
     }
 
     //Pull all entries from the phone's internal phonebook
-
-    QDBusPendingCall pullCall = pbapAccess.PullAll(output, QVariantMap());
-
-    pullCall.waitForFinished();
-    if(pullCall.isError()){
-        qCWarning(BLUEZ)  << "Error phonebook pull:"<< pullCall.error().message();
-        return;
-    }
+    pbapAccess.PullAll(output, QVariantMap());
 }
 
 void TelephonyManager::getPhonebooks(QString destination, bool callHistoryOnly){
     if(m_obexManager.isOperational()){
         QDir dir(m_contactsFolder);
-        if(dir.exists())
-            dir.removeRecursively();
-        dir.mkpath(m_contactsFolder);
+        if(!dir.exists()){
+            dir.mkpath(m_contactsFolder);
+            m_phonebookWatcher.addPath(m_contactsFolder);
+        }
 
         QVariantMap args;
         args.insert("Target", "PBAP");
@@ -194,24 +204,14 @@ void TelephonyManager::getPhonebooks(QString destination, bool callHistoryOnly){
                     if(call->value().canConvert<QDBusObjectPath>()) {
                         QDBusObjectPath objectPath = qvariant_cast<QDBusObjectPath>(call->value());
                         pullPhonebook(objectPath.path(), "cch", m_contactsFolder + "/callHistory.vcf");
-                        QThread::msleep(1000); //ofono seems to be slow writing the vcard file ?
-                        m_callHistoryModel.importContacts(QUrl::fromLocalFile(m_contactsFolder + "/callHistory.vcf"));
+
+                        if(!callHistoryOnly) {
+                            pullPhonebook(objectPath.path(), "pb", m_contactsFolder + "/contacts.vcf");
+
+                        }
                     }
                 }
                 );
-        if(!callHistoryOnly) {
-            connect(call, &BluezQt::PendingCall::finished, this,
-                    [=]( ) {
-                        if(call->value().canConvert<QDBusObjectPath>()) {
-                            QDBusObjectPath objectPath = qvariant_cast<QDBusObjectPath>(call->value());
-                            pullPhonebook(objectPath.path(), "pb", m_contactsFolder + "/contacts.vcf");
-                            //TODO: Look into this
-                            QThread::msleep(1000); //ofono seems to be slow writing the vcard file ?
-                            m_phonebookModel.importContacts(QUrl::fromLocalFile(m_contactsFolder + "/contacts.vcf"), true);
-                        }
-                    }
-                    );
-        }
     } else {
         qCWarning(BLUEZ)  << "obexManager is not operational";
         return;
@@ -328,7 +328,6 @@ void TelephonyManager::connectToDeviceCallback(BluezQt::PendingCall *call){
     }
 }
 
-
 void TelephonyManager::enablePairing(){
     if(m_bluez_adapter){
         m_bluez_adapter->setDiscoverable(true);
@@ -368,5 +367,16 @@ void TelephonyManager::eventMessage(QString id, QVariant message) {
     if(id == "AndroidAuto::connected"){
         m_androidAutoConnected = message.toBool();
     }
+}
+
+void TelephonyManager::showOverlay(){
+    emit action("GUI::OpenOverlay", QVariant());
+}
+
+void TelephonyManager::hideOverlay() {
+    emit action("GUI::CloseOverlay", QVariant());
+}
+void TelephonyManager::pullCallHistory() {
+    getPhonebooks(m_activeDevice->address(), true);
 }
 
