@@ -13,6 +13,7 @@
 #include <QDir>
 #include <QJsonDocument>
 #include <QJsonObject>
+#include <QCoreApplication>
 #include <plugininterface.h>
 #include <hvac-common.h>
 #include "CRL/HUDSerial/HUDSerial.h"

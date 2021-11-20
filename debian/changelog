@@ -1,3 +1,12 @@
+headunit-desktop (0.1-116) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (9456a22a0a99623979814342fb49f744b26feadf)
+  * [[HUDSerial] Load car settings relative to binary, emit setnigtmode
+    event
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Nov 2021 19:21:23 +0000
+
 headunit-desktop (0.1-115) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

@@ -18,6 +18,15 @@ void HUDSerialPlugin::init() {
     connect(&m_serial, &QSerialPort::errorOccurred, this, &HUDSerialPlugin::handleSerialError);
     connect(&m_settings, &QQmlPropertyMap::valueChanged, this, &HUDSerialPlugin::settingsChanged);
     connect(&m_serialRetryTimer, &QTimer::timeout, this, &HUDSerialPlugin::serialConnect);
+
+    for(int i = 0; i < 16; i++) {
+        m_customBits.append(0);
+    }
+    for(int i = 0; i < 6; i++) {
+        m_customBytes.append(0);
+    }
+
+    emit customCommandUpdated();
 }
 
 QObject *HUDSerialPlugin::getContextProperty(){
@@ -220,7 +229,7 @@ void HUDSerialPlugin::CustomCommandCallback(const CustomCommandFrame &commandFra
 }
 
 void HUDSerialPlugin::BodyControlCommandCallback(const BodyControlCommandFrame &controlFrame) {
-
+    emit action("SYSTEM::SetNightMode",controlFrame.NightLight);
 }
 void HUDSerialPlugin::DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame &controlFrame) {
 
@@ -258,7 +267,7 @@ void HUDSerialPlugin::PrintString(char *message, int length) {
 }
 
 void HUDSerialPlugin::setCustomBit(uint bitNumber, bool value){
-    if(m_customBytes.size() > bitNumber){
+    if(m_customBits.size() > bitNumber){
         QVariantList customBits(m_customBits);
         customBits[bitNumber] = value;
 
@@ -298,7 +307,7 @@ void HUDSerialPlugin::loadCarSettings(QString fileName){
 //    resetHVACSettings();
 
     QFile file;
-    file.setFileName(fileName);
+    file.setFileName(QCoreApplication::applicationDirPath() + "/" + fileName);
     file.open(QIODevice::ReadOnly | QIODevice::Text);
 
     QString configFile = file.readAll();
@@ -319,7 +328,8 @@ void HUDSerialPlugin::loadCarSettings(QString fileName){
     qDebug() << "Loaded car settings : " << fileName;
 }
 void HUDSerialPlugin::updateManufacturers(){
-    QDir dir("modules/hud-serial/cars");
+    QDir dir(QCoreApplication::applicationDirPath());
+    dir.cd("modules/hud-serial/cars");
     for(QString info : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)){
         m_manufacturers.insert(info,info);
     }
@@ -328,7 +338,8 @@ void HUDSerialPlugin::updateManufacturers(){
 }
 void HUDSerialPlugin::updateCars(){
     m_cars.clear();
-    QDir dir("modules/hud-serial/cars");
+    QDir dir(QCoreApplication::applicationDirPath());
+    dir.cd("modules/hud-serial/cars");
     if(dir.cd(m_settings["car_make"].toString())){
         dir.setNameFilters(QStringList("*.json"));
         for(QFileInfo info : dir.entryInfoList()){
@@ -345,7 +356,10 @@ void HUDSerialPlugin::updateCars(){
             } else {
                 name = info.fileName();
             }
-            m_cars.insert(info.filePath(),name);
+
+            QDir appDir(QCoreApplication::applicationDirPath());
+            QString relativePath = appDir.relativeFilePath(info.filePath());
+            m_cars.insert(relativePath,name);
         }
 
         emit carsUpdated();
