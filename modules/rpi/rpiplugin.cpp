@@ -5,6 +5,7 @@
 
 RPiPlugin::RPiPlugin(QObject *parent) : QObject (parent)
 {
+    m_pluginSettings.eventListeners = QStringList() << "SYSTEM::SetNightMode";
 }
 void RPiPlugin::init(){
     connect(&m_settings, &QQmlPropertyMap::valueChanged, this, &RPiPlugin::settingsChanged);
@@ -38,6 +39,16 @@ void RPiPlugin::settingsChanged(const QString &key, const QVariant &value){
     if (key == "brightness") {
         qDebug() << "settingChanged : " << value;
         applyBrightness(value.toInt());
+    }
+}
+
+void RPiPlugin::eventMessage(QString id, QVariant message) {
+    if(id == "SYSTEM::SetNightMode"){
+        if(message.toBool()){
+            applyBrightness(5);
+        } else {
+            applyBrightness(100);
+        }
     }
 }
 

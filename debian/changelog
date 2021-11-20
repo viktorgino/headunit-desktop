@@ -1,3 +1,11 @@
+headunit-desktop (0.1-117) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (4ab2be73aa2581a015676ba3e7f3b5ab1717c5b2)
+  * [RPI] Listen to SYSTEM::SetNightMode signal
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Nov 2021 19:21:51 +0000
+
 headunit-desktop (0.1-116) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

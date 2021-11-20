@@ -15,6 +15,7 @@ private:
 public:
     explicit RPiPlugin(QObject *parent = nullptr);
     void init() override;
+    void eventMessage(QString id, QVariant message) override;
 
 public slots:
     void settingsChanged(const QString &key, const QVariant &value);
