@@ -1,3 +1,11 @@
+headunit-desktop (0.1-111) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (9facc6772ef85afa4218a1f38d053b49ef87bcc2)
+  * Update headunit-desktop.desktop file
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Nov 2021 13:16:46 +0000
+
 headunit-desktop (0.1-110) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
