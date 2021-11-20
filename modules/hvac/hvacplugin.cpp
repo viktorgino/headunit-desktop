@@ -38,6 +38,7 @@ void HVACPlugin::actionMessage(QString id, QVariant message){
 void HVACPlugin::resetHVACSettings(){
     m_hvacSettings.clear();
     m_hvacSettings["readOnly"] = false;
+    m_hvacSettings["FanSteps"] = 0;
     m_hvacSettings["FanStepSize"] = 0;
     m_hvacSettings["TemperatureSteps"] = 0;
     m_hvacSettings["TemperatureStepSize"] = 0;

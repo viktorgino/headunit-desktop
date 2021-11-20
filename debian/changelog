@@ -1,3 +1,11 @@
+headunit-desktop (0.1-112) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (ebac544290a100255472bef5163b2e3163ea6050)
+  * [HVAC] Fix missing FanSteps property when resetting
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Nov 2021 14:20:13 +0000
+
 headunit-desktop (0.1-111) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
