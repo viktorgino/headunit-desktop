@@ -66,7 +66,7 @@ namespace QtVersit {
 
 class QVersitDocument;
 
-class Q_VERSIT_EXPORT VersitUtils
+class Q_DECL_IMPORT VersitUtils
 {
 public:
     static QByteArray encode(const QByteArray& ba, QTextCodec* codec);

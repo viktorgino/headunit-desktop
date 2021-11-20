@@ -1,3 +1,11 @@
+headunit-desktop (0.1-108) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (13c5dc7d3ce917fe304b559ac0d9c735bac2d03b)
+  * [Phone] Fix QVersit issues
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Nov 2021 13:13:54 +0000
+
 headunit-desktop (0.1-107) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

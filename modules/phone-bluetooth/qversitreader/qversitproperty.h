@@ -45,8 +45,6 @@
 #include <QtCore/qstringlist.h>
 #include <QtCore/qvariant.h>
 
-#include <QtVersit/qversitglobal.h>
-
 namespace QtVersit {
 
 class QVersitPropertyPrivate;

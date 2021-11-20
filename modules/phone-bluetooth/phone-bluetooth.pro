@@ -40,8 +40,8 @@ HEADERS += \
     qversitreader/qversitproperty_p.h \
     qversitreader/qversitreader.h \
     qversitreader/qversitreader_p.h \
-    vCard_reader/qversitutils_p.h
-    qversitreader
+    qversitreader/qversitutils_p.h
+
 DISTFILES += \
     config.json
 
