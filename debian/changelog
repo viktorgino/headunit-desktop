@@ -1,3 +1,11 @@
+headunit-desktop (0.1-110) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (17c81312f126df1527c328344c8bef8fba1a6451)
+  * [FM] Change plugin name
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Nov 2021 13:16:22 +0000
+
 headunit-desktop (0.1-109) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
