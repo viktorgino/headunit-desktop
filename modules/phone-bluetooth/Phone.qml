@@ -278,6 +278,7 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 8
         anchors.leftMargin: 8
+        anchors.bottomMargin: 8
     }
 
     property Component currentComponent : phoneComponent
@@ -333,7 +334,7 @@ Item {
         anchors.right: parent.right
         anchors.rightMargin: 16
         anchors.bottom: parent.bottom
-        anchors.bottomMargin: 8
+        anchors.bottomMargin: 16
 
         RowLayout {
             spacing: 8

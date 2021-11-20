@@ -4,7 +4,8 @@ Q_LOGGING_CATEGORY(OFONO2, "telephony [OfonoManager]")
 
 OfonoManager::OfonoManager(QObject *parent) : QObject(parent),
       m_dbusConnection(QDBusConnection::connectToBus(QDBusConnection::SystemBus, "hud_ofono")),
-      m_manager("org.ofono","/", m_dbusConnection)
+      m_manager("org.ofono","/", m_dbusConnection),
+      m_batteryCharge(), m_signalStrength(0),m_online(false)
 {
 }
 
