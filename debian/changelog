@@ -1,3 +1,11 @@
+headunit-desktop (0.1-113) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (4f6b79040a5f0d8a9ff4a346bda890c5379c1cb5)
+  * Remove QtQuick.Layouts 1.0
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Nov 2021 14:56:08 +0000
+
 headunit-desktop (0.1-112) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

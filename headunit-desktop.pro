@@ -9,7 +9,7 @@ SUBDIRS = \
           modules/usbconnectionlistener \
           modules/welle-io \
 #          modules/navit \
-          modules/fm-radio \
+#          modules/fm-radio \
           modules/hvac \
           modules/sample \
           modules/rpi \
