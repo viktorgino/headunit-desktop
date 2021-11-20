@@ -173,7 +173,6 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, bool filter, QStr
 void PluginManager::messageHandler(QString id, QVariant message){
     QStringList messageId = id.split("::");
 
-
     PluginInterface * pluginObject = qobject_cast<PluginInterface *>(sender());
     if(!pluginObject){
         qWarning () << "messageHandler() : Sender is not a PluginInterface : " << sender()->metaObject()->className();
@@ -186,6 +185,8 @@ void PluginManager::messageHandler(QString id, QVariant message){
     if(messageId.size() == 2 && messageId[0] == "GUI") {
         emit themeEvent(senderName,messageId[1], message);
         return;
+    } else if(messageId.size() == 2 && messageId[0] == "SYSTEM") {
+        event = id;
     } else if(id == "MediaInput"){
         m_mediaManager.mediaInput(message.toString());
         return;
@@ -225,6 +226,18 @@ void PluginManager::actionHandler(QString id, QVariant message){
             QString senderName = m_plugins.key(pluginObject);
 
             emit themeEvent(senderName,messageId[1], message);
+
+        } else if(messageId[0] == "SYSTEM") {
+            PluginInterface * pluginObject = qobject_cast<PluginInterface *>(sender());
+            if(!pluginObject){
+                qWarning () << "actionHandler() : Sender is not a PluginInterface : " << sender()->metaObject()->className();
+                return;
+            }
+
+            QString senderName = m_plugins.key(pluginObject);
+
+            emit themeEvent(senderName,messageId[1], message);
+            messageHandler(id, message);
 
         } else if(m_plugins.keys().contains(messageId[0])){
             PluginInterface *pluginObject = m_plugins[messageId[0]];

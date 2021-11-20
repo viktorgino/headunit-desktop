@@ -1,3 +1,11 @@
+headunit-desktop (0.1-115) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (0851563414b77dd1292f500983c2d7b8ebe26309)
+  * Add system messages
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Nov 2021 19:20:27 +0000
+
 headunit-desktop (0.1-114) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
