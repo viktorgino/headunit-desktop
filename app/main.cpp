@@ -57,7 +57,7 @@ int main(int argc, char *argv[])
 
     PluginManager pluginManager(engine, whitelist, plugins,&app);
 
-    ThemeManager themeManager(engine,&app);
+    ThemeManager themeManager(engine,"default-theme", &app);
 
     QObject::connect(&pluginManager, &PluginManager::themeEvent, &themeManager, &ThemeManager::onEvent);
 

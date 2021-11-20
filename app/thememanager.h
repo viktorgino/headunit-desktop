@@ -17,6 +17,7 @@
 #include <QSettings>
 #include <QPluginLoader>
 #include <QQmlExtensionPlugin>
+#include <QCoreApplication>
 
 #include "settingsloader.h"
 
@@ -24,7 +25,7 @@ class ThemeManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit ThemeManager(QQmlApplicationEngine *engine, QObject *parent = nullptr);
+    explicit ThemeManager(QQmlApplicationEngine *engine, QString theme_name, QObject *parent = nullptr);
     ~ThemeManager();
 private:
     void loadJson(QString path);

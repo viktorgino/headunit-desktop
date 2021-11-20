@@ -1,3 +1,11 @@
+headunit-desktop (0.1-109) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (ee6419e1a5458fc40ae6f479eec9a36a34b58596)
+  * Add theme-name argument to ThemeManager
+
+ -- Gino <gino@gino-ubuntu>  Sat, 20 Nov 2021 13:15:57 +0000
+
 headunit-desktop (0.1-108) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

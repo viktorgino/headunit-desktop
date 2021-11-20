@@ -2,10 +2,25 @@
 
 Q_LOGGING_CATEGORY(THEMEMANAGER, "Theme Manager")
 
-ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QObject *parent) : QObject(parent),
+ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QString theme_name, QObject *parent) : QObject(parent),
     m_engine(engine)
 {
-    QString fileName = "themes/default-theme/libdefault-theme.so";
+    QDir themeDir(QCoreApplication::applicationDirPath()+"/themes");
+
+    if(!themeDir.cd(theme_name)){
+        qCDebug(THEMEMANAGER) << "Error loading plugin, plugin doesn't exists" << themeDir.absolutePath();
+        return;
+    }
+    themeDir.setNameFilters(QStringList() << "*-theme.so");
+
+    QFileInfoList themeLibraryFiles = themeDir.entryInfoList();
+
+    if(themeLibraryFiles.size() == 0){
+        qCDebug(THEMEMANAGER) << "No library in theme folder" << themeDir.absolutePath();
+        return;
+    }
+
+    QString fileName = themeLibraryFiles[0].absoluteFilePath();
     QPluginLoader themeLoader(fileName);
 
     QQmlExtensionPlugin * theme = static_cast<QQmlExtensionPlugin *>(themeLoader.instance());
@@ -21,6 +36,8 @@ ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QObject *parent) : QOb
         qCDebug(THEMEMANAGER) << "Error loading theme : " << themeLoader.metaData().value("name") << ", root component is not a valid instance of QQmlExtensionPlugin";
         return;
     }
+
+    engine->addImportPath(themeDir.absolutePath());
 
     qCDebug(THEMEMANAGER) << "Theme loaded : " << fileName;
 
