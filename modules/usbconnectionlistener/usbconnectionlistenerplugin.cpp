@@ -30,7 +30,7 @@ void UsbConnectionListenerPlugin::usbDeviceAdded(QVariantMap deviceDetails){
 
     json = QJsonDocument::fromVariant(notificationDetails);
 
-    emit message("GUI::Notification", json.toJson(QJsonDocument::Compact));
+    emit action("GUI::Notification", json.toJson(QJsonDocument::Compact));
 }
 
 void UsbConnectionListenerPlugin::usbDeviceRemoved(QVariantMap deviceDetails){

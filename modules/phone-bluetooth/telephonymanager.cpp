@@ -13,6 +13,10 @@ TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent),
     m_interfaceSettings.mediaStream = true;
 
     m_pluginSettings.eventListeners = QStringList() << "AndroidAuto::connected";
+
+    BluezQt::InitManagerJob *job = m_bluez_manager.init();
+    job->start();
+    connect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::initBluez);
 }
 TelephonyManager::~TelephonyManager(){
     //    delete m_activeDevice;
@@ -27,16 +31,13 @@ void TelephonyManager::init() {
     qDBusRegisterMetaType<QPair<QString,QString>>();
     qDBusRegisterMetaType<QList<QPair<QString,QString>>>();
 
-    BluezQt::InitManagerJob *job = m_bluez_manager.init();
-    job->start();
-    connect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::initBluez);
+    connect(&m_bluez_manager, &BluezQt::Manager::deviceAdded, this, &TelephonyManager::deviceAdded);
+    connect(&m_bluez_manager, &BluezQt::Manager::deviceRemoved, this, &TelephonyManager::deviceRemoved);
 
     connect(&m_ofonoManagerClass, &OfonoManager::showOverlay, this, &TelephonyManager::showOverlay);
     connect(&m_ofonoManagerClass, &OfonoManager::hideOverlay, this, &TelephonyManager::hideOverlay);
     connect(&m_ofonoManagerClass, &OfonoManager::callFinished, this, &TelephonyManager::pullCallHistory);
 
-    connect(&m_bluez_manager, &BluezQt::Manager::deviceAdded, this, &TelephonyManager::deviceAdded);
-    connect(&m_bluez_manager, &BluezQt::Manager::deviceRemoved, this, &TelephonyManager::deviceRemoved);
 
     connect(&m_phonebookWatcher, &QFileSystemWatcher::fileChanged, this, &TelephonyManager::contactsChanged);
     connect(&m_phonebookWatcher, &QFileSystemWatcher::directoryChanged, this, &TelephonyManager::contactsFolderChanged);
@@ -370,7 +371,10 @@ void TelephonyManager::eventMessage(QString id, QVariant message) {
 }
 
 void TelephonyManager::showOverlay(){
-    emit action("GUI::OpenOverlay", QVariant());
+    QVariantMap map;
+    map["source"] = "";
+
+    emit action("GUI::OpenOverlay", map);
 }
 
 void TelephonyManager::hideOverlay() {

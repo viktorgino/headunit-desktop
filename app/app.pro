@@ -9,7 +9,10 @@ include("../config.pri")
 
 SOURCES += main.cpp \
     mediamanager.cpp \
+    pluginlist.cpp \
+    pluginlistmodel.cpp \
     pluginmanager.cpp \
+    pluginobject.cpp \
     settingsloader.cpp \
     thememanager.cpp
 
@@ -18,7 +21,10 @@ HEADERS += \
     ../includes/hvac-common.h \
     ../includes/mediainterface.h \
     mediamanager.h \
+    pluginlist.h \
+    pluginlistmodel.h \
     pluginmanager.h \
+    pluginobject.h \
     settingsloader.h \
     thememanager.h
 
@@ -42,4 +48,7 @@ theme.files += \
 theme.path = $$PREFIX/ 
 
 INSTALLS += target pluginfiles theme
+
+RESOURCES += \
+    main.qrc
 

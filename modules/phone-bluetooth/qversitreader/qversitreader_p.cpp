@@ -1045,7 +1045,7 @@ QMultiHash<QString,QString> QVersitReaderPrivate::extractVCard30PropertyParams(
         QString name(paramName(param, codec));
         removeBackSlashEscaping(&name);
         QString values = paramValue(param, codec);
-        QStringList valueList = splitValue(values, QLatin1Char(','), QString::SkipEmptyParts, true);
+        QStringList valueList = splitValue(values, QLatin1Char(','), Qt::SkipEmptyParts, true);
         foreach (QString value, valueList) {
             removeBackSlashEscaping(&value);
             result.insert(name, value);
@@ -1192,12 +1192,12 @@ bool QVersitReaderPrivate::splitStructuredValue(
     QVariant variant = property->variantValue();
     if (property->valueType() == QVersitProperty::CompoundType) {
         variant.setValue(splitValue(variant.toString(), QLatin1Char(';'),
-                                    QString::KeepEmptyParts, hasEscapedBackslashes));
+                                    Qt::KeepEmptyParts, hasEscapedBackslashes));
         property->setValue(variant);
         return true;
     } else if (property->valueType() == QVersitProperty::ListType) {
         variant.setValue(splitValue(variant.toString(), QLatin1Char(','),
-                                    QString::SkipEmptyParts, hasEscapedBackslashes));
+                                    Qt::SkipEmptyParts, hasEscapedBackslashes));
         property->setValue(variant);
         return true;
     }
@@ -1213,7 +1213,7 @@ bool QVersitReaderPrivate::splitStructuredValue(
  */
 QStringList QVersitReaderPrivate::splitValue(const QString& string,
                                              const QChar& sep,
-                                             QString::SplitBehavior behavior,
+                                             Qt::SplitBehavior behavior,
                                              bool hasEscapedBackslashes)
 {
     QStringList list;
@@ -1234,7 +1234,7 @@ QStringList QVersitReaderPrivate::splitValue(const QString& string,
             } else {
                 // we see a separator
                 segment += string.mid(segmentStartIndex, i - segmentStartIndex);
-                if (behavior == QString::KeepEmptyParts || !segment.isEmpty())
+                if (behavior == Qt::KeepEmptyParts || !segment.isEmpty())
                     list.append(segment);
                 segment.clear();
             }
@@ -1246,7 +1246,7 @@ QStringList QVersitReaderPrivate::splitValue(const QString& string,
     }
     // The rest of the string after the last sep.
     segment += string.mid(segmentStartIndex);
-    if (behavior == QString::KeepEmptyParts || !segment.isEmpty())
+    if (behavior == Qt::KeepEmptyParts || !segment.isEmpty())
         list.append(segment);
     return list;
 }

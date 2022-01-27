@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include <QDebug>
 #include <QVariant>
+#include <QThread>
 #include <QHash>
 #include <QQmlPropertyMap>
 #include <QTextStream>
@@ -19,41 +20,46 @@
 #include "settingsloader.h"
 #include "../includes/hvac-common.h"
 #include "mediamanager.h"
+#include "pluginlistmodel.h"
+#include "pluginlist.h"
 
+
+class InitWorker : public QThread
+{
+    Q_OBJECT
+public:
+    InitWorker(PluginList *pluginList, MediaManager *mediaManager, QObject *parent = nullptr) :
+          QThread(parent), m_pluginList(pluginList), m_mediaManager(mediaManager) {}
+    void run() override;
+private:
+    PluginList *m_pluginList;
+    MediaManager *m_mediaManager;
+};
 
 class PluginManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit PluginManager(QQmlApplicationEngine *engine, bool filter, QStringList filterList, QObject *parent = nullptr);
+    explicit PluginManager(QQmlApplicationEngine *engine, QStringList filterList, QObject *parent = nullptr);
+
     ~PluginManager();
 signals:
     void themeEvent(QString, QString, QVariant);
-    void pluginsUpdated();
-public slots:
-    QVariant getPluginProperty(QString plugin, QString property);
-    void callPluginSlot(QString pluginName, QString slot);
+
 private slots:
-    void messageHandler(QString id, QVariant message);
-    void actionHandler(QString id, QVariant message);
+    void messageHandler(QString sender, QString id, QVariant message);
+    void actionHandler(QString sender, QString id, QVariant message);
 private:
-    QVariantList m_menuItems;
-    QVariantList m_configItems;
-    QMap<QString, PluginInterface *> m_plugins;
-    QMap<QString, QJsonObject> m_pluginConfigs;
-    QList<QPluginLoader *> m_pluginLoaders;
+
     MediaManager m_mediaManager;
-    QVariantList m_settingsItems;
     QVariantMap m_settings;
     QHash<QString, QStringList> m_connections;
-    QVariantMap m_overlays;
+    PluginList m_pluginList;
 
-    bool loadPlugins(QQmlApplicationEngine *engine, bool filter, QStringList filterList);
-    void initPlugins();
-    void settingsChanged(QString key, QVariant value);
-    void loadMenuItems(QQmlApplicationEngine *engine);
-    void loadConfigItems();
-    void processPluginEvents(QStringList events);
+    PluginObject *settingsMenu;
+
+    bool loadPlugins(QQmlApplicationEngine *engine, QStringList filterList);
+
 };
 
 #endif // PLUGINMANAGER_H

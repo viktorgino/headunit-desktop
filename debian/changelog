@@ -1,3 +1,35 @@
+headunit-desktop (0.1-121) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (7f8c27e97afb9c48d61565f1439cf254d5c89dce)
+  * update default theme
+
+ -- Gino <gino@gino-ubuntu>  Thu, 27 Jan 2022 04:59:59 +0000
+
+headunit-desktop (0.1-120) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (59343cac749cb39188839f8edac0f0245e2b88cb)
+  * WIP3
+
+ -- Gino <gino@gino-ubuntu>  Thu, 27 Jan 2022 04:58:49 +0000
+
+headunit-desktop (0.1-119) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (ee65bf00e67017fb28b14f9b7f6c19204a8d9fc9)
+  * WIP2
+
+ -- Gino <gino@gino-ubuntu>  Thu, 27 Jan 2022 04:58:28 +0000
+
+headunit-desktop (0.1-118) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (4373e808966dc353b6fba1ee4bba43e5c53bfb72)
+  * WIP1
+
+ -- Gino <gino@gino-ubuntu>  Wed, 01 Dec 2021 06:40:43 +0000
+
 headunit-desktop (0.1-117) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

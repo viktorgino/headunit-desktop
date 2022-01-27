@@ -13,6 +13,7 @@
 #include <QtDebug>
 #include <QLoggingCategory>
 #include <QTime>
+#include <QTimer>
 #include <unistd.h>
 
 #include "pluginmanager.h"
@@ -22,7 +23,7 @@ Q_DECLARE_LOGGING_CATEGORY(HEADUNIT)
 
 int main(int argc, char *argv[])
 {
-    QTime time;
+    QElapsedTimer time;
     time.start();
     setbuf(stdout, nullptr);
 
@@ -52,16 +53,18 @@ int main(int argc, char *argv[])
     bool whitelist = parser.isSet(pluginsOption);
     QStringList plugins;
     if (whitelist) {
-	    plugins = p.split(" ",QString::SkipEmptyParts);
+        plugins = p.split(" ",Qt::SkipEmptyParts);
     }
 
-    PluginManager pluginManager(engine, whitelist, plugins,&app);
+    qDebug("%lld ms : loading plugins", time.elapsed());
+    PluginManager pluginManager(engine, plugins, &app);
 
+    qDebug("%lld ms : loading theme", time.elapsed());
     ThemeManager themeManager(engine,"default-theme", &app);
 
     QObject::connect(&pluginManager, &PluginManager::themeEvent, &themeManager, &ThemeManager::onEvent);
 
-    qDebug("Loading took : %d ms", time.elapsed());
+    qDebug("Loading took : %lld ms", time.elapsed());
 
     int ret = app.exec();
 

@@ -179,7 +179,12 @@ void HVACPlugin::setZoneParameter(QString zone, QString parameter, QVariant valu
 void HVACPlugin::openOverlay(bool rightHand){
     QVariantMap props;
     props.insert("rightHand", rightHand);
-    emit action("GUI::OpenOverlay", props);
+
+    QVariantMap map;
+    map["source"] = "qrc:/HVAC/ClimateControl/HVACOverlayTempSlider.qml";
+    map["properties"] = props;
+
+    emit action("GUI::OpenOverlay", map);
 }
 void HVACPlugin::closeOverlay(){
     emit action("GUI::CloseOverlay", QVariant());

@@ -27,7 +27,7 @@ Item {
         Image {
             id:backgroundImage
             anchors.fill: parent
-            source: "image://MediaPlayer/background/"+playlist.currentItemSource
+            source: "image://MediaPlayerPlugin/background/"+playlist.currentItemSource
             fillMode: Image.PreserveAspectCrop
             visible: false
         }
@@ -65,7 +65,7 @@ Item {
                 anchors.leftMargin: 0
                 mipmap:true
                 cache : true
-                source: "image://MediaPlayer/"+playlist.currentItemSource
+                source: "image://MediaPlayerPlugin/"+playlist.currentItemSource
             }
 
             Item {

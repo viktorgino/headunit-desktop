@@ -21,6 +21,7 @@ private slots:
     void usbDeviceRemoved(QVariantMap deviceDetails);
 signals:
     void message(QString id, QVariant message);
+    void action(QString id, QVariant message);
 private:
     UsbConnectionListener connectionListener;
 };

@@ -10,3 +10,5 @@ DEFINES += RPI
 
 HEADERS += \
     $$PWD/includes/mediainterface.h
+
+#DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000

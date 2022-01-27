@@ -1,6 +1,7 @@
 #ifndef SAMPLEPLUGIN_H
 #define SAMPLEPLUGIN_H
 
+#include <QDebug>
 #include <plugininterface.h>
 
 class SamplePlugin : public QObject, PluginInterface
@@ -14,6 +15,7 @@ public:
     void init() override;
 
     Q_INVOKABLE void testNotification();
+    Q_INVOKABLE void onSettingsPageDestroyed();
 signals:
     void message(QString id, QVariant message);
 };
