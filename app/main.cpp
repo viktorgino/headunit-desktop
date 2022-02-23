@@ -12,9 +12,8 @@
 #include <QSettings>
 #include <QtDebug>
 #include <QLoggingCategory>
-#include <QTime>
-#include <QTimer>
 #include <unistd.h>
+#include <QElapsedTimer>
 
 #include "pluginmanager.h"
 #include "thememanager.h"
@@ -53,7 +52,7 @@ int main(int argc, char *argv[])
     bool whitelist = parser.isSet(pluginsOption);
     QStringList plugins;
     if (whitelist) {
-        plugins = p.split(" ",Qt::SkipEmptyParts);
+        plugins = p.split(" ",QString::SkipEmptyParts);
     }
 
     qDebug("%lld ms : loading plugins", time.elapsed());
