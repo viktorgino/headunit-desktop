@@ -37,7 +37,7 @@ int main(int argc, char *argv[])
     QQmlApplicationEngine *engine = new QQmlApplicationEngine();
 
     QCommandLineParser parser;
-    parser.setApplicationDescription("helper");
+    parser.setApplicationDescription("viktorgino's HeadUnit Desktop");
     parser.addHelpOption();
     parser.addVersionOption();
     
@@ -47,7 +47,13 @@ int main(int argc, char *argv[])
     );
     parser.addOption(pluginsOption);
 
+    QCommandLineOption lazyLoadingOption(QStringList() << "l" << "lazy-loading",
+                                     QCoreApplication::translate("main", "Load plugins and theme in separate threads (experimental)")
+                                     );
+    parser.addOption(lazyLoadingOption);
+
     parser.process(app);
+
     QString p = parser.value(pluginsOption);
     bool whitelist = parser.isSet(pluginsOption);
     QStringList plugins;
@@ -55,16 +61,20 @@ int main(int argc, char *argv[])
         plugins = p.split(" ",QString::SkipEmptyParts);
     }
 
+    bool lazyLoading = parser.isSet(lazyLoadingOption);
+
     qDebug("%lld ms : loading plugins", time.elapsed());
-    PluginManager pluginManager(engine, plugins, &app);
+    PluginManager pluginManager(engine, plugins, lazyLoading, &app);
 
     qDebug("%lld ms : loading theme", time.elapsed());
-    ThemeManager themeManager(engine,"default-theme", &app);
+    ThemeManager themeManager(engine,"default-theme", lazyLoading, &app);
 
     QObject::connect(&pluginManager, &PluginManager::themeEvent, &themeManager, &ThemeManager::onEvent);
 
-    qDebug("Loading took : %lld ms", time.elapsed());
+    qDebug("%lld ms : Loading theme loader", time.elapsed());
+    engine->load(QUrl(QStringLiteral("qrc:/loader.qml")));
 
+    qDebug("%lld ms : Starting main loop", time.elapsed());
     int ret = app.exec();
 
     return ret;

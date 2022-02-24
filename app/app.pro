@@ -7,6 +7,8 @@ INCLUDEPATH += $${PWD}/includes
 
 include("../config.pri")
 
+CONFIG += qtquickcompiler
+
 SOURCES += main.cpp \
     mediamanager.cpp \
     pluginlist.cpp \

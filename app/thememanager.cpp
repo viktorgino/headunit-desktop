@@ -2,12 +2,43 @@
 
 Q_LOGGING_CATEGORY(THEMEMANAGER, "Theme Manager")
 
-ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QString theme_name, QObject *parent) : QObject(parent),
-    m_engine(engine)
+
+void ThemeInitWorker::run() {
+    m_themeManager->initTheme(m_themeName);
+}
+
+ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QString theme_name, bool initInThread, QObject *parent) : QObject(parent),
+    m_engine(engine), m_themeLoader(this)
 {
+    m_engine->rootContext()->setContextProperty("ThemeManager", this);
+    ThemeInitWorker *workerThread = new ThemeInitWorker(theme_name, this, this);
+    if(initInThread){
+        connect(workerThread, &ThemeInitWorker::finished, this, &ThemeManager::initFinished);
+        workerThread->start();
+    } else {
+        initTheme(theme_name);
+        initFinished();
+    }
+}
+
+void ThemeManager::initFinished() {
+    QJsonObject themeSettings = m_themeLoader.metaData().value("MetaData").toObject();
+
+    processThemeSettings(themeSettings);
+
+    m_themePlugin->registerTypes("");
+    m_themePlugin->initializeEngine(m_engine, "");
+
+    if(themeSettings.contains("source")) {
+        m_themeSource = themeSettings.value("source").toString();
+        emit themeSourceChanged();
+    }
+    qCDebug(THEMEMANAGER) << "Theme init finished";
+}
+void ThemeManager::initTheme(QString themeName) {
     QDir themeDir(QCoreApplication::applicationDirPath()+"/themes");
 
-    if(!themeDir.cd(theme_name)){
+    if(!themeDir.cd(themeName)){
         qCDebug(THEMEMANAGER) << "Error loading plugin, plugin doesn't exists" << themeDir.absolutePath();
         return;
     }
@@ -21,25 +52,22 @@ ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QString theme_name, QO
     }
 
     QString fileName = themeLibraryFiles[0].absoluteFilePath();
-    QPluginLoader themeLoader(fileName);
 
-    QQmlExtensionPlugin * theme = static_cast<QQmlExtensionPlugin *>(themeLoader.instance());
+    m_themeLoader.setFileName(fileName);
+
+    QQmlExtensionPlugin * theme = static_cast<QQmlExtensionPlugin *>(m_themeLoader.instance());
 
     if (!theme) {
-        qCDebug(THEMEMANAGER) << "Error loading plugin : " << fileName << themeLoader.errorString();
+        qCDebug(THEMEMANAGER) << "Error loading plugin : " << fileName << m_themeLoader.errorString();
         return;
     }
 
-    m_themePlugin = static_cast<QQmlExtensionPlugin *>(themeLoader.instance());
+    m_themePlugin = static_cast<QQmlExtensionPlugin *>(m_themeLoader.instance());
 
     if(!m_themePlugin){
-        qCDebug(THEMEMANAGER) << "Error loading theme : " << themeLoader.metaData().value("name") << ", root component is not a valid instance of QQmlExtensionPlugin";
+        qCDebug(THEMEMANAGER) << "Error loading theme : " << m_themeLoader.metaData().value("name") << ", root component is not a valid instance of QQmlExtensionPlugin";
         return;
     }
-
-    engine->addImportPath(themeDir.absolutePath());
-
-    qCDebug(THEMEMANAGER) << "Theme loaded : " << fileName;
 
     const QMetaObject *pluginMeta = m_themePlugin->metaObject();
 
@@ -49,15 +77,12 @@ ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QString theme_name, QO
             connect(this, SIGNAL(themeEvent(QString, QString, QVariant)), m_themePlugin, SLOT(onEvent(QString, QString, QVariant)));
         }
     }
+    m_engine->addImportPath(themeDir.absolutePath());
 
-    QJsonObject themeSettings = themeLoader.metaData().value("MetaData").toObject();
+    qCDebug(THEMEMANAGER) << "Theme loaded : " << fileName;
 
-    processThemeSettings(themeSettings);
 
-    m_themePlugin->registerTypes("");
-    m_themePlugin->initializeEngine(engine, "");
 }
-
 void ThemeManager::onEvent(QString sender, QString event, QVariant eventData) {
     emit themeEvent(sender, event, eventData);
 }

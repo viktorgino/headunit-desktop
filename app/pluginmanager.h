@@ -40,7 +40,7 @@ class PluginManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit PluginManager(QQmlApplicationEngine *engine, QStringList filterList, QObject *parent = nullptr);
+    explicit PluginManager(QQmlApplicationEngine *engine, QStringList filterList, bool initInThread, QObject *parent = nullptr);
 
     ~PluginManager();
 signals:

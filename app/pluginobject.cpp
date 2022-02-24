@@ -78,6 +78,7 @@ PluginObject::PluginObject(QString fileName, QObject *parent) :
 PluginObject::PluginObject(QString name, QString label, QObject *parent, QString qmlSource, QVariantMap menu, QVariantMap settingsItems, QQmlPropertyMap * settings) :
       QObject(parent), m_source(qmlSource), m_name(name), m_label(label), m_menu(menu), m_settings(settings), m_settingsItems(settingsItems)
 {
+    m_loaded = true;
 
 }
 

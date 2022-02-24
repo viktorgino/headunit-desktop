@@ -8,7 +8,7 @@ void InitWorker::run(){
     m_mediaManager->init();
 }
 
-PluginManager::PluginManager(QQmlApplicationEngine *engine, QStringList filterList, QObject *parent) :
+PluginManager::PluginManager(QQmlApplicationEngine *engine, QStringList filterList, bool initInThread, QObject *parent) :
       QObject(parent), m_mediaManager(this), m_pluginList(this)//, m_menuPlugins(this), m_settingsItems(this)
 {
     qmlRegisterType<PluginListProxyModel>("HUDPlugins", 1, 0, "PluginListModel");
@@ -24,8 +24,13 @@ PluginManager::PluginManager(QQmlApplicationEngine *engine, QStringList filterLi
 
     m_pluginList.addPlugin(settingsMenu);
 
-    InitWorker *workerThread = new InitWorker(&m_pluginList, &m_mediaManager, this);
-    workerThread->start();
+    if(initInThread) {
+        InitWorker *workerThread = new InitWorker(&m_pluginList, &m_mediaManager, this);
+        workerThread->start();
+    } else {
+        m_pluginList.initPlugins();
+        m_mediaManager.init();
+    }
 }
 
 bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, QStringList filterList)
