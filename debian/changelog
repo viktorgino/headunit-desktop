@@ -1,3 +1,11 @@
+headunit-desktop (0.1-124) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (cf9037d5a9a148972ac7942a48257e319d550d60)
+  * Update theme to latest
+
+ -- Gino <gino@gino-ubuntu>  Thu, 24 Feb 2022 00:58:05 +0000
+
 headunit-desktop (0.1-123) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
