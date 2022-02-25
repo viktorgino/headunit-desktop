@@ -20,6 +20,8 @@ public:
     QObject *getContextProperty() override;
 public slots:
     void actionMessage(QString id, QVariant message) override;
+private slots:
+    void defaultSinkChanged();
 private:
     PulseAudioQt::SinkModel m_sinkModel;
 };
