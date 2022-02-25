@@ -3,9 +3,8 @@
 Q_LOGGING_CATEGORY(PLUGINOBJECT, "Plugin Object")
 
 PluginObject::PluginObject(QString fileName, QObject *parent) :
-      QObject(parent), m_loaded(false), m_pluginFileName(fileName), m_pluginLoader(fileName, this), m_plugin(nullptr), m_pluginInterface(nullptr), m_settings(nullptr) , m_mediaInterface(nullptr)
+      QObject(parent), m_loaded(false), m_pluginFileName(fileName), m_pluginLoader(fileName, this)
 {
-
     if(m_pluginLoader.metaData().value("MetaData").type() != QJsonValue::Object){
         qCDebug(PLUGINOBJECT) << "Invalid plugin : " << fileName << " config missing " << fileName << m_pluginLoader.errorString();
         return;
@@ -79,7 +78,6 @@ PluginObject::PluginObject(QString name, QString label, QObject *parent, QString
       QObject(parent), m_source(qmlSource), m_name(name), m_label(label), m_menu(menu), m_settings(settings), m_settingsItems(settingsItems)
 {
     m_loaded = true;
-
 }
 
 void PluginObject::init(){

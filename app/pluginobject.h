@@ -73,12 +73,12 @@ private:
     QVariant m_config;
 
     QPluginLoader m_pluginLoader;
-    QObject *m_plugin;
-    PluginInterface *m_pluginInterface;
+    QObject *m_plugin = nullptr;
+    PluginInterface *m_pluginInterface = nullptr;
 
-    QQmlPropertyMap *m_settings;
+    QQmlPropertyMap *m_settings = nullptr;
     QVariantMap m_settingsItems;
-    MediaInterface * m_mediaInterface;
+    MediaInterface * m_mediaInterface = nullptr;
 };
 
 #endif // PLUGINOBJECT_H

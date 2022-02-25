@@ -1,3 +1,11 @@
+headunit-desktop (0.1-125) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (b928c7439938f477549674a27766e29dfdcc0b6a)
+  * Fix PluginObject segfault
+
+ -- Gino <gino@gino-ubuntu>  Fri, 25 Feb 2022 01:30:18 +0000
+
 headunit-desktop (0.1-124) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit
