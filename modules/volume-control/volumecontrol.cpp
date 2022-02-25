@@ -20,7 +20,7 @@ void VolumeControl::defaultSinkChanged() {
     PulseAudioQt::Sink * defaultSink = m_sinkModel.defaultSink();
     if( defaultSink != nullptr) {
         defaultSink->setVolume(m_settings["volume"].toInt());
-        qDebug () << "Setting volume to : " << m_settings["volume"];
+        qDebug () << "Setting volume to : " << m_settings["volume"].toInt();
     }
 }
 QObject *VolumeControl::getContextProperty(){

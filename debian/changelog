@@ -1,3 +1,11 @@
+headunit-desktop (0.1-129) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (ffe25d0c426f2201099439c96f1262a0cbd4458e)
+  * [RPI] Fix minimum brightness
+
+ -- Gino <gino@gino-ubuntu>  Fri, 25 Feb 2022 02:54:58 +0000
+
 headunit-desktop (0.1-128) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

@@ -45,7 +45,7 @@ void RPiPlugin::settingsChanged(const QString &key, const QVariant &value){
 void RPiPlugin::eventMessage(QString id, QVariant message) {
     if(id == "SYSTEM::SetNightMode"){
         if(message.toBool()){
-            applyBrightness(5);
+            applyBrightness(10);
         } else {
             applyBrightness(100);
         }

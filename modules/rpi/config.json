@@ -11,7 +11,7 @@
                 "name": "brightness",
                 "type":"slider",
                 "defaultValue":100,
-                "minimum": 5,
+                "minimum": 10,
                 "maximum": 100,
                 "suffix": "%",
                 "autosave": true,
