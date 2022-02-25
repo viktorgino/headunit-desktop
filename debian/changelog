@@ -1,3 +1,11 @@
+headunit-desktop (0.1-128) unstable; urgency=medium
+
+  * Bring debian package up-to-date with latest commit
+    (63b4834d2109c0245682dc189cfda642e28f1986)
+  * Fix MediaManager labels
+
+ -- Gino <gino@gino-ubuntu>  Fri, 25 Feb 2022 02:40:16 +0000
+
 headunit-desktop (0.1-127) unstable; urgency=medium
 
   * Bring debian package up-to-date with latest commit

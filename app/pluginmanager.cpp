@@ -59,7 +59,8 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, QStringList filte
         PluginObject * plugin = m_pluginList.addPlugin(pluginsDir.absoluteFilePath(fileName));
 
         if(plugin->getMediaInterface()){
-            m_mediaManager.addInterface(plugin->getLabel(), plugin->getPlugin());
+            qDebug() << "Adding interface" << plugin->getName();
+            m_mediaManager.addInterface(plugin->getName(), plugin->getPlugin());
         }
 
         if(plugin->getContextProperty()){
