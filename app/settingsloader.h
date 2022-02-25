@@ -54,6 +54,7 @@ private:
         {"tumbler",QMetaType::Double},
             {"string",QMetaType::QString},
             {"int",QMetaType::Int},
+            {"uint",QMetaType::UInt},
             {"double",QMetaType::Double},
             {"long",QMetaType::Long},
             {"bool",QMetaType::Bool},

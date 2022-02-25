@@ -512,6 +512,16 @@ void Headunit::setVoiceVolume(uint8_t volume) {
         gst_object_unref(voice_sink);
     }
 }
+void Headunit::setNigthmode(bool night) {
+    if(huStarted){
+        HU::SensorEvent sensorEvent;
+        sensorEvent.add_night_mode()->set_is_night(night);
+        g_hu->queueCommand([sensorEvent](AndroidAuto::IHUConnectionThreadInterface& s)
+                           {
+                               s.sendEncodedMessage(0, AndroidAuto::SensorChannel, AndroidAuto::HU_SENSOR_CHANNEL_MESSAGE::SensorEvent, sensorEvent);
+                           });
+    }
+}
 
 int DesktopEventCallbacks::MediaPacket(AndroidAuto::ServiceChannels chan, uint64_t timestamp, const byte * buf, int len) {
     GstAppSrc* gst_src = nullptr;

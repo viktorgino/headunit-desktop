@@ -3,7 +3,7 @@
 
 AndroidAutoPlugin::AndroidAutoPlugin(QObject *parent) : QObject (parent)
 {
-    m_pluginSettings.eventListeners = QStringList() << "UsbConnectionListenerPlugin::UsbDeviceAdded";
+    m_pluginSettings.eventListeners = QStringList() << "UsbConnectionListenerPlugin::UsbDeviceAdded" << "SYSTEM::SetNightMode";
     m_pluginSettings.events = QStringList() << "connected";
     gst_init(NULL, NULL);
     headunit = new Headunit();
@@ -24,6 +24,8 @@ void AndroidAutoPlugin::eventMessage(QString id, QVariant message){
             headunit->startHU();
         }
     } else if(id == "UsbConnectionListenerPlugin::UsbDeviceRemoved"){
+    } else if(id == "SYSTEM::SetNightMode"){
+        headunit->setNigthmode(message.toBool());
     }
 }
 void AndroidAutoPlugin::init(){

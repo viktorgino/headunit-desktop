@@ -91,6 +91,7 @@ public:
     void nextTrack();
     void setMediaVolume(uint8_t volume);
     void setVoiceVolume(uint8_t volume);
+    void setNigthmode(bool night);
 
     QAbstractVideoSurface *videoSurface() const { return m_surface; }
     void setVideoSurface(QAbstractVideoSurface *surface);
