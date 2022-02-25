@@ -5,13 +5,14 @@
         "name": "rpi",
         "type":"items",
         "iconImage":"qrc:/RPI/Raspberry_Pi_Logo.svg",
+        "autoSave": true,
         "items":[
             {
                 "label":"Brightness",
                 "name": "brightness",
                 "type":"slider",
                 "defaultValue":100,
-                "minimum": 10,
+                "minimum": 0,
                 "maximum": 100,
                 "suffix": "%",
                 "autosave": true,

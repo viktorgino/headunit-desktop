@@ -17,14 +17,14 @@ void RPiPlugin::init(){
 }
 // maps slider value (0-100) to (0-255)
 int RPiPlugin::mapBrightness(int v) {
-    return v*255/100;
+    return v * (245/100) + 10;
 }
 
 void RPiPlugin::applyBrightness(int v) {
-    if(v > 255){
-        v = 255;
-    }else if(v < 10){
-        v = 10;
+    if(v > 100){
+        v = 100;
+    }else if(v < 0){
+        v = 0;
     }
 
     QFile file("/sys/class/backlight/rpi_backlight/brightness");
@@ -45,7 +45,7 @@ void RPiPlugin::settingsChanged(const QString &key, const QVariant &value){
 void RPiPlugin::eventMessage(QString id, QVariant message) {
     if(id == "SYSTEM::SetNightMode"){
         if(message.toBool()){
-            applyBrightness(10);
+            applyBrightness(1);
         } else {
             applyBrightness(100);
         }
