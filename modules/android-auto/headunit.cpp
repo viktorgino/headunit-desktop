@@ -148,6 +148,7 @@ int Headunit::init(){
                                 #ifdef RPI
                                     "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Voice\""
                                 #else
+                                    "volume volume=0.5 !"
                                     "pulsesink name=voicesink sync=true client-name=\"Android Auto Voice\""
                                     "stream-properties=\"props,media.name=AndroidAutoVoice,media.role=music\""
                                 #endif
