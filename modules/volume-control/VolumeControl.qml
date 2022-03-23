@@ -69,7 +69,7 @@ Item {
 
                     Rectangle {
                         height: 1
-                        color: HUDStyle.Colors.formText
+                        color: HUDStyle.colors.formText
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.top: parent.top
@@ -112,7 +112,7 @@ Item {
                     width: parent.width
                     Rectangle {
                         height: 1
-                        color: HUDStyle.Colors.formText
+                        color: HUDStyle.colors.formText
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.top: parent.top
@@ -158,7 +158,7 @@ Item {
                     width: parent.width
                     Rectangle {
                         height: 1
-                        color: HUDStyle.Colors.formText
+                        color: HUDStyle.colors.formText
                         anchors.left: parent.left
                         anchors.right: parent.right
                         anchors.top: parent.top

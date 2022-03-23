@@ -12,6 +12,7 @@ VolumeControl::VolumeControl(QObject *parent) : QObject (parent)
 }
 
 void VolumeControl::init(){
+    defaultSinkChanged();
     m_pluginSettings.actions = QStringList() << "VolumeUp" << "VolumeDown";
     connect(&m_sinkModel, &PulseAudioQt::SinkModel::defaultSinkChanged, this, &VolumeControl::defaultSinkChanged);
 }
