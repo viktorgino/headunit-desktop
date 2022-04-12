@@ -8,6 +8,8 @@ Item {
     id: __root
     height: 50
 
+    signal volumeChanged (var volume)
+
     ThemeFormText {
         id: label
         height: 30
@@ -51,6 +53,7 @@ Item {
         value: Math.round(Volume / (655.36))
         onValueChanged: {
             Volume = value * 655.36
+            volumeChanged(Volume)
         }
     }
     Item {

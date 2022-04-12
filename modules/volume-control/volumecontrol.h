@@ -18,6 +18,8 @@ public:
     explicit VolumeControl(QObject *parent = nullptr);
     void init() override;
     QObject *getContextProperty() override;
+
+    Q_INVOKABLE void setDefaultVolume(int volume);
 public slots:
     void actionMessage(QString id, QVariant message) override;
 private slots:

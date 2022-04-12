@@ -17,6 +17,12 @@ void VolumeControl::init(){
     connect(&m_sinkModel, &PulseAudioQt::SinkModel::defaultSinkChanged, this, &VolumeControl::defaultSinkChanged);
 }
 
+void VolumeControl::setDefaultVolume(int volume){
+    m_settings["volume"] = volume;
+
+    emit m_settings.valueChanged("volume", volume);
+}
+
 void VolumeControl::defaultSinkChanged() {
     PulseAudioQt::Sink * defaultSink = m_sinkModel.defaultSink();
     if( defaultSink != nullptr) {

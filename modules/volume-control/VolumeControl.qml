@@ -55,10 +55,17 @@ Item {
                 }
 
                 Repeater {
-                    model: SinkModel  {}
+                    model: SinkModel  {
+                    }
                     delegate: DeviceListItem {
                         x :20
                         width: parent.width - 20
+                        onVolumeChanged : {
+                            console.log("Default : ", Default, " Volume : ", volume)
+                            if (Default) {
+                                VolumeControlPlugin.setDefaultVolume(volume)
+                            }
+                        }
                     }
                 }
 

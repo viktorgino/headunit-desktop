@@ -1,5 +1,5 @@
 {
-    "name":"VolumeControl",
+    "name":"VolumeControlPlugin",
     "config":{
         "label":"Volume",
         "type":"loader",
