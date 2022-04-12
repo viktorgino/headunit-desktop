@@ -54,3 +54,6 @@ INSTALLS += target pluginfiles theme
 RESOURCES += \
     main.qrc
 
+DISTFILES += \
+    boot-logo-800x480.png
+
