@@ -33,6 +33,7 @@ int main(int argc, char *argv[])
 
     QApplication app(argc, argv);
     QLoggingCategory::setFilterRules("");
+    QLoggingCategory::setFilterRules("qt.qml.connections.warning=false");
 
     QQmlApplicationEngine *engine = new QQmlApplicationEngine();
 
