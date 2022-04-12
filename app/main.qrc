@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/">
         <file>loader.qml</file>
+        <file>boot-logo-800x480.png</file>
     </qresource>
 </RCC>

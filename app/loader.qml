@@ -12,6 +12,18 @@ Window {
 
     FontLoader{id:ralewayRegular; source:"qrc:/qml/fonts/Raleway-Regular.ttf"}
 
+    Rectangle {
+        color: "#000000"
+        anchors.fill: parent
+
+    }
+
+    Image {
+        anchors.fill: parent
+        source:"qrc:/boot-logo-800x480.png"
+        fillMode: Image.PreserveAspectFit
+    }
+
     Loader {
         anchors.fill: parent
         source: ThemeManager.themeSource
