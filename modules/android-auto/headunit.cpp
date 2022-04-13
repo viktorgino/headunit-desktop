@@ -101,7 +101,7 @@ int Headunit::init(){
                                  "omxh264dec ! "
         #else
                                  /* Try Hardware VAAPI compatible decoding */
-				 "vaapih264dec low-latency=true ! "
+				 "vaapih264dec low-latency=true ! vaapipostproc ! video/x-raw,format=YV12 ! "
         #endif
                 "appsink emit-signals=true sync=false name=vid_sink";
 
