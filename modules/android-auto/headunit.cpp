@@ -100,11 +100,24 @@ int Headunit::init(){
         #ifdef RPI
                                  "omxh264dec ! "
         #else
-                                 "avdec_h264 ! "
+                                 /* Try Hardware VAAPI compatible decoding */
+				 "vaapih264dec low-latency=true !"
         #endif
                 "appsink emit-signals=true sync=false name=vid_sink";
 
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
+
+    #ifndef RPI
+    if(error != NULL) {
+        /* Rebuild Pipeline using non-VAAPI decoder */
+        qDebug("Could not construct VAAPI video pipeline: %s", error->message);
+        vid_launch_str = "appsrc name=vid_src is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=false format=3 ! "
+                         "h264parse ! avdec_h264 ! appsink emit-signals=true sync=false name=vid_sink";
+        g_clear_error(&error);
+        qDebug("Constructing non-VAAPI pipeline");
+        vid_pipeline = gst_parse_launch(vid_launch_str, &error);
+    }
+    #endif
 
     bus = gst_pipeline_get_bus(GST_PIPELINE(vid_pipeline));
     gst_bus_add_watch(bus, (GstBusFunc) Headunit::bus_callback, this);
@@ -217,7 +230,11 @@ GstFlowReturn Headunit::newVideoSample (GstElement * appsink, Headunit * _this){
     gst_video_info_from_caps (&info, caps);
 
     QGstVideoBuffer *qgstBuf = new QGstVideoBuffer(gstbuf,info);
-    QVideoFrame frame(static_cast<QAbstractVideoBuffer *>(qgstBuf), QSize(info.width,info.height),QVideoFrame::Format_YUV420P);
+    #ifdef RPI
+         QVideoFrame frame(static_cast<QAbstractVideoBuffer *>(qgstBuf), QSize(info.width,info.height),QVideoFrame::Format_YUV420P);
+    #else
+        QVideoFrame frame(static_cast<QAbstractVideoBuffer *>(qgstBuf), QSize(info.width,info.height),QVideoFrame::Format_YV12);
+    #endif
 
     emit _this->receivedVideoFrame(frame);
 
@@ -239,7 +256,11 @@ void Headunit::videoFrameHandler(const QVideoFrame &frame)
     if (m_surface != nullptr) {
         if(!m_videoStarted){
             m_videoStarted = true;
-            QVideoSurfaceFormat format(frame.size(), QVideoFrame::Format_YUV420P);
+            #ifdef RPI
+                QVideoSurfaceFormat format(frame.size(), QVideoFrame::Format_YUV420P);
+            #else
+                QVideoSurfaceFormat format(frame.size(), QVideoFrame::Format_YV12);
+            #endif
             m_surface->start(format);
         }
         m_surface->present(frame);
