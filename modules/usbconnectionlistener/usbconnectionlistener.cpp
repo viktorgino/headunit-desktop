@@ -24,12 +24,12 @@ UsbConnectionListener::UsbConnectionListener(QObject *parent) : QThread(parent){
 UsbConnectionListener::~UsbConnectionListener(){
     qDebug() << "Exiting UsbConnectionListener";
 
+    stop();
+
     if (libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG)) {
         libusb_hotplug_deregister_callback(hotplug_context, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED |
                                            LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
     }
-
-    stop();
 
     libusb_exit(hotplug_context);
 }
@@ -79,12 +79,11 @@ void UsbConnectionListener::usbDeviceRemove(QString device){
 
 void UsbConnectionListener::run() {
     int rc;
-    struct timeval tv = {0,0};
 
     while(!done){
         newDevices.clear();
 
-        rc = libusb_handle_events_timeout_completed(hotplug_context, &tv, nullptr);
+        rc = libusb_handle_events_completed(hotplug_context, nullptr);
         if (rc < 0) {
             qDebug("libusb_handle_events() failed: %s", libusb_error_name(rc));
             break;
@@ -147,4 +146,3 @@ void UsbConnectionListener::run() {
         }
     }
 }
-
