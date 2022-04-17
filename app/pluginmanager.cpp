@@ -134,8 +134,11 @@ void PluginManager::actionHandler(QString sender, QString id, QVariant message){
 
         } else {
             PluginObject *pluginObject = m_pluginList.getPlugin(messageId[0]);
-
-            pluginObject->callAction(messageId[1], message);
+            if (pluginObject) {
+                pluginObject->callAction(messageId[1], message);
+            } else {
+                qWarning() << "actionHandler() : Could not get plugin " << messageId[0];
+            }
         }
     } else {
         qWarning () << "actionHandler() : Action Handler id";
