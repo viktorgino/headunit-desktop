@@ -245,10 +245,10 @@ void HUDSerialPlugin::ButtonInputCommandCallback(Keys key){
         emit message("MediaInput", "Previous");
         break;
     case Key_VolumeUp:
-        emit action("VolumeControl::VolumeUp", 0);
+        emit action("VolumeControlPlugin::VolumeUp", 0);
         break;
     case Key_VolumeDown:
-        emit action("VolumeControl::VolumeDown", 0);
+        emit action("VolumeControlPlugin::VolumeDown", 0);
         break;
     default:
         break;
