@@ -7,7 +7,7 @@ import QtGraphicalEffects 1.0
 Item{
     id:__root
     state: "closed"
-    property int steps : HVACPlugin.hvacSettings.FanSteps
+    property int steps : pluginContext.hvacSettings.FanSteps
     property bool slider_enabled: true
     property int value: 0
     property bool inverted : false

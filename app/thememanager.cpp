@@ -122,8 +122,8 @@ void ThemeManager::processThemeSettings(QJsonObject json){
     QQmlPropertyMap *sizesMap = new QQmlPropertyMap(this);
     HUDStyleSettings << loadSettingsMap("Sizes", "Sizes", "tumbler", json.value("sizes").toArray().toVariantList(), sizesMap);
 
-    HUDStyle.insert("Colors", QVariant::fromValue<QQmlPropertyMap *>(colorsMap));
-    HUDStyle.insert("Sizes", QVariant::fromValue<QQmlPropertyMap *>(sizesMap));
+    HUDStyle.insert("colors", QVariant::fromValue<QQmlPropertyMap *>(colorsMap));
+    HUDStyle.insert("sizes", QVariant::fromValue<QQmlPropertyMap *>(sizesMap));
 
 
     QJsonArray settingsJson = json.value("settings").toArray();
@@ -143,8 +143,8 @@ void ThemeManager::processThemeSettings(QJsonObject json){
         HUDStyleSettings.append(jsonObject.toVariantMap());
     }
 
+    HUDStyle.insert("settings", HUDStyleSettings);
     m_engine->rootContext()->setContextProperty("HUDStyle", HUDStyle);
-    m_engine->rootContext()->setContextProperty("HUDStyleSettings", HUDStyleSettings);
 }
 
 

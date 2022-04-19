@@ -6,9 +6,9 @@ import QtGraphicalEffects 1.0
 
 Item {
     id:__root
-    property int steps : HVACPlugin.hvacSettings.TemperatureSteps
-    property double stepSize : HVACPlugin.hvacSettings.TemperatureStepSize
-    property int offset : HVACPlugin.hvacSettings.TemperatureOffset
+    property int steps : pluginContext.hvacSettings.TemperatureSteps
+    property double stepSize : pluginContext.hvacSettings.TemperatureStepSize
+    property int offset : pluginContext.hvacSettings.TemperatureOffset
 
     property int value: 0
     property bool inverted : false

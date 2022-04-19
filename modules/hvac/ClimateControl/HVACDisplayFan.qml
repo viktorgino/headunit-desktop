@@ -5,7 +5,7 @@ import QtGraphicalEffects 1.0
 Item {
     id: __root
 
-    property int steps : HVACPlugin.hvacSettings.FanSteps
+    property int steps : pluginContext.hvacSettings.FanSteps
     property double value: 5
     property color backgroundColor: "#212121"
     property bool inverted : false

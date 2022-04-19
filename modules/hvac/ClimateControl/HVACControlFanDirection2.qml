@@ -38,91 +38,91 @@ Item{
 
             ImageButton {
                 id: front_top_button
-                visible: (HVACPlugin.hvacSettings.air_dir_rear_top == "true")
+                visible: (pluginContext.hvacSettings.air_dir_rear_top == "true")
                 Layout.rowSpan: 1
                 Layout.columnSpan: 2
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 source: "qrc:/HVAC/icons/ac-buttons_03.png"
                 fillMode: Image.PreserveAspectFit
-                checked: HVACPlugin.parameters.FrontTop;
+                checked: pluginContext.parameters.FrontTop;
                 onClicked:{
-                    HVACPlugin.toggleParameter("FrontTop")
+                    pluginContext.toggleParameter("FrontTop")
                 }
             }
 
             ImageButton {
                 id: rear_top_button
-                visible: (HVACPlugin.hvacSettings.air_dir_top == "true")
+                visible: (pluginContext.hvacSettings.air_dir_top == "true")
                 Layout.rowSpan: 1
                 Layout.columnSpan: 2
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 source: "qrc:/HVAC/icons/ac-buttons_04.png"
                 fillMode: Image.PreserveAspectFit
-                checked: HVACPlugin.parameters.RearTop;
+                checked: pluginContext.parameters.RearTop;
                 onClicked:{
-                    HVACPlugin.toggleParameter("RearTop")
+                    pluginContext.toggleParameter("RearTop")
                 }
             }
 
             ImageButton {
                 id: front_middle_button
-                visible: (HVACPlugin.hvacSettings.air_dir_centre == "true")
+                visible: (pluginContext.hvacSettings.air_dir_centre == "true")
                 Layout.rowSpan: 1
                 Layout.columnSpan: 2
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 source: "qrc:/HVAC/icons/ac-buttons_06.png"
                 fillMode: Image.PreserveAspectFit
-                checked: HVACPlugin.parameters.FrontMiddle;
+                checked: pluginContext.parameters.FrontMiddle;
                 onClicked:{
-                    HVACPlugin.toggleParameter("FrontMiddle")
+                    pluginContext.toggleParameter("FrontMiddle")
                 }
             }
 
             ImageButton {
                 id: rear_middle_button
-                visible: (HVACPlugin.hvacSettings.air_dir_rear_centre == "true")
+                visible: (pluginContext.hvacSettings.air_dir_rear_centre == "true")
                 Layout.rowSpan: 1
                 Layout.columnSpan: 2
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 source: "qrc:/HVAC/icons/ac-buttons_07.png"
                 fillMode: Image.PreserveAspectFit
-                checked: HVACPlugin.parameters.RearMiddle;
+                checked: pluginContext.parameters.RearMiddle;
                 onClicked:{
-                    HVACPlugin.toggleParameter("RearMiddle")
+                    pluginContext.toggleParameter("RearMiddle")
                 }
             }
 
             ImageButton {
                 id: front_bottom_button
-                visible: (HVACPlugin.hvacSettings.air_dir_bottom == "true")
+                visible: (pluginContext.hvacSettings.air_dir_bottom == "true")
                 Layout.rowSpan: 1
                 Layout.columnSpan: 2
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 source: "qrc:/HVAC/icons/ac-buttons_08.png"
                 fillMode: Image.PreserveAspectFit
-                checked: HVACPlugin.parameters.FrontBottom;
+                checked: pluginContext.parameters.FrontBottom;
                 onClicked:{
-                    HVACPlugin.toggleParameter("FrontBottom")
+                    pluginContext.toggleParameter("FrontBottom")
                 }
             }
 
             ImageButton {
                 id: rear_bottom_button
-                visible: (HVACPlugin.hvacSettings.air_dir_rear_bottom == "true")
+                visible: (pluginContext.hvacSettings.air_dir_rear_bottom == "true")
                 Layout.rowSpan: 1
                 Layout.columnSpan: 2
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 source: "qrc:/HVAC/icons/ac-buttons_09.png"
                 fillMode: Image.PreserveAspectFit
-                checked: HVACPlugin.parameters.RearBottom;
+                checked: pluginContext.parameters.RearBottom;
                 onClicked:{
-                    HVACPlugin.toggleParameter("RearBottom")
+                    pluginContext.toggleParameter("RearBottom")
                 }
             }
         }

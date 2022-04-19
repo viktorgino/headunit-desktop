@@ -11,7 +11,7 @@ Item {
         id:direction
         zone: __root.zone
         inverted:__root.inverted
-        visible: HVACPlugin.hvacSettings[__root.zone].Direction === true
+        visible: pluginContext.hvacSettings[__root.zone].Direction === true
         width: parent.width / 2
         x: __root.inverted ? 0 : parent.width/2
         anchors.top: parent.top
@@ -25,9 +25,9 @@ Item {
         anchors.bottom: parent.bottom
         x: __root.inverted ? parent.width/2 : 0
         inverted: __root.inverted
-        visible: HVACPlugin.hvacSettings[__root.zone].Fan === true
-        value: HVACPlugin.parameters[__root.zone].Fan
-        onUpdateValue: HVACPlugin.setZoneParameter(__root.zone, "Fan", setValue)
+        visible: pluginContext.hvacSettings[__root.zone].Fan === true
+        value: pluginContext.parameters[__root.zone].Fan
+        onUpdateValue: pluginContext.setZoneParameter(__root.zone, "Fan", setValue)
         onStateChanged: {
             if(state == "closed"){
                 __root.state = ""

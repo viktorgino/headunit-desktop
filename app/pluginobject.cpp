@@ -32,7 +32,8 @@ PluginObject::PluginObject(QString fileName, QObject *parent) :
     if(menu.type() == QJsonValue::Object){
         m_menu = menu.toObject().toVariantMap();
         m_source = m_menu["source"].toString();
-        m_label = m_menu["label"].toString();
+        m_label = m_menu["text"].toString();
+        m_icon = m_menu["image"].toString();
     }
 
     for(int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i){
@@ -78,6 +79,11 @@ PluginObject::PluginObject(QString name, QString label, QObject *parent, QString
       QObject(parent), m_source(qmlSource), m_name(name), m_label(label), m_menu(menu), m_settings(settings), m_settingsItems(settingsItems)
 {
     m_loaded = true;
+    m_icon = menu["image"].toString();
+}
+
+PluginObject::~PluginObject() {
+    qDebug() << "Plugin object deleted : " << m_name;
 }
 
 void PluginObject::init(){
@@ -120,6 +126,9 @@ QString PluginObject::getName(){
 }
 QString PluginObject::getLabel(){
     return m_label;
+}
+QString PluginObject::getIcon(){
+    return m_icon;
 }
 
 QVariantMap PluginObject::getMenu(){

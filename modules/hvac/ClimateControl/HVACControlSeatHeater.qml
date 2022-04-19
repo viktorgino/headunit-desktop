@@ -6,7 +6,7 @@ Item {
     id:__root
 
     property int value : 0
-    property int steps : HVACPlugin.hvacSettings.SeatHeatSteps
+    property int steps : pluginContext.hvacSettings.SeatHeatSteps
     property bool inverse: false
     signal updateValue(var setValue)
     Item {

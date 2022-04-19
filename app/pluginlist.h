@@ -17,7 +17,7 @@ public:
     PluginObject *at(int index);
     int size();
     int indexOf(PluginObject * object);
-    PluginObject *getPlugin(QString pluginName);
+    Q_INVOKABLE PluginObject *getPlugin(QString pluginName);
     PluginObject *addPlugin(QString pluginPath);
     void addPlugin(PluginObject *plugin);
 

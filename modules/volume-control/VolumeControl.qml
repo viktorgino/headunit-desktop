@@ -5,7 +5,7 @@ import HUDTheme 1.0
 import HUDVolume 1.0
 import QtQuick.Layouts 1.3
 
-Item {
+ThemeRoot {
     id: __root
 
     Item {
@@ -61,9 +61,8 @@ Item {
                         x :20
                         width: parent.width - 20
                         onVolumeChanged : {
-                            console.log("Default : ", Default, " Volume : ", volume)
                             if (Default) {
-                                VolumeControlPlugin.setDefaultVolume(volume)
+                                pluginContext.setDefaultVolume(volume)
                             }
                         }
                     }

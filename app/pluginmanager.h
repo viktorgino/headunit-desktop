@@ -52,7 +52,6 @@ private slots:
 private:
 
     MediaManager m_mediaManager;
-    QVariantMap m_settings;
     QHash<QString, QStringList> m_connections;
     PluginList m_pluginList;
 

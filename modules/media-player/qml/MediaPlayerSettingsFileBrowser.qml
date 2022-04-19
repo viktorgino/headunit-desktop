@@ -1,7 +1,7 @@
 import QtQuick 2.0
 
 import HUDTheme 1.0
-Item {
+ThemeRoot {
     id : __root
 
     signal pop()
@@ -11,7 +11,7 @@ Item {
         folderSelectable:true
         showFiles:false
         onAccepted: {
-            MediaPlayerPlugin.addLocation(fileBrowser.folder)
+            pluginContext.addLocation(fileBrowser.folder)
             __root.pop()
         }
         onRejected: {

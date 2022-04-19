@@ -121,14 +121,14 @@ ListModel {
             infoMessagePopup.text = qsTr("Last played station not found.\nSelect a station to start playback.");
             infoMessagePopup.open();
         } else {
-            WelleIoPlugin.RadioController.play(channel, stationName, sidDec)
+            pluginContext.RadioController.play(channel, stationName, sidDec)
         }
     }
 
     function playAtIndex(index) {
         if (index < count) {
             //console.debug("stationName: " + get(index).stationName + " channel: " + get(index).channelName + " sidDec: " + get(index).stationSId)
-            WelleIoPlugin.RadioController.play(get(index).channelName, get(index).stationName, get(index).stationSId)
+            pluginContext.RadioController.play(get(index).channelName, get(index).stationName, get(index).stationSId)
         }
     }
 

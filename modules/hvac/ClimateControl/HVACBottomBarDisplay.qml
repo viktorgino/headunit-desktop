@@ -24,9 +24,9 @@ Item {
             id: leftTemp
             width: height
             height: parent.height
-            value: HVACPlugin.parameters.FrontLeft.Temperature
-            selected: HVACPlugin.parameters.TempSelectLeft
-            visible: HVACPlugin.hvacSettings["FrontLeft"].Temperature === true
+            value: pluginContext.parameters.FrontLeft.Temperature
+            selected: pluginContext.parameters.TempSelectLeft
+            visible: pluginContext.hvacSettings["FrontLeft"].Temperature === true
 
         }
 
@@ -35,10 +35,10 @@ Item {
             width: height
             height: parent.height
             inverted: false
-            autoEnabled: HVACPlugin.parameters.ProgAutoFanFront
-            selected: HVACPlugin.parameters.FanSelectLeft
-            value: HVACPlugin.parameters.FrontLeft.Fan
-            visible: HVACPlugin.hvacSettings["FrontLeft"].Fan === true && !HVACPlugin.parameters.ProgAuto
+            autoEnabled: pluginContext.parameters.ProgAutoFanFront
+            selected: pluginContext.parameters.FanSelectLeft
+            value: pluginContext.parameters.FrontLeft.Fan
+            visible: pluginContext.hvacSettings["FrontLeft"].Fan === true && !pluginContext.parameters.ProgAuto
 
         }
 
@@ -48,7 +48,7 @@ Item {
             height: parent.height
             inverted: false
             zone: "FrontLeft"
-            visible: HVACPlugin.hvacSettings["FrontLeft"].Direction === true && !HVACPlugin.parameters.ProgAuto
+            visible: pluginContext.hvacSettings["FrontLeft"].Direction === true && !pluginContext.parameters.ProgAuto
 
         }
 
@@ -56,9 +56,9 @@ Item {
             id: leftSeatHeater
             width: parent.width * 0.25
             height: parent.height
-            steps:HVACPlugin.hvacSettings.SeatHeatSteps
-            value: HVACPlugin.parameters.FrontLeft.SeatHeating
-            visible: HVACPlugin.hvacSettings["FrontLeft"].SeatHeating === true
+            steps:pluginContext.hvacSettings.SeatHeatSteps
+            value: pluginContext.parameters.FrontLeft.SeatHeating
+            visible: pluginContext.hvacSettings["FrontLeft"].SeatHeating === true
 
         }
     }
@@ -77,7 +77,7 @@ Item {
             Layout.fillWidth: true
             imageSrc:"qrc:/HVAC/icons/windshield-defrost.svg"
             //            active : true
-            visible: HVACPlugin.parameters.ProgWindscreen
+            visible: pluginContext.parameters.ProgWindscreen
 
         }
 
@@ -87,7 +87,7 @@ Item {
             Layout.fillWidth: true
             imageSrc:"qrc:/HVAC/icons/rear-window-defrost.svg"
             //            active : true
-            visible: HVACPlugin.parameters.RearDefrost
+            visible: pluginContext.parameters.RearDefrost
 
         }
 
@@ -97,7 +97,7 @@ Item {
             Layout.fillWidth: true
             imageSrc:"qrc:/HVAC/icons/auto.svg"
             //            active : true
-            visible: HVACPlugin.parameters.ProgAuto  && !HVACPlugin.parameters.ProgWindscreen
+            visible: pluginContext.parameters.ProgAuto  && !pluginContext.parameters.ProgWindscreen
 
         }
 
@@ -106,8 +106,8 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
             imageSrc:"qrc:/HVAC/icons/ac-flat.svg"
-            //            active : HVACPlugin.parameters.AC
-            visible: HVACPlugin.parameters.AC
+            //            active : pluginContext.parameters.AC
+            visible: pluginContext.parameters.AC
 
         }
 
@@ -116,8 +116,8 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
             imageSrc:"qrc:/HVAC/icons/recirc.svg"
-            active : HVACPlugin.parameters.Recirculate
-            visible: HVACPlugin.hvacSettings.Recirculate
+            active : pluginContext.parameters.Recirculate
+            visible: pluginContext.hvacSettings.Recirculate
 
         }
     }
@@ -136,9 +136,9 @@ Item {
             id: rightTemp
             width: height
             height: parent.height
-            value: HVACPlugin.parameters.FrontRight.Temperature
-            selected: HVACPlugin.parameters.TempSelectRight
-            visible: HVACPlugin.hvacSettings["FrontRight"].Temperature === true
+            value: pluginContext.parameters.FrontRight.Temperature
+            selected: pluginContext.parameters.TempSelectRight
+            visible: pluginContext.hvacSettings["FrontRight"].Temperature === true
 
         }
 
@@ -147,10 +147,10 @@ Item {
             width: height
             height: parent.height
             inverted: true
-            autoEnabled: HVACPlugin.parameters.ProgAutoFanFront
-            selected: HVACPlugin.parameters.FanSelectRight
-            value: HVACPlugin.parameters.FrontRight.Fan
-            visible: HVACPlugin.hvacSettings["FrontRight"].Fan === true && !HVACPlugin.parameters.ProgAuto
+            autoEnabled: pluginContext.parameters.ProgAutoFanFront
+            selected: pluginContext.parameters.FanSelectRight
+            value: pluginContext.parameters.FrontRight.Fan
+            visible: pluginContext.hvacSettings["FrontRight"].Fan === true && !pluginContext.parameters.ProgAuto
 
         }
 
@@ -160,7 +160,7 @@ Item {
             height: parent.height
             inverted: true
             zone: "FrontRight"
-            visible: HVACPlugin.hvacSettings["FrontRight"].Direction === true && !HVACPlugin.parameters.ProgAuto
+            visible: pluginContext.hvacSettings["FrontRight"].Direction === true && !pluginContext.parameters.ProgAuto
 
         }
 
@@ -169,8 +169,8 @@ Item {
             width: parent.width * 0.25
             height: parent.height
             inverse: true
-            value: HVACPlugin.parameters.FrontRight.SeatHeating
-            visible: HVACPlugin.hvacSettings["FrontRight"].SeatHeating === true
+            value: pluginContext.parameters.FrontRight.SeatHeating
+            visible: pluginContext.hvacSettings["FrontRight"].SeatHeating === true
 
         }
 

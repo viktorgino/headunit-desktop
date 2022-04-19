@@ -8,7 +8,7 @@ import HUDTheme 1.0
 
 ListView {
     id:__root
-    model : PhoneBluetooth.CallHistoryModel
+    model : pluginContext.CallHistoryModel
     focus: true
     clip: true
 
@@ -22,7 +22,7 @@ ListView {
             anchors.fill: parent
             onClicked: {
                 if(numbers.length > 0){
-                    PhoneBluetooth.Handsfree.dialNumber(numbers[0].number)
+                    pluginContext.Handsfree.dialNumber(numbers[0].number)
                 }
             }
         }

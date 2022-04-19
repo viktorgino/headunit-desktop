@@ -16,10 +16,10 @@ public:
     enum PluginListModelRoles {
         NameRole = Qt::UserRole + 1,
         LabelRole,
-        PluginRole,
+        IconRole,
         QmlSourceRole,
         LoadedRole,
-        MenuRole,
+        ContextPropertyRole,
         SettingsRole,
         SettingsItemsRole
     };

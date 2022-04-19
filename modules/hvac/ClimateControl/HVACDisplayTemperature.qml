@@ -7,9 +7,9 @@ Item {
     property alias selected: tempSelected.visible
     property double value : 0
 
-    property int steps : HVACPlugin.hvacSettings.TemperatureSteps
-    property double stepSize : HVACPlugin.hvacSettings.TemperatureStepSize
-    property int offset : HVACPlugin.hvacSettings.TemperatureOffset
+    property int steps : pluginContext.hvacSettings.TemperatureSteps
+    property double stepSize : pluginContext.hvacSettings.TemperatureStepSize
+    property int offset : pluginContext.hvacSettings.TemperatureOffset
     property alias back_tempHeight: back_temp.height
 
     Item {

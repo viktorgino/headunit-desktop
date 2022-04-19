@@ -110,7 +110,7 @@ Item {
                     verticalAlignment: Text.AlignVCenter
                     horizontalAlignment: Text.AlignHCenter
                     anchors.fill: parent
-                    color:HUDStyle.Colors.text
+                    color:HUDStyle.colors.text
 
                     MouseArea {
                         id: mouseArea
@@ -154,7 +154,7 @@ Item {
             MouseArea {
                 anchors.fill: parent
                 onClicked: {
-                    PhoneBluetooth.Handsfree.dialNumber(dialer_num.text);
+                    pluginContext.Handsfree.dialNumber(dialer_num.text);
                     dialer_num.text = "";
                 }
             }

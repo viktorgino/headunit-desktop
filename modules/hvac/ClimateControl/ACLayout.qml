@@ -2,7 +2,8 @@ import QtQuick 2.11
 import QtGraphicalEffects 1.0
 import QtQuick.Layouts 1.0
 
-Item {
+import HUDTheme 1.0
+ThemeRoot {
     id: __root
     anchors.fill: parent
 
@@ -22,7 +23,7 @@ Item {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 zone:"FrontLeft"
-                visible: HVACPlugin.hvacSettings["FrontLeft"]
+                visible: pluginContext.hvacSettings["FrontLeft"]
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.maximumWidth: parent.width/2
             }
@@ -32,7 +33,7 @@ Item {
                 Layout.fillHeight: true
                 Layout.fillWidth: true
                 zone:"FrontRight"
-                visible: HVACPlugin.hvacSettings["FrontRight"]
+                visible: pluginContext.hvacSettings["FrontRight"]
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.maximumWidth: parent.width/2
             }
@@ -47,7 +48,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 zone:"RearLeft"
-                visible: HVACPlugin.hvacSettings["RearLeft"]
+                visible: pluginContext.hvacSettings["RearLeft"]
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.maximumWidth: parent.width/2
             }
@@ -57,7 +58,7 @@ Item {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
                 zone:"RearRight"
-                visible: HVACPlugin.hvacSettings["RearRight"]
+                visible: pluginContext.hvacSettings["RearRight"]
                 Layout.alignment: Qt.AlignHCenter | Qt.AlignVCenter
                 Layout.maximumWidth: parent.width/2
             }

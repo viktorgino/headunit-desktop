@@ -19,8 +19,10 @@ class PluginObject : public QObject
     Q_PROPERTY(QVariant qmlSource READ getSource NOTIFY sourceChanged)
     Q_PROPERTY(QString name READ getName CONSTANT)
     Q_PROPERTY(QString label READ getLabel CONSTANT)
+    Q_PROPERTY(QString icon READ getLabel CONSTANT)
     Q_PROPERTY(QVariantMap menu READ getMenu CONSTANT)
     Q_PROPERTY(QQmlPropertyMap * settings READ getSettings CONSTANT)
+    Q_PROPERTY(QObject * contextProperty READ getContextProperty CONSTANT)
 public:
     explicit PluginObject(QString fileName, QObject *parent = nullptr);
     explicit PluginObject(QString name, QString label,
@@ -28,6 +30,7 @@ public:
                           QVariantMap menu = QVariantMap(),
                           QVariantMap settingsItems = QVariantMap(),
                           QQmlPropertyMap * settings = nullptr);
+    ~PluginObject();
 
     void setSource(QString source);
 
@@ -35,6 +38,7 @@ public:
     QString getSource();
     QString getName();
     QString getLabel();
+    QString getIcon();
     QVariantMap getMenu();
 
     QObject * getContextProperty();
@@ -69,6 +73,7 @@ private:
     QString m_source;
     QString m_name;
     QString m_label;
+    QString m_icon;
     QVariantMap m_menu;
     QVariant m_config;
 

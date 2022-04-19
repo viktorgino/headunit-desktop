@@ -14,7 +14,7 @@ Item {
 
         MouseArea {
             anchors.fill: parent
-            onClicked: HVACPlugin.closeOverlay()
+            onClicked: pluginContext.closeOverlay()
         }
     }
 
@@ -25,10 +25,10 @@ Item {
         anchors.bottom: parent.bottom
         visible: !__root.rightHand
         inverted: false
-        value: HVACPlugin.parameters.FrontLeft.Temperature
+        value: pluginContext.parameters.FrontLeft.Temperature
         onUpdateValue: {
-            HVACPlugin.openOverlay(false)
-            HVACPlugin.setZoneParameter("FrontLeft", "Temperature", setValue)
+            pluginContext.openOverlay(false)
+            pluginContext.setZoneParameter("FrontLeft", "Temperature", setValue)
         }
     }
 
@@ -40,10 +40,10 @@ Item {
         anchors.bottom: parent.bottom
         visible: __root.rightHand
         inverted: true
-        value: HVACPlugin.parameters.FrontRight.Temperature
+        value: pluginContext.parameters.FrontRight.Temperature
         onUpdateValue: {
-            HVACPlugin.openOverlay(true)
-            HVACPlugin.setZoneParameter("FrontRight", "Temperature", setValue)
+            pluginContext.openOverlay(true)
+            pluginContext.setZoneParameter("FrontRight", "Temperature", setValue)
         }
     }
 }

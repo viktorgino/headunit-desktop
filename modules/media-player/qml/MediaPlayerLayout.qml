@@ -8,7 +8,7 @@ import QtQml 2.3
 
 import HUDTheme 1.0
 
-Item {
+ThemeRoot{
     id: __root
     property alias menuButtonRectX: menuButtonRect.x
     function getReadableTime(milliseconds){
@@ -293,7 +293,7 @@ Item {
         playlist: playlist
         autoLoad: true
         audioRole: MediaPlayer.MusicRole
-        volume: MediaPlayerPlugin.Volume
+        volume: pluginContext.Volume
         onError: {
             console.log("Media Player error : " , error, errorString)
         }
@@ -317,7 +317,7 @@ Item {
         }
         onPlaying: {
             playButton.imageSource = "qrc:/qml/icons/pause.png";
-            MediaPlayerPlugin.playbackStarted()
+            pluginContext.playbackStarted()
         }
     }
 
@@ -326,13 +326,13 @@ Item {
         id: mediaList
 
         MediaList {
-            model: MediaPlayerPlugin.MediaListModel
+            model: pluginContext.MediaListModel
 
             onItemClicked: {
                 playlist.clear();
 
-                MediaPlayerPlugin.PlaylistModel.setItems(MediaPlayerPlugin.MediaListModel.getItems());
-                playlist.addItems(MediaPlayerPlugin.PlaylistModel.sources);
+                pluginContext.PlaylistModel.setItems(pluginContext.MediaListModel.getItems());
+                playlist.addItems(pluginContext.PlaylistModel.sources);
 
 
                 playlist.currentIndex = index;
@@ -350,10 +350,10 @@ Item {
     Component {
         id: mediaContainerList
         MediaContainerList {
-            model:MediaPlayerPlugin.ContainerModel
+            model:pluginContext.ContainerModel
 
             onItemClicked: {
-                var item = MediaPlayerPlugin.ContainerModel.getItem(index)
+                var item = pluginContext.ContainerModel.getItem(index)
 
                 var filter = item.title
                 if(item_type === "folders"){
@@ -362,7 +362,7 @@ Item {
                     filter = item.path
                 }
 
-                MediaPlayerPlugin.MediaListModel.setFilter(item_type, filter)
+                pluginContext.MediaListModel.setFilter(item_type, filter)
                 stackView.push(mediaList,{
                                    "thumbnail" : "file://" + item.thumbnail,
                                    "title" : item.title,
@@ -406,11 +406,11 @@ Item {
             case "artists":
             case "albums":
             case "genres":
-                MediaPlayerPlugin.ContainerModel.setFilter(item_type);
+                pluginContext.ContainerModel.setFilter(item_type);
                 stackView.push(mediaContainerList,{"icon" : icon, "name" : name, "item_type" : item_type})
                 break;
             case "songs":
-                MediaPlayerPlugin.MediaListModel.setFilter("", "")
+                pluginContext.MediaListModel.setFilter("", "")
                 stackView.push(mediaList,{"icon" : icon, "name" : name, "item_type" : item_type})
                 break;
             default:
@@ -518,7 +518,7 @@ Item {
     }
 
     Connections{
-        target: MediaPlayerPlugin
+        target: pluginContext
         onStart : {
             mediaplayer.play()
         }
@@ -630,7 +630,7 @@ Item {
 
 
     Component.onCompleted : {
-        playlist.addItems(MediaPlayerPlugin.PlaylistModel.sources);
+        playlist.addItems(pluginContext.PlaylistModel.sources);
         playlist.currentIndex = mediaplayer_settings.nowPlayingCurrentIndex;
     }
 

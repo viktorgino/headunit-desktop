@@ -9,9 +9,11 @@ void InitWorker::run(){
 }
 
 PluginManager::PluginManager(QQmlApplicationEngine *engine, QStringList filterList, bool initInThread, QObject *parent) :
-      QObject(parent), m_mediaManager(this), m_pluginList(this)//, m_menuPlugins(this), m_settingsItems(this)
+      QObject(parent), m_mediaManager(this), m_pluginList(this)
 {
     qmlRegisterType<PluginListProxyModel>("HUDPlugins", 1, 0, "PluginListModel");
+//    qmlRegisterUncreatableType<PluginObject>("HUDPlugins", 1, 0, "PluginListModel", "PluginObject is uncreatable");
+    qmlRegisterAnonymousType<PluginObject>("HUDPlugins", 1);
 
     loadPlugins(engine, filterList);
 
@@ -20,7 +22,7 @@ PluginManager::PluginManager(QQmlApplicationEngine *engine, QStringList filterLi
     settingsMenuMap["image"] = "icons/svg/gear-a.svg";
     settingsMenuMap["color"] = "#4CAF50";
 
-    settingsMenu = new PluginObject("Settings","Settings", this, "qrc:/qml/SettingsPage/SettingsPage.qml",settingsMenuMap);
+    settingsMenu = new PluginObject("Settings","Settings", this, "qrc:/qml/HUDSettingsPage/SettingsPage.qml",settingsMenuMap);
 
     m_pluginList.addPlugin(settingsMenu);
 
@@ -63,15 +65,9 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, QStringList filte
             m_mediaManager.addInterface(plugin->getName(), plugin->getPlugin());
         }
 
-        if(plugin->getContextProperty()){
-            engine->rootContext()->setContextProperty(plugin->getName(),plugin->getContextProperty());
-        }
 
         if(plugin->getImageProvider()){
             engine->addImageProvider(plugin->getName(),plugin->getImageProvider());
-        }
-        if(plugin->getSettings()){
-            m_settings.insert(plugin->getName(),  QVariant::fromValue<QQmlPropertyMap *>(plugin->getSettings()));
         }
 
         connect(plugin, &PluginObject::action, this, &PluginManager::actionHandler);
@@ -89,7 +85,6 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, QStringList filte
         }
     }
 
-    engine->rootContext()->setContextProperty("HUDSettings", m_settings);
     engine->rootContext()->setContextProperty("HUDPlugins", &m_pluginList);
     engine->rootContext()->setContextProperty("HUDMediaManager", &m_mediaManager);
 
@@ -134,10 +129,10 @@ void PluginManager::actionHandler(QString sender, QString id, QVariant message){
 
         } else {
             PluginObject *pluginObject = m_pluginList.getPlugin(messageId[0]);
-            if (pluginObject) {
+            if(pluginObject) {
                 pluginObject->callAction(messageId[1], message);
             } else {
-                qWarning() << "actionHandler() : Could not get plugin " << messageId[0];
+                qWarning() << "Invalid plugin object " << id;
             }
         }
     } else {

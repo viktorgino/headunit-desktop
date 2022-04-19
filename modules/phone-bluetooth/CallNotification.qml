@@ -7,18 +7,18 @@ import HUDTheme 1.0
 Item {
     id: __root
 
-    state: PhoneBluetooth.Handsfree.callState
+    state: pluginContext.Handsfree.callState
 
     Rectangle {
         id: item1
         height: parent.height * 0.2
         anchors.left: parent.left
         anchors.right: parent.right
-        color: HUDStyle.Colors.formBackground
+        color: HUDStyle.colors.formBackground
 
         Rectangle {
             id: rectangle
-            color: HUDStyle.Colors.box
+            color: HUDStyle.colors.box
             anchors.fill: parent
             anchors.rightMargin: 8
             anchors.leftMargin: 8
@@ -63,7 +63,7 @@ Item {
 
                 ThemeHeaderText {
                     id: caller
-                    text: PhoneBluetooth.Handsfree.caller
+                    text: pluginContext.Handsfree.caller
                     anchors.verticalCenter: parent.verticalCenter
                     level: 3
                 }
@@ -76,7 +76,7 @@ Item {
 
             ThemeText {
                 id: callTime
-                text: PhoneBluetooth.Handsfree.callTime
+                text: pluginContext.Handsfree.callTime
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.right: dial.left
                 font.pixelSize: 12
@@ -109,7 +109,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        PhoneBluetooth.Handsfree.answerCall()
+                        pluginContext.Handsfree.answerCall()
                     }
                 }
             }
@@ -139,7 +139,7 @@ Item {
                 MouseArea {
                     anchors.fill: parent
                     onClicked: {
-                        PhoneBluetooth.Handsfree.hangupCall()
+                        pluginContext.Handsfree.hangupCall()
                     }
                 }
             }

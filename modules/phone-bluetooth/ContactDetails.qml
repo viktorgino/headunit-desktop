@@ -16,7 +16,7 @@ Item {
 
     Rectangle {
         id: contactDetails
-        color:HUDStyle.Colors.box
+        color:HUDStyle.colors.box
         clip: true
         height: parent.height*0.3
         anchors.top: parent.top
@@ -28,7 +28,7 @@ Item {
         ThemeText {
             x: -height/4
             opacity: 0.3
-            color: HUDStyle.Colors.text
+            color: HUDStyle.colors.text
             text: nameArray.length > 0 ? nameArray[0].charAt(0).toUpperCase() : ""
             font.pointSize: parent.height * 1.5
             anchors.bottomMargin: 0
@@ -44,7 +44,7 @@ Item {
         ThemeText {
             x: height/2
             opacity: 0.4
-            color: HUDStyle.Colors.text
+            color: HUDStyle.colors.text
             text: nameArray.length > 1 ? nameArray[nameArray.length-1].charAt(0).toUpperCase() : ""
             font.pointSize: parent.height * 1.5
             anchors.bottom: parent.bottom
@@ -108,7 +108,7 @@ Item {
             }
 
             ColorOverlay {
-                color: HUDStyle.Colors.icon
+                color: HUDStyle.colors.icon
                 anchors.fill: image2
                 source: image2
             }
@@ -157,7 +157,7 @@ Item {
                 id: mouseArea
                 anchors.fill: parent
                 onClicked: {
-                    PhoneBluetooth.Handsfree.dialNumber(modelData.number)
+                    pluginContext.Handsfree.dialNumber(modelData.number)
                 }
             }
         }

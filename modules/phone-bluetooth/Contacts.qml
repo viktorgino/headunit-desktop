@@ -35,7 +35,7 @@ Item {
 
         Rectangle {
             id: rectangle
-            color: HUDStyle.Colors.formBox
+            color: HUDStyle.colors.formBox
             Layout.fillHeight: true
             Layout.fillWidth: true
             ImageButton {
@@ -55,7 +55,7 @@ Item {
 
         Rectangle {
             id: rectangle1
-            color: HUDStyle.Colors.formBox
+            color: HUDStyle.colors.formBox
             Layout.fillWidth: true
             Layout.fillHeight: true
             ImageButton {

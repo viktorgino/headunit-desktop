@@ -61,7 +61,7 @@ Item {
                     anchors.verticalCenter: parent.verticalCenter
                     imageSource : "qrc:/qml/icons/navicon.png"
                     anchors.horizontalCenter: parent.horizontalCenter
-                    color: HUDStyle.Colors.headingText1
+                    color: HUDStyle.colors.headingText1
                     onClicked: {
                         menu.open()
                     }
@@ -72,12 +72,12 @@ Item {
                     width: 200
 
                     MenuItem {
-                        text: WelleIoPlugin.RadioController.isChannelScan? "Stop scanning" : "Scan for stations"
+                        text: pluginContext.RadioController.isChannelScan? "Stop scanning" : "Scan for stations"
                         onClicked: {
-                            if(!WelleIoPlugin.RadioController.isChannelScan){
-                                WelleIoPlugin.RadioController.startScan()
+                            if(!pluginContext.RadioController.isChannelScan){
+                                pluginContext.RadioController.startScan()
                             } else {
-                                WelleIoPlugin.RadioController.stopScan()
+                                pluginContext.RadioController.stopScan()
                             }
                         }
                     }
@@ -135,7 +135,7 @@ Item {
 
         model : StationListModel { id: favouritesList ; type: "favorites"}
         onItemClicked: {
-            WelleIoPlugin.RadioController.play(channelName, stationName, stationSId)
+            pluginContext.RadioController.play(channelName, stationName, stationSId)
         }
         onSetFavourite: {
             stationList.setFavorit(stationSId, channelName, favourite)
@@ -151,7 +151,7 @@ Item {
         clip: true
         model : StationListModel { id: stationList ; type: "all"}
         onItemClicked: {
-            WelleIoPlugin.RadioController.play(channelName, stationName, stationSId)
+            pluginContext.RadioController.play(channelName, stationName, stationSId)
         }
         onSetFavourite: {
             if(favourite)
@@ -162,7 +162,7 @@ Item {
     }
 
     Connections{
-        target: WelleIoPlugin.RadioController
+        target: pluginContext.RadioController
         onNewStationNameReceived: {
             stationList.addStation(station, sId, channel, false)
         }

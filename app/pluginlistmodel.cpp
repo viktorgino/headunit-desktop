@@ -12,7 +12,7 @@ bool PluginListProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &so
     case PluginsList:
         return true;
     case MenuItemsList:
-        return sourceModel()->data(index0,PluginListModel::MenuRole).toMap().size() > 0;
+        return !sourceModel()->data(index0,PluginListModel::QmlSourceRole).toString().isEmpty();
     case SettingMenuItemsList:
         return sourceModel()->data(index0,PluginListModel::SettingsItemsRole).toMap().size() > 0;
     }
@@ -45,10 +45,10 @@ QHash<int, QByteArray> PluginListModel::roleNames() const {
 
     roles[NameRole] = "name";
     roles[LabelRole] = "label";
-    roles[PluginRole] = "plugin";
+    roles[IconRole] = "icon";
     roles[QmlSourceRole] = "qmlSource";
     roles[LoadedRole] = "pluginLoaded";
-    roles[MenuRole] = "menu";
+    roles[ContextPropertyRole] = "contextProperty";
     roles[SettingsRole] = "settings";
     roles[SettingsItemsRole] = "settingsItems";
     return roles;
@@ -74,16 +74,15 @@ QVariant PluginListModel::data(const QModelIndex &index, int role) const {
     case NameRole:
         return plugin->getName();
     case LabelRole:
-        qDebug() << plugin->getLabel();
         return plugin->getLabel();
-    case PluginRole:
-        return QVariant::fromValue<PluginObject *>(plugin);
+    case IconRole:
+        return plugin->getIcon();
     case QmlSourceRole:
         return plugin->getSource();
     case LoadedRole:
         return plugin->getLoaded();
-    case MenuRole:
-        return plugin->getMenu();
+    case ContextPropertyRole:
+        return QVariant::fromValue<QObject *>(plugin->getContextProperty());
     case SettingsRole:
         return QVariant::fromValue<QQmlPropertyMap *>(plugin->getSettings());
     case SettingsItemsRole:

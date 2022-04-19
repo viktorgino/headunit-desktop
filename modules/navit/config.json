@@ -1,7 +1,7 @@
 {
-    "name":"SamplePlugin",
+    "name":"Navit",
     "config":{
-        "label":"Sample Plugin",
+        "label":"Navit Plugin",
         "name": "test",
         "type":"items",
         "description":"Settings Menu Test",

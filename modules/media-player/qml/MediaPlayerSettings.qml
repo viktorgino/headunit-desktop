@@ -4,7 +4,7 @@ import QtQuick.Layouts 1.1
 import QtQml 2.11
 import HUDTheme 1.0
 
-Item {
+ThemeRoot {
     id: __root
 
     signal push(var qml, var properties)
@@ -20,9 +20,9 @@ Item {
     }
 
     Connections{
-        target:MediaPlayerPlugin
+        target:pluginContext
         onLocationsUpdated : {
-            mediaLocations.model = MediaPlayerPlugin.MediaLocations
+            mediaLocations.model = pluginContext.MediaLocations
         }
     }
 
@@ -70,7 +70,7 @@ Item {
                         onClicked: parent.ListView.view.currentIndex = index
                     }
                 }
-                model: MediaPlayerPlugin.MediaLocations
+                model: pluginContext.MediaLocations
 
                 ScrollBar.vertical: ScrollBar {
                 }
@@ -111,7 +111,7 @@ Item {
                 anchors.left: parent.left
                 anchors.leftMargin: 8
                 onClicked: {
-                    __root.push("qrc:/MediaPlayer/qml/MediaPlayerSettingsFileBrowser.qml", {})
+                    __root.push("qrc:/MediaPlayer/qml/MediaPlayerSettingsFileBrowser.qml", {"pluginContext" : pluginContext, "pluginSettings" : pluginSettings})
                 }
             }
 
@@ -129,10 +129,10 @@ Item {
     }
 
     Connections {
-        target: MediaPlayerPlugin
+        target: pluginContext
         onScanningFinished:{
             console.log("Media scanning finished")
-            mediaLocations.model = MediaPlayerPlugin.getLocations()
+            mediaLocations.model = pluginContext.getLocations()
         }
     }
 }

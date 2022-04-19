@@ -30,43 +30,43 @@ Item {
                 width: parent.width/2
                 height: parent.height/3
                 anchors.top: parent.top
-                visible: HVACPlugin.hvacSettings[__root.zone].DirUp === true
+                visible: pluginContext.hvacSettings[__root.zone].DirUp === true
                 source: "qrc:/HVAC/icons/zone-top.png"
                 mipmap: true
                 anchors.topMargin: 0
                 fillMode: Image.PreserveAspectFit
                 mirror: !__root.inverted
                 x:__root.inverted ? parent.width / 2 : 0
-                checked: HVACPlugin.parameters[__root.zone].DirUp
-                onClicked: HVACPlugin.setZoneParameter(__root.zone, "DirUp", !checked)
+                checked: pluginContext.parameters[__root.zone].DirUp
+                onClicked: pluginContext.setZoneParameter(__root.zone, "DirUp", !checked)
             }
             ImageButton {
                 id: directionCenter
                 width: parent.width/2
                 height: parent.height/3
                 anchors.verticalCenter: parent.verticalCenter
-                visible: HVACPlugin.hvacSettings[__root.zone].DirCenter=== true
+                visible: pluginContext.hvacSettings[__root.zone].DirCenter=== true
                 source: "qrc:/HVAC/icons/zone-middle.png"
                 mipmap: true
                 fillMode: Image.PreserveAspectFit
                 mirror: !__root.inverted
                 x:__root.inverted ? parent.width / 2 : 0
-                checked: HVACPlugin.parameters[__root.zone].DirCenter
-                onClicked: HVACPlugin.setZoneParameter(__root.zone, "DirCenter", !checked)
+                checked: pluginContext.parameters[__root.zone].DirCenter
+                onClicked: pluginContext.setZoneParameter(__root.zone, "DirCenter", !checked)
             }
             ImageButton {
                 id: directionBottom
                 width: parent.width/2
                 height: parent.height/3
                 anchors.bottom: parent.bottom
-                visible: HVACPlugin.hvacSettings[__root.zone].DirDown=== true
+                visible: pluginContext.hvacSettings[__root.zone].DirDown=== true
                 source: "qrc:/HVAC/icons/zone-bottom.png"
                 mipmap: true
                 fillMode: Image.PreserveAspectFit
                 mirror: !__root.inverted
                 x:__root.inverted ? parent.width / 2 : 0
-                checked: HVACPlugin.parameters[__root.zone].DirDown
-                onClicked: HVACPlugin.setZoneParameter(__root.zone, "DirDown", !checked)
+                checked: pluginContext.parameters[__root.zone].DirDown
+                onClicked: pluginContext.setZoneParameter(__root.zone, "DirDown", !checked)
             }
         }
 
@@ -75,7 +75,7 @@ Item {
             x:__root.inverted ? 0 : parent.width / 2
             width: parent.width/2
             height: parent.height / 5
-            visible: HVACPlugin.hvacSettings[__root.zone].DirAuto=== true
+            visible: pluginContext.hvacSettings[__root.zone].DirAuto=== true
 
             ImageButton {
                 width: parent.width * 0.6
@@ -88,8 +88,8 @@ Item {
                 fillMode: Image.PreserveAspectFit
                 mipmap: true
                 smooth: true
-                checked: HVACPlugin.parameters[__root.zone].DirAuto
-                onClicked: HVACPlugin.setZoneParameter(__root.zone, "DirAuto", !checked)
+                checked: pluginContext.parameters[__root.zone].DirAuto
+                onClicked: pluginContext.setZoneParameter(__root.zone, "DirAuto", !checked)
             }
         }
     }

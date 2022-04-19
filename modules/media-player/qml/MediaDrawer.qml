@@ -83,7 +83,7 @@ Item {
         anchors.bottom: mediaLibraryButton.top
         anchors.leftMargin: 0
 
-        model : MediaPlayerPlugin.PlaylistModel
+        model : pluginContext.PlaylistModel
         onItemClicked: __root.playListItemClicked(index)
     }
 

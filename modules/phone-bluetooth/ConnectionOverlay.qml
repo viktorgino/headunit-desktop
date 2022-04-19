@@ -43,7 +43,7 @@ Item {
             Text {
                 id: adapterName
                 color: "#707070"
-                text: HUDSettings["PhoneBluetooth"].adapterName
+                text: pluginSettings.adapterName
                 anchors.verticalCenter: parent.verticalCenter
                 font.pixelSize: 26
                 fontSizeMode: Text.Fit
@@ -74,7 +74,7 @@ Item {
                 height: 30
 
                 Text {
-                    text: PhoneBluetooth.activeDeviceName
+                    text: pluginContext.activeDeviceName
                     anchors.verticalCenter: parent.verticalCenter
                     font.bold: true
                 }
@@ -101,7 +101,7 @@ Item {
                     height: 30
                     width: listView.width
                     Text {
-                        text: PhoneBluetooth.pairedDevices[modelData]
+                        text: pluginContext.pairedDevices[modelData]
                         anchors.verticalCenter: parent.verticalCenter
                         font.bold: true
                     }
@@ -109,12 +109,12 @@ Item {
                     MouseArea{
                         anchors.fill: parent
                         onClicked: {
-                            PhoneBluetooth.connectToDevice(modelData)
+                            pluginContext.connectToDevice(modelData)
                         }
                     }
                 }
                 ScrollBar.vertical: ScrollBar {}
-                model: Object.keys(PhoneBluetooth.pairedDevices)
+                model: Object.keys(pluginContext.pairedDevices)
             }
         }
     }

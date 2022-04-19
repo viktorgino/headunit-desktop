@@ -1,15 +1,16 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.2
 import HUDTheme 1.0
+import HUDSettingsPage 1.0
 
 //{
 //    "label":"Restart Serial",
 //    "name": "action",
 //    "type":"action",
-//    "action" : "HUDSerialPlugin.serialRestart()"
+//    "action" : "pluginContext.serialRestart()"
 //}
 import QtQuick.Layouts 1.3
-Item {
+ThemeRoot {
     id:__root
 
     Flickable {
@@ -26,7 +27,7 @@ Item {
             Repeater {
                 id: listView
                 width: parent.width
-                model: HUDSerialPlugin.carSettings
+                model: pluginContext.carSettings
                 delegate: Loader {
                     width: parent.width
                     Component.onCompleted: {
@@ -45,9 +46,9 @@ Item {
                         setSource(qmlItem, modelData);
                         if(item){
                             if(modelData.type === "bit") {
-                                item.value = HUDSerialPlugin.customBits[modelData.bit]
+                                item.value = pluginContext.customBits[modelData.bit]
                             } else if(modelData.type === "byte") {
-                                item.value = HUDSerialPlugin.customBytes[modelData.byte]
+                                item.value = pluginContext.customBytes[modelData.byte]
                             }
                             valueUpdateConnection.enabled = true;
                         }
@@ -58,9 +59,9 @@ Item {
                         target: item
                         onValueChanged : {
                             if(modelData.type === "bit") {
-                                HUDSerialPlugin.setCustomBit(modelData.bit, item.value);
+                                pluginContext.setCustomBit(modelData.bit, item.value);
                             } else if(modelData.type === "byte") {
-                                HUDSerialPlugin.setCustomByte(modelData.byte, item.value);
+                                pluginContext.setCustomByte(modelData.byte, item.value);
                             }
                         }
                     }
@@ -71,23 +72,23 @@ Item {
                 id: car_make
                 width: parent.width
                 label: "Car Make"
-                values: HUDSerialPlugin.carManufacturers
+                values: pluginContext.carManufacturers
                 onValueChanged: {
-                    HUDSettings["HUDSerialPlugin"].car_make = value
+                    pluginSettings.car_make = value
                 }
-                value : HUDSettings["HUDSerialPlugin"].car_make
+                value : pluginSettings.car_make
             }
 
             SettingsPageItemCombobox {
                 id: car
                 width: parent.width
                 label: "Car"
-                values: HUDSerialPlugin.cars
+                values: pluginContext.cars
 
                 onValueChanged: {
-                    HUDSettings["HUDSerialPlugin"].car = value
+                    pluginSettings.car = value
                 }
-                value : HUDSettings["HUDSerialPlugin"].car
+                value : pluginSettings.car
             }
 
 
@@ -97,20 +98,20 @@ Item {
                 label: "Speed"
                 values: ["9600","19200","38400","57600","115200","230400","460800","500000","921600", "1000000", "1152000", "2000000", "4608000"]
                 onValueChanged: {
-                    HUDSettings["HUDSerialPlugin"].serial_speed = value
+                    pluginSettings.serial_speed = value
                 }
-                value : HUDSettings["HUDSerialPlugin"].serial_speed
+                value : pluginSettings.serial_speed
             }
 
             SettingsPageItemCombobox {
                 id: serial_port
                 width: parent.width
                 label: "Serial Port"
-                values: HUDSerialPlugin.ports
+                values: pluginContext.ports
                 onValueChanged: {
-                    HUDSettings["HUDSerialPlugin"].serial_port = value
+                    pluginSettings.serial_port = value
                 }
-                value : HUDSettings["HUDSerialPlugin"].serial_port
+                value : pluginSettings.serial_port
             }
 
         }

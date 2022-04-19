@@ -7,16 +7,16 @@ import QtBluetooth 5.7
 import org.kde.bluezqt 1.0 as BluezQt
 import HUDTheme 1.0
 
-Item {
+ThemeRoot {
     id:__root
     property BluezQt.Manager bluezManager : BluezQt.Manager
-    property BluezQt.Device bluezDevice : bluezManager.deviceForUbi(PhoneBluetooth.activeDevice)
+    property BluezQt.Device bluezDevice : bluezManager.deviceForUbi(pluginContext.activeDevice)
     property BluezQt.MediaPlayer bluezMediaPlayer : bluezDevice.mediaPlayer
 
     Connections {
         target: bluezManager
         onInitFinished : {
-            bluezDevice = bluezManager.deviceForUbi(PhoneBluetooth.activeDevice)
+            bluezDevice = bluezManager.deviceForUbi(pluginContext.activeDevice)
         }
     }
 
@@ -25,7 +25,7 @@ Item {
         ignoreUnknownSignals: true
         onStatusChanged : {
             if(bluezMediaPlayer.status === 0 ){
-                PhoneBluetooth.mediaPlaybackStarted()
+                pluginContext.mediaPlaybackStarted()
             }
         }
     }
@@ -40,7 +40,7 @@ Item {
         anchors.leftMargin: 8
         background: Rectangle {
             implicitHeight: 40
-            color: HUDStyle.Colors.formBox
+            color: HUDStyle.colors.formBox
         }
 
         ToolButton {
@@ -54,7 +54,7 @@ Item {
                 anchors.verticalCenter: parent.verticalCenter
                 imageSource : "qrc:/qml/icons/bug.png"
                 anchors.horizontalCenter: parent.horizontalCenter
-                color: HUDStyle.Colors.headingText1
+                color: HUDStyle.colors.headingText1
                 onClicked: menu.open()
             }
             Menu {
@@ -201,23 +201,23 @@ Item {
             anchors.leftMargin: 8
             anchors.verticalCenter: parent.verticalCenter
             imageSource: "qrc:/qml/icons/bluetooth.png"
-            color: HUDStyle.Colors.headingText1
+            color: HUDStyle.colors.headingText1
             onClicked: {
                 connectionOverlay.visible = true
-                PhoneBluetooth.enablePairing()
+                pluginContext.enablePairing()
             }
         }
         ImageButton {
             width: 30
             height: 30
             anchors.verticalCenter: parent.verticalCenter
-            color: HUDStyle.Colors.headingText1
+            color: HUDStyle.colors.headingText1
             anchors.right: networkName.left
             anchors.rightMargin: 16
             imageSource: "qrc:/qml/icons/svg/mic-a.svg"
-            visible: PhoneBluetooth.Handsfree.online
+            visible: pluginContext.Handsfree.online
             onClicked: {
-                PhoneBluetooth.Handsfree.activateVoiceControl()
+                pluginContext.Handsfree.activateVoiceControl()
 
             }
         }
@@ -230,48 +230,48 @@ Item {
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             anchors.rightMargin: 16
-            visible: !PhoneBluetooth.Handsfree.online
+            visible: !pluginContext.Handsfree.online
         }
 
 
         ThemeHeaderText {
             id: networkName
-            text: PhoneBluetooth.Handsfree.networkName
+            text: pluginContext.Handsfree.networkName
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: batteryLevel.left
             horizontalAlignment: Text.AlignHCenter
             verticalAlignment: Text.AlignVCenter
             anchors.rightMargin: 16
-            visible: PhoneBluetooth.Handsfree.online
+            visible: pluginContext.Handsfree.online
         }
 
         ThemeHeaderText {
             id: batteryLevel
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: signal.left
-            text: qsTr("Battery: ") + PhoneBluetooth.Handsfree.batteryCharge
+            text: qsTr("Battery: ") + pluginContext.Handsfree.batteryCharge
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
             anchors.rightMargin: 16
-            visible: PhoneBluetooth.Handsfree.online
+            visible: pluginContext.Handsfree.online
         }
 
         ThemeHeaderText {
             id: signal
-            text: qsTr("Signal: ") + PhoneBluetooth.Handsfree.signalStrength + "%"
+            text: qsTr("Signal: ") + pluginContext.Handsfree.signalStrength + "%"
             anchors.verticalCenter: parent.verticalCenter
             anchors.right: parent.right
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
             anchors.rightMargin: 8
-            visible: PhoneBluetooth.Handsfree.online
+            visible: pluginContext.Handsfree.online
         }
 
 
     }
 
     Rectangle {
-        color: HUDStyle.Colors.formBackground
+        color: HUDStyle.colors.formBackground
         anchors.top: toolBar.bottom
         anchors.bottom: parent.bottom
         anchors.left: parent.left
@@ -292,7 +292,7 @@ Item {
         anchors.rightMargin: 8
         anchors.leftMargin: 8
         anchors.topMargin: 8
-        sourceComponent:PhoneBluetooth.activeDevice !== "" ? currentComponent : null
+        sourceComponent:pluginContext.activeDevice !== "" ? currentComponent : null
     }
 
     Component {
@@ -310,7 +310,7 @@ Item {
                 Layout.fillWidth: true
                 dialed_num: dialer.dialed_num
                 onDial: {
-                    PhoneBluetooth.Handsfree.dialNumber(number);
+                    pluginContext.Handsfree.dialNumber(number);
                 }
             }
         }
@@ -340,7 +340,7 @@ Item {
             spacing: 8
             anchors.fill: parent
             Rectangle{
-                color: HUDStyle.Colors.formBox
+                color: HUDStyle.colors.formBox
                 Layout.fillHeight: true
                 Layout.fillWidth: true
 
@@ -359,7 +359,7 @@ Item {
             }
 
             Rectangle {
-                color: HUDStyle.Colors.formBox
+                color: HUDStyle.colors.formBox
                 Layout.fillHeight: true
                 Layout.fillWidth: true
 
@@ -394,7 +394,7 @@ Item {
     //        }
     //    }
     Connections{
-        target: PhoneBluetooth
+        target: pluginContext
         onStart : {
             bluezMediaPlayer.play()
         }
@@ -408,8 +408,8 @@ Item {
             bluezMediaPlayer.next()
         }
         onActiveDeviceChanged: {
-            if(PhoneBluetooth.activeDevice){
-                bluezDevice = bluezManager.deviceForUbi(PhoneBluetooth.activeDevice)
+            if(pluginContext.activeDevice){
+                bluezDevice = bluezManager.deviceForUbi(pluginContext.activeDevice)
             } else {
                 console.log("Active device removed")
                 bluezDevice = 0
@@ -418,7 +418,7 @@ Item {
     }
     Rectangle {
         id: connectionOverlay
-        color: HUDStyle.Colors.formBackground
+        color: HUDStyle.colors.formBackground
         anchors.fill: parent
         visible: false
 
@@ -427,7 +427,7 @@ Item {
             anchors.fill: parent
             onClicked: {
                 connectionOverlay.visible = false
-                PhoneBluetooth.disablePairing()
+                pluginContext.disablePairing()
             }
         }
         ConnectionOverlay {

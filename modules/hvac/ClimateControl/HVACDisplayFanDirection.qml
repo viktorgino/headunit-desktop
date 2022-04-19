@@ -26,7 +26,7 @@ Item {
             Text {
                 x: __root.inverted ? parent.width - width : 0
                 width: parent.width * 0.4
-                visible: HVACPlugin.parameters[__root.zone].DirAuto
+                visible: pluginContext.parameters[__root.zone].DirAuto
                 color: "#ffffff"
                 text: qsTr("Auto")
                 anchors.top: parent.top
@@ -44,14 +44,14 @@ Item {
             Item {
                 id: columnLayout
                 anchors.fill: parent
-                visible: !HVACPlugin.parameters[__root.zone].DirAuto
+                visible: !pluginContext.parameters[__root.zone].DirAuto
                 Image {
                     id: directionUpImage
                     source: "qrc:/HVAC/icons/zone-top.png"
                     mipmap: true
                     mirror: !__root.inverted
                     fillMode: Image.PreserveAspectFit
-                    visible: HVACPlugin.parameters[__root.zone].DirUp || HVACPlugin.parameters[__root.zone].DirAuto
+                    visible: pluginContext.parameters[__root.zone].DirUp || pluginContext.parameters[__root.zone].DirAuto
                     width: parent.width/2
                     height: parent.height/3
                     x:__root.inverted ? parent.width / 2 : 0
@@ -63,7 +63,7 @@ Item {
                     mipmap: true
                     mirror: !__root.inverted
                     fillMode: Image.PreserveAspectFit
-                    visible: HVACPlugin.parameters[__root.zone].DirCenter  || HVACPlugin.parameters[__root.zone].DirAuto
+                    visible: pluginContext.parameters[__root.zone].DirCenter  || pluginContext.parameters[__root.zone].DirAuto
                     anchors.verticalCenter: parent.verticalCenter
                     width: parent.width/2
                     height: parent.height/3
@@ -76,7 +76,7 @@ Item {
                     mipmap: true
                     mirror: !__root.inverted
                     fillMode: Image.PreserveAspectFit
-                    visible: HVACPlugin.parameters[__root.zone].DirDown || HVACPlugin.parameters[__root.zone].DirAuto
+                    visible: pluginContext.parameters[__root.zone].DirDown || pluginContext.parameters[__root.zone].DirAuto
                     anchors.bottom: parent.bottom
                     width: parent.width/2
                     height: parent.height/3

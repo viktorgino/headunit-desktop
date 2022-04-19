@@ -7,7 +7,7 @@ import HUDTheme 1.0
 
 ListView {
     id: __root
-    model : PhoneBluetooth.PhonebookModel
+    model : pluginContext.PhonebookModel
     focus: true
     clip: true
     signal contactClicked(var name, var numbers, var image)

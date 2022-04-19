@@ -18,17 +18,17 @@ Item {
         Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
-            visible: HVACPlugin.hvacSettings["FrontLeft"].Temperature === true
+            visible: pluginContext.hvacSettings["FrontLeft"].Temperature === true
 
             HVACDisplayTemperature {
                 anchors.fill: parent
-                value: HVACPlugin.parameters.FrontLeft.Temperature
-                selected: HVACPlugin.parameters.TempSelectLeft
+                value: pluginContext.parameters.FrontLeft.Temperature
+                selected: pluginContext.parameters.TempSelectLeft
             }
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: HVACPlugin.openOverlay(false)//openSlider(false)
+                onClicked: pluginContext.openOverlay(false)//openSlider(false)
             }
         }
 
@@ -36,9 +36,9 @@ Item {
         HVACControlSeatHeater {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            value: HVACPlugin.parameters.FrontLeft.SeatHeating
-            onUpdateValue: HVACPlugin.setZoneParameter("FrontLeft", "SeatHeating", setValue)
-            visible: HVACPlugin.hvacSettings["FrontLeft"].SeatHeating === true
+            value: pluginContext.parameters.FrontLeft.SeatHeating
+            onUpdateValue: pluginContext.setZoneParameter("FrontLeft", "SeatHeating", setValue)
+            visible: pluginContext.hvacSettings["FrontLeft"].SeatHeating === true
 
         }
 
@@ -46,45 +46,45 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
             imageSrc:"qrc:/HVAC/icons/windshield-defrost.svg"
-            active : HVACPlugin.parameters.ProgWindscreen
-            onClicked: HVACPlugin.setParameter("ProgWindscreen", !active);
-            visible: HVACPlugin.hvacSettings.FrontDefrost
+            active : pluginContext.parameters.ProgWindscreen
+            onClicked: pluginContext.setParameter("ProgWindscreen", !active);
+            visible: pluginContext.hvacSettings.FrontDefrost
         }
 
         TopButton {
             Layout.fillHeight: true
             Layout.fillWidth: true
             imageSrc:"qrc:/HVAC/icons/rear-window-defrost.svg"
-            active : HVACPlugin.parameters.RearDefrost
-            onClicked: HVACPlugin.setParameter("RearDefrost", !active);
-            visible: HVACPlugin.hvacSettings.RearDefrost
+            active : pluginContext.parameters.RearDefrost
+            onClicked: pluginContext.setParameter("RearDefrost", !active);
+            visible: pluginContext.hvacSettings.RearDefrost
         }
 
         TopButton {
             Layout.fillHeight: true
             Layout.fillWidth: true
             imageSrc:"qrc:/HVAC/icons/auto.svg"
-            active : HVACPlugin.parameters.ProgAuto
-            onClicked: HVACPlugin.setParameter("ProgAuto", !active);
-            visible: HVACPlugin.hvacSettings.Auto
+            active : pluginContext.parameters.ProgAuto
+            onClicked: pluginContext.setParameter("ProgAuto", !active);
+            visible: pluginContext.hvacSettings.Auto
         }
 
         TopButton {
             Layout.fillHeight: true
             Layout.fillWidth: true
             imageSrc:"qrc:/HVAC/icons/ac-flat.svg"
-            active : HVACPlugin.parameters.AC
-            onClicked: HVACPlugin.setParameter("AC", !active);
-            visible: HVACPlugin.hvacSettings.Ac
+            active : pluginContext.parameters.AC
+            onClicked: pluginContext.setParameter("AC", !active);
+            visible: pluginContext.hvacSettings.Ac
         }
 
         TopButton {
             Layout.fillHeight: true
             Layout.fillWidth: true
             imageSrc:"qrc:/HVAC/icons/recirc.svg"
-            active : HVACPlugin.parameters.Recirculate
-            onClicked: HVACPlugin.setParameter("Recirculate", !active);
-            visible: HVACPlugin.hvacSettings.Recirculate
+            active : pluginContext.parameters.Recirculate
+            onClicked: pluginContext.setParameter("Recirculate", !active);
+            visible: pluginContext.hvacSettings.Recirculate
         }
 
 
@@ -92,25 +92,25 @@ Item {
             Layout.fillHeight: true
             Layout.fillWidth: true
             inverse: true
-            value: HVACPlugin.parameters.FrontRight.SeatHeating
-            onUpdateValue: HVACPlugin.setZoneParameter("FrontRight", "SeatHeating", setValue)
-            visible: HVACPlugin.hvacSettings["FrontRight"].SeatHeating === true
+            value: pluginContext.parameters.FrontRight.SeatHeating
+            onUpdateValue: pluginContext.setZoneParameter("FrontRight", "SeatHeating", setValue)
+            visible: pluginContext.hvacSettings["FrontRight"].SeatHeating === true
         }
 
         Item {
             Layout.fillWidth: true
             Layout.fillHeight: true
-            visible: HVACPlugin.hvacSettings["FrontRight"].Temperature === true
+            visible: pluginContext.hvacSettings["FrontRight"].Temperature === true
 
             HVACDisplayTemperature {
                 anchors.fill: parent
-                value: HVACPlugin.parameters.FrontRight.Temperature
-                selected: HVACPlugin.parameters.TempSelectRight
+                value: pluginContext.parameters.FrontRight.Temperature
+                selected: pluginContext.parameters.TempSelectRight
             }
 
             MouseArea {
                 anchors.fill: parent
-                onClicked: HVACPlugin.openOverlay(true)
+                onClicked: pluginContext.openOverlay(true)
             }
         }
     }

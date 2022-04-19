@@ -8,11 +8,11 @@ Item {
         anchors.left: parent.left
         anchors.right: parent.right
         label: "Car Make"
-        values: HVACPlugin.carManufacturers
+        values: pluginContext.carManufacturers
         onValueChanged: {
-            HUDSettings["HVACPlugin"].car_make = value
+            pluginSettings.car_make = value
         }
-        value : HUDSettings["HVACPlugin"].car_make
+        value : pluginSettings.car_make
     }
 
     SettingsPageItemCombobox {
@@ -21,12 +21,12 @@ Item {
         anchors.right: parent.right
         anchors.top: car_make.bottom
         label: "Car"
-        values: HVACPlugin.cars
+        values: pluginContext.cars
 
         onValueChanged: {
-            HUDSettings["HVACPlugin"].car = value
+            pluginSettings.car = value
         }
-        value : HUDSettings["HVACPlugin"].car
+        value : pluginSettings.car
     }
 
     ListView {
@@ -35,7 +35,7 @@ Item {
         anchors.right: parent.right
         anchors.top: car.bottom
         anchors.bottom: parent.bottom
-        model: HVACPlugin.hvacSettings.CarSettings
+        model: pluginContext.hvacSettings.CarSettings
         delegate: Loader{
             width: __root.width
             Component.onCompleted: {
@@ -54,9 +54,9 @@ Item {
                 setSource(qmlItem, modelData);
                 if(item){
                     if(modelData.type === "bit") {
-                        item.value = HVACPlugin.customBits[modelData.bit]
+                        item.value = pluginContext.customBits[modelData.bit]
                     } else if(modelData.type === "byte") {
-                        item.value = HVACPlugin.customBytes[modelData.byte]
+                        item.value = pluginContext.customBytes[modelData.byte]
                     }
                     valueUpdateConnection.enabled = true;
                 }
@@ -67,9 +67,9 @@ Item {
                 target: item
                 onValueChanged : {
                     if(modelData.type === "bit") {
-                        HVACPlugin.setCustomBit(modelData.bit, item.value);
+                        pluginContext.setCustomBit(modelData.bit, item.value);
                     } else if(modelData.type === "byte") {
-                        HVACPlugin.setCustomByte(modelData.byte, item.value);
+                        pluginContext.setCustomByte(modelData.byte, item.value);
                     }
                 }
             }
@@ -78,7 +78,7 @@ Item {
     Connections{
         target: HVACPlugin
         onSettingsChanged : {
-            listView.model = HVACPlugin.hvacSettings.CarSettings
+            listView.model = pluginContext.hvacSettings.CarSettings
         }
     }
 }
