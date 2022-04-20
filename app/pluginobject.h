@@ -20,16 +20,17 @@ class PluginObject : public QObject
     Q_PROPERTY(QString name READ getName CONSTANT)
     Q_PROPERTY(QString label READ getLabel CONSTANT)
     Q_PROPERTY(QString icon READ getLabel CONSTANT)
-    Q_PROPERTY(QVariantMap menu READ getMenu CONSTANT)
-    Q_PROPERTY(QQmlPropertyMap * settings READ getSettings CONSTANT)
+    Q_PROPERTY(QVariant settings READ getSettings CONSTANT)
     Q_PROPERTY(QObject * contextProperty READ getContextProperty CONSTANT)
 public:
     explicit PluginObject(QString fileName, QObject *parent = nullptr);
-    explicit PluginObject(QString name, QString label,
-                          QObject *parent = nullptr, QString qmlSource = "",
-                          QVariantMap menu = QVariantMap(),
-                          QVariantMap settingsItems = QVariantMap(),
-                          QQmlPropertyMap * settings = nullptr);
+    explicit PluginObject(QString name,
+                          QString label,
+                          QObject *parent = nullptr,
+                          QString icon = "",
+                          QString qmlSource = "",
+                          QVariantMap settingsMenu = QVariantMap(),
+                          QVariant settings = QVariant());
     ~PluginObject();
 
     void setSource(QString source);
@@ -39,13 +40,12 @@ public:
     QString getName();
     QString getLabel();
     QString getIcon();
-    QVariantMap getMenu();
 
     QObject * getContextProperty();
     QQuickImageProvider *getImageProvider();
 
     QObject *getPlugin();
-    QQmlPropertyMap *getSettings();
+    QVariant getSettings();
     QVariantMap getSettingsItems();
     MediaInterface *getMediaInterface();
 
@@ -70,19 +70,18 @@ private:
     bool m_loaded;
     QVariant m_pluginFileName;
 
-    QString m_source;
     QString m_name;
     QString m_label;
     QString m_icon;
-    QVariantMap m_menu;
+    QString m_source;
     QVariant m_config;
 
     QPluginLoader m_pluginLoader;
     QObject *m_plugin = nullptr;
     PluginInterface *m_pluginInterface = nullptr;
 
-    QQmlPropertyMap *m_settings = nullptr;
-    QVariantMap m_settingsItems;
+    QVariant m_settings;
+    QVariantMap m_settingsMenu;
     MediaInterface * m_mediaInterface = nullptr;
 };
 

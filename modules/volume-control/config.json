@@ -1,11 +1,10 @@
 {
     "name":"VolumeControlPlugin",
+    "label":"Volume",
+    "icon": "qrc:/AudioSettings/volume.png",
     "config":{
-        "label":"Volume",
         "type":"loader",
         "source":"qrc:/AudioSettings/VolumeControl.qml",
-        "iconImage": "qrc:/AudioSettings/volume.png",
-        "section":"Media apps",
         "settings" : [
             {
                 "name": "volume",

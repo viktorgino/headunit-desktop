@@ -1,10 +1,9 @@
 {
     "name":"RPiPlugin",
+    "label":"Raspberry Pi",
+    "icon":"qrc:/RPI/Raspberry_Pi_Logo.svg",
     "config":{
-        "label":"Raspberry Pi settings",
-        "name": "rpi",
         "type":"items",
-        "iconImage":"qrc:/RPI/Raspberry_Pi_Logo.svg",
         "autoSave": true,
         "items":[
             {

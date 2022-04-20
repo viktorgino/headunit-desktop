@@ -1,8 +1,7 @@
 {
     "name":"SamplePlugin",
+    "label":"Sample Plugin",
     "config":{
-        "label":"Sample Plugin",
-        "name": "test",
         "type":"items",
         "description":"Settings Menu Test",
         "items":[

@@ -1,20 +1,12 @@
 {
     "name":"PhoneBluetooth",
-    "displayName" : "Bluetooth Audio",
-    "menu":{
-        "text":"Phone",
-        "source":"qrc:/PhoneBluetooth/Phone.qml",
-        "image": "qrc:/PhoneBluetooth/bluetooth.png",
-        "color":"#00BCD4"
-    },
+    "label" : "Phone",
+    "source":"qrc:/PhoneBluetooth/Phone.qml",
+    "icon": "qrc:/PhoneBluetooth/bluetooth.png",
     "overlay" : "qrc:/PhoneBluetooth/CallNotification.qml",
     "overlays" : "qrc:/PhoneBluetooth/CallNotification.qml",
     "config" :{
-        "label":"Bluetooth Settings",
-        "name": "car",
         "type":"items",
-        "iconImage": "qrc:/PhoneBluetooth/bluetooth.png",
-        "description":"",
         "items" : [
         {
             "label":"Bluetooth Adapter",

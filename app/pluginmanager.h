@@ -55,7 +55,9 @@ private:
     QHash<QString, QStringList> m_connections;
     PluginList m_pluginList;
 
+
     PluginObject *settingsMenu;
+    PluginObject *themeSettings;
 
     bool loadPlugins(QQmlApplicationEngine *engine, QStringList filterList);
 

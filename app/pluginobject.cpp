@@ -28,13 +28,9 @@ PluginObject::PluginObject(QString fileName, QObject *parent) :
 
     const QMetaObject *metaObject = m_plugin->metaObject();
 
-    QJsonValue menu = pluginMetaData.value("menu");
-    if(menu.type() == QJsonValue::Object){
-        m_menu = menu.toObject().toVariantMap();
-        m_source = m_menu["source"].toString();
-        m_label = m_menu["text"].toString();
-        m_icon = m_menu["image"].toString();
-    }
+    m_source = pluginMetaData.value("source").toString();
+    m_label = pluginMetaData.value("label").toString();
+    m_icon = pluginMetaData.value("icon").toString();
 
     for(int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i){
         if(metaObject->method(i).methodSignature() == "message(QString,QVariant)"){
@@ -48,14 +44,12 @@ PluginObject::PluginObject(QString fileName, QObject *parent) :
     QJsonValue config = pluginMetaData.value("config");
     if(config.type() == QJsonValue::Object){
         QJsonObject settingsObject = config.toObject();
-        settingsObject.insert("name", m_name);
 
         SettingsLoader *settings = nullptr;
         if(settingsObject.contains("items")){
             settings = new SettingsLoader(settingsObject, m_pluginInterface->getSettings(), this);
         } else if(settingsObject.contains("settings")) {
             QJsonObject configSettingsMap;
-            configSettingsMap.insert("name", m_name);
             configSettingsMap.insert("type", "items");
             configSettingsMap.insert("items", settingsObject["settings"].toArray());
             configSettingsMap.insert("autoSave", settingsObject["settingsAutoSave"].toBool());
@@ -63,9 +57,9 @@ PluginObject::PluginObject(QString fileName, QObject *parent) :
             settings = new SettingsLoader(configSettingsMap, m_pluginInterface->getSettings(), this);
         }
         if(settings){
-            m_settings = settings->getSettingsMap();
+            m_settings = QVariant::fromValue<QQmlPropertyMap * >(settings->getSettingsMap());
         }
-        m_settingsItems = settingsObject.toVariantMap();
+        m_settingsMenu = settingsObject.toVariantMap();
     }
 
     qCDebug(PLUGINOBJECT) << "Plugin loaded : " << m_name;
@@ -75,11 +69,16 @@ PluginObject::PluginObject(QString fileName, QObject *parent) :
     m_pluginInterface->onLoad();
 }
 
-PluginObject::PluginObject(QString name, QString label, QObject *parent, QString qmlSource, QVariantMap menu, QVariantMap settingsItems, QQmlPropertyMap * settings) :
-      QObject(parent), m_source(qmlSource), m_name(name), m_label(label), m_menu(menu), m_settings(settings), m_settingsItems(settingsItems)
+PluginObject::PluginObject(QString name,
+                           QString label,
+                           QObject *parent,
+                           QString icon,
+                           QString qmlSource,
+                           QVariantMap settingsMenu,
+                           QVariant settings) :
+      QObject(parent), m_name(name), m_label(label), m_icon(icon), m_source(qmlSource), m_settings(settings), m_settingsMenu(settingsMenu)
 {
     m_loaded = true;
-    m_icon = menu["image"].toString();
 }
 
 PluginObject::~PluginObject() {
@@ -131,10 +130,6 @@ QString PluginObject::getIcon(){
     return m_icon;
 }
 
-QVariantMap PluginObject::getMenu(){
-    return m_menu;
-}
-
 QObject *PluginObject::getContextProperty() {
     if(m_pluginInterface)
         return m_pluginInterface->getContextProperty();
@@ -149,12 +144,12 @@ QQuickImageProvider *PluginObject::getImageProvider() {
 QObject *PluginObject::getPlugin(){
     return m_plugin;
 }
-QQmlPropertyMap *PluginObject::getSettings(){
+QVariant PluginObject::getSettings(){
     return m_settings;
 }
 
 QVariantMap PluginObject::getSettingsItems() {
-    return m_settingsItems;
+    return m_settingsMenu;
 }
 
 MediaInterface *PluginObject::getMediaInterface() {

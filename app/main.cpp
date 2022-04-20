@@ -64,11 +64,11 @@ int main(int argc, char *argv[])
 
     bool lazyLoading = parser.isSet(lazyLoadingOption);
 
-    qDebug("%lld ms : loading plugins", time.elapsed());
-    PluginManager pluginManager(engine, plugins, lazyLoading, &app);
-
     qDebug("%lld ms : loading theme", time.elapsed());
     ThemeManager themeManager(engine,"default-theme", lazyLoading, &app);
+
+    qDebug("%lld ms : loading plugins", time.elapsed());
+    PluginManager pluginManager(engine, plugins, lazyLoading, &app);
 
     QObject::connect(&pluginManager, &PluginManager::themeEvent, &themeManager, &ThemeManager::onEvent);
 

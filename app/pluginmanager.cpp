@@ -12,19 +12,26 @@ PluginManager::PluginManager(QQmlApplicationEngine *engine, QStringList filterLi
       QObject(parent), m_mediaManager(this), m_pluginList(this)
 {
     qmlRegisterType<PluginListProxyModel>("HUDPlugins", 1, 0, "PluginListModel");
-//    qmlRegisterUncreatableType<PluginObject>("HUDPlugins", 1, 0, "PluginListModel", "PluginObject is uncreatable");
     qmlRegisterAnonymousType<PluginObject>("HUDPlugins", 1);
 
     loadPlugins(engine, filterList);
 
-    QVariantMap settingsMenuMap;
-    settingsMenuMap["text"] = "Settings";
-    settingsMenuMap["image"] = "icons/svg/gear-a.svg";
-    settingsMenuMap["color"] = "#4CAF50";
-
-    settingsMenu = new PluginObject("Settings","Settings", this, "qrc:/qml/HUDSettingsPage/SettingsPage.qml",settingsMenuMap);
+    settingsMenu = new PluginObject("Settings", "Settings", this, "icons/svg/gear-a.svg", "qrc:/qml/HUDSettingsPage/SettingsPage.qml");
 
     m_pluginList.addPlugin(settingsMenu);
+
+    QVariant hudStyle_contextProperty = engine->rootContext()->contextProperty("HUDStyle");
+
+    QVariantMap hudStyle = hudStyle_contextProperty.toMap();
+
+    if(hudStyle.size() > 0){
+        QVariantMap themeSettingsItems;
+        themeSettingsItems["type"] = "loader";
+        themeSettingsItems["source"] = "qrc:/qml/HUDSettingsPage/SettingsPageTheme.qml";
+        themeSettings = new PluginObject("ThemeSettings", "Theme", this, "",  "", themeSettingsItems, hudStyle);
+
+        m_pluginList.addPlugin(themeSettings);
+    }
 
     if(initInThread) {
         InitWorker *workerThread = new InitWorker(&m_pluginList, &m_mediaManager, this);

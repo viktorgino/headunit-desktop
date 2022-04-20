@@ -1,17 +1,14 @@
 {
     "name": "WelleIoPlugin",
     "imageProvider": "motslideshow",
+    "source": "qrc:/WelleIoPlugin/DABLayout.qml",
+    "icon": "qrc:/WelleIoPlugin/radio-waves.svg",
+    "label": "DAB",
     "menu": {
-        "source": "qrc:/WelleIoPlugin/DABLayout.qml",
-        "image": "qrc:/WelleIoPlugin/radio-waves.svg",
-        "text": "DAB",
         "color": "#9C27B0"
     },
     "config": {
-        "label": "DAB settings",
-        "name": "DAB",
         "type": "items",
-        "iconImage": "qrc:/WelleIoPlugin/radio-waves.svg",
         "autoSave": true,
         "items": [{
                 "label": "Automatic RF gain",

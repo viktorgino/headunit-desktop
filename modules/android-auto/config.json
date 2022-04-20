@@ -1,16 +1,10 @@
 {
     "name":"AndroidAuto",
-    "displayName" : "Android Auto",
-    "menu":{
-        "text":"Android Auto",
-        "source":"qrc:/AndroidAuto/nativeAA.qml",
-        "image": "qrc:/AndroidAuto/social-android.svg",
-        "color":"#673AB7"
-    },
+    "label":"Android Auto",
+    "source" : "qrc:/AndroidAuto/nativeAA.qml",
+    "icon": "qrc:/AndroidAuto/social-android.svg",
     "config":{
-        "label":"Android Auto",
         "type":"items",
-        "iconImage": "qrc:/AndroidAuto/social-android.svg",
         "section":"Media apps",
         "items" : [
             {

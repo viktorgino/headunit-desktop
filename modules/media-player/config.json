@@ -1,18 +1,11 @@
 {
     "name":"MediaPlayerPlugin",
-    "displayName" : "Media Player",
+    "label" : "Media Player",
     "imageProvider": "MediaPlayer",
-    "menu":{
-        "text":"Music",
-        "source":"qrc:/MediaPlayer/qml/MediaPlayerLayout.qml",
-        "image": "qrc:/MediaPlayer/images/music-note.svg",
-        "color":"#3F51B5"
-    },
+    "source":"qrc:/MediaPlayer/qml/MediaPlayerLayout.qml",
+    "icon": "qrc:/MediaPlayer/images/music-note.svg",
     "config":{
-        "label":"Media locations",
         "type":"loader",
-        "source":"qrc:/MediaPlayer/qml/MediaPlayerSettings.qml",
-        "iconImage": "qrc:/MediaPlayer/images/android-folder.png",
-        "section":"Media apps"
+        "source":"qrc:/MediaPlayer/qml/MediaPlayerSettings.qml"
     }
 }
