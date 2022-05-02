@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/HUDSerialTest">
+        <file>main.qml</file>
+        <file>PropertyBool.qml</file>
+        <file>PropertyByte.qml</file>
+        <file>ClimateControl.qml</file>
+        <file>CustomCommand.qml</file>
+        <file>BodyControl.qml</file>
+        <file>CommandKeys.qml</file>
+    </qresource>
+    <qresource prefix="/"/>
+</RCC>

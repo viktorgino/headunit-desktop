@@ -1,0 +1,6 @@
+{
+    "name":"HUDSerialTest",
+    "icon": "qrc:/qml/icons/android-developer.png",
+    "source": "qrc:/HUDSerialTest/main.qml",
+    "label":"HUD Serial Test"
+}
