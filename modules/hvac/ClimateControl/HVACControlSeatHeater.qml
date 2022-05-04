@@ -7,7 +7,7 @@ Item {
 
     property int value : 0
     property int steps : pluginContext.hvacSettings.SeatHeatSteps
-    property bool inverse: false
+    property bool inverted: false
     signal updateValue(var setValue)
     Item {
         height: parent.height * 0.6
@@ -26,7 +26,7 @@ Item {
             fillMode: Image.PreserveAspectFit
             source: "qrc:/HVAC/icons/seat-heat.svg"
             mipmap:true
-            mirror: __root.inverse
+            mirror: __root.inverted
         }
 
         ColorOverlay {
@@ -59,7 +59,7 @@ Item {
                         Layout.fillHeight: false
                         Layout.fillWidth: false
                         color:{
-                            if(__root.inverse){
+                            if(__root.inverted){
                                 //                            __root.value <= index+1?"#ff5722":"#FFFFFF"
                             } else {
                             }

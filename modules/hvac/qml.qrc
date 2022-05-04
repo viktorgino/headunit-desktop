@@ -55,5 +55,9 @@
         <file>ClimateControl/HVACBottomBar.qml</file>
         <file>ClimateControl/HVACControlFanDirection.qml</file>
         <file>ClimateControl/SettingsPage.qml</file>
+        <file>ClimateControl/BottomBar/SeatHeater.qml</file>
+        <file>ClimateControl/BottomBar/DisplayFan.qml</file>
+        <file>ClimateControl/BottomBar/FanDirection.qml</file>
+        <file>ClimateControl/BottomBar/Temperature.qml</file>
     </qresource>
 </RCC>

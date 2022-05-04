@@ -1,6 +1,6 @@
 import QtQuick 2.11
 import QtQuick.Layouts 1.3
-import QtQml 2.11
+
 
 Item {
     id: __root
@@ -57,8 +57,4 @@ Item {
     ]
 }
 
-/*##^##
-Designer {
-    D{i:0;autoSize:true;formeditorColor:"#808080";height:500;width:800}
-}
-##^##*/
+

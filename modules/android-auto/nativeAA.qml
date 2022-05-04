@@ -19,14 +19,14 @@ ThemeRoot {
         anchors.verticalCenter: parent.verticalCenter
         anchors.horizontalCenter: parent.horizontalCenter
         color: "#66000000"
-        Text{
+        ThemeText{
             visible: pluginContext.status === 0/*AndroidAuto.NO_CONNECTION*/
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter
             text:"Please connect a device"
             color: "#ffffff"
         }
-        Text{
+        ThemeText{
             visible: pluginContext.status === 1/*AndroidAuto.VIDEO_WAITING*/
             anchors.verticalCenter: parent.verticalCenter
             anchors.horizontalCenter: parent.horizontalCenter

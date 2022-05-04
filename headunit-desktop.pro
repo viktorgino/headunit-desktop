@@ -14,6 +14,6 @@ SUBDIRS = \
           modules/sample \
           modules/rpi \
           modules/hud-serial \
-#          modules/hud-serial-test \
+          modules/hud-serial-test \
           themes/default-theme
 
