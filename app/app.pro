@@ -11,6 +11,7 @@ CONFIG += qtquickcompiler
 
 SOURCES += main.cpp \
     mediamanager.cpp \
+    panelitemsmodel.cpp \
     pluginlist.cpp \
     pluginlistmodel.cpp \
     pluginmanager.cpp \
@@ -23,6 +24,7 @@ HEADERS += \
     ../includes/hvac-common.h \
     ../includes/mediainterface.h \
     mediamanager.h \
+    panelitemsmodel.h \
     pluginlist.h \
     pluginlistmodel.h \
     pluginmanager.h \

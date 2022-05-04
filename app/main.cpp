@@ -17,6 +17,7 @@
 
 #include "pluginmanager.h"
 #include "thememanager.h"
+#include "panelitemsmodel.h"
 
 Q_DECLARE_LOGGING_CATEGORY(HEADUNIT)
 
@@ -65,10 +66,10 @@ int main(int argc, char *argv[])
     bool lazyLoading = parser.isSet(lazyLoadingOption);
 
     qDebug("%lld ms : loading theme", time.elapsed());
-    ThemeManager themeManager(engine,"default-theme", lazyLoading, &app);
+    ThemeManager themeManager(engine, "default-theme", lazyLoading, &app);
 
     qDebug("%lld ms : loading plugins", time.elapsed());
-    PluginManager pluginManager(engine, plugins, lazyLoading, &app);
+    PluginManager pluginManager(engine, &themeManager, plugins, lazyLoading, &app);
 
     QObject::connect(&pluginManager, &PluginManager::themeEvent, &themeManager, &ThemeManager::onEvent);
 

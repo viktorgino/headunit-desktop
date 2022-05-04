@@ -8,7 +8,7 @@ void ThemeInitWorker::run() {
 }
 
 ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QString theme_name, bool initInThread, QObject *parent) : QObject(parent),
-    m_engine(engine), m_themeLoader(this)
+      m_engine(engine), m_themeLoader(this)
 {
     m_engine->rootContext()->setContextProperty("ThemeManager", this);
     ThemeInitWorker *workerThread = new ThemeInitWorker(theme_name, this, this);
@@ -33,6 +33,16 @@ void ThemeManager::initFinished() {
         m_themeSource = themeSettings.value("source").toString();
         emit themeSourceChanged();
     }
+    if(themeSettings.contains("settingsPageSource")) {
+        m_settingsPageSource = themeSettings.value("settingsPageSource").toString();
+        emit themeSourceChanged();
+    }
+
+    QJsonValue bottomBarItems = themeSettings.value("bottomBarItems");
+    if(bottomBarItems.isArray()){
+        m_bottomBarItems = bottomBarItems.toArray().toVariantList();
+    }
+
     qCDebug(THEMEMANAGER) << "Theme init finished";
 }
 void ThemeManager::initTheme(QString themeName) {
@@ -74,7 +84,7 @@ void ThemeManager::initTheme(QString themeName) {
     QStringList methods;
     for(int i = pluginMeta->methodOffset(); i < pluginMeta->methodCount(); ++i){
         if(pluginMeta->method(i).methodSignature() == "onEvent(QString,QString,QVariant)"){
-            connect(this, SIGNAL(themeEvent(QString, QString, QVariant)), m_themePlugin, SLOT(onEvent(QString, QString, QVariant)));
+            connect(this, SIGNAL(themeEvent(QString,QString,QVariant)), m_themePlugin, SLOT(onEvent(QString,QString,QVariant)));
         }
     }
     m_engine->addImportPath(themeDir.absolutePath());
@@ -85,25 +95,6 @@ void ThemeManager::initTheme(QString themeName) {
 }
 void ThemeManager::onEvent(QString sender, QString event, QVariant eventData) {
     emit themeEvent(sender, event, eventData);
-}
-
-void ThemeManager::loadJson(QString path){
-    QFile file(path);
-
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        qCDebug(THEMEMANAGER) << "Error opening settings theme file " << path;
-        return;
-    }
-
-    QString jsonString = file.readAll();
-    QJsonParseError error;
-    QJsonDocument jsonDoc = QJsonDocument::fromJson(jsonString.toUtf8(), &error);
-
-    if(jsonDoc.isNull()){
-        qCDebug(THEMEMANAGER) << "Error parsing json file " << path << " " << error.errorString();
-        return;
-    }
-    processThemeSettings(jsonDoc.object());
 }
 
 void ThemeManager::processThemeSettings(QJsonObject json){
@@ -128,7 +119,7 @@ void ThemeManager::processThemeSettings(QJsonObject json){
 
     QJsonArray settingsJson = json.value("settings").toArray();
 
-    for(QJsonValueRef item : settingsJson){
+    for(const QJsonValue &item : qAsConst(settingsJson)){
         if(!item.isObject()){
             qDebug() << "Item is not object";
             continue;
@@ -165,7 +156,7 @@ QVariantMap ThemeManager::loadSettingsMap(QString name, QString label, QString t
 }
 QVariantList ThemeManager::themeSettingsToSettingsItems(QVariantList items, QString type){
     QVariantList settingsList;
-    for(QVariant itemVariant : items){
+    for(const QVariant &itemVariant : items){
         if(itemVariant.type() != static_cast<QVariant::Type>(QMetaType::QVariantMap)){
             qCDebug(THEMEMANAGER) << " : Invalid settings type, skipping";
             continue;
@@ -186,8 +177,20 @@ QVariantList ThemeManager::themeSettingsToSettingsItems(QVariantList items, QStr
     return settingsList;
 }
 
+QVariantMap &ThemeManager::getStyle() {
+    return HUDStyle;
+}
+
+QString ThemeManager::getSettingsPageSource() {
+    return m_settingsPageSource;
+}
+
+QVariantList &ThemeManager::getBottomBarItems() {
+    return m_bottomBarItems;
+}
+
 ThemeManager::~ThemeManager(){
-    for(SettingsLoader * settings : m_settings){
+    for(SettingsLoader * settings : qAsConst(m_settings)){
         delete(settings);
     }
     qDebug() << "Theme manager dead";

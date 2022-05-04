@@ -21,7 +21,8 @@ public:
         LoadedRole,
         ContextPropertyRole,
         SettingsRole,
-        SettingsMenuRole
+        SettingsMenuRole,
+        BottomBarItemsRole
     };
 
     Q_INVOKABLE QHash<int, QByteArray> roleNames() const override;
@@ -45,7 +46,8 @@ public:
     enum PluginListType {
         PluginsList,
         MenuItemsList,
-        SettingMenuList
+        SettingMenuList,
+        BottomBarItemsList
     };
     explicit PluginListProxyModel(QObject *parent = nullptr);
 

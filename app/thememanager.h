@@ -30,8 +30,10 @@ public:
     explicit ThemeManager(QQmlApplicationEngine *engine, QString theme_name, bool initInThread, QObject *parent = nullptr);
     ~ThemeManager();
     void initTheme(QString themeName);
+    QVariantMap &getStyle();
+    QString getSettingsPageSource();
+    QVariantList &getBottomBarItems();
 private:
-    void loadJson(QString path);
     void processThemeSettings(QJsonObject json);
     QVariantMap loadSettingsMap(QString name, QString label, QString type, QVariantList items, QQmlPropertyMap * settingsMap);
     QVariantList themeSettingsToSettingsItems(QVariantList items, QString type);
@@ -42,7 +44,9 @@ private:
     QList<SettingsLoader *>m_settings;
     QQmlExtensionPlugin * m_themePlugin;
     QString m_themeSource;
+    QString m_settingsPageSource;
     QPluginLoader m_themeLoader;
+    QVariantList m_bottomBarItems;
 signals:
     void themeEvent(QString sender, QString event, QVariant eventData);
     void themeSourceChanged();

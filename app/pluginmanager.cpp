@@ -4,15 +4,16 @@ Q_LOGGING_CATEGORY(PLUGINMANAGER, "Plugin Manager")
 
 void InitWorker::run(){
     m_pluginList->initPlugins();
-
     m_mediaManager->init();
+    m_bottomBarModel->setPluginList(m_pluginList);
 }
 
-PluginManager::PluginManager(QQmlApplicationEngine *engine, QStringList filterList, bool initInThread, QObject *parent) :
-      QObject(parent), m_mediaManager(this), m_pluginList(this)
+PluginManager::PluginManager(QQmlApplicationEngine *engine, ThemeManager * themeManager,QStringList filterList, bool initInThread, QObject *parent) :
+      QObject(parent), m_mediaManager(this), m_pluginList(this), m_bottomBarModel(this), m_themeManager(themeManager)
 {
     qmlRegisterType<PluginListProxyModel>("HUDPlugins", 1, 0, "PluginListModel");
     qmlRegisterAnonymousType<PluginObject>("HUDPlugins", 1);
+    qmlRegisterSingletonInstance("HUDPlugins", 1, 0, "BottomBarModel", &m_bottomBarModel);
 
     loadPlugins(engine, filterList);
 
@@ -24,21 +25,20 @@ PluginManager::PluginManager(QQmlApplicationEngine *engine, QStringList filterLi
 
     QVariantMap hudStyle = hudStyle_contextProperty.toMap();
 
-    if(hudStyle.size() > 0){
-        QVariantMap themeSettingsItems;
-        themeSettingsItems["type"] = "loader";
-        themeSettingsItems["source"] = "qrc:/qml/HUDSettingsPage/SettingsPageTheme.qml";
-        themeSettings = new PluginObject("ThemeSettings", "Theme", this, "",  "", themeSettingsItems, hudStyle);
+    QVariantMap themeSettingsItems;
+    themeSettingsItems["type"] = "loader";
+    themeSettingsItems["source"] = themeManager->getSettingsPageSource();
+    themeSettings = new PluginObject("ThemeSettings", "Theme", this, "",  "", themeSettingsItems, themeManager->getStyle(), themeManager->getBottomBarItems());
 
-        m_pluginList.addPlugin(themeSettings);
-    }
+    m_pluginList.addPlugin(themeSettings);
 
     if(initInThread) {
-        InitWorker *workerThread = new InitWorker(&m_pluginList, &m_mediaManager, this);
+        InitWorker *workerThread = new InitWorker(&m_pluginList, &m_mediaManager, &m_bottomBarModel, this);
         workerThread->start();
     } else {
         m_pluginList.initPlugins();
         m_mediaManager.init();
+        m_bottomBarModel.setPluginList(&m_pluginList);
     }
 }
 

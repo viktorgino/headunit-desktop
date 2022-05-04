@@ -15,6 +15,8 @@ bool PluginListProxyModel::filterAcceptsRow(int sourceRow, const QModelIndex &so
         return !sourceModel()->data(index0,PluginListModel::QmlSourceRole).toString().isEmpty();
     case SettingMenuList:
         return sourceModel()->data(index0,PluginListModel::SettingsMenuRole).toMap().size() > 0;
+    case BottomBarItemsList:
+        return sourceModel()->data(index0,PluginListModel::BottomBarItemsRole).toList().size() > 0;
     }
 }
 void PluginListProxyModel::setPlugins(PluginList *plugins) {
@@ -31,6 +33,8 @@ void PluginListProxyModel::setType(QString type) {
         m_type = MenuItemsList;
     } else if(type.toLower() == "settingsmenu") {
         m_type = SettingMenuList;
+    } else if (type.toLower() == "bottombar") {
+        m_type = BottomBarItemsList;
     }
     invalidateFilter();
 }
@@ -51,6 +55,7 @@ QHash<int, QByteArray> PluginListModel::roleNames() const {
     roles[ContextPropertyRole] = "contextProperty";
     roles[SettingsRole] = "settings";
     roles[SettingsMenuRole] = "settingsMenu";
+    roles[BottomBarItemsRole] = "bottomBarItems";
     return roles;
 }
 
@@ -87,6 +92,18 @@ QVariant PluginListModel::data(const QModelIndex &index, int role) const {
         return plugin->getSettings();
     case SettingsMenuRole:
         return plugin->getSettingsItems();
+    case BottomBarItemsRole :
+        QList<PluginObject::PanelItem> panelItems = plugin->getBottomBarItems();
+
+        QVariantList bottomBarItems;
+
+        for (const PluginObject::PanelItem &panelItem : qAsConst(panelItems)) {
+            QVariantMap item;
+            item.insert("name", panelItem.name);
+            item.insert("label", panelItem.label);
+            bottomBarItems.append(item);
+        }
+        return bottomBarItems;
     }
 }
 

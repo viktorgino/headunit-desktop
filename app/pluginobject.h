@@ -30,8 +30,19 @@ public:
                           QString icon = "",
                           QString qmlSource = "",
                           QVariantMap settingsMenu = QVariantMap(),
-                          QVariant settings = QVariant());
+                          QVariant settings = QVariant(),
+                          QVariantList bottomBarItems = QVariantList());
     ~PluginObject();
+
+    typedef struct PanelItem {
+        QString name;
+        QString label;
+        QString source;
+        bool fillSpace = false;
+        QObject *contextProperty = nullptr;
+        QVariantMap properties;
+
+    } PanelItem;
 
     void setSource(QString source);
 
@@ -47,6 +58,7 @@ public:
     QObject *getPlugin();
     QVariant getSettings();
     QVariantMap getSettingsItems();
+    QList<PanelItem> getBottomBarItems();
     MediaInterface *getMediaInterface();
 
     Q_INVOKABLE void callSlot(QString slot);
@@ -67,6 +79,7 @@ private slots:
     void messageHandler(QString messageId, QVariant parameter);
     void actionHandler(QString actionId, QVariant parameter);
 private:
+    void loadBottomBarItems(QVariantList bottomBarItems);
     bool m_loaded;
     QVariant m_pluginFileName;
 
@@ -75,6 +88,7 @@ private:
     QString m_icon;
     QString m_source;
     QVariant m_config;
+    QList<PanelItem> m_bottomBarItems;
 
     QPluginLoader m_pluginLoader;
     QObject *m_plugin = nullptr;

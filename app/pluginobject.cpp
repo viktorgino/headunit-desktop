@@ -32,6 +32,11 @@ PluginObject::PluginObject(QString fileName, QObject *parent) :
     m_label = pluginMetaData.value("label").toString();
     m_icon = pluginMetaData.value("icon").toString();
 
+    QJsonValue bottomBarItems = pluginMetaData.value("bottomBarItems");
+    if(bottomBarItems.isArray()){
+        loadBottomBarItems(bottomBarItems.toArray().toVariantList());
+    }
+
     for(int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i){
         if(metaObject->method(i).methodSignature() == "message(QString,QVariant)"){
             connect(m_plugin, SIGNAL(message(QString,QVariant)), this, SLOT(messageHandler(QString,QVariant)));
@@ -75,9 +80,10 @@ PluginObject::PluginObject(QString name,
                            QString icon,
                            QString qmlSource,
                            QVariantMap settingsMenu,
-                           QVariant settings) :
+                           QVariant settings, QVariantList bottomBarItems) :
       QObject(parent), m_name(name), m_label(label), m_icon(icon), m_source(qmlSource), m_settings(settings), m_settingsMenu(settingsMenu)
 {
+    loadBottomBarItems(bottomBarItems);
     m_loaded = true;
 }
 
@@ -152,6 +158,10 @@ QVariantMap PluginObject::getSettingsItems() {
     return m_settingsMenu;
 }
 
+QList<PluginObject::PanelItem> PluginObject::getBottomBarItems() {
+    return m_bottomBarItems;
+}
+
 MediaInterface *PluginObject::getMediaInterface() {
     return m_mediaInterface;
 }
@@ -159,5 +169,36 @@ MediaInterface *PluginObject::getMediaInterface() {
 void PluginObject::callSlot(QString slot) {
     if(m_plugin) {
         QMetaObject::invokeMethod(m_plugin, slot.toLocal8Bit());
+    }
+}
+
+void PluginObject::loadBottomBarItems(QVariantList bottomBarItems) {
+    for(const QVariant &bottomBarItem : bottomBarItems){
+        QVariantMap bottomBarItemMap = bottomBarItem.toMap();
+        if(bottomBarItemMap.contains("name") && bottomBarItemMap.contains("source") && bottomBarItemMap.contains("label")){
+
+            PanelItem panelItem;
+
+            panelItem.name = QString("%1::%2").arg(m_name).arg(bottomBarItemMap["name"].toString());
+            panelItem.source = bottomBarItemMap["source"].toString();
+            panelItem.label = bottomBarItemMap["label"].toString();
+            panelItem.fillSpace = bottomBarItemMap["fillSpace"].toBool();
+            panelItem.properties = bottomBarItemMap["properties"].toMap();
+            panelItem.contextProperty = getContextProperty();
+
+            bool itemExists = false;
+            for(const PanelItem &item : qAsConst(m_bottomBarItems)){
+                if(item.name == panelItem.name) {
+                    itemExists = true;
+                }
+            }
+            if(!itemExists) {
+                m_bottomBarItems.append(panelItem);
+            } else {
+                qCDebug(PLUGINOBJECT) << "Error loading plugin bottom bar items " << m_name << ", panel item already exists : " << panelItem.name;
+            }
+        } else {
+            qCDebug(PLUGINOBJECT) << "Error loading plugin bottom bar items " << m_name << ", invalid bottomBarItems Object";
+        }
     }
 }
