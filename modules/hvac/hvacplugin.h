@@ -16,10 +16,12 @@
 #include <QJsonObject>
 #include <QJsonParseError>
 #include <QQmlPropertyMap>
+#include <QFile>
 
 #include <plugininterface.h>
 
 #include <hvac-common.h>
+#include <hud-common.h>
 
 class HVACPlugin : public QObject, PluginInterface
 {
@@ -28,6 +30,7 @@ class HVACPlugin : public QObject, PluginInterface
     Q_INTERFACES(PluginInterface)
     Q_PROPERTY(QVariantMap hvacSettings READ settings NOTIFY settingsChanged)
     Q_PROPERTY(QVariantMap parameters READ getHVACParameters NOTIFY parametersUpdated)
+    Q_PROPERTY(QVariantList bottomBarItems READ getBottomBarItems NOTIFY bottomBarItemsChanged)
 public:
     explicit HVACPlugin(QObject *parent = nullptr);
     void init() override;
@@ -41,6 +44,7 @@ signals:
     void parametersUpdated();
     void hvacParmeterUpdate(ClimateControlCommandFrame commandFrame);
     void settingsChanged();
+    void bottomBarItemsChanged();
 
 public slots:
     void actionMessage(QString id, QVariant message) override;
@@ -50,17 +54,24 @@ public slots:
     void closeOverlay();
 
 private:
+    QVariantList m_bottomBarItems;
     QVariantMap m_hvacSettings;
     ClimateControlCommandFrame m_commandFrame;
     QVariantMap m_hvacParameters;
 
     void updateHVACParameters();
     void resetHVACSettings();
+    void loadBottomBarSettings();
+    void loadSettings();
+    void saveSettings();
     QVariantMap settings(){
         return m_hvacSettings;
     }
     QVariantMap getHVACParameters(){
         return m_hvacParameters;
+    }
+    QVariantList getBottomBarItems(){
+        return m_bottomBarItems;
     }
 };
 

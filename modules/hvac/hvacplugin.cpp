@@ -10,12 +10,67 @@ HVACPlugin::HVACPlugin(QObject *parent) : QObject (parent)
 }
 
 void HVACPlugin::init() {
+    loadSettings();
 }
 
 QObject *HVACPlugin::getContextProperty(){
     return this;
 }
 
+void HVACPlugin::loadBottomBarSettings() {
+    qDebug() << "HVACPlugin::loadBottomBarSettings";
+    m_bottomBarItems.clear();
+    QStringList zoneKeys = QStringList() << "FrontLeft" << "FrontRight" << "RearLeft" << "RearRight";
+    QMap<QString, QString> sources;
+    sources["Direction"] = "qrc:/HVAC/ClimateControl/BottomBar/FanDirection.qml";
+    sources["Fan"] = "qrc:/HVAC/ClimateControl/BottomBar/DisplayFan.qml";
+    sources["Temperature"] = "qrc:/HVAC/ClimateControl/BottomBar/Temperature.qml";
+    sources["SeatHeating"] = "qrc:/HVAC/ClimateControl/BottomBar/SeatHeater.qml";
+    QStringList keys = m_hvacSettings.keys();
+
+
+    for(const QString &key : qAsConst(keys)){
+        if(zoneKeys.contains(key)){
+            QVariantMap settingsItem = m_hvacSettings[key].toMap();
+            QStringList enabledItems;
+            if(settingsItem["Direction"].toBool()){
+                enabledItems << "Direction";
+            }
+            if(settingsItem["Fan"].toBool()){
+                enabledItems << "Fan";
+            }
+            if(settingsItem["Temperature"].toBool()){
+                enabledItems << "Temperature";
+            }
+            if(settingsItem["SeatHeating"].toBool()){
+                enabledItems << "SeatHeating";
+            }
+
+            for(const QString &itemName : qAsConst(enabledItems)){
+                QVariantMap item;
+                QVariantMap properties;
+                bool inverted = key.contains("right", Qt::CaseInsensitive);
+                QString label = key + itemName;
+
+                for(int i = 0; i < label.size(); i++){
+                    if(label[i].isUpper() && i !=0){
+                        label.insert(i++, ' ');
+                    }
+                }
+
+                properties["zone"] = key;
+                properties["inverted"] = inverted;
+                item["properties"] = properties;
+                item["source"] = sources[itemName];
+                item["name"] = key + itemName;
+                item["label"] = label;
+                m_bottomBarItems.append(item);
+            }
+        }
+    }
+    emit bottomBarItemsChanged();
+
+}
 void HVACPlugin::actionMessage(QString id, QVariant message){
     if(id == "Update"){
         if(message.canConvert<ClimateControlCommandFrame>()){
@@ -25,13 +80,38 @@ void HVACPlugin::actionMessage(QString id, QVariant message){
     } else if("HvacSettingsUpdate") {
         if(message.canConvert<QVariantMap>()){
             resetHVACSettings();
-//            m_hvacSettings = m_hvacSettings.unite(;
             QVariantMap map = message.toMap();
             for(auto i = map.constBegin(); i != map.constEnd(); ++i){
                 m_hvacSettings.insert(i.key(), i.value());
             }
+            loadBottomBarSettings();
             emit settingsChanged();
+            saveSettings();
         }
+    }
+}
+
+void HVACPlugin::loadSettings() {
+    QSettings settings;
+    settings.beginGroup("HVACPlugin");
+
+    QStringList settingsKeys = settings.allKeys();
+    for(const QString &key : m_hvacSettings.keys()){
+        if(settingsKeys.contains(key)){
+            m_hvacSettings[key] = settings.value(key);
+        }
+    }
+    qDebug() << "HVACPlugin::loadSettings";
+    loadBottomBarSettings();
+    emit bottomBarItemsChanged();
+}
+
+void HVACPlugin::saveSettings() {
+    QSettings settings;
+    settings.beginGroup("HVACPlugin");
+
+    for(const QString &key : m_hvacSettings.keys()){
+        settings.setValue(key, m_hvacSettings[key]);
     }
 }
 
