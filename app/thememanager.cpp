@@ -123,7 +123,7 @@ void ThemeManager::processThemeSettings(QJsonObject json){
         QJsonObject jsonObject = item.toObject();
 
         QQmlPropertyMap *map = new QQmlPropertyMap();
-        m_settings << new SettingsLoader(jsonObject, map);
+        m_settings << new SettingsLoader(jsonObject, "", map);
 
         HUDStyle.insert(jsonObject.value("name").toString(), QVariant::fromValue<QQmlPropertyMap *>(map));
         HUDStyleSettings.append(jsonObject.toVariantMap());
@@ -134,7 +134,7 @@ void ThemeManager::processThemeSettings(QJsonObject json){
 
 
 QVariantMap ThemeManager::loadSettingsMap(QString name, QString label, QString type, QVariantList items, QQmlPropertyMap *settingsMap){
-    QVariantMap settings({{"label",label}, {"name",name}, {"type","items"}});
+    QVariantMap settings({{"label",label}, {"type","items"}});
 
     QVariantList itemsList;
     if(type == ""){
@@ -144,7 +144,7 @@ QVariantMap ThemeManager::loadSettingsMap(QString name, QString label, QString t
     }
     settings.insert("items", itemsList);
 
-    m_settings << new SettingsLoader(QJsonObject::fromVariantMap(settings), settingsMap);
+    m_settings << new SettingsLoader(QJsonObject::fromVariantMap(settings), name, settingsMap);
 
     return settings;
 }

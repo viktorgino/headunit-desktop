@@ -26,7 +26,15 @@ PluginObject::PluginObject(QString fileName, QObject *parent) :
         return;
     }
 
-    m_source = pluginMetaData.value("source").toString();
+    if(pluginMetaData.contains("source")) {
+        m_source = pluginMetaData.value("source").toString();
+    } else {
+        m_source = getPropertyValue("source").toString();
+        if(!m_source.isEmpty()){
+            connectToPropertySignal("source", "sourceChanged");
+        }
+    }
+
     m_label = pluginMetaData.value("label").toString();
     m_icon = pluginMetaData.value("icon").toString();
 
@@ -47,14 +55,16 @@ PluginObject::PluginObject(QString fileName, QObject *parent) :
 
         SettingsLoader *settings = nullptr;
         if(settingsObject.contains("items")){
-            settings = new SettingsLoader(settingsObject, m_pluginInterface->getSettings(), this);
+            settingsObject.insert("name", m_name);
+            settings = new SettingsLoader(settingsObject, m_name, m_pluginInterface->getSettings(), this);
         } else if(settingsObject.contains("settings")) {
             QJsonObject configSettingsMap;
+            configSettingsMap.insert("name", m_name);
             configSettingsMap.insert("type", "items");
             configSettingsMap.insert("items", settingsObject["settings"].toArray());
             configSettingsMap.insert("autoSave", settingsObject["settingsAutoSave"].toBool());
 
-            settings = new SettingsLoader(configSettingsMap, m_pluginInterface->getSettings(), this);
+            settings = new SettingsLoader(configSettingsMap, m_name, m_pluginInterface->getSettings(), this);
         }
         if(settings){
             m_settings = QVariant::fromValue<QQmlPropertyMap * >(settings->getSettingsMap());
@@ -92,37 +102,79 @@ void PluginObject::init(){
     if(m_plugin) {
         m_plugin->setParent(this);
 
-        const QMetaObject *metaObject = m_plugin->metaObject();
+        QJsonObject pluginMetaData = m_pluginLoader.metaData().value("MetaData").toObject();
 
-        for(int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i){
-            QMetaProperty property =  metaObject->property(i);
-            QString propertyName = QString::fromLatin1(property.name());
-            if(propertyName == "bottomBarItems") {
-                if(property.isReadable()) {
-                    QVariantList propertyValue = property.read(m_plugin).toList();
-                    loadBottomBarItems(propertyValue);
-                    QMetaMethod notifySignal = m_plugin->metaObject()->method(property.notifySignalIndex());
-                    if(notifySignal.isValid()){
-                        const QMetaObject *ownMeta = qobject_cast<QObject *>(this)->metaObject();
-
-                        for(int i = ownMeta->methodOffset(); i < ownMeta->methodCount(); ++i){
-                            QMetaMethod updateBottomBarItemsMethod =  ownMeta->method(i);
-                            if(updateBottomBarItemsMethod.name() == "updateBottomBarItems"){
-                                QMetaMethod signalHandler = ownMeta->method(i);
-                                connect(m_plugin, notifySignal, qobject_cast<QObject *>(this), signalHandler);
-                            }
-                        }
-                    }
-                }
-                break;
+        if(pluginMetaData.value("bottomBarItems").isArray()){
+            QVariantList bottomBarItems = pluginMetaData.value("bottomBarItems").toArray().toVariantList();
+            loadBottomBarItems(bottomBarItems);
+        } else {
+            QVariantList bottomBarItems = getPropertyValue("bottomBarItems").toList();
+            if(bottomBarItems.size() > 0){
+                connectToPropertySignal("bottomBarItems", "updateBottomBarItems");
+                loadBottomBarItems(bottomBarItems);
             }
         }
     }
 
-    emit loaded();
     m_loaded = true;
     emit loadedChanged();
 }
+
+void PluginObject::connectToPropertySignal(QString propertyName, QString slotName){
+    if(m_plugin) {
+        const QMetaObject *metaObject = m_plugin->metaObject();
+
+        for(int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i){
+            QMetaProperty property =  metaObject->property(i);
+            QString name = QString::fromLatin1(property.name());
+            if(propertyName == name) {
+                if(property.isReadable()) {
+                    QMetaMethod notifySignal = m_plugin->metaObject()->method(property.notifySignalIndex());
+                    if(notifySignal.isValid()){
+                        const QMetaObject *ownMeta = qobject_cast<QObject *>(this)->metaObject();
+                        for(int i = ownMeta->methodOffset(); i < ownMeta->methodCount(); ++i){
+                            QMetaMethod updateBottomBarItemsMethod =  ownMeta->method(i);
+                            if(updateBottomBarItemsMethod.name() == slotName){
+                                QMetaMethod signalHandler = ownMeta->method(i);
+                                connect(m_plugin, notifySignal, qobject_cast<QObject *>(this), signalHandler);
+                            }
+                        }
+                    } else {
+                        qCDebug(PLUGINOBJECT) << "Property " << propertyName << " doesn't have a notifiable signal";
+                    }
+                } else {
+                    qCDebug(PLUGINOBJECT) << "Property " << propertyName << " is not readable";
+                }
+                break;
+            }
+        }
+    } else {
+        qCDebug(PLUGINOBJECT) << "connectToPropertySignal : Plugin not loaded : " << m_name;
+    }
+}
+
+QVariant PluginObject::getPropertyValue(QString propertyName) {
+    if(m_plugin) {
+        const QMetaObject *metaObject = m_plugin->metaObject();
+
+        for(int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i){
+            QMetaProperty property =  metaObject->property(i);
+            QString name = QString::fromLatin1(property.name());
+            if(propertyName == name) {
+                if(property.isReadable()) {
+                    return property.read(m_plugin);
+                } else {
+                    qCDebug(PLUGINOBJECT) << "Property " << propertyName << " is not readable";
+                }
+                break;
+            }
+        }
+    } else {
+        qCDebug(PLUGINOBJECT) << "getPropertyValue : Plugin not loaded : " << m_name;
+    }
+    return QVariant();
+}
+
 void PluginObject::messageHandler(QString messageId, QVariant parameter) {
     emit message(m_name, messageId, parameter);
 }

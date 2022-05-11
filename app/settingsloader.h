@@ -19,7 +19,7 @@ class SettingsLoader : public QObject
 {
     Q_OBJECT
 public:
-    explicit SettingsLoader(QJsonObject obj, QQmlPropertyMap* settingsMap, QObject *parent = nullptr);
+    explicit SettingsLoader(QJsonObject obj, QString name, QQmlPropertyMap* settingsMap, QObject *parent = nullptr);
 
     ~SettingsLoader();
     QQmlPropertyMap  *getSettingsMap();

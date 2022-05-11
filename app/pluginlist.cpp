@@ -18,24 +18,14 @@ void PluginList::initPlugins()  {
 PluginObject *PluginList::addPlugin(QString pluginPath) {
     PluginObject *plugin = new PluginObject(pluginPath, this);
 
-    connect(plugin, &PluginObject::loaded, this, &PluginList::pluginLoadedHandler);
     m_plugins.append(plugin);
     return plugin;
 }
 void PluginList::addPlugin(PluginObject *plugin) {
     if(plugin) {
-        connect(plugin, &PluginObject::loaded, this, &PluginList::pluginLoadedHandler);
         m_plugins.append(plugin);
         int index = m_plugins.indexOf(plugin);
         emit pluginAdded(index);
-    }
-}
-
-void PluginList::pluginLoadedHandler() {
-    PluginObject * sender = qobject_cast<PluginObject *> (QObject::sender());
-    if(sender) {
-        int index = m_plugins.indexOf(sender);
-        emit pluginLoaded(index);
     }
 }
 

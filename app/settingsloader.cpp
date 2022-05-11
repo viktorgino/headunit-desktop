@@ -2,10 +2,9 @@
 
 Q_LOGGING_CATEGORY(SETTINGSLOADER, "SettingsLoader")
 
-SettingsLoader::SettingsLoader(QJsonObject obj, QQmlPropertyMap* settingsMap, QObject *parent) : QObject(parent), m_settings(settingsMap)
+SettingsLoader::SettingsLoader(QJsonObject obj, QString name, QQmlPropertyMap* settingsMap, QObject *parent) : QObject(parent), m_settings(settingsMap), m_name(name)
 {
     connect(settingsMap, &QQmlPropertyMap::valueChanged, this, &SettingsLoader::settingsChanged);
-    m_name = obj.value("name").toString();
     loadJson(obj);
 }
 SettingsLoader::~SettingsLoader(){

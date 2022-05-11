@@ -7,10 +7,10 @@ HVACPlugin::HVACPlugin(QObject *parent) : QObject (parent)
 
     updateHVACParameters();
     resetHVACSettings();
+    loadSettings();
 }
 
 void HVACPlugin::init() {
-    loadSettings();
 }
 
 QObject *HVACPlugin::getContextProperty(){
@@ -83,6 +83,7 @@ void HVACPlugin::actionMessage(QString id, QVariant message){
             for(auto i = map.constBegin(); i != map.constEnd(); ++i){
                 m_hvacSettings.insert(i.key(), i.value());
             }
+            setMenuItem();
             loadBottomBarSettings();
             emit settingsChanged();
             saveSettings();
@@ -100,8 +101,9 @@ void HVACPlugin::loadSettings() {
             m_hvacSettings[key] = settings.value(key);
         }
     }
+
+    setMenuItem();
     loadBottomBarSettings();
-    emit bottomBarItemsChanged();
 }
 
 void HVACPlugin::saveSettings() {
@@ -113,6 +115,14 @@ void HVACPlugin::saveSettings() {
     }
 }
 
+void HVACPlugin::setMenuItem() {
+    if(!m_hvacSettings["readOnly"].toBool()){
+        m_source = "qrc:/HVAC/ClimateControl/ACLayout.qml";
+    } else {
+        m_source = "";
+    }
+    emit sourceChanged();
+}
 void HVACPlugin::resetHVACSettings(){
     m_hvacSettings.clear();
     m_hvacSettings["readOnly"] = false;

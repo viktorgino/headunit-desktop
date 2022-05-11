@@ -31,7 +31,8 @@ public:
 
     void setPlugins(PluginList *plugins);
     void setType(QString type);
-
+private slots:
+    void onDataChanged();
 private:
     PluginList *m_plugins;
 };

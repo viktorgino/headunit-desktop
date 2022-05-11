@@ -51,6 +51,8 @@ public:
     QVariantMap getSettingsItems();
     QList<PanelItem> getBottomBarItems();
     MediaInterface *getMediaInterface();
+    void connectToPropertySignal(QString propertyName, QString slotName);
+    QVariant getPropertyValue(QString propertyName);
 
     Q_INVOKABLE void callSlot(QString slot);
 
@@ -63,7 +65,6 @@ public slots:
 signals:
     void loadedChanged();
     void sourceChanged();
-    void loaded();
 
     void message(QString sender, QString message, QVariant parameter);
     void action(QString sender, QString action, QVariant parameter);

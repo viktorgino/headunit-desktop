@@ -28,8 +28,6 @@ public:
 signals:
     void pluginLoaded(int index);
     void pluginAdded(int index);
-private slots:
-    void pluginLoadedHandler();
 private:
     QVector<PluginObject *> m_plugins;
 };
