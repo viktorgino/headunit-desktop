@@ -1,74 +1,69 @@
 #ifndef THEMEMANAGER_H
 #define THEMEMANAGER_H
 
-#include <QObject>
 #include <QColor>
+#include <QCoreApplication>
 #include <QDebug>
-#include <QQmlApplicationEngine>
-#include <QQmlContext>
-#include <QQmlPropertyMap>
-#include <QSettings>
 #include <QDir>
-#include <cstring>
+#include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
-#include <QJsonArray>
 #include <QLoggingCategory>
-#include <QSettings>
+#include <QObject>
 #include <QPluginLoader>
+#include <QQmlApplicationEngine>
+#include <QQmlContext>
 #include <QQmlExtensionPlugin>
-#include <QCoreApplication>
+#include <QQmlPropertyMap>
+#include <QSettings>
 #include <QThread>
+#include <cstring>
 
 #include "settingsloader.h"
+#include "pluginlist.h"
 
 class ThemeManager : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString themeSource READ getThemeSource NOTIFY themeSourceChanged)
 public:
-    explicit ThemeManager(QQmlApplicationEngine *engine, QString theme_name, bool initInThread, QObject *parent = nullptr);
+    explicit ThemeManager(QQmlApplicationEngine *engine, PluginList *pluginList, QObject *parent = nullptr);
     ~ThemeManager();
     void initTheme(QString themeName);
     QVariantMap &getStyle();
-    QString getSettingsPageSource();
     QVariantList &getBottomBarItems();
+
 private:
     void processThemeSettings(QJsonObject json);
-    QVariantMap loadSettingsMap(QString name, QString label, QString type, QVariantList items, QQmlPropertyMap * settingsMap);
+    QVariantMap loadSettingsMap(QString name, QString label, QString type, QVariantList items, QQmlPropertyMap *settingsMap);
     QVariantList themeSettingsToSettingsItems(QVariantList items, QString type);
     QQmlPropertyMap theme;
     QQmlApplicationEngine *m_engine;
     QVariantMap HUDStyle;
     QVariantList HUDStyleSettings;
-    QList<SettingsLoader *>m_settings;
-    QQmlExtensionPlugin * m_themePlugin;
+    QList<SettingsLoader *> m_settings;
+    QQmlExtensionPlugin *m_themePlugin;
     QString m_themeSource;
-    QString m_settingsPageSource;
     QPluginLoader m_themeLoader;
     QVariantList m_bottomBarItems;
+    PluginList * m_pluginList;
+
+    PluginObject *m_settingsMenu;
+    PluginObject *m_themeSettings;
+
+    QQmlPropertyMap m_colorsMap;
+    QQmlPropertyMap m_sizesMap;
 signals:
     void themeEvent(QString sender, QString event, QVariant eventData);
     void themeSourceChanged();
 public slots:
     void onEvent(QString sender, QString event, QVariant eventData);
-private slots:
     void initFinished();
-    QString getThemeSource() {
+private slots:
+    QString getThemeSource()
+    {
         return m_themeSource;
     }
-};
-
-class ThemeInitWorker : public QThread
-{
-    Q_OBJECT
-public:
-    ThemeInitWorker(QString themeName, ThemeManager *themeManager, QObject *parent = nullptr) :
-          QThread(parent), m_themeName(themeName), m_themeManager(themeManager) {}
-    void run() override;
-private:
-    QString m_themeName;
-    ThemeManager *m_themeManager;
 };
 
 #endif // THEMEMANAGER_H

@@ -26,26 +26,14 @@
 #include "panelitemsmodel.h"
 #include "thememanager.h"
 
-class InitWorker : public QThread
-{
-    Q_OBJECT
-public:
-    InitWorker(PluginList *pluginList, MediaManager *mediaManager, PanelItemsModel *bottomBarModel, QObject *parent = nullptr) :
-          QThread(parent), m_pluginList(pluginList), m_mediaManager(mediaManager), m_bottomBarModel(bottomBarModel) {}
-    void run() override;
-private:
-    PluginList *m_pluginList;
-    MediaManager *m_mediaManager;
-    PanelItemsModel *m_bottomBarModel;
-};
-
 class PluginManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit PluginManager(QQmlApplicationEngine *engine, ThemeManager * themeManager, QStringList filterList, bool initInThread, QObject *parent = nullptr);
+    explicit PluginManager(QQmlApplicationEngine *engine, PluginList *pluginList, MediaManager *mediaManager, QObject *parent = nullptr);
 
     ~PluginManager();
+    bool loadPlugins(QStringList filterList);
 signals:
     void themeEvent(QString, QString, QVariant);
 
@@ -54,18 +42,10 @@ private slots:
     void actionHandler(QString sender, QString id, QVariant message);
 private:
 
-    MediaManager m_mediaManager;
+    MediaManager *m_mediaManager;
     QHash<QString, QStringList> m_connections;
-    PluginList m_pluginList;
-    PanelItemsModel m_bottomBarModel;
-
-
-    PluginObject *settingsMenu;
-    PluginObject *themeSettings;
-    ThemeManager * m_themeManager;
-
-    bool loadPlugins(QQmlApplicationEngine *engine, QStringList filterList);
-
+    PluginList *m_pluginList;
+    QQmlApplicationEngine *m_engine;
 };
 
 #endif // PLUGINMANAGER_H

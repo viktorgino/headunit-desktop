@@ -3,8 +3,12 @@
 PluginList::PluginList(QObject *parent) : QObject(parent)
 {
 
+    qDebug() << "Plugin list constructed";
 }
 
+PluginList::~PluginList() {
+    qDebug() << "Plugin list destroyed";
+}
 void PluginList::initPlugins()  {
     for(PluginObject * plugin : qAsConst(m_plugins)){
         plugin->init();
@@ -22,6 +26,8 @@ void PluginList::addPlugin(PluginObject *plugin) {
     if(plugin) {
         connect(plugin, &PluginObject::loaded, this, &PluginList::pluginLoadedHandler);
         m_plugins.append(plugin);
+        int index = m_plugins.indexOf(plugin);
+        emit pluginAdded(index);
     }
 }
 

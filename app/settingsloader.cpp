@@ -1,6 +1,6 @@
 #include "settingsloader.h"
 
-Q_LOGGING_CATEGORY(SETTINGSLOADER, "Settings Loader")
+Q_LOGGING_CATEGORY(SETTINGSLOADER, "SettingsLoader")
 
 SettingsLoader::SettingsLoader(QJsonObject obj, QQmlPropertyMap* settingsMap, QObject *parent) : QObject(parent), m_settings(settingsMap)
 {
@@ -159,14 +159,17 @@ QVariant SettingsLoader::processItem(QJsonObject json){
                 continue;
             }
             QJsonObject obj = QJsonObject::fromVariantMap(item.toMap());
-            if(itemsMap.keys().contains(obj.value("name").toString())){
-                qCDebug(SETTINGSLOADER) << "Duplicate name ( " << settings.group() << obj.value("name").toString() << " ) skipping.";
+            QString itemName = obj.value("name").toString();
+            if(itemsMap.keys().contains(itemName)){
+                if(!itemName.isEmpty()){
+                    qCDebug(SETTINGSLOADER) << "Duplicate name ( " << settings.group() << itemName << " ) skipping.";
+                }
                 continue;
             }
             QString tempGroup;
 
             QVariant itemValue = processItem(obj);
-            itemsMap.insert(obj.value("name").toString(), itemValue);
+            itemsMap.insert(itemName, itemValue);
         }
 
         if(json.value("name").toString() != m_name){

@@ -93,11 +93,11 @@ QVariant PluginListModel::data(const QModelIndex &index, int role) const {
     case SettingsMenuRole:
         return plugin->getSettingsItems();
     case BottomBarItemsRole :
-        QList<PluginObject::PanelItem> panelItems = plugin->getBottomBarItems();
+        QList<PanelItem> panelItems = plugin->getBottomBarItems();
 
         QVariantList bottomBarItems;
 
-        for (const PluginObject::PanelItem &panelItem : qAsConst(panelItems)) {
+        for (const PanelItem &panelItem : qAsConst(panelItems)) {
             QVariantMap item;
             item.insert("name", panelItem.name);
             item.insert("label", panelItem.label);
@@ -115,6 +115,10 @@ void PluginListModel::setPlugins(PluginList *plugins) {
 
         connect(m_plugins,&PluginList::pluginLoaded, [=](const int pluginIndex) {
             emit dataChanged(index(pluginIndex, 0), index(pluginIndex, 0));
+        });
+        connect(m_plugins,&PluginList::pluginAdded, [=](const int pluginIndex) {
+            beginInsertRows(QModelIndex(), pluginIndex, pluginIndex);
+            endInsertRows();
         });
     }
 }

@@ -2,47 +2,12 @@
 
 Q_LOGGING_CATEGORY(PLUGINMANAGER, "Plugin Manager")
 
-void InitWorker::run(){
-    m_pluginList->initPlugins();
-    m_mediaManager->init();
-    m_bottomBarModel->setPluginList(m_pluginList);
-}
-
-PluginManager::PluginManager(QQmlApplicationEngine *engine, ThemeManager * themeManager,QStringList filterList, bool initInThread, QObject *parent) :
-      QObject(parent), m_mediaManager(this), m_pluginList(this), m_bottomBarModel(this), m_themeManager(themeManager)
+PluginManager::PluginManager(QQmlApplicationEngine *engine, PluginList *pluginList, MediaManager *mediaManager, QObject *parent) :
+      QObject(parent), m_mediaManager(mediaManager), m_pluginList(pluginList), m_engine(engine)
 {
-    qmlRegisterType<PluginListProxyModel>("HUDPlugins", 1, 0, "PluginListModel");
-    qmlRegisterAnonymousType<PluginObject>("HUDPlugins", 1);
-    qmlRegisterSingletonInstance("HUDPlugins", 1, 0, "BottomBarModel", &m_bottomBarModel);
-
-    loadPlugins(engine, filterList);
-
-    settingsMenu = new PluginObject("Settings", "Settings", this, "icons/svg/gear-a.svg", "qrc:/qml/HUDSettingsPage/SettingsPage.qml");
-
-    m_pluginList.addPlugin(settingsMenu);
-
-    QVariant hudStyle_contextProperty = engine->rootContext()->contextProperty("HUDStyle");
-
-    QVariantMap hudStyle = hudStyle_contextProperty.toMap();
-
-    QVariantMap themeSettingsItems;
-    themeSettingsItems["type"] = "loader";
-    themeSettingsItems["source"] = themeManager->getSettingsPageSource();
-    themeSettings = new PluginObject("ThemeSettings", "Theme", this, "",  "", themeSettingsItems, themeManager->getStyle(), themeManager->getBottomBarItems());
-
-    m_pluginList.addPlugin(themeSettings);
-
-    if(initInThread) {
-        InitWorker *workerThread = new InitWorker(&m_pluginList, &m_mediaManager, &m_bottomBarModel, this);
-        workerThread->start();
-    } else {
-        m_pluginList.initPlugins();
-        m_mediaManager.init();
-        m_bottomBarModel.setPluginList(&m_pluginList);
-    }
 }
 
-bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, QStringList filterList)
+bool PluginManager::loadPlugins(QStringList filterList)
 {
     QDir pluginsDir(qApp->applicationDirPath());
 #if defined(Q_OS_WIN)
@@ -65,16 +30,16 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, QStringList filte
             continue;
         }
 
-        PluginObject * plugin = m_pluginList.addPlugin(pluginsDir.absoluteFilePath(fileName));
+        PluginObject * plugin = m_pluginList->addPlugin(pluginsDir.absoluteFilePath(fileName));
 
         if(plugin->getMediaInterface()){
             qDebug() << "Adding interface" << plugin->getName();
-            m_mediaManager.addInterface(plugin->getName(), plugin->getPlugin());
+            m_mediaManager->addInterface(plugin->getName(), plugin->getPlugin());
         }
 
 
         if(plugin->getImageProvider()){
-            engine->addImageProvider(plugin->getName(),plugin->getImageProvider());
+            m_engine->addImageProvider(plugin->getName(),plugin->getImageProvider());
         }
 
         connect(plugin, &PluginObject::action, this, &PluginManager::actionHandler);
@@ -88,12 +53,9 @@ bool PluginManager::loadPlugins(QQmlApplicationEngine *engine, QStringList filte
             QPluginLoader pluginLoader(pluginsDir.absoluteFilePath(fileName));
             QJsonValue uri = pluginLoader.metaData().value("MetaData").toObject().value("uri");
             QList<QQmlError> errors;
-            engine->importPlugin(pluginsDir.absoluteFilePath(fileName),uri.toString(),&errors);
+            m_engine->importPlugin(pluginsDir.absoluteFilePath(fileName),uri.toString(),&errors);
         }
     }
-
-    engine->rootContext()->setContextProperty("HUDPlugins", &m_pluginList);
-    engine->rootContext()->setContextProperty("HUDMediaManager", &m_mediaManager);
 
     return true;
 }
@@ -109,7 +71,7 @@ void PluginManager::messageHandler(QString sender, QString id, QVariant message)
     } else if(messageId.size() == 2 && messageId[0] == "SYSTEM") {
         event = id;
     } else if(id == "MediaInput"){
-        m_mediaManager.mediaInput(message.toString());
+        m_mediaManager->mediaInput(message.toString());
         return;
     } else if(id == "KeyInput"){
         event = "KeyInput";
@@ -118,7 +80,7 @@ void PluginManager::messageHandler(QString sender, QString id, QVariant message)
         event = QString("%1::%2").arg(sender).arg(id);
     }
 
-    m_pluginList.handleMessage(event, message);
+    m_pluginList->handleMessage(event, message);
 }
 
 void PluginManager::actionHandler(QString sender, QString id, QVariant message){
@@ -135,7 +97,7 @@ void PluginManager::actionHandler(QString sender, QString id, QVariant message){
             messageHandler(sender, id, message);
 
         } else {
-            PluginObject *pluginObject = m_pluginList.getPlugin(messageId[0]);
+            PluginObject *pluginObject = m_pluginList->getPlugin(messageId[0]);
             if(pluginObject) {
                 pluginObject->callAction(messageId[1], message);
             } else {

@@ -5,6 +5,7 @@
 #include <QAbstractListModel>
 #include <QSettings>
 
+#include <hud-common.h>
 
 #include "pluginlistmodel.h"
 
@@ -24,6 +25,7 @@ public:
 
     void setPluginList(PluginList *pluginList);
 
+    void removeUnusedItems();
 
 public slots:
     void insertPluginItem(int position, QString name);
@@ -35,7 +37,7 @@ signals:
 
 private:
     PluginList *m_pluginList = nullptr;
-    QList<PluginObject::PanelItem> m_modelItems;
+    QList<PanelItem> m_modelItems;
     bool m_editing = false;
     void saveList();
     void loadList();

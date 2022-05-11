@@ -8,9 +8,10 @@
 
 #include <QPluginLoader>
 
-#include "../includes/plugininterface.h"
+#include <plugininterface.h>
+#include <mediainterface.h>
+#include <hud-common.h>
 #include "settingsloader.h"
-#include "../includes/mediainterface.h"
 
 class PluginObject : public QObject
 {
@@ -33,16 +34,6 @@ public:
                           QVariant settings = QVariant(),
                           QVariantList bottomBarItems = QVariantList());
     ~PluginObject();
-
-    typedef struct PanelItem {
-        QString name;
-        QString label;
-        QString source;
-        bool fillSpace = false;
-        QObject *contextProperty = nullptr;
-        QVariantMap properties;
-
-    } PanelItem;
 
     void setSource(QString source);
 
@@ -67,6 +58,7 @@ public:
 public slots:
     void handleMessage(QString id, QVariant message);
     void callAction(QString id, QVariant message);
+    void updateBottomBarItems();
 
 signals:
     void loadedChanged();
@@ -75,6 +67,7 @@ signals:
 
     void message(QString sender, QString message, QVariant parameter);
     void action(QString sender, QString action, QVariant parameter);
+    void bottomBarItemsUpdated();
 private slots:
     void messageHandler(QString messageId, QVariant parameter);
     void actionHandler(QString actionId, QVariant parameter);

@@ -1,6 +1,6 @@
 #include "panelitemsmodel.h"
 
-Q_LOGGING_CATEGORY(PANELITEMSMODEL, "Panel Items Model")
+Q_LOGGING_CATEGORY(PANELITEMSMODEL, "PanelItemsModel")
 
 PanelItemsModel::PanelItemsModel(QObject *parent) : QAbstractListModel(parent), m_pluginList(nullptr)
 {
@@ -27,7 +27,7 @@ int PanelItemsModel::rowCount(const QModelIndex &parent) const {
 }
 
 QVariant PanelItemsModel::data(const QModelIndex &index, int role) const {
-    PluginObject::PanelItem panelItem = m_modelItems[index.row()];
+    PanelItem panelItem = m_modelItems[index.row()];
     switch (role) {
     case NameRole:
         return panelItem.name;
@@ -49,7 +49,18 @@ QVariant PanelItemsModel::data(const QModelIndex &index, int role) const {
 }
 
 void PanelItemsModel::setPluginList(PluginList *pluginList) {
+    if(!pluginList){
+        qCDebug(PANELITEMSMODEL) << "Plugin list uninitialised";
+        return;
+    }
     m_pluginList = pluginList;
+    for(int i = 0; i < m_pluginList->size(); i++){
+        PluginObject *plugin = m_pluginList->at(i);
+        connect(m_pluginList,&PluginList::pluginAdded, [=](const int pluginIndex) {
+            beginInsertRows(QModelIndex(), pluginIndex, pluginIndex);
+            endInsertRows();
+        });
+    }
     loadList();
 }
 
@@ -61,6 +72,34 @@ void PanelItemsModel::loadList() {
     for(const QString &item : qAsConst(bottomBarItems)){
         insertPluginItem(i++, item);
     }
+}
+
+void PanelItemsModel::removeUnusedItems(){
+    if(!m_pluginList){
+        qCDebug(PANELITEMSMODEL) << "Plugin list uninitialised";
+        return;
+    }
+
+    QStringList availableItems;
+    for(int i = 0; i < m_pluginList->size(); i++){
+        PluginObject *plugin = m_pluginList->at(i);
+
+        QList<PanelItem> itemList = plugin->getBottomBarItems();
+
+        for(const PanelItem &item : qAsConst(itemList)){
+            availableItems << item.name;
+        }
+    }
+    beginResetModel();
+    QMutableListIterator<PanelItem> i(m_modelItems);
+    while (i.hasNext()){
+        PanelItem &item = i.next();
+        if(!availableItems.contains(item.name)){
+            i.remove();
+        }
+    }
+    endResetModel();
+    saveList();
 }
 
 void PanelItemsModel::move(int from, int to) {
@@ -87,11 +126,12 @@ void PanelItemsModel::saveList() {
 
     QStringList items;
 
-    for(const PluginObject::PanelItem &panelItem : qAsConst(m_modelItems)){
+    for(const PanelItem &panelItem : qAsConst(m_modelItems)){
         items << panelItem.name;
     }
     settings.setValue("bottomBarItems", items.join(","));
 }
+
 void PanelItemsModel::insertPluginItem(int position, QString name) {
     if(!m_pluginList){
         qCDebug(PANELITEMSMODEL) << "Plugin list uninitialised";
@@ -111,10 +151,10 @@ void PanelItemsModel::insertPluginItem(int position, QString name) {
         return;
     }
 
-    QList<PluginObject::PanelItem> itemList = plugin->getBottomBarItems();
+    QList<PanelItem> itemList = plugin->getBottomBarItems();
 
-    PluginObject::PanelItem panelItem;
-    for(const PluginObject::PanelItem &item : qAsConst(itemList)){
+    PanelItem panelItem;
+    for(const PanelItem &item : qAsConst(itemList)){
         if(item.name == name){
             panelItem = item;
             break;
@@ -124,6 +164,7 @@ void PanelItemsModel::insertPluginItem(int position, QString name) {
     beginInsertRows(QModelIndex(), position, position);
     m_modelItems.insert(position, panelItem);
     endInsertRows();
+
     saveList();
 }
 

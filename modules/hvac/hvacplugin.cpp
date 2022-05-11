@@ -18,7 +18,6 @@ QObject *HVACPlugin::getContextProperty(){
 }
 
 void HVACPlugin::loadBottomBarSettings() {
-    qDebug() << "HVACPlugin::loadBottomBarSettings";
     m_bottomBarItems.clear();
     QStringList zoneKeys = QStringList() << "FrontLeft" << "FrontRight" << "RearLeft" << "RearRight";
     QMap<QString, QString> sources;
@@ -101,7 +100,6 @@ void HVACPlugin::loadSettings() {
             m_hvacSettings[key] = settings.value(key);
         }
     }
-    qDebug() << "HVACPlugin::loadSettings";
     loadBottomBarSettings();
     emit bottomBarItemsChanged();
 }

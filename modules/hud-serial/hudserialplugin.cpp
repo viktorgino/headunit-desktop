@@ -330,7 +330,7 @@ void HUDSerialPlugin::loadCarSettings(QString fileName){
 void HUDSerialPlugin::updateManufacturers(){
     QDir dir(QCoreApplication::applicationDirPath());
     dir.cd("modules/hud-serial/cars");
-    for(QString info : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)){
+    for(const QString &info : dir.entryList(QDir::Dirs | QDir::NoDotAndDotDot)){
         m_manufacturers.insert(info,info);
     }
     emit carsUpdated();
@@ -342,7 +342,7 @@ void HUDSerialPlugin::updateCars(){
     dir.cd("modules/hud-serial/cars");
     if(dir.cd(m_settings["car_make"].toString())){
         dir.setNameFilters(QStringList("*.json"));
-        for(QFileInfo info : dir.entryInfoList()){
+        for(const QFileInfo &info : dir.entryInfoList()){
             QFile file;
             file.setFileName(info.filePath());
             file.open(QIODevice::ReadOnly | QIODevice::Text);

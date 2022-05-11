@@ -10,6 +10,7 @@ include("../config.pri")
 CONFIG += qtquickcompiler
 
 SOURCES += main.cpp \
+    hudloader.cpp \
     mediamanager.cpp \
     panelitemsmodel.cpp \
     pluginlist.cpp \
@@ -20,9 +21,7 @@ SOURCES += main.cpp \
     thememanager.cpp
 
 HEADERS += \
-    ../includes/plugininterface.h \
-    ../includes/hvac-common.h \
-    ../includes/mediainterface.h \
+    hudloader.h \
     mediamanager.h \
     panelitemsmodel.h \
     pluginlist.h \

@@ -1,6 +1,6 @@
 #include "pluginobject.h"
 
-Q_LOGGING_CATEGORY(PLUGINOBJECT, "Plugin Object")
+Q_LOGGING_CATEGORY(PLUGINOBJECT, "PluginObject")
 
 PluginObject::PluginObject(QString fileName, QObject *parent) :
       QObject(parent), m_loaded(false), m_pluginFileName(fileName), m_pluginLoader(fileName, this)
@@ -26,16 +26,11 @@ PluginObject::PluginObject(QString fileName, QObject *parent) :
         return;
     }
 
-    const QMetaObject *metaObject = m_plugin->metaObject();
-
     m_source = pluginMetaData.value("source").toString();
     m_label = pluginMetaData.value("label").toString();
     m_icon = pluginMetaData.value("icon").toString();
 
-    QJsonValue bottomBarItems = pluginMetaData.value("bottomBarItems");
-    if(bottomBarItems.isArray()){
-        loadBottomBarItems(bottomBarItems.toArray().toVariantList());
-    }
+    const QMetaObject *metaObject = m_plugin->metaObject();
 
     for(int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i){
         if(metaObject->method(i).methodSignature() == "message(QString,QVariant)"){
@@ -84,7 +79,6 @@ PluginObject::PluginObject(QString name,
       QObject(parent), m_name(name), m_label(label), m_icon(icon), m_source(qmlSource), m_settings(settings), m_settingsMenu(settingsMenu)
 {
     loadBottomBarItems(bottomBarItems);
-    m_loaded = true;
 }
 
 PluginObject::~PluginObject() {
@@ -95,8 +89,35 @@ void PluginObject::init(){
     if(m_pluginInterface)
         m_pluginInterface->init();
 
-    if(m_plugin)
+    if(m_plugin) {
         m_plugin->setParent(this);
+
+        const QMetaObject *metaObject = m_plugin->metaObject();
+
+        for(int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i){
+            QMetaProperty property =  metaObject->property(i);
+            QString propertyName = QString::fromLatin1(property.name());
+            if(propertyName == "bottomBarItems") {
+                if(property.isReadable()) {
+                    QVariantList propertyValue = property.read(m_plugin).toList();
+                    loadBottomBarItems(propertyValue);
+                    QMetaMethod notifySignal = m_plugin->metaObject()->method(property.notifySignalIndex());
+                    if(notifySignal.isValid()){
+                        const QMetaObject *ownMeta = qobject_cast<QObject *>(this)->metaObject();
+
+                        for(int i = ownMeta->methodOffset(); i < ownMeta->methodCount(); ++i){
+                            QMetaMethod updateBottomBarItemsMethod =  ownMeta->method(i);
+                            if(updateBottomBarItemsMethod.name() == "updateBottomBarItems"){
+                                QMetaMethod signalHandler = ownMeta->method(i);
+                                connect(m_plugin, notifySignal, qobject_cast<QObject *>(this), signalHandler);
+                            }
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    }
 
     emit loaded();
     m_loaded = true;
@@ -158,7 +179,7 @@ QVariantMap PluginObject::getSettingsItems() {
     return m_settingsMenu;
 }
 
-QList<PluginObject::PanelItem> PluginObject::getBottomBarItems() {
+QList<PanelItem> PluginObject::getBottomBarItems() {
     return m_bottomBarItems;
 }
 
@@ -172,7 +193,21 @@ void PluginObject::callSlot(QString slot) {
     }
 }
 
+void PluginObject::updateBottomBarItems() {
+    const QMetaObject *metaObject = m_plugin->metaObject();
+
+    for(int i = metaObject->propertyOffset(); i < metaObject->propertyCount(); ++i){
+        QMetaProperty property =  metaObject->property(i);
+        QString propertyName = QString::fromLatin1(property.name());
+        if(propertyName == "bottomBarItems" && property.isReadable()) {
+            QVariantList propertyValue = property.read(m_plugin).toList();
+            loadBottomBarItems(propertyValue);
+        }
+    }
+}
+
 void PluginObject::loadBottomBarItems(QVariantList bottomBarItems) {
+    m_bottomBarItems.clear();
     for(const QVariant &bottomBarItem : bottomBarItems){
         QVariantMap bottomBarItemMap = bottomBarItem.toMap();
         if(bottomBarItemMap.contains("name") && bottomBarItemMap.contains("source") && bottomBarItemMap.contains("label")){
@@ -201,4 +236,5 @@ void PluginObject::loadBottomBarItems(QVariantList bottomBarItems) {
             qCDebug(PLUGINOBJECT) << "Error loading plugin bottom bar items " << m_name << ", invalid bottomBarItems Object";
         }
     }
+    emit bottomBarItemsUpdated();
 }

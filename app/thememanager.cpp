@@ -3,45 +3,27 @@
 Q_LOGGING_CATEGORY(THEMEMANAGER, "Theme Manager")
 
 
-void ThemeInitWorker::run() {
-    m_themeManager->initTheme(m_themeName);
-}
-
-ThemeManager::ThemeManager(QQmlApplicationEngine *engine, QString theme_name, bool initInThread, QObject *parent) : QObject(parent),
-      m_engine(engine), m_themeLoader(this)
+ThemeManager::ThemeManager(QQmlApplicationEngine *engine, PluginList *pluginList, QObject *parent) : QObject(parent),
+      m_engine(engine), m_themeLoader(this), m_pluginList(pluginList), m_colorsMap(this), m_sizesMap(this)
 {
     m_engine->rootContext()->setContextProperty("ThemeManager", this);
-    ThemeInitWorker *workerThread = new ThemeInitWorker(theme_name, this, this);
-    if(initInThread){
-        connect(workerThread, &ThemeInitWorker::finished, this, &ThemeManager::initFinished);
-        workerThread->start();
-    } else {
-        initTheme(theme_name);
-        initFinished();
-    }
+
 }
 
 void ThemeManager::initFinished() {
+
     QJsonObject themeSettings = m_themeLoader.metaData().value("MetaData").toObject();
 
     processThemeSettings(themeSettings);
-
     m_themePlugin->registerTypes("");
     m_themePlugin->initializeEngine(m_engine, "");
 
+    m_engine->rootContext()->setContextProperty("HUDStyle", HUDStyle);
+
     if(themeSettings.contains("source")) {
         m_themeSource = themeSettings.value("source").toString();
-        emit themeSourceChanged();
     }
-    if(themeSettings.contains("settingsPageSource")) {
-        m_settingsPageSource = themeSettings.value("settingsPageSource").toString();
-        emit themeSourceChanged();
-    }
-
-    QJsonValue bottomBarItems = themeSettings.value("bottomBarItems");
-    if(bottomBarItems.isArray()){
-        m_bottomBarItems = bottomBarItems.toArray().toVariantList();
-    }
+    emit themeSourceChanged();
 
     qCDebug(THEMEMANAGER) << "Theme init finished";
 }
@@ -89,10 +71,25 @@ void ThemeManager::initTheme(QString themeName) {
     }
     m_engine->addImportPath(themeDir.absolutePath());
 
+    QJsonObject themeSettings = m_themeLoader.metaData().value("MetaData").toObject();
+
+    QJsonValue bottomBarItems = themeSettings.value("bottomBarItems");
+    if(bottomBarItems.isArray()){
+        m_bottomBarItems = bottomBarItems.toArray().toVariantList();
+    }
+
+    QVariantMap themeSettingsItems;
+    themeSettingsItems["type"] = "loader";
+    themeSettingsItems["source"] = themeSettings.value("settingsPageSource").toString();
+    m_themeSettings = new PluginObject("ThemeSettings", "Theme", nullptr, "",  "", themeSettingsItems, HUDStyle, m_bottomBarItems);
+    m_settingsMenu = new PluginObject("Settings", "Settings", nullptr, "icons/svg/gear-a.svg", "qrc:/qml/HUDSettingsPage/SettingsPage.qml");
+
+    m_pluginList->addPlugin(m_settingsMenu);
+    m_pluginList->addPlugin(m_themeSettings);
+
     qCDebug(THEMEMANAGER) << "Theme loaded : " << fileName;
-
-
 }
+
 void ThemeManager::onEvent(QString sender, QString event, QVariant eventData) {
     emit themeEvent(sender, event, eventData);
 }
@@ -107,14 +104,12 @@ void ThemeManager::processThemeSettings(QJsonObject json){
         return;
     }
 
-    QQmlPropertyMap *colorsMap = new QQmlPropertyMap(this);
-    HUDStyleSettings << loadSettingsMap("colors", "Colors", "color", json.value("colors").toArray().toVariantList(), colorsMap);
+    HUDStyleSettings << loadSettingsMap("colors", "Colors", "color", json.value("colors").toArray().toVariantList(), &m_colorsMap);
 
-    QQmlPropertyMap *sizesMap = new QQmlPropertyMap(this);
-    HUDStyleSettings << loadSettingsMap("sizes", "Sizes", "tumbler", json.value("sizes").toArray().toVariantList(), sizesMap);
+    HUDStyleSettings << loadSettingsMap("sizes", "Sizes", "tumbler", json.value("sizes").toArray().toVariantList(), &m_sizesMap);
 
-    HUDStyle.insert("colors", QVariant::fromValue<QQmlPropertyMap *>(colorsMap));
-    HUDStyle.insert("sizes", QVariant::fromValue<QQmlPropertyMap *>(sizesMap));
+    HUDStyle.insert("colors", QVariant::fromValue<QQmlPropertyMap *>(&m_colorsMap));
+    HUDStyle.insert("sizes", QVariant::fromValue<QQmlPropertyMap *>(&m_sizesMap));
 
 
     QJsonArray settingsJson = json.value("settings").toArray();
@@ -127,15 +122,14 @@ void ThemeManager::processThemeSettings(QJsonObject json){
 
         QJsonObject jsonObject = item.toObject();
 
-        QQmlPropertyMap *map = new QQmlPropertyMap(this);
-        m_settings << new SettingsLoader(jsonObject, map, this);
+        QQmlPropertyMap *map = new QQmlPropertyMap();
+        m_settings << new SettingsLoader(jsonObject, map);
 
         HUDStyle.insert(jsonObject.value("name").toString(), QVariant::fromValue<QQmlPropertyMap *>(map));
         HUDStyleSettings.append(jsonObject.toVariantMap());
     }
 
     HUDStyle.insert("settings", HUDStyleSettings);
-    m_engine->rootContext()->setContextProperty("HUDStyle", HUDStyle);
 }
 
 
@@ -150,7 +144,7 @@ QVariantMap ThemeManager::loadSettingsMap(QString name, QString label, QString t
     }
     settings.insert("items", itemsList);
 
-    m_settings << new SettingsLoader(QJsonObject::fromVariantMap(settings), settingsMap, this);
+    m_settings << new SettingsLoader(QJsonObject::fromVariantMap(settings), settingsMap);
 
     return settings;
 }
@@ -179,10 +173,6 @@ QVariantList ThemeManager::themeSettingsToSettingsItems(QVariantList items, QStr
 
 QVariantMap &ThemeManager::getStyle() {
     return HUDStyle;
-}
-
-QString ThemeManager::getSettingsPageSource() {
-    return m_settingsPageSource;
 }
 
 QVariantList &ThemeManager::getBottomBarItems() {
