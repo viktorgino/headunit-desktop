@@ -27,8 +27,12 @@ public:
     explicit HUDLoader(QQmlApplicationEngine *engine, bool lazyLoading, QStringList plugins, QObject *parent = nullptr);
     void init();
 
+signals:
+    void themeLoaded();
+
 public slots:
     void initFinished();
+    void onThemeLoaded();
 
 private:
     QQmlApplicationEngine *m_engine;
