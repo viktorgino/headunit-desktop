@@ -3,7 +3,8 @@
 #include <stdint.h>
 #include "HAL/hal.h"
 
-typedef enum {
+typedef enum
+{
     Bus_Can0 = 0,
     Bus_Can1,
     Bus_Can2,
@@ -13,10 +14,10 @@ typedef enum {
 } BusNumber;
 
 #ifndef QT_VERSION
-
 typedef struct ClimateControlZoneControl
 {
-    struct {
+    struct
+    {
         bool Down = false;
         bool Center = false;
         bool Up = false;
@@ -27,12 +28,15 @@ typedef struct ClimateControlZoneControl
     uint8_t SeatHeating = 0;
 } ClimateControlZoneControl;
 
-typedef struct ClimateControlCommandFrame {
-    struct {
+typedef struct ClimateControlCommandFrame
+{
+    struct
+    {
         ClimateControlZoneControl Left;
         ClimateControlZoneControl Right;
     } Front;
-    struct {
+    struct
+    {
         ClimateControlZoneControl Left;
         ClimateControlZoneControl Right;
     } Rear;
@@ -50,14 +54,16 @@ typedef struct ClimateControlCommandFrame {
     bool RearDefrost = false;
     bool AC = false;
 } ClimateControlCommandFrame;
-
 #endif
-typedef struct CustomCommandFrame {
-    bool Bits[16] = { false };
-    uint8_t Bytes[6] = { 0 };
+
+typedef struct CustomCommandFrame
+{
+    bool Bits[16] = {false};
+    uint8_t Bytes[6] = {0};
 } CustomCommandFrame;
 
-typedef struct BodyControlCommandFrame {
+typedef struct BodyControlCommandFrame
+{
     bool IndicatorLeft = false;
     bool IndicatorRight = false;
     bool Braking = false;
@@ -66,9 +72,9 @@ typedef struct BodyControlCommandFrame {
     bool SeatBelt = false;
 
     bool PassengerSeatOccupied = false;
-    bool RearLeftOccupied  = false;
-    bool RearMiddleOccupied  = false;
-    bool RearRightOccupied  = false;
+    bool RearLeftOccupied = false;
+    bool RearMiddleOccupied = false;
+    bool RearRightOccupied = false;
     bool PassengerSeatBelt = false;
     bool RearLeftSeatBelt = false;
     bool RearMiddleSeatBelt = false;
@@ -78,19 +84,46 @@ typedef struct BodyControlCommandFrame {
     bool NightLight = false;
 } BodyControlCommandFrame;
 
-typedef struct DriveTrainControlCommandFrame {
-    uint16_t speed;
-    uint16_t engineRpm;
+typedef struct DriveTrainControlCommandFrame
+{
+    uint16_t speed = 0;
+    uint16_t engineRpm = 0;
 
-    uint16_t frontLeftWheelSpeed;
-    uint16_t frontRightWheelSpeed;
-    uint16_t rearLeftWheelSpeed;
-    uint16_t rearRightWheelSpeed;
+    uint16_t frontLeftWheelSpeed = 0;
+    uint16_t frontRightWheelSpeed = 0;
+    uint16_t rearLeftWheelSpeed = 0;
+    uint16_t rearRightWheelSpeed = 0;
 } DriveTrainControlCommandFrame;
 
+typedef struct GenericKeyValueCommandFrame
+{
+    uint8_t key = 0;
+    uint8_t value = 0;
+} GenericKeyValueCommandFrame;
 
-typedef enum Keys {
-    //Numbers
+typedef enum
+{
+    SetInput,
+    SetInputGain,
+    SetVolume,
+
+    SetFrontLeftOutputLevel,
+    SetFrontCenterOutputLevel,
+    SetFrontRightOutputLevel,
+    SetCenterLeftOutputLevel,
+    SetCenterRightOutputLevel,
+    SetRearLeftOutputLevel,
+    SetRearRightOutputLevel,
+    SetSubwooferOutputLevel,
+
+    SetBassLevel,
+    SetMidLevel,
+    SetTrebleLevel
+
+} AudioControlCommands;
+typedef enum
+{
+    // Numbers
     Key_0 = 0,
     Key_1,
     Key_2,
@@ -101,7 +134,7 @@ typedef enum Keys {
     Key_7,
     Key_8,
     Key_9,
-    //Letters
+    // Letters
     Key_A,
     Key_B,
     Key_C,
@@ -128,7 +161,7 @@ typedef enum Keys {
     Key_X,
     Key_Y,
     Key_Z,
-    //Navigational buttons
+    // Navigational buttons
     Key_Enter = 50,
     Key_Exit,
     Key_Back,
@@ -138,7 +171,7 @@ typedef enum Keys {
     Key_Right,
     Key_Up,
     Key_Down,
-    //Media/Radio Buttons
+    // Media/Radio Buttons
     Key_VolumeUp = 100,
     Key_VolumeDown,
     Key_TuneUp,
@@ -153,13 +186,15 @@ typedef enum Keys {
     Key_Scan
 } Keys;
 
-class PlatformCallbacks {
+class PlatformCallbacks
+{
 public:
-    virtual void ClimateControlCallback(const ClimateControlCommandFrame&) = 0;
-    virtual void CustomCommandCallback(const CustomCommandFrame&) = 0;
+    virtual void ClimateControlCallback(const ClimateControlCommandFrame &) = 0;
+    virtual void CustomCommandCallback(const CustomCommandFrame &) = 0;
     virtual void ButtonInputCommandCallback(Keys) = 0;
     virtual void SendMessageCallback(uint8_t) = 0;
     virtual void PrintString(char *, int) = 0;
-    virtual void BodyControlCommandCallback(const BodyControlCommandFrame&) = 0;
-    virtual void DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame&) = 0;
+    virtual void BodyControlCommandCallback(const BodyControlCommandFrame &) = 0;
+    virtual void DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame &) = 0;
+    virtual void AudioControlCommandCallback(const GenericKeyValueCommandFrame &) = 0;
 };

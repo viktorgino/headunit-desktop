@@ -19,6 +19,7 @@ public slots:
     void buttonClicked(QString key);
     void setZoneParameter(QString zone, QString parameter, QVariant value);
     void setParameter(QString parameter, bool value);
+    void setAudioParameter(QString parameter, int value);
 signals:
     void message(QString id, QVariant message);
     void action(QString id, QVariant message);

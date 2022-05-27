@@ -104,6 +104,12 @@ void HUDSerialTest::setParameter(QString parameter, bool value){
     }
     emit action("HVACPlugin::Update", QVariant::fromValue(m_ccCommandFrame));
 }
+void HUDSerialTest::setAudioParameter(QString parameter, int value){
+    QVariantMap parameterMap;
+    parameterMap["key"] = parameter;
+    parameterMap["value"] = value;
+    emit action("HUDSerialPlugin::AudioControl", parameterMap);
+}
 void HUDSerialTest::setZoneParameter(QString zone, QString parameter, QVariant value) {
     ClimateControlZoneControl *zoneControl;
 

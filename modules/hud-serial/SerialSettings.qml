@@ -96,7 +96,7 @@ ThemeRoot {
                 id: serial_speed
                 width: parent.width
                 label: "Speed"
-                values: ["9600","19200","38400","57600","115200","230400","460800","500000","921600", "1000000", "1152000", "2000000", "4608000"]
+                values: pluginContext.speeds
                 onValueChanged: {
                     pluginSettings.serial_speed = value
                 }

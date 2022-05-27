@@ -5,6 +5,8 @@ HUDSerialPlugin::HUDSerialPlugin(QObject *parent) : QObject (parent), m_serial(t
     m_serialProtocol.setCallbacks(this);
     m_pluginSettings.eventListeners = QStringList() << "HVACPlugin::Update" << "HVACPlugin::CustomCommandUpdate";
     m_pluginSettings.events = QStringList() << "KeyInput" << "MediaInput";
+    m_pluginSettings.actions = QStringList() << "AudioControl";
+    m_speeds = {9600,19200,38400,57600,115200,230400,460800,500000,921600,1000000,1152000,2000000,4608000};
 }
 
 void HUDSerialPlugin::init() {
@@ -57,6 +59,51 @@ void HUDSerialPlugin::eventMessage(QString id, QVariant message) {
         }
     }
 }
+
+void HUDSerialPlugin::actionMessage(QString id, QVariant message) {
+    if(id == "AudioControl"){
+        QVariantMap messageMap = message.toMap();
+        if(messageMap.contains("key") && messageMap.contains("value")) {
+            GenericKeyValueCommandFrame controlFrame;
+            QString key = messageMap["key"].toString();
+
+            if(key == "SetInput") {
+                controlFrame.key = AudioControlCommands::SetInput;
+            } else if(key == "SetInputGain") {
+                controlFrame.key = AudioControlCommands::SetInputGain;
+            } else if(key == "SetVolume") {
+                controlFrame.key = AudioControlCommands::SetVolume;
+            } else if(key == "SetFrontLeftOutputLevel") {
+                controlFrame.key = AudioControlCommands::SetFrontLeftOutputLevel;
+            } else if(key == "SetFrontCenterOutputLevel") {
+                controlFrame.key = AudioControlCommands::SetFrontCenterOutputLevel;
+            } else if(key == "SetFrontRightOutputLevel") {
+                controlFrame.key = AudioControlCommands::SetFrontRightOutputLevel;
+            } else if(key == "SetCenterLeftOutputLevel") {
+                controlFrame.key = AudioControlCommands::SetCenterLeftOutputLevel;
+            } else if(key == "SetCenterRightOutputLevel") {
+                controlFrame.key = AudioControlCommands::SetCenterRightOutputLevel;
+            } else if(key == "SetRearLeftOutputLevel") {
+                controlFrame.key = AudioControlCommands::SetRearLeftOutputLevel;
+            } else if(key == "SetRearRightOutputLevel") {
+                controlFrame.key = AudioControlCommands::SetRearRightOutputLevel;
+            } else if(key == "SetSubwooferOutputLevel") {
+                controlFrame.key = AudioControlCommands::SetSubwooferOutputLevel;
+            } else if(key == "SetBassLevel") {
+                controlFrame.key = AudioControlCommands::SetBassLevel;
+            } else if(key == "SetMidLevel") {
+                controlFrame.key = AudioControlCommands::SetMidLevel;
+            } else if(key == "SetTrebleLevel") {
+                controlFrame.key = AudioControlCommands::SetTrebleLevel;
+            } else {
+                return;
+            }
+            controlFrame.value = messageMap["value"].toUInt();
+            qDebug() << "AudioControl : " << controlFrame.key << controlFrame.value;
+            m_serialProtocol.sendAudioControlCommand(controlFrame);
+        }
+    }
+}
 void HUDSerialPlugin::settingsChanged(const QString &key, const QVariant &){
     if(key == "serial_port" || key == "serial_speed"){
         serialDisconnect();
@@ -85,7 +132,8 @@ void HUDSerialPlugin::updatePorts() {
 void HUDSerialPlugin::serialConnect(){
 //    m_serialRetryTimer.stop();
     m_serial.setPortName(m_settings.value("serial_port").toString());
-    m_serial.setBaudRate(m_settings.value("serial_speed").toString().toInt());
+    int serialId = m_settings.value("serial_speed").toInt();
+    m_serial.setBaudRate(m_speeds[serialId].toInt());
 
     if (!m_serial.open(QIODevice::ReadWrite)) {
         qDebug() << QObject::tr("Failed to open port %1, error: %2")
@@ -231,9 +279,14 @@ void HUDSerialPlugin::CustomCommandCallback(const CustomCommandFrame &commandFra
 void HUDSerialPlugin::BodyControlCommandCallback(const BodyControlCommandFrame &controlFrame) {
     emit action("SYSTEM::SetNightMode",controlFrame.NightLight);
 }
-void HUDSerialPlugin::DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame &controlFrame) {
+void HUDSerialPlugin::DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame &) {
 
 }
+
+void HUDSerialPlugin::AudioControlCommandCallback(const GenericKeyValueCommandFrame &) {
+
+}
+
 void HUDSerialPlugin::ButtonInputCommandCallback(Keys key){
     qDebug() << "Key pressed " << buttonToString(key);
 
@@ -258,7 +311,7 @@ void HUDSerialPlugin::ButtonInputCommandCallback(Keys key){
 void HUDSerialPlugin::SendMessageCallback(uint8_t receivedByte){
     if(m_serial.isOpen()){
         m_serial.write((char*)&receivedByte, 1);
-        m_serial.flush();
+//        m_serial.flush();
     }
 }
 

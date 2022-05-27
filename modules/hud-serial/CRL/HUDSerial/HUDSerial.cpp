@@ -5,18 +5,21 @@ namespace HUDSerial {
 HUDSerial::HUDSerial()
     : m_acControlFrame(),
       m_customCommandFrame(),
+      m_receivedCustomCommandFrame(),
+      m_receivedAcControlFrame(),
+      m_receivedBodyControlCommandFrame(),
+      m_receivedDriveTrainControlCommandFrame(),
+      m_receivedAudioCommandFrame(),
       m_currentCommand(NoCommand),
       m_receiverState(CommandByte),
       m_frameSize(0),
       m_dataBufferIndex(0),
       m_receivedBuffer(),
       m_crcIndex(0),
-      m_crc(0),
-      m_receivedCustomCommandFrame(),
-      m_receivedAcControlFrame(),
-      m_receivedBodyControlCommandFrame(),
-      m_receivedDriveTrainControlCommandFrame() {}
+      m_crc(0) {}
 
+
+//TODO : Break this down to individual functions
 void HUDSerial::receiveByte(char receivedByte) {
     switch (m_receiverState) {
     case CommandByte: {
@@ -292,7 +295,21 @@ void HUDSerial::receiveByte(char receivedByte) {
             } break;
             case ButtonInputCommand: {
                 m_callbacks->ButtonInputCommandCallback((Keys)receivedByte);
-            } break;
+                break;
+            }
+            case AudioControlCommand: {
+                switch (m_dataBufferIndex) {
+                case 0: {
+                    m_receivedAudioCommandFrame.key = receivedByte;
+                    break;
+                }
+                case 1: {
+                    m_receivedAudioCommandFrame.value = receivedByte;
+                    break;
+                }
+                }
+                break;
+            }
             default:
                 break;
             }
@@ -345,6 +362,9 @@ void HUDSerial::receiveByte(char receivedByte) {
                 case DriveTrainControlCommand: {
                     m_callbacks->DriveTrainControlCommandCallback(m_receivedDriveTrainControlCommandFrame);
                     sendAcknowledge(DriveTrainControlCommand);
+                } break;
+                case AudioControlCommand: {
+                    m_callbacks->AudioControlCommandCallback(m_receivedAudioCommandFrame);
                 } break;
                 default:
                     break;
@@ -523,6 +543,13 @@ void HUDSerial::sendDriveTrainControlCommand() {
 
     sendMessage(DriveTrainControlCommand, 12, BodyControlCommandBuffer);
     m_driveTrainControlCommandAck = true;
+}
+
+void HUDSerial::sendAudioControlCommand(const GenericKeyValueCommandFrame &controlFrame) {
+    char commandBuffer[2];
+    commandBuffer[0] = controlFrame.key;
+    commandBuffer[1] = controlFrame.value;
+    sendMessage(AudioControlCommand, 2, commandBuffer);
 }
 
 void HUDSerial::loop() {

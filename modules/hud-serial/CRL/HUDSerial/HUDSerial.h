@@ -25,6 +25,7 @@ typedef enum CommandTypes {
     ButtonInputCommand,
     BodyControlCommand,
     DriveTrainControlCommand,
+    AudioControlCommand,
     DebugMessageCommand,
     CustomCommand,
     CommandsCount
@@ -43,6 +44,7 @@ public:
     void sendDebugMessageCommand(const char * message);
     void sendBodyControlCommand(const BodyControlCommandFrame &controlFrame);
     void sendDriveTrainControlCommand(const DriveTrainControlCommandFrame &controlFrame);
+    void sendAudioControlCommand(const GenericKeyValueCommandFrame &controlFrame);
     void sendUpdateRequest();
     void sendAcknowledge(CommandTypes command);
     virtual void setCallbacks(PlatformCallbacks *callbacks){
@@ -68,6 +70,7 @@ private:
     ClimateControlCommandFrame m_receivedAcControlFrame;
     BodyControlCommandFrame m_receivedBodyControlCommandFrame;
     DriveTrainControlCommandFrame m_receivedDriveTrainControlCommandFrame;
+    GenericKeyValueCommandFrame m_receivedAudioCommandFrame;
 
     //Receiver state machinea
     CommandTypes m_currentCommand;

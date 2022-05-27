@@ -27,6 +27,9 @@ ThemeRoot {
         TabButton {
             text: qsTr("Body Control Command")
         }
+        TabButton {
+            text: qsTr("Audio Control")
+        }
     }
 
     StackLayout {
@@ -43,6 +46,8 @@ ThemeRoot {
         CustomCommand{
         }
         BodyControl{
+        }
+        AudioControl{
         }
     }
 

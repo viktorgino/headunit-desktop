@@ -7,6 +7,7 @@
         <file>CustomCommand.qml</file>
         <file>BodyControl.qml</file>
         <file>CommandKeys.qml</file>
+        <file>AudioControl.qml</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

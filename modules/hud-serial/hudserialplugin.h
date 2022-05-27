@@ -33,6 +33,7 @@ class HUDSerialPlugin : public QObject, PluginInterface, PlatformCallbacks
     Q_PROPERTY(QVariantList carSettings READ getCarSettings NOTIFY carSettingsUpdated)
     Q_PROPERTY(QVariantList customBits READ getCustomBits NOTIFY customCommandUpdated)
     Q_PROPERTY(QVariantList customBytes READ getCustomBytes NOTIFY customCommandUpdated)
+    Q_PROPERTY(QVariantList speeds READ getSpeeds CONSTANT)
 public:
     explicit HUDSerialPlugin(QObject *parent = nullptr);
 
@@ -43,12 +44,14 @@ public:
     void CustomCommandCallback(const CustomCommandFrame &commandFrame) override;
     void BodyControlCommandCallback(const BodyControlCommandFrame &controlFrame) override;
     void DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame &controlFrame) override;
+    void AudioControlCommandCallback(const GenericKeyValueCommandFrame &) override;
     void ButtonInputCommandCallback(Keys key) override;
     void SendMessageCallback(uint8_t sendByte) override;
     void PrintString(char * message, int length) override;
 
 public slots:
     void eventMessage(QString id, QVariant message) override;
+    void actionMessage(QString id, QVariant message) override;
     void serialRestart();
     void setCustomBit(uint bitNumber, bool value);
     void setCustomByte(uint byteNumber, uint value);
@@ -75,6 +78,7 @@ private:
     QVariantList m_carSettings;
     QVariantList m_customBits;
     QVariantList m_customBytes;
+    QVariantList m_speeds;
 
     void updatePorts();
     void serialConnect();
@@ -103,6 +107,9 @@ private:
     }
     QVariantList getCustomBytes(){
         return m_customBytes;
+    }
+    QVariantList getSpeeds(){
+        return m_speeds;
     }
 };
 
