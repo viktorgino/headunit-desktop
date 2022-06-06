@@ -49,7 +49,7 @@ QVariant MediaPlayerPlaylistModel::data(const QModelIndex &index, int role) cons
 void MediaPlayerPlaylistModel::setItems(QVariantList items){
     beginResetModel();
     m_playlistContent.clear();
-    for(QVariant item : items){
+    for(const QVariant &item : items){
         QVariantMap map = item.toMap();
         if(map.contains("path") && QFile::exists(map["path"].toString())){
             m_playlistContent.append(map);
@@ -65,7 +65,7 @@ void MediaPlayerPlaylistModel::setItems(QVariantList items){
 
 QVariantList MediaPlayerPlaylistModel::getSources(){
     QVariantList ret;
-    for(QVariant item : m_playlistContent){
+    for(QVariant item : qAsConst(m_playlistContent)){
         ret.append("file://" + item.toMap()["path"].toString());
     }
     return ret;

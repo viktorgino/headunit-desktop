@@ -53,7 +53,15 @@ MediaDB::MediaDB(QString path, QObject *parent) : QObject(parent), db(), m_path(
                                       "FROM  media_files "
                                       "LEFT JOIN scanned_folders ON media_files.folder_id=scanned_folders.id "
                                       "LEFT JOIN locations ON scanned_folders.location_id = locations.id";
-    QString dbName = QString("%1/media_database").arg(m_path);
+    QString dbName;
+
+    QStorageInfo volume(m_path);
+    QString mediaDBPath;
+    if(volume.isRoot()){
+        dbName = QString("%1/media_database").arg(QDir::homePath());
+    } else {
+        dbName = QString("%1/media_database").arg(m_path);
+    }
 
     qCInfo(MEDIAPLAYER)<< "Opening database : " << dbName;
 

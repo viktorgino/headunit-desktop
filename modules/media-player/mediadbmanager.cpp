@@ -6,12 +6,17 @@ MediaDBManager::MediaDBManager(QObject *parent) : QObject(parent)
 }
 
 void MediaDBManager::init(){
-    for (QStorageInfo storage : QStorageInfo::mountedVolumes()) {
+    for (const QStorageInfo &storage : QStorageInfo::mountedVolumes()) {
         if (storage.isValid() && storage.isReady()) {
             if (/*!storage.isReadOnly() && */storage.fileSystemType() != "tmpfs" && storage.fileSystemType() != "squashfs") {
-                QDir path(storage.rootPath());
+                QDir path;
+                if(storage.isRoot()){
+                    path.setPath(QDir::homePath());
+                } else {
+                    path.setPath(storage.rootPath());
+                }
                 if(path.entryList().contains("media_database")){
-                    qDebug() << "Adding : " << storage.rootPath();
+                    qDebug() << "Adding : " << path.path();
                     MediaDB * mediaDb = new MediaDB(storage.rootPath(), this);
                     m_mediaDBs.append(mediaDb);
                 }
@@ -23,7 +28,7 @@ void MediaDBManager::init(){
 QVariantList MediaDBManager::getLocations() {
     QVariantList ret;
 
-    for(MediaDB *mediaDb : m_mediaDBs){
+    for(MediaDB *mediaDb : qAsConst(m_mediaDBs)){
         ret.append(mediaDb->getLocations());
     }
 
@@ -33,16 +38,22 @@ QVariantList MediaDBManager::getLocations() {
 void MediaDBManager::addLocation(QString path) {
     QStorageInfo volume(path);
     MediaDB * mediaDb = nullptr;
-
-    for(MediaDB *p_mediaDb : m_mediaDBs){
-        if(p_mediaDb->getPath() == volume.rootPath()){
+    QString mediaDBPath;
+    if(volume.isRoot()){
+        mediaDBPath = QDir::homePath();
+    } else {
+        mediaDBPath = volume.rootPath();
+    }
+    //Get MediaDB object if it already exist otherwise create a new one
+    for(MediaDB *p_mediaDb : qAsConst(m_mediaDBs)){
+        if(p_mediaDb->getPath() == mediaDBPath){
             mediaDb  = p_mediaDb;
         }
     }
 
     if(!mediaDb){
-        qDebug() << "Creating db: " << volume.rootPath();
-        mediaDb = new MediaDB(volume.rootPath(), this);
+        qDebug() << "Creating db: " << mediaDBPath;
+        mediaDb = new MediaDB(mediaDBPath, this);
         m_mediaDBs.append(mediaDb);
     }
 

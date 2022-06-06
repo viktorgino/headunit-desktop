@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QStorageInfo>
 #include <QVariant>
+#include <QStandardPaths>
 
 #include "mediadb.h"
 #include "mediascanner.h"

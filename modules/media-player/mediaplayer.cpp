@@ -10,6 +10,8 @@ MediaPlayerPlugin::MediaPlayerPlugin(QObject *parent) : QObject(parent)
     m_mediaLibraryPlaylistModel = new MediaPlayerPlaylistModel(this);
 
     connect(m_mediaDbManager,SIGNAL(scanningFinished()),this,SLOT(scanningFinished()));
+
+    m_mediaDbManager->init();
 }
 
 MediaPlayerPlugin::~MediaPlayerPlugin(){
@@ -24,7 +26,6 @@ QQuickImageProvider *MediaPlayerPlugin::getImageProvider() {
 }
 
 void MediaPlayerPlugin::init(){
-    m_mediaDbManager->init();
     m_mediaLibraryContainerModel->init();
     m_mediaLibraryMediaListModel->init();
     m_mediaLibraryPlaylistModel->init();

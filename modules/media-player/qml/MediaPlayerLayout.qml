@@ -321,7 +321,6 @@ ThemeRoot{
         }
     }
 
-
     Component {
         id: mediaList
 
@@ -329,13 +328,12 @@ ThemeRoot{
             model: pluginContext.MediaListModel
 
             onItemClicked: {
-                playlist.clear();
-
                 pluginContext.PlaylistModel.setItems(pluginContext.MediaListModel.getItems());
+
+                playlist.clear();
                 playlist.addItems(pluginContext.PlaylistModel.sources);
-
-
                 playlist.currentIndex = index;
+
                 mediaplayer.play();
 
                 __root.state = "";
@@ -343,7 +341,6 @@ ThemeRoot{
                 stackView.clear()
             }
         }
-
     }
 
 
