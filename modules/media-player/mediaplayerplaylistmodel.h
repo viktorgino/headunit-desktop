@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QFile>
 #include <QDebug>
+#include <QLoggingCategory>
 
 class MediaPlayerPlaylistModel : public QAbstractListModel
 {

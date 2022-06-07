@@ -53,20 +53,20 @@ MediaDB::MediaDB(QString path, QObject *parent) : QObject(parent), db(), m_path(
                                       "FROM  media_files "
                                       "LEFT JOIN scanned_folders ON media_files.folder_id=scanned_folders.id "
                                       "LEFT JOIN locations ON scanned_folders.location_id = locations.id";
-    QString dbName;
+
 
     QStorageInfo volume(m_path);
     QString mediaDBPath;
     if(volume.isRoot()){
-        dbName = QString("%1/media_database").arg(QDir::homePath());
+        m_dbName = QString("%1/media_database").arg(QDir::homePath());
     } else {
-        dbName = QString("%1/media_database").arg(m_path);
+        m_dbName = QString("%1/media_database").arg(m_path);
     }
 
-    qCInfo(MEDIAPLAYER)<< "Opening database : " << dbName;
+    qCInfo(MEDIAPLAYER)<< "Opening database : " << m_dbName;
 
-    db = QSqlDatabase::addDatabase("QSQLITE", dbName);
-    db.setDatabaseName(dbName);
+    db = QSqlDatabase::addDatabase("QSQLITE", m_dbName);
+    db.setDatabaseName(m_dbName);
 
     if (!db.open()){
         qCWarning(MEDIAPLAYER) << "Error opening database : " << db.lastError().text();
@@ -104,6 +104,13 @@ MediaDB::MediaDB(QString path, QObject *parent) : QObject(parent), db(), m_path(
             qCWarning(MEDIAPLAYER)<< qPrintable("Error when creating media_files_view table : " + q.lastError().text());
     }
     db.close();
+}
+
+MediaDB::~MediaDB() {
+    if (db.isOpen()) {
+        db.close();
+    }
+    QSqlDatabase::removeDatabase(m_dbName);
 }
 
 QList<QVariantMap> MediaDB::executeQuery(QString query, QVariantMap values){

@@ -70,6 +70,7 @@ Item {
         anchors.left: parent.left
         anchors.topMargin: 0
         delegate: MediaListItem{
+            width: listView.width
             onItemClicked: {
                 __root.itemClicked(index);
             }

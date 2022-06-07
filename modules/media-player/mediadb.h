@@ -80,6 +80,7 @@ public:
      */
     //TODO : add flag for read only
     explicit MediaDB(QString path, QObject *parent = 0);
+    ~MediaDB();
     /**
      * @brief Check if a location already exits in the database and if not then adds the location to the database
      *
@@ -196,9 +197,10 @@ public:
     static ListType stringToListType(QString type);
     static QString listTypeToString(ListType type);
 private:
-    QSqlDatabase db; /**< TODO: describe */
+    QSqlDatabase db;
     QList<QVariantMap> executeQuery(QString query, QVariantMap values);
     QString m_path;
+    QString m_dbName;
     QMutex m_dbMutex;
 signals:
 

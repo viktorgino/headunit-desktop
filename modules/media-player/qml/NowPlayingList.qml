@@ -29,6 +29,7 @@ Item {
         anchors.fill: parent
 
         delegate: NowPlayingListItem {
+            width: listView.width
             currentPlaying: __now_playing_list.currentPlaying
             onItemClicked: __now_playing_list.itemClicked(index)
         }

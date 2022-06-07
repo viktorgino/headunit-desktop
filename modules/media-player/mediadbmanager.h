@@ -20,6 +20,8 @@ public:
     Q_INVOKABLE QVariantList getLocations();
     Q_INVOKABLE void addLocation(QString path);
 
+    void updateLocations();
+
     QList<QVariantMap> getMediaContainers(MediaDB::ListType listType);
     QList<QVariantMap> getFolders();
     QList<QVariantMap> getMediaFiles(MediaDB::MediaTypes mediaType = MediaDB::AUDIO, MediaDB::ListType listType = MediaDB::none, QString key = "");
@@ -31,6 +33,8 @@ signals:
     void scanningFinished();
 private:
     QList<MediaDB *> m_mediaDBs;
+
+    MediaDB *getMediaDB(QString mountPoint);
 };
 
 #endif // MEDIADBMANAGER_H

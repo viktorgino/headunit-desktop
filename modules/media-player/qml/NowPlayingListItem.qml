@@ -4,8 +4,6 @@ import HUDTheme 1.0
 Item {
     id: __now_playing_list_item
     height: 50
-    width: parent.width
-
     property int currentPlaying : 0
 
     signal itemClicked(int index)

@@ -111,7 +111,7 @@ QVariant MediaLibraryMediaListModel::getItem(int index){
 
 QVariantList MediaLibraryMediaListModel::getItems(){
     QVariantList ret;
-    for(QVariantMap item : m_containerContent){
+    for(const QVariantMap &item : qAsConst(m_containerContent)){
         ret.append(item);
     }
     return ret;

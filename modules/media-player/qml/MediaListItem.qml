@@ -4,7 +4,6 @@ import HUDTheme 1.0
 Item {
     id: __root
     height: 50
-    width: parent.width
 
     signal itemClicked()
 

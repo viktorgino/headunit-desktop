@@ -2,6 +2,7 @@
 
 MediaPlayerPlugin::MediaPlayerPlugin(QObject *parent) : QObject(parent)
 {
+    m_pluginSettings.eventListeners = QStringList() << "UsbConnectionListenerPlugin::DriveAdded" << "UsbConnectionListenerPlugin::UsbDeviceRemoved";
     m_interfaceSettings.mediaStream = true;
 
     m_mediaDbManager = new MediaDBManager(this);
@@ -20,7 +21,13 @@ MediaPlayerPlugin::~MediaPlayerPlugin(){
 QObject *MediaPlayerPlugin::getContextProperty(){
     return this;
 }
-
+void MediaPlayerPlugin::eventMessage(QString id, QVariant message){
+    if(id == "UsbConnectionListenerPlugin::DriveAdded"){
+        m_mediaDbManager->updateLocations();
+    } else if(id == "UsbConnectionListenerPlugin::UsbDeviceRemoved"){
+        m_mediaDbManager->updateLocations();
+    }
+}
 QQuickImageProvider *MediaPlayerPlugin::getImageProvider() {
     return &m_imageProvider;
 }

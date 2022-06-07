@@ -54,6 +54,7 @@ signals:
 
 public slots:
     void scanningFinished();
+    void eventMessage(QString id, QVariant message) override;
 
 private:
     MediaPlayerCoverImageProvider m_imageProvider;
