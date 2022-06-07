@@ -9,6 +9,7 @@ DESTDIR = $${OUT_PWD}/../../plugins
 PKGCONFIG += libusb-1.0
 
 SOURCES += \
+    udeveventlistener.cpp \
     usbconnectionlistener.cpp \
     usbconnectionlistenerplugin.cpp
 
@@ -19,6 +20,7 @@ target.path = $${PREFIX}/plugins
 INSTALLS += target
 
 HEADERS += \
+    udeveventlistener.h \
     usbconnectionlistener.h \
     usbconnectionlistenerplugin.h
 

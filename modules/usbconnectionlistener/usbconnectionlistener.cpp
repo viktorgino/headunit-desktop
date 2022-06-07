@@ -1,39 +1,12 @@
 #include "usbconnectionlistener.h"
 
 UsbConnectionListener::UsbConnectionListener(QObject *parent) : QThread(parent){
-    if (libusb_init(&hotplug_context) < 0)
-    {
-        qDebug ("Error libusb_init usb_err failed");
-        return;
-    }
-    libusb_set_option(hotplug_context, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_INFO);
 
-    if (libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG)) {
-        int rc;
-        rc = libusb_hotplug_register_callback(hotplug_context, static_cast<libusb_hotplug_event>(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED |
-                                                                                                 LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT)
-                                              , LIBUSB_HOTPLUG_NO_FLAGS , LIBUSB_HOTPLUG_MATCH_ANY,
-                                              LIBUSB_HOTPLUG_MATCH_ANY, LIBUSB_HOTPLUG_MATCH_ANY, hotplugCallback, this, NULL);
-        if (rc != LIBUSB_SUCCESS) {
-            qDebug("libusb_hotplug_register_callback() failed: Error registering callback 0");
-            return;
-        }
-    }
 }
 
 UsbConnectionListener::~UsbConnectionListener(){
-    qDebug() << "Exiting UsbConnectionListener";
-
     stop();
-
-    if (libusb_has_capability (LIBUSB_CAP_HAS_HOTPLUG)) {
-        libusb_hotplug_deregister_callback(hotplug_context, LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED |
-                                           LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT);
-    }
-
-    libusb_exit(hotplug_context);
 }
-
 
 int LIBUSB_CALL UsbConnectionListener::hotplugCallback(libusb_context */* unused */, libusb_device *dev, libusb_hotplug_event event, void *user_data) {
     struct libusb_device_descriptor desc;
@@ -65,6 +38,8 @@ int LIBUSB_CALL UsbConnectionListener::hotplugCallback(libusb_context */* unused
 
 void UsbConnectionListener::stop(){
     done = true;
+    libusb_interrupt_event_handler(nullptr);
+    wait(QDeadlineTimer(10));
 }
 
 void UsbConnectionListener::usbDeviceAdd(QString device){
@@ -79,10 +54,29 @@ void UsbConnectionListener::usbDeviceRemove(QString device){
 
 void UsbConnectionListener::run() {
     int rc;
+    libusb_context *hotplug_context = nullptr;
+    libusb_hotplug_callback_handle callback_handle = 0;
+    struct timeval timeout;
+    timeout.tv_usec = 1;
 
-    while(!done){
+    if (libusb_init(&hotplug_context) < 0)
+    {
+        qDebug ("Error libusb_init usb_err failed");
+        return;
+    }
+    libusb_set_option(hotplug_context, LIBUSB_OPTION_LOG_LEVEL, LIBUSB_LOG_LEVEL_INFO);
+
+    rc = libusb_hotplug_register_callback(hotplug_context, static_cast<libusb_hotplug_event>(LIBUSB_HOTPLUG_EVENT_DEVICE_ARRIVED |
+                                                                                             LIBUSB_HOTPLUG_EVENT_DEVICE_LEFT)
+                                          , LIBUSB_HOTPLUG_NO_FLAGS , LIBUSB_HOTPLUG_MATCH_ANY,
+                                          LIBUSB_HOTPLUG_MATCH_ANY, LIBUSB_HOTPLUG_MATCH_ANY, hotplugCallback, this, NULL);
+    if (rc != LIBUSB_SUCCESS) {
+        qDebug("libusb_hotplug_register_callback() failed: Error registering callback 0");
+        return;
+    }
+
+    while(!done) {
         newDevices.clear();
-
         rc = libusb_handle_events_completed(hotplug_context, nullptr);
         if (rc < 0) {
             qDebug("libusb_handle_events() failed: %s", libusb_error_name(rc));
@@ -145,4 +139,9 @@ void UsbConnectionListener::run() {
             libusb_free_device_list(devices, 1);
         }
     }
+    qDebug() << "Exiting UsbConnectionListener";
+
+    libusb_hotplug_deregister_callback(hotplug_context, callback_handle);
+
+    libusb_exit(hotplug_context);
 }
