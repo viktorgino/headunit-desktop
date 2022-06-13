@@ -103,6 +103,7 @@ public slots:
     void mediaPlaybackStarted();
 
     void eventMessage(QString id, QVariant message) override;
+    void actionMessage(QString id, QVariant message) override;
 
 private slots:
     void initOfono(QString ubi);
