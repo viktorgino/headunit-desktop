@@ -31,6 +31,8 @@ void TelephonyManager::init() {
     qDBusRegisterMetaType<QPair<QString,QString>>();
     qDBusRegisterMetaType<QList<QPair<QString,QString>>>();
 
+    m_pluginSettings.actions = QStringList() << "Answer" << "Hangup" << "VoiceRecognition";
+
     connect(&m_bluez_manager, &BluezQt::Manager::deviceAdded, this, &TelephonyManager::deviceAdded);
     connect(&m_bluez_manager, &BluezQt::Manager::deviceRemoved, this, &TelephonyManager::deviceRemoved);
 
@@ -367,6 +369,21 @@ void TelephonyManager::mediaPlaybackStarted() {
 void TelephonyManager::eventMessage(QString id, QVariant message) {
     if(id == "AndroidAuto::connected"){
         m_androidAutoConnected = message.toBool();
+    }
+}
+
+//Allow control from external plugins
+void TelephonyManager::actionMessage(QString id, QVariant message) {
+    qCDebug(BLUEZ) << "Action Message: " << id;
+
+    if (id == "Answer") {
+        m_ofonoManagerClass.answerCall();
+    }
+    else if (id == "Hangup") {
+        m_ofonoManagerClass.hangupCall();
+    }
+    else if (id == "VoiceControl") {
+        m_ofonoManagerClass.activateVoiceControl();
     }
 }
 
