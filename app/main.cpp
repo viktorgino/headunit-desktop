@@ -64,6 +64,7 @@ int main(int argc, char *argv[])
     bool lazyLoading = parser.isSet(lazyLoadingOption);
 
     HUDLoader loader(engine, lazyLoading, plugins, &app);
+    engine->rootContext()->setContextProperty("loader", &loader);
     qDebug("%lld ms : Loading theme loader", time.elapsed());
     engine->load(QUrl(QStringLiteral("qrc:/loader.qml")));
 

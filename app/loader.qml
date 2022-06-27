@@ -41,6 +41,7 @@ Window {
         }
     }
     Component.onCompleted: {
-        console.log("Loader loaded");
+        console.log("Loader loading");
+        loader.load()
     }
 }

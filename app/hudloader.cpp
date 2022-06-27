@@ -18,7 +18,15 @@ HUDLoader::HUDLoader(QQmlApplicationEngine *engine, bool lazyLoading, QStringLis
     , m_engine(engine)
     , m_initThread(this)
     , m_plugins(plugins)
+    , m_lazyLoading(lazyLoading)
 {
+
+}
+
+void HUDLoader::load()
+{
+    QCoreApplication::processEvents();
+    QThread::sleep(1);
     qCDebug(HUDLOADER) << "Loading Plugin List";
     m_pluginList = new PluginList(this);
 
@@ -46,7 +54,7 @@ HUDLoader::HUDLoader(QQmlApplicationEngine *engine, bool lazyLoading, QStringLis
     connect(&m_initThread, &InitThread::initFinished, this, &HUDLoader::initFinished);
     connect(this, &HUDLoader::themeLoaded, this, &HUDLoader::onThemeLoaded);
     m_pluginManager->loadPlugins(m_plugins);
-    if (lazyLoading) {
+    if (m_lazyLoading) {
         qCDebug(HUDLOADER) << "Loading in a thread";
         m_initThread.start();
     } else {

@@ -31,6 +31,7 @@ signals:
     void themeLoaded();
 
 public slots:
+    void load();
     void initFinished();
     void onThemeLoaded();
 
@@ -44,6 +45,7 @@ private:
     MediaManager *m_mediaManager;
     InitThread m_initThread;
     QStringList m_plugins;
+    bool m_lazyLoading;
 
 };
 
