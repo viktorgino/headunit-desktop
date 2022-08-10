@@ -1,6 +1,7 @@
 # HeadUnit Desktop
 
-[![Support Server](https://img.shields.io/discord/591914197219016707.svg?label=Discord&logo=Discord&colorB=7289da&style=for-the-badge)](https://discord.gg/WpmHjWb64p)
+[![Support Server](https://img.shields.io/discord/593745867064737792?label=DISCORD&style=for-the-badge)](https://discord.gg/WpmHjWb64p)
+
 
 [![Support me on Patreon](https://img.shields.io/endpoint.svg?url=https%3A%2F%2Fshieldsio-patreon.vercel.app%2Fapi%3Fusername%3Dviktorgino%26type%3Dpatrons&style=for-the-badge)](https://patreon.com/viktorgino)
 
