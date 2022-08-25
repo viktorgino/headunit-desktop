@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/AudioProcessor">
+        <file>SoundSettings.qml</file>
+        <file>main.qml</file>
+    </qresource>
+</RCC>

@@ -15,5 +15,6 @@ SUBDIRS = \
           modules/rpi \
           modules/hud-serial \
           modules/hud-serial-test \
+          modules/audio-processor \
           themes/default-theme
 

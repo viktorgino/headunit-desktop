@@ -47,28 +47,15 @@ void ThemeManager::initTheme(QString themeName) {
 
     m_themeLoader.setFileName(fileName);
 
-    QQmlExtensionPlugin * theme = static_cast<QQmlExtensionPlugin *>(m_themeLoader.instance());
+    m_themeObject = m_themeLoader.instance();
 
-    if (!theme) {
-        qCDebug(THEMEMANAGER) << "Error loading plugin : " << fileName << m_themeLoader.errorString();
-        return;
-    }
-
-    m_themePlugin = static_cast<QQmlExtensionPlugin *>(m_themeLoader.instance());
+    m_themePlugin = static_cast<QQmlExtensionPlugin *>(m_themeObject);
 
     if(!m_themePlugin){
         qCDebug(THEMEMANAGER) << "Error loading theme : " << m_themeLoader.metaData().value("name") << ", root component is not a valid instance of QQmlExtensionPlugin";
         return;
     }
 
-    const QMetaObject *pluginMeta = m_themePlugin->metaObject();
-
-    QStringList methods;
-    for(int i = pluginMeta->methodOffset(); i < pluginMeta->methodCount(); ++i){
-        if(pluginMeta->method(i).methodSignature() == "onEvent(QString,QString,QVariant)"){
-            connect(this, SIGNAL(themeEvent(QString,QString,QVariant)), m_themePlugin, SLOT(onEvent(QString,QString,QVariant)));
-        }
-    }
     m_engine->addImportPath(themeDir.absolutePath());
 
     QJsonObject themeSettings = m_themeLoader.metaData().value("MetaData").toObject();
@@ -91,7 +78,21 @@ void ThemeManager::initTheme(QString themeName) {
 }
 
 void ThemeManager::onEvent(QString sender, QString event, QVariant eventData) {
-    emit themeEvent(sender, event, eventData);
+    qDebug() << "ThemeManager :: Theme event : " << event << eventData;
+
+    const QMetaObject *pluginMeta = m_themeObject->metaObject();
+
+    AbstractPlugin* plugin = m_pluginList->getPlugin(sender);
+    bool eventAdded = false;
+    for(int i = pluginMeta->methodOffset(); i < pluginMeta->methodCount(); ++i){
+        if(pluginMeta->method(i).methodSignature() == "onEvent(AbstractPlugin*,QString,QString,QVariant)"){
+            QMetaMethod method = pluginMeta->method(i);
+            bool ret = method.invoke(m_themeObject, Qt::DirectConnection, Q_ARG(AbstractPlugin*, plugin), Q_ARG(QString, sender), Q_ARG(QString, event), Q_ARG(QVariant, eventData));
+            if(!ret){
+                qDebug() << "Error invoking onEvent";
+            }
+        }
+    }
 }
 
 void ThemeManager::processThemeSettings(QJsonObject json){
@@ -134,7 +135,7 @@ void ThemeManager::processThemeSettings(QJsonObject json){
 
 
 QVariantMap ThemeManager::loadSettingsMap(QString name, QString label, QString type, QVariantList items, QQmlPropertyMap *settingsMap){
-    QVariantMap settings({{"label",label}, {"type","items"}});
+    QVariantMap settings({{"label",label}, {"type","items"}, {"name",name}});
 
     QVariantList itemsList;
     if(type == ""){

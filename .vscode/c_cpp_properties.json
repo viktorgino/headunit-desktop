@@ -1,0 +1,28 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "/usr/bin",
+                "/usr/local/sbin",
+                "/usr/local/bin",
+                "/usr/bin",
+                "/usr/include/qt/**",
+                "/usr/include/qt/QtWidgets",
+                "/usr/include/qt/QtGui",
+                "/usr/include/qt/QtCore",
+                "/usr/include/qt/QtQml",
+                "/usr/include/qt/QtQuickControls2",
+                "/usr/include/qt/QtQuick"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c17",
+            "cppStandard": "c++14",
+            "intelliSenseMode": "linux-gcc-x64",
+            "configurationProvider": "ms-vscode.cmake-tools"
+        }
+    ],
+    "version": 4
+}

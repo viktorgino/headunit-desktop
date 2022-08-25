@@ -1,0 +1,16 @@
+{
+    "name":"AudioProcessorPlugin",
+    "label":"Audio Processor Plugin",
+    "source": "qrc:/AudioProcessor/main.qml",
+    "config":{
+        "type":"items",
+        "description":"Settings Menu Test",
+        "items":[
+            {
+                "label":"I2C Path",
+                "name": "i2c_path",
+                "type":"text"
+            }
+        ]
+    }
+}

@@ -12,7 +12,8 @@ HEADERS += \
     $$PWD/includes/hud-common.h \
     $$PWD/includes/mediainterface.h \
     $$PWD/includes/plugininterface.h \
-    $$PWD/includes/hvac-common.h
+    $$PWD/includes/hvac-common.h \ 
+    $$PWD/includes/abstractplugin.h
 
 INCLUDEPATH += \
     $$PWD/includes

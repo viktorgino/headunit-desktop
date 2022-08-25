@@ -111,12 +111,15 @@ void OfonoManager::CallAdded(const QDBusObjectPath &path, const QVariantMap &pro
         startCallTimer(properties["StartTime"].toString());
     }
 
+    qCWarning(OFONO2)  << ": Call Added";
+
     emit callStateChanged();
     emit callerChanged();
     emit showOverlay();
 }
 
 void OfonoManager::CallRemoved(const QDBusObjectPath &path) {
+    qCWarning(OFONO2)  << ": Call Removed";
     emit hideOverlay();
     emit callFinished();
     stopCallTimer();

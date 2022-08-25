@@ -17,6 +17,9 @@ TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent),
     BluezQt::InitManagerJob *job = m_bluez_manager.init();
     job->start();
     connect(job, &BluezQt::InitManagerJob::result, this, &TelephonyManager::initBluez);
+
+    qDBusRegisterMetaType<ObjectPathProperties>();
+    qDBusRegisterMetaType<ObjectPathPropertiesList>();
 }
 TelephonyManager::~TelephonyManager(){
     //    delete m_activeDevice;

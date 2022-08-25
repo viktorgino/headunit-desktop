@@ -11,9 +11,10 @@
 #include <plugininterface.h>
 #include <mediainterface.h>
 #include <hud-common.h>
+#include <abstractplugin.h>
 #include "settingsloader.h"
 
-class PluginObject : public QObject
+class PluginObject : public QObject, public AbstractPlugin
 {
     Q_OBJECT
     Q_PROPERTY(bool loaded READ getLoaded NOTIFY loadedChanged)
@@ -35,28 +36,28 @@ public:
                           QVariantList bottomBarItems = QVariantList());
     ~PluginObject();
 
-    void setSource(QString source);
+    // void setSource(QString source) override;
 
-    bool getLoaded();
-    QString getSource();
-    QString getName();
-    QString getLabel();
-    QString getIcon();
+    bool getLoaded() override;
+    QString getSource() override;
+    QString getName() override;
+    QString getLabel() override;
+    QString getIcon() override;
 
-    QObject * getContextProperty();
-    QQuickImageProvider *getImageProvider();
+    QObject * getContextProperty() override;
+    QQuickImageProvider *getImageProvider() override;
 
-    QObject *getPlugin();
-    QVariant getSettings();
-    QVariantMap getSettingsItems();
-    QList<PanelItem> getBottomBarItems();
-    MediaInterface *getMediaInterface();
-    void connectToPropertySignal(QString propertyName, QString slotName);
-    QVariant getPropertyValue(QString propertyName);
+    QObject *getPlugin() override;
+    QVariant getSettings() override;
+    QVariantMap getSettingsItems() override;
+    QList<PanelItem> getBottomBarItems() override;
+    MediaInterface *getMediaInterface() override;
+    void connectToPropertySignal(QString propertyName, QString slotName) override;
+    QVariant getPropertyValue(QString propertyName) override;
 
-    Q_INVOKABLE void callSlot(QString slot);
+    Q_INVOKABLE void callSlot(QString slot) override;
 
-    void init();
+    void init() override;
 public slots:
     void handleMessage(QString id, QVariant message);
     void callAction(QString id, QVariant message);

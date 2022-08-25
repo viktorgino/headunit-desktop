@@ -15,3 +15,7 @@ const QDBusArgument &operator>>(const QDBusArgument &arg, ObjectPathProperties &
     arg.endStructure();
     return arg;
 }
+void registerMetaTypes()
+{
+
+}

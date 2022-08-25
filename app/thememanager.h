@@ -43,6 +43,7 @@ private:
     QVariantList HUDStyleSettings;
     QList<SettingsLoader *> m_settings;
     QQmlExtensionPlugin *m_themePlugin;
+    QObject *m_themeObject;
     QString m_themeSource;
     QPluginLoader m_themeLoader;
     QVariantList m_bottomBarItems;
@@ -54,7 +55,6 @@ private:
     QQmlPropertyMap m_colorsMap;
     QQmlPropertyMap m_sizesMap;
 signals:
-    void themeEvent(QString sender, QString event, QVariant eventData);
     void themeSourceChanged();
 public slots:
     void onEvent(QString sender, QString event, QVariant eventData);

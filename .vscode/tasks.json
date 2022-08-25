@@ -1,0 +1,36 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Run qmake",
+        "type": "shell",
+        "command": "qmake",
+        "args": [
+            "${workspaceFolder}/headunit-desktop.pro",
+            "-spec",
+            "linux-g++",
+            "CONFIG+=debug",
+            "CONFIG+=qml_debug",
+            "&&",
+            "/usr/bin/make",
+            "qmake_all"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}/../build-headunit-desktop-Desktop-Debug",
+        }
+      },
+
+      {
+        "label": "Run make",
+        "type": "shell",
+        "command": "make",
+        "args": [
+            "-j8"
+        ],
+        "options": {
+          "cwd": "${workspaceFolder}/../build-headunit-desktop-Desktop-Debug",
+        },
+        // "dependsOn": ["Run qmake"]
+      }
+    ]
+  }

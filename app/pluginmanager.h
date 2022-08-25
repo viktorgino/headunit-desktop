@@ -38,8 +38,8 @@ signals:
     void themeEvent(QString, QString, QVariant);
 
 private slots:
-    void messageHandler(QString sender, QString id, QVariant message);
-    void actionHandler(QString sender, QString id, QVariant message);
+    void messageHandler(QString senderStr, QString id, QVariant message);
+    void actionHandler(QString senderStr, QString id, QVariant message);
 private:
 
     MediaManager *m_mediaManager;
