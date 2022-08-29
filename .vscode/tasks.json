@@ -1,36 +1,71 @@
 {
-    "version": "2.0.0",
-    "tasks": [
-      {
-        "label": "Run qmake",
-        "type": "shell",
-        "command": "qmake",
-        "args": [
-            "${workspaceFolder}/headunit-desktop.pro",
-            "-spec",
-            "linux-g++",
-            "CONFIG+=debug",
-            "CONFIG+=qml_debug",
-            "&&",
-            "/usr/bin/make",
-            "qmake_all"
-        ],
-        "options": {
-          "cwd": "${workspaceFolder}/build",
-        }
-      },
-
-      {
-        "label": "Run make",
-        "type": "shell",
-        "command": "make",
-        "args": [
-            "-j8"
-        ],
-        "options": {
-          "cwd": "${workspaceFolder}/build",
-        },
-        // "dependsOn": ["Run qmake"]
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Create build directory",
+      "type": "shell",
+      "command": "mkdir",
+      "args": [
+        "-p",
+        "${workspaceFolder}/build"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
       }
-    ]
-  }
+    },
+    {
+      "label": "Run protoc",
+      "type": "shell",
+      "command": "protoc",
+      "args": [
+        "--proto_path=modules/android-auto/headunit/hu/",
+        "--cpp_out=modules/android-auto/headunit/hu/generated.x64/",
+        "modules/android-auto/headunit/hu/hu.proto"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}",
+      }
+    },
+    {
+      "label": "Run qmake",
+      "type": "shell",
+      "command": "qmake",
+      "args": [
+        "${workspaceFolder}/headunit-desktop.pro",
+        "-spec",
+        "linux-g++",
+        "CONFIG+=debug",
+        "CONFIG+=qml_debug",
+        "&&",
+        "/usr/bin/make",
+        "qmake_all"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/build",
+      }
+    },
+    {
+      "label": "Run full build",
+      "type": "shell",
+      "command": "make",
+      "args": [
+        "-j8"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/build",
+      },
+      "dependsOn": ["Run protoc", "Create build directory", "Run qmake"]
+    },
+    {
+      "label": "Run make",
+      "type": "shell",
+      "command": "make",
+      "args": [
+        "-j8"
+      ],
+      "options": {
+        "cwd": "${workspaceFolder}/build",
+      }
+    }
+  ]
+}

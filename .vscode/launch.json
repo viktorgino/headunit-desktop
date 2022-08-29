@@ -5,7 +5,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "C++ Launch",
+            "name": "Launch headunit",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/headunit-app",
