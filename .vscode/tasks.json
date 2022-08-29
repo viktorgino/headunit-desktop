@@ -16,7 +16,7 @@
             "qmake_all"
         ],
         "options": {
-          "cwd": "${workspaceFolder}/../build-headunit-desktop-Desktop-Debug",
+          "cwd": "${workspaceFolder}/build",
         }
       },
 
@@ -28,7 +28,7 @@
             "-j8"
         ],
         "options": {
-          "cwd": "${workspaceFolder}/../build-headunit-desktop-Desktop-Debug",
+          "cwd": "${workspaceFolder}/build",
         },
         // "dependsOn": ["Run qmake"]
       }
