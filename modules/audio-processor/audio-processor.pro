@@ -12,11 +12,16 @@ target.path = $${PREFIX}/plugins
 
 INSTALLS += target
 
+LIBS += -li2c
+
 SOURCES += \
-    audioprocessorplugin.cpp
+    audioprocessorplugin.cpp \
+    backends/TDA7418/TDA7418.cpp
 
 HEADERS += \
-    audioprocessorplugin.h
+    audioprocessorplugin.h \
+    backends/TDA7418/TDA7418.h \
+    backends/audioprocessorinterface.h
 
 DISTFILES += \
     config.json

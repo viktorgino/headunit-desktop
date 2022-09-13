@@ -90,14 +90,6 @@ void TelephonyManager::initBluez (BluezQt::InitManagerJob *job){
             initAdapter(m_bluez_manager.adapters().at(0));
         }
 
-        BluezQt::PendingCall * obexServiceStart = BluezQt::ObexManager::startService();
-        obexServiceStart->waitForFinished();
-        if(obexServiceStart->error() != BluezQt::PendingCall::NoError){
-            qCWarning(BLUEZ)  << "Error : obexServiceStart  : " << obexServiceStart->errorText();
-        } else {
-            qCDebug(BLUEZ)  << "obex service started";
-        }
-
         BluezQt::InitObexManagerJob *obexjob = m_obexManager.init();
         obexjob->start();
         connect(obexjob, &BluezQt::InitObexManagerJob::result, this, &TelephonyManager::initObex);
@@ -114,10 +106,7 @@ void TelephonyManager::initAdapter(BluezQt::AdapterPtr adapter) {
     m_bluez_adapter->setPowered(true);
     m_bluez_adapter->setDiscoverable(false);
     m_bluez_adapter->setPairable(false);
-    //    qCDebug(BLUEZ)  << "Starting discovery";
-    //    if(!m_bluez_adapter->isDiscovering()){
-    //        m_bluez_adapter->startDiscovery();
-    //    }
+
     //If the newly added device is trusted then disconnect from all other devices and connect to it
 
     for(BluezQt::DevicePtr p_device : m_bluez_manager.devices()) {
@@ -392,7 +381,7 @@ void TelephonyManager::actionMessage(QString id, QVariant message) {
 
 void TelephonyManager::showOverlay(){
     QVariantMap map;
-    map["source"] = "";
+    map["source"] = "qrc:/PhoneBluetooth/CallNotification.qml";
 
     emit action("GUI::OpenOverlay", map);
 }

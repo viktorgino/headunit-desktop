@@ -14,7 +14,7 @@ ListView {
 
     ScrollBar.vertical: ThemeScrollBar { }
     delegate: Item {
-        width: parent.width
+        width: __root.width
         height: 50
 
         MouseArea {

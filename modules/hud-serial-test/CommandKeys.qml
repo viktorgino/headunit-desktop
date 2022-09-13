@@ -21,7 +21,7 @@ GridLayout {
             "Sound", "AMFM", "CD", "Eject", "Auto", "Scan"]
         Button{
             Layout.preferredWidth: 100
-            Layout.preferredHeight: 20
+            Layout.preferredHeight: 35
             text:modelData
             font.kerning: true
             font.pointSize: 8

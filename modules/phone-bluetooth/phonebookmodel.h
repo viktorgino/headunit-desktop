@@ -7,6 +7,7 @@
 #include <QFile>
 #include <QUrl>
 #include <QMultiHash>
+#include <QLockFile>
 #include "qversitreader/qversitreader.h"
 
 class PhonebookModel : public QAbstractListModel

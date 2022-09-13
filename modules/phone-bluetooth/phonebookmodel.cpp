@@ -87,15 +87,21 @@ void PhonebookModel::importContacts(const QUrl& url, bool sort)
     // Reader is capable of handling only one request at the time.
     int importError = 0;
     if (m_reader.state() != QtVersit::QVersitReader::ActiveState) {
-
-        QFile*  file = new QFile(urlToLocalFileName(url));
+        QString fileName = urlToLocalFileName(url);
+        QLockFile fileLock(fileName);
+        QFile*  file = new QFile(fileName);
         bool ok = file->open(QIODevice::ReadOnly);
         if (ok) {
+            fileLock.lock();
+            
+            qDebug() << "Importing " << url.fileName() << file->size();
             m_reader.setDevice(file);
             if (m_reader.startReading()) {
                 m_lastImportUrl = url;
+                fileLock.unlock();
                 return;
             }
+            fileLock.unlock();
             importError = m_reader.error();
         } else {
             importError = -1;

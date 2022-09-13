@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "qpluginloader": "cpp",
-        "map": "cpp"
+        "map": "cpp",
+        "qstring": "cpp"
     }
 }

@@ -56,16 +56,19 @@ void HUDSerialTest::buttonClicked(QString key) {
         emit message("MediaInput", "Previous");
     }
     else if(key == "VolumeUp"){
-        emit action("VolumeControlPlugin::VolumeUp", 0);
+        emit action("AudioProcessorPlugin::VolumeUp", 0);
     }
     else if(key == "VolumeDown"){
-        emit action("VolumeControlPlugin::VolumeDown", 0);
+        emit action("AudioProcessorPlugin::VolumeDown", 0);
     }
     else if(key == "TuneUp"){
+        emit action("AudioProcessorPlugin::TuneUp", 0);
     }
     else if(key == "TuneDown"){
+        emit action("AudioProcessorPlugin::TuneDown", 0);
     }
     else if(key == "Sound"){
+        emit action("AudioProcessorPlugin::Sound", 0);
     }
     else if(key == "AMFM"){
     }

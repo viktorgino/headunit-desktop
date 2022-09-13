@@ -22,7 +22,7 @@ class PluginObject : public QObject, public AbstractPlugin
     Q_PROPERTY(QString name READ getName CONSTANT)
     Q_PROPERTY(QString label READ getLabel CONSTANT)
     Q_PROPERTY(QString icon READ getLabel CONSTANT)
-    Q_PROPERTY(QVariant settings READ getSettings CONSTANT)
+    Q_PROPERTY(QVariant settings READ getSettings CONSTANT) // TODO : Change this to QQmlPropertyMap *
     Q_PROPERTY(QObject * contextProperty READ getContextProperty CONSTANT)
 public:
     explicit PluginObject(QString fileName, QObject *parent = nullptr);

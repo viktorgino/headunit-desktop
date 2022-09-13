@@ -4,10 +4,9 @@
             "name": "Linux",
             "includePath": [
                 "${workspaceFolder}/**",
-                "/usr/bin",
-                "/usr/local/sbin",
-                "/usr/local/bin",
-                "/usr/bin",
+                "/usr/bin/**",
+                "/usr/local/sbin/**",
+                "/usr/local/bin/**",
                 "/usr/include/qt/**",
                 "/usr/include/qt/QtWidgets",
                 "/usr/include/qt/QtGui",

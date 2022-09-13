@@ -2,5 +2,6 @@
     <qresource prefix="/AudioProcessor">
         <file>SoundSettings.qml</file>
         <file>main.qml</file>
+        <file>Volume.qml</file>
     </qresource>
 </RCC>

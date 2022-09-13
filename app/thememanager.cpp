@@ -83,7 +83,7 @@ void ThemeManager::onEvent(QString sender, QString event, QVariant eventData) {
     const QMetaObject *pluginMeta = m_themeObject->metaObject();
 
     AbstractPlugin* plugin = m_pluginList->getPlugin(sender);
-    bool eventAdded = false;
+
     for(int i = pluginMeta->methodOffset(); i < pluginMeta->methodCount(); ++i){
         if(pluginMeta->method(i).methodSignature() == "onEvent(AbstractPlugin*,QString,QString,QVariant)"){
             QMetaMethod method = pluginMeta->method(i);

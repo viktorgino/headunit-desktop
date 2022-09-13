@@ -9,35 +9,46 @@ ThemeRoot {
     id: __root
     Rectangle {
         id:overlay
-        color: "#4c000000"
+        color: "#000000"
         anchors.fill: parent
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: pluginContext.closeOverlay()
-        }
     }
+
     ListModel {
         id: soundSettings
         ListElement {
             title : "Balance"
             action : "balance"
+            sliderFrom: -15
+            sliderTo: 15
+            sliderStepSize: 1
         }
         ListElement {
             title : "Sub"
             action : "sub"
+            sliderFrom: -100
+            sliderTo: 15
+            sliderStepSize: 5
         }
         ListElement {
             title : "Bass"
             action : "bass"
+            sliderFrom: -15
+            sliderTo: 15
+            sliderStepSize: 1
         }
         ListElement {
             title : "Middle"
             action : "middle"
+            sliderFrom: -15
+            sliderTo: 15
+            sliderStepSize: 1
         }
         ListElement {
             title : "Treble"
             action : "treble"
+            sliderFrom: -15
+            sliderTo: 15
+            sliderStepSize: 1
         }
     }
     ListView {
@@ -46,7 +57,7 @@ ThemeRoot {
         clip: true
         anchors.topMargin: 50
         model : soundSettings
-        currentIndex : 0
+        currentIndex : pluginContext.settingsState - 1
         delegate: Item {
             id: delegateItem
             height: 100
@@ -68,7 +79,11 @@ ThemeRoot {
             }
 
             SliderCenter{
+                id:centerSlider
                 height: 40
+                from:sliderFrom
+                to:sliderTo
+                stepSize:sliderStepSize
                 width: parent.width
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.left: parent.left
@@ -77,11 +92,23 @@ ThemeRoot {
                 wheelEnabled: false
                 tickHeight:40
                 color : delegateItem.ListView.isCurrentItem ? "#ffffff" : "#323232"
+                value : pluginSettings[action]
                 onPressedChanged: {
                     listView.currentIndex = index
                 }
-                onValueChanged: {
-                    pluginContext.setAudioParameter(action, value)
+            }
+            Binding {
+                target: pluginSettings
+                property: action
+                value: centerSlider.value
+            }
+
+            Connections{
+                target: pluginSettings
+                onValueChanged:{
+                    if(key == action && centerSlider.value != value){
+                        centerSlider.value = value
+                    }
                 }
             }
         }
@@ -103,12 +130,19 @@ ThemeRoot {
         y: 8
         text: qsTr("Sound Button")
         onClicked : {
-            if(listView.currentIndex + 1 < listView.count){
-                listView.currentIndex += 1
+            if(pluginContext.settingsState + 1 < listView.count){
+                pluginContext.settingsState += 1
             } else {
-                listView.currentIndex = 0
+                pluginContext.settingsState = 0
             }
         }
+    }
+    Button {
+        id: button2
+        x: 200
+        y: 8
+        text: qsTr("Close Button")
+        onClicked : pluginContext.closeOverlay()
     }
 }
 

@@ -1,10 +1,9 @@
 import QtQuick 2.6
 import QtQuick.Controls 2.0
-import QtQuick.Controls.Styles 1.4
 
 import HUDTheme 1.0
 
-Item {
+ThemeRoot {
     id: __root
 
     state: pluginContext.Handsfree.callState

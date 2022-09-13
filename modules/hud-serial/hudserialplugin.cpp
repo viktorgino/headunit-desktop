@@ -1,6 +1,6 @@
 #include "hudserialplugin.h"
 
-HUDSerialPlugin::HUDSerialPlugin(QObject *parent) : QObject (parent), m_serial(this), m_serialProtocol(), m_serialRetryTimer(this)
+HUDSerialPlugin::HUDSerialPlugin(QObject *parent) : QObject (parent), m_serial(), m_serialProtocol(), m_serialRetryTimer(this)
 {
     m_serialProtocol.setCallbacks(this);
     m_pluginSettings.eventListeners = QStringList() << "HVACPlugin::Update" << "HVACPlugin::CustomCommandUpdate";
@@ -61,48 +61,7 @@ void HUDSerialPlugin::eventMessage(QString id, QVariant message) {
 }
 
 void HUDSerialPlugin::actionMessage(QString id, QVariant message) {
-    if(id == "AudioControl"){
-        QVariantMap messageMap = message.toMap();
-        if(messageMap.contains("key") && messageMap.contains("value")) {
-            GenericKeyValueCommandFrame controlFrame;
-            QString key = messageMap["key"].toString();
 
-            if(key == "SetInput") {
-                controlFrame.key = AudioControlCommands::SetInput;
-            } else if(key == "SetInputGain") {
-                controlFrame.key = AudioControlCommands::SetInputGain;
-            } else if(key == "SetVolume") {
-                controlFrame.key = AudioControlCommands::SetVolume;
-            } else if(key == "SetFrontLeftOutputLevel") {
-                controlFrame.key = AudioControlCommands::SetFrontLeftOutputLevel;
-            } else if(key == "SetFrontCenterOutputLevel") {
-                controlFrame.key = AudioControlCommands::SetFrontCenterOutputLevel;
-            } else if(key == "SetFrontRightOutputLevel") {
-                controlFrame.key = AudioControlCommands::SetFrontRightOutputLevel;
-            } else if(key == "SetCenterLeftOutputLevel") {
-                controlFrame.key = AudioControlCommands::SetCenterLeftOutputLevel;
-            } else if(key == "SetCenterRightOutputLevel") {
-                controlFrame.key = AudioControlCommands::SetCenterRightOutputLevel;
-            } else if(key == "SetRearLeftOutputLevel") {
-                controlFrame.key = AudioControlCommands::SetRearLeftOutputLevel;
-            } else if(key == "SetRearRightOutputLevel") {
-                controlFrame.key = AudioControlCommands::SetRearRightOutputLevel;
-            } else if(key == "SetSubwooferOutputLevel") {
-                controlFrame.key = AudioControlCommands::SetSubwooferOutputLevel;
-            } else if(key == "SetBassLevel") {
-                controlFrame.key = AudioControlCommands::SetBassLevel;
-            } else if(key == "SetMidLevel") {
-                controlFrame.key = AudioControlCommands::SetMidLevel;
-            } else if(key == "SetTrebleLevel") {
-                controlFrame.key = AudioControlCommands::SetTrebleLevel;
-            } else {
-                return;
-            }
-            controlFrame.value = messageMap["value"].toUInt();
-            qDebug() << "AudioControl : " << controlFrame.key << controlFrame.value;
-            m_serialProtocol.sendAudioControlCommand(controlFrame);
-        }
-    }
 }
 void HUDSerialPlugin::settingsChanged(const QString &key, const QVariant &){
     if(key == "serial_port" || key == "serial_speed"){
@@ -277,13 +236,10 @@ void HUDSerialPlugin::CustomCommandCallback(const CustomCommandFrame &commandFra
 }
 
 void HUDSerialPlugin::BodyControlCommandCallback(const BodyControlCommandFrame &controlFrame) {
-    emit action("SYSTEM::SetNightMode",controlFrame.NightLight);
+    // emit action("SYSTEM::SetNightMode",controlFrame.NightLight);
+    // TODO : Fix screen light
 }
 void HUDSerialPlugin::DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame &) {
-
-}
-
-void HUDSerialPlugin::AudioControlCommandCallback(const GenericKeyValueCommandFrame &) {
 
 }
 
@@ -298,10 +254,19 @@ void HUDSerialPlugin::ButtonInputCommandCallback(Keys key){
         emit message("MediaInput", "Previous");
         break;
     case Key_VolumeUp:
-        emit action("VolumeControlPlugin::VolumeUp", 0);
+        emit action("AudioProcessorPlugin::VolumeUp", 0);
         break;
     case Key_VolumeDown:
-        emit action("VolumeControlPlugin::VolumeDown", 0);
+        emit action("AudioProcessorPlugin::VolumeDown", 0);
+        break;
+    case Key_Sound:
+        emit action("AudioProcessorPlugin::Sound", 0);
+        break;
+    case Key_TuneDown:
+        emit action("AudioProcessorPlugin::TuneDown", 0);
+        break;
+    case Key_TuneUp:
+        emit action("AudioProcessorPlugin::TuneUp", 0);
         break;
     default:
         break;
@@ -311,12 +276,14 @@ void HUDSerialPlugin::ButtonInputCommandCallback(Keys key){
 void HUDSerialPlugin::SendMessageCallback(uint8_t receivedByte){
     if(m_serial.isOpen()){
         m_serial.write((char*)&receivedByte, 1);
-//        m_serial.flush();
+//        m_serial.flush(); 
     }
 }
 
 void HUDSerialPlugin::PrintString(char *message, int length) {
-    qDebug() << "HCU DEBUG : " << message;
+    if(length > 0) {
+        qDebug("HCU DEBUG : %s", message);
+    }
 }
 
 void HUDSerialPlugin::setCustomBit(uint bitNumber, bool value){

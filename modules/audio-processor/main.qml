@@ -14,7 +14,8 @@ ThemeRoot {
         y: 8
         text: qsTr("Sound Button")
         onClicked : {
-            pluginContext.testNotification();
+            pluginContext.openOverlay();
+            pluginContext.settingsState = 1;
         }
     }
 }

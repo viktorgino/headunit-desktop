@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include "HAL/hal.h"
 
 typedef enum
 {
@@ -81,7 +80,7 @@ typedef struct BodyControlCommandFrame
     bool RearRightSeatBelt = false;
 
     uint8_t DashBrightness = false;
-    bool NightLight = false;
+    uint8_t ExternalBrightness = false;
 } BodyControlCommandFrame;
 
 typedef struct DriveTrainControlCommandFrame
@@ -101,26 +100,6 @@ typedef struct GenericKeyValueCommandFrame
     uint8_t value = 0;
 } GenericKeyValueCommandFrame;
 
-typedef enum
-{
-    SetInput,
-    SetInputGain,
-    SetVolume,
-
-    SetFrontLeftOutputLevel,
-    SetFrontCenterOutputLevel,
-    SetFrontRightOutputLevel,
-    SetCenterLeftOutputLevel,
-    SetCenterRightOutputLevel,
-    SetRearLeftOutputLevel,
-    SetRearRightOutputLevel,
-    SetSubwooferOutputLevel,
-
-    SetBassLevel,
-    SetMidLevel,
-    SetTrebleLevel
-
-} AudioControlCommands;
 typedef enum
 {
     // Numbers
@@ -196,5 +175,4 @@ public:
     virtual void PrintString(char *, int) = 0;
     virtual void BodyControlCommandCallback(const BodyControlCommandFrame &) = 0;
     virtual void DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame &) = 0;
-    virtual void AudioControlCommandCallback(const GenericKeyValueCommandFrame &) = 0;
 };

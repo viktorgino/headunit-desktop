@@ -44,7 +44,6 @@ public:
     void CustomCommandCallback(const CustomCommandFrame &commandFrame) override;
     void BodyControlCommandCallback(const BodyControlCommandFrame &controlFrame) override;
     void DriveTrainControlCommandCallback(const DriveTrainControlCommandFrame &controlFrame) override;
-    void AudioControlCommandCallback(const GenericKeyValueCommandFrame &) override;
     void ButtonInputCommandCallback(Keys key) override;
     void SendMessageCallback(uint8_t sendByte) override;
     void PrintString(char * message, int length) override;

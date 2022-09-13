@@ -1,15 +1,35 @@
 {
     "name":"AudioProcessorPlugin",
-    "label":"Audio Processor Plugin",
+    "label":"Audio Processor",
     "source": "qrc:/AudioProcessor/main.qml",
     "config":{
         "type":"items",
         "description":"Settings Menu Test",
-        "items":[
+        "autoSave": true,
+        "settings" : [
             {
-                "label":"I2C Path",
-                "name": "i2c_path",
-                "type":"text"
+                "name": "volume",
+                "type": "int"
+            },
+            {
+                "name": "sub",
+                "type": "int"
+            },
+            {
+                "name": "bass",
+                "type": "int"
+            },
+            {
+                "name": "middle",
+                "type": "int"
+            },
+            {
+                "name": "treble",
+                "type": "int"
+            },
+            {
+                "name": "balance",
+                "type": "int"
             }
         ]
     }

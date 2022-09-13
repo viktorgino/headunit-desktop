@@ -1,5 +1,5 @@
 #include "HUDSerial.h"
-
+#include "../HAL/hal.h"
 namespace HUDSerial {
 
 HUDSerial::HUDSerial()
@@ -9,7 +9,6 @@ HUDSerial::HUDSerial()
       m_receivedAcControlFrame(),
       m_receivedBodyControlCommandFrame(),
       m_receivedDriveTrainControlCommandFrame(),
-      m_receivedAudioCommandFrame(),
       m_currentCommand(NoCommand),
       m_receiverState(CommandByte),
       m_frameSize(0),
@@ -229,14 +228,7 @@ void HUDSerial::receiveByte(char receivedByte) {
                     break;
                 }
                 case 3: {
-                    m_receivedBodyControlCommandFrame.NightLight = receivedByte & 1;
-                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 1); //Reserved
-                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 2); //Reserved
-                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 3); //Reserved
-                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 4); //Reserved
-                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 5); //Reserved
-                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 6); //Reserved
-                    // m_receivedBodyControlCommandFrame.Bits = receivedByte & (1 << 7); //Reserved
+                    m_receivedBodyControlCommandFrame.ExternalBrightness = receivedByte;
                     break;
                 }
                 }
@@ -297,19 +289,6 @@ void HUDSerial::receiveByte(char receivedByte) {
                 m_callbacks->ButtonInputCommandCallback((Keys)receivedByte);
                 break;
             }
-            case AudioControlCommand: {
-                switch (m_dataBufferIndex) {
-                case 0: {
-                    m_receivedAudioCommandFrame.key = receivedByte;
-                    break;
-                }
-                case 1: {
-                    m_receivedAudioCommandFrame.value = receivedByte;
-                    break;
-                }
-                }
-                break;
-            }
             default:
                 break;
             }
@@ -330,7 +309,7 @@ void HUDSerial::receiveByte(char receivedByte) {
             m_crc = ((uint8_t)receivedByte) | m_crc;
             m_receiverState = CommandByte;
             uint16_t crc = HAL::calculateCRC16(m_receivedBuffer, m_dataBufferIndex);
-
+            
             if (crc == m_crc) {
                 switch (m_currentCommand) {
                 case ClimateControlCommand: {
@@ -362,9 +341,6 @@ void HUDSerial::receiveByte(char receivedByte) {
                 case DriveTrainControlCommand: {
                     m_callbacks->DriveTrainControlCommandCallback(m_receivedDriveTrainControlCommandFrame);
                     sendAcknowledge(DriveTrainControlCommand);
-                } break;
-                case AudioControlCommand: {
-                    m_callbacks->AudioControlCommandCallback(m_receivedAudioCommandFrame);
                 } break;
                 default:
                     break;
@@ -515,7 +491,7 @@ void HUDSerial::sendBodyControlCommand() {
         m_bodyControlCommandFrame.PassengerSeatBelt << 4 | m_bodyControlCommandFrame.RearLeftSeatBelt << 5 |
         m_bodyControlCommandFrame.RearMiddleSeatBelt << 6 | m_bodyControlCommandFrame.RearRightSeatBelt << 7;
     BodyControlCommandBuffer[2] = m_bodyControlCommandFrame.DashBrightness;
-    BodyControlCommandBuffer[3] = m_bodyControlCommandFrame.NightLight;
+    BodyControlCommandBuffer[3] = m_bodyControlCommandFrame.ExternalBrightness;
     sendMessage(BodyControlCommand, 4, BodyControlCommandBuffer);
     m_bodyControlCommandAck = true;
 }
@@ -543,13 +519,6 @@ void HUDSerial::sendDriveTrainControlCommand() {
 
     sendMessage(DriveTrainControlCommand, 12, BodyControlCommandBuffer);
     m_driveTrainControlCommandAck = true;
-}
-
-void HUDSerial::sendAudioControlCommand(const GenericKeyValueCommandFrame &controlFrame) {
-    char commandBuffer[2];
-    commandBuffer[0] = controlFrame.key;
-    commandBuffer[1] = controlFrame.value;
-    sendMessage(AudioControlCommand, 2, commandBuffer);
 }
 
 void HUDSerial::loop() {
