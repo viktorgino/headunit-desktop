@@ -16,5 +16,6 @@ SUBDIRS = \
           modules/hud-serial \
           modules/hud-serial-test \
           modules/audio-processor \
+          modules/reversing-camera \
           themes/default-theme
 

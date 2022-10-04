@@ -43,3 +43,4 @@ CMakeLists.txt.user
 /html/
 /latex/
 /build/
+*.qmlproject.qtds

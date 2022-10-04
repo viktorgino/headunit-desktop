@@ -1,0 +1,6 @@
+{
+    "name":"ReversingCamera",
+    "label":"Reversing Camera",
+    "source" : "qrc:/ReversingCamera/camera.qml",
+    "icon": "qrc:/qml/icons/android-camera.png"
+}
