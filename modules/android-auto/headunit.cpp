@@ -209,9 +209,6 @@ GstFlowReturn Headunit::newVideoSample (GstElement * appsink, Headunit * _this){
         return GST_FLOW_ERROR;
     }
 
-    GstMapInfo mapInfo;
-    gst_buffer_map(gstbuf, &mapInfo, GST_MAP_READ);
-
     GstCaps* caps = gst_sample_get_caps (gstsample);
     GstVideoInfo info;
     gst_video_info_from_caps (&info, caps);
@@ -221,8 +218,7 @@ GstFlowReturn Headunit::newVideoSample (GstElement * appsink, Headunit * _this){
 
     emit _this->receivedVideoFrame(frame);
 
-    gst_buffer_unmap(gstbuf, const_cast<GstMapInfo*> (&mapInfo));
-    gst_sample_unref (gstsample);
+    gst_sample_unref(gstsample);
     return GST_FLOW_OK;
 }
 
@@ -650,10 +646,10 @@ void DesktopEventCallbacks::VideoFocusHappened(bool hasFocus, bool unrequested) 
 }
 
 std::string DesktopEventCallbacks::GetCarBluetoothAddress(){
-    QList<QBluetoothHostInfo> localAdapters = QBluetoothLocalDevice::allDevices();
-    if(localAdapters.size() > 0){
-        return localAdapters.at(0).address().toString().toStdString();
-    }
+    // QList<QBluetoothHostInfo> localAdapters = QBluetoothLocalDevice::allDevices();
+    // if(localAdapters.size() > 0){
+    //     return localAdapters.at(0).address().toString().toStdString();
+    // }
     return std::string();
 }
 
