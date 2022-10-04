@@ -1,0 +1,63 @@
+import QmlProject 1.1
+
+Project {
+    mainFile: "dev/qml/headunit-dev.qml"
+
+    QmlFiles {
+        directory: "modules"
+    }
+
+    QmlFiles {
+        directory: "dev/qml"
+    }
+
+    QmlFiles {
+        directory: "themes/default-theme/designer/content"
+    }
+
+    Files {
+        files: ["themes/default-theme/designer/qtquickcontrols2.conf"]
+    }
+
+    Files {
+        filter: "qmldir"
+        directory: "designer/backend"
+    }
+
+    Files {
+        filter: "qmldir"
+        directory: "modules"
+    }
+
+    Files {
+        filter: "*.ttf;*.otf"
+        directory: "qml"
+    }
+
+    Environment {
+        QT_QUICK_CONTROLS_CONF: "themes/default-theme/designer/qtquickcontrols2.conf"
+        QT_AUTO_SCREEN_SCALE_FACTOR: "1"
+        QMLSCENE_CORE_PROFILE: "true" // Required for macOS, but can create issues on embedded Linux
+        QT_LOGGING_RULES: "qt.qml.connections=false"
+        QT_ENABLE_HIGHDPI_SCALING: "1"
+
+
+        /* Useful for debugging
+       QSG_VISUALIZE=batches
+       QSG_VISUALIZE=clip
+       QSG_VISUALIZE=changes
+       QSG_VISUALIZE=overdraw
+       */
+    }
+
+    /* List of plugin directories passed to QML runtime */
+    importPaths: ["themes/default-theme/qml"]
+
+    qdsVersion: "3.0"
+
+    multilanguageSupport: true
+    supportedLanguages: ["en"]
+    primaryLanguage: "en"
+
+    mainUiFile: "dev/qml/PluginObject.qml"
+}
