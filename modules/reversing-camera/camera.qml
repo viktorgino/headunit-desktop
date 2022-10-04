@@ -4,28 +4,33 @@ import HUDTheme 1.0
 
 ThemeRoot {
 
-    Camera {
-        id: camera
+    // Camera {
+    //     id: camera
 
-        imageProcessing.whiteBalanceMode: CameraImageProcessing.WhiteBalanceFlash
+    //     imageProcessing.whiteBalanceMode: CameraImageProcessing.WhiteBalanceFlash
 
-        exposure {
-            exposureCompensation: -1.0
-            exposureMode: Camera.ExposurePortrait
-        }
+    //     exposure {
+    //         exposureCompensation: -1.0
+    //         exposureMode: Camera.ExposurePortrait
+    //     }
 
-        flash.mode: Camera.FlashRedEyeReduction
+    //     flash.mode: Camera.FlashRedEyeReduction
 
-        imageCapture {
-            onImageCaptured: {
-                photoPreview.source = preview  // Show the preview in an Image
-            }
-        }
-    }
+    //     imageCapture {
+    //         onImageCaptured: {
+    //             photoPreview.source = preview  // Show the preview in an Image
+    //         }
+    //     }
+    // }
+
+    // VideoOutput {
+    //     source: camera
+    //     anchors.fill: parent
+    //     focus : visible // to receive focus and capture key events when visible
+    // }
 
     VideoOutput {
-        source: camera
         anchors.fill: parent
-        focus : visible // to receive focus and capture key events when visible
+        source: pluginContext
     }
 }

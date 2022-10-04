@@ -2,5 +2,25 @@
     "name":"ReversingCamera",
     "label":"Reversing Camera",
     "source" : "qrc:/ReversingCamera/camera.qml",
-    "icon": "qrc:/qml/icons/android-camera.png"
+    "icon": "qrc:/qml/icons/android-camera.png",
+    "config":{
+        "type":"items",
+        "items":[
+            {
+                "label":"Camera type",
+                "name": "camera",
+                "type":"combobox",
+                "defaultValue":"0",
+                "values": {"auto":"Automatic", "rpi":"RPi Unicam", "custom":"Custom"}
+            },
+            {
+                "label":"GStreamer pipeline",
+                "name": "custom_pipeline",
+                "type":"textfield",
+                "conditional":true,
+                "conditionTarget": "camera",
+                "conditionValue":"custom"
+            }
+        ]
+    }
 }
