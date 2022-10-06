@@ -88,26 +88,25 @@ void PhonebookModel::importContacts(const QUrl& url, bool sort)
     int importError = 0;
     if (m_reader.state() != QtVersit::QVersitReader::ActiveState) {
         QString fileName = urlToLocalFileName(url);
-        QLockFile fileLock(fileName);
-        QFile*  file = new QFile(fileName);
-        bool ok = file->open(QIODevice::ReadOnly);
-        if (ok) {
-            fileLock.lock();
-            
-            qDebug() << "Importing " << url.fileName() << file->size();
-            m_reader.setDevice(file);
+        QFile file(fileName);
+
+        if (file.open(QIODevice::ReadOnly)) {
+            QTextStream stream(&file);
+
+            m_reader.setData(QByteArray(file.readAll()));
             if (m_reader.startReading()) {
                 m_lastImportUrl = url;
-                fileLock.unlock();
+                file.close();
                 return;
             }
-            fileLock.unlock();
+            file.close();
             importError = m_reader.error();
         } else {
-            importError = -1;
+            importError = 1;
         }
     }
-    qDebug() << "Import error " << importError << url;
+    if(importError > 0)
+        qDebug() << "Import error " << importError << url;
 }
 
 bool sortAsc(const QtVersit::QVersitDocument &a, const QtVersit::QVersitDocument &b)
