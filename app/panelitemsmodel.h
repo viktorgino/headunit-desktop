@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QAbstractListModel>
+#include <QMutableListIterator>
 #include <QSettings>
 
 #include <hud-common.h>
