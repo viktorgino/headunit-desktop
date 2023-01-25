@@ -1,0 +1,9 @@
+{
+  "name": "VEML7700",
+  "deviceAddress":  16,
+  "alsRegister": 4,
+  "alsRegisterWidth":  16,
+  "configRegister": 0,
+  "configRegisterWidth":  16,
+  "configOnValue":  0
+}

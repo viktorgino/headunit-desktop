@@ -1,0 +1,30 @@
+{
+  "name": "I2CLightSensorPlugin",
+  "label": "I2C Light Sensor",
+  "config": {
+    "type": "loader",
+    "source": "qrc:/i2c-light-sensor-settings.qml",
+    "settings": [
+      {
+        "name": "sensor_model",
+        "type": "string"
+      },
+      {
+        "name": "i2c_port",
+        "type": "string"
+      },
+      {
+        "name": "refresh_interval",
+        "type": "uint"
+      },
+      {
+        "name": "day_threshold",
+        "type": "uint"
+      },
+      {
+        "name": "night_threshold",
+        "type": "uint"
+      }
+    ]
+  }
+}
