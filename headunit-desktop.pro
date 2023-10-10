@@ -10,6 +10,7 @@ SUBDIRS = \
           modules/welle-io \
 #          modules/navit \
 #          modules/fm-radio \
+          modules/gpsd \
           modules/hvac \
           modules/sample \
           modules/rpi \

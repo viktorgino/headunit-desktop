@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/GPSD">
+      <file>settings.qml</file>
+      <file>icons/icons8-satellite-100.png</file>
+    </qresource>
+</RCC>

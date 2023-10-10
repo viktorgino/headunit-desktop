@@ -1,0 +1,21 @@
+{
+  "name":"GPSD",
+  "label": "GPS",
+  "icon": "qrc:/GPSD/icons/icons8-satellite-100.png",
+  "config": {
+    "type": "loader",
+    "source": "qrc:/GPSD/settings.qml",
+    "settings": [
+      {
+        "name": "host",
+        "type": "string",
+        "defaultValue": "127.0.0.1"
+      },
+      {
+        "name": "port",
+        "type": "uint",
+        "defaultValue": 2947
+      }
+    ]
+  }
+}
