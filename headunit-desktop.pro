@@ -8,7 +8,6 @@ SUBDIRS = \
           modules/media-player \
           modules/usbconnectionlistener \
           modules/welle-io \
-          modules/i2c-light-sensor \
 #          modules/navit \
 #          modules/fm-radio \
           modules/hvac \
