@@ -4,7 +4,7 @@
   "icon": "qrc:/I2CLightSensor/icons/icons8-sun-96.png",
   "config": {
     "type": "loader",
-    "source": "qrc:/I2CLightSensor/i2c-light-sensor-settings.qml",
+    "source": "qrc:/I2CLightSensor/settings.qml",
     "settings": [
       {
         "name": "sensor_model",
@@ -16,15 +16,18 @@
       },
       {
         "name": "refresh_interval",
-        "type": "uint"
+        "type": "uint",
+        "defaultValue": 0
       },
       {
         "name": "day_threshold",
-        "type": "uint"
+        "type": "uint",
+        "defaultValue": 1000
       },
       {
         "name": "night_threshold",
-        "type": "uint"
+        "type": "uint",
+        "defaultValue": 500
       }
     ]
   }
