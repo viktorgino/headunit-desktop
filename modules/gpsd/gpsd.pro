@@ -1,6 +1,7 @@
 TEMPLATE = lib
 CONFIG += c++11 plugin link_pkgconfig
-QT += quick libQgpsmm
+QT += quick
+LIBS += -lgps
 TARGET = $$qtLibraryTarget(gpsd-plugin)
 DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += $${PWD}/../../includes
