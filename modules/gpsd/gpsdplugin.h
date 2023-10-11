@@ -23,7 +23,7 @@ class GPSDPlugin : public QObject, PluginInterface
     Q_PROPERTY(int mode MEMBER m_mode NOTIFY modeUpdated)
     Q_PROPERTY(double longitude MEMBER m_longitude NOTIFY longitudeUpdated)
     Q_PROPERTY(double latitude MEMBER m_latitude NOTIFY latitudeUpdated)
-
+    Q_PROPERTY(bool inFence MEMBER m_inFence NOTIFY inFenceUpdated)
 
 public:
     explicit GPSDPlugin(QObject *parent = nullptr);
@@ -36,46 +36,52 @@ public:
 public slots:
     void eventMessage(QString id, QVariant message) override;
     void handleMode(const int& result);
-    void handleLocation(const double& lat, const double& lon);
+    void handleLocation(const double& lat, const double& lon, const bool& inFence);
 
 signals:
     void message(QString id, QVariant message);
-    //void connectedUpdated();
     void action(QString id, QVariant message);
-    void operate();
+    void operate(QString host, quint32 port, int fence);
     void modeUpdated();
     void longitudeUpdated();
     void latitudeUpdated();
+    void inFenceUpdated();
 
 private slots:
     void settingsChanged(const QString &key, const QVariant &value);
 
 private:
-    bool m_connected;
     QString m_host = "";
     quint32 m_port = 0;
+    int m_fence = 0;
     QThread workerThread;
     int m_mode = 0;
     double m_latitude = 0;
     double m_longitude = 0;
+    bool m_inFence = false;
+    void stopWorker();
+    void startWorker();
+
 };
 
 class GPSDWorker : public QObject {
     Q_OBJECT
 
 private:
-    void getData();
+    int m_fence = 0;
+    void getData(std::string host, uint32_t port);
     void procData(struct gps_data_t * gps);
     bool stopClient = false;
+    bool pointInPolygon(double lat, double lon);
     ~GPSDWorker();
 
 public slots:
-    void connect();
+    void connect(QString host, quint32 port, int fence);
     void disconnect();
 
 signals:
     void mode(const int& result);
-    void location(const double& latitude, const double& longitude);
+    void location(const double& latitude, const double& longitude, const bool& inFence);
 };
 
 
