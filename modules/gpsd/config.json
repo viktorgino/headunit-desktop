@@ -17,60 +17,25 @@
         "defaultValue": 0
       },
       {
-        "name": "fence",
-        "type": "int",
-        "defaultValue": -1
-      },
-      {
-        "name": "fence0pt0",
+        "name": "fence1pt1",
         "type": "string",
         "defaultValue": "-37.81377659455088, 144.9573499708269"
       },
       {
-        "name": "fence0pt1",
+        "name": "fence1pt2",
         "type": "string",
         "defaultValue": "-37.81959883100442, 144.9600354951891"
       },
       {
-        "name": "fence0pt2",
+        "name": "fence1pt3",
         "type": "string",
         "defaultValue": "-37.817398930901135, 144.96748872616857"
       },
       {
-        "name": "fence0pt3",
+        "name": "fence1pt4",
         "type": "string",
         "defaultValue": "-37.81167088347648, 144.96478490480058"
-      },
-      {
-        "name": "fence0pt4",
-        "type": "string",
-        "defaultValue": "-37.81229491021319, 144.96222285683766"
-      },
-      {
-        "name": "fence0pt5",
-        "type": "string",
-        "defaultValue": ""
-      },
-      {
-        "name": "fence0pt6",
-        "type": "string",
-        "defaultValue": ""
-      },
-      {
-        "name": "fence0pt7",
-        "type": "string",
-        "defaultValue": ""
-      },
-      {
-        "name": "fence0pt8",
-        "type": "string",
-        "defaultValue": ""
-      },
-      {
-        "name": "fence0pt9",
-        "type": "string",
-        "defaultValue": ""
-      },
+      }
     ]
   }
 }

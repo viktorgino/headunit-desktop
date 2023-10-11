@@ -67,113 +67,43 @@ ThemeRoot {
             }
 
             SettingsPageItemTextfield {
-                id: fence
+                id: fence1pt1
                 width: parent.width
-                label: "Fence"
+                label: "Fence 1 Point 1"
                 onValueChanged: {
-                    pluginSettings.fence = value
+                    pluginSettings.fence1pt1 = value
                 }
-                value : pluginSettings.fence
+                value : pluginSettings.fence1pt1
             }
 
             SettingsPageItemTextfield {
-                id: fence0pt0
+                id: fence1pt2
                 width: parent.width
-                label: "Fence 0 Point 0"
+                label: "Fence 1 Point 2"
                 onValueChanged: {
-                    pluginSettings.fence0pt0 = value
+                    pluginSettings.fence1pt2 = value
                 }
-                value : pluginSettings.fence0pt0
+                value : pluginSettings.fence1pt2
             }
 
             SettingsPageItemTextfield {
-                id: fence0pt1
+                id: fence1pt3
                 width: parent.width
-                label: "Fence 0 Point 1"
+                label: "Fence 1 Point 3"
                 onValueChanged: {
-                    pluginSettings.fence0pt1 = value
+                    pluginSettings.fence1pt3 = value
                 }
-                value : pluginSettings.fence0pt1
+                value : pluginSettings.fence1pt3
             }
 
             SettingsPageItemTextfield {
-                id: fence0pt2
+                id: fence1pt4
                 width: parent.width
-                label: "Fence 0 Point 2"
+                label: "Fence 1 Point 4"
                 onValueChanged: {
-                    pluginSettings.fence0pt2 = value
+                    pluginSettings.fence1pt4 = value
                 }
-                value : pluginSettings.fence0pt2
-            }
-
-            SettingsPageItemTextfield {
-                id: fence0pt3
-                width: parent.width
-                label: "Fence 0 Point 3"
-                onValueChanged: {
-                    pluginSettings.fence0pt3 = value
-                }
-                value : pluginSettings.fence0pt3
-            }
-
-            SettingsPageItemTextfield {
-                id: fence0pt4
-                width: parent.width
-                label: "Fence 0 Point 4"
-                onValueChanged: {
-                    pluginSettings.fence0pt4 = value
-                }
-                value : pluginSettings.fence0pt4
-            }
-
-            SettingsPageItemTextfield {
-                id: fence0pt5
-                width: parent.width
-                label: "Fence 0 Point 5"
-                onValueChanged: {
-                    pluginSettings.fence0pt5 = value
-                }
-                value : pluginSettings.fence0pt5
-            }
-
-            SettingsPageItemTextfield {
-                id: fence0pt6
-                width: parent.width
-                label: "Fence 0 Point 6"
-                onValueChanged: {
-                    pluginSettings.fence0pt6 = value
-                }
-                value : pluginSettings.fence0pt6
-            }
-
-            SettingsPageItemTextfield {
-                id: fence0pt7
-                width: parent.width
-                label: "Fence 0 Point 7"
-                onValueChanged: {
-                    pluginSettings.fence0pt7 = value
-                }
-                value : pluginSettings.fence0pt7
-            }
-
-            SettingsPageItemTextfield {
-                id: fence0pt8
-                width: parent.width
-                label: "Fence 0 Point 8"
-                onValueChanged: {
-                    pluginSettings.fence0pt8 = value
-                }
-                value : pluginSettings.fence0pt8
-            }
-
-            SettingsPageItemTextfield {
-                id: fence0pt9
-                width: parent.width
-                label: "Fence 0 Point 9"
-                onValueChanged: {
-                    pluginSettings.fence0pt9 = value
-                }
-                value : pluginSettings.fence0pt9
+                value : pluginSettings.fence1pt4
             }
 
             SettingsPageItemHeader{

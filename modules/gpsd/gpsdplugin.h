@@ -53,7 +53,6 @@ private slots:
 private:
     QString m_host = "";
     quint32 m_port = 0;
-    int m_fence = 0;
     QThread workerThread;
     int m_mode = 0;
     double m_latitude = 0;
@@ -68,7 +67,6 @@ class GPSDWorker : public QObject {
     Q_OBJECT
 
 private:
-    int m_fence = 0;
     void getData(std::string host, uint32_t port);
     void procData(struct gps_data_t * gps);
     bool stopClient = false;
@@ -76,7 +74,7 @@ private:
     ~GPSDWorker();
 
 public slots:
-    void connect(QString host, quint32 port, int fence);
+    void connect(QString host, quint32 port);
     void disconnect();
 
 signals:

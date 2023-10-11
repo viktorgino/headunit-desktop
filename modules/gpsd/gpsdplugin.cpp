@@ -2,6 +2,7 @@
 #define _USE_MATH_DEFINES
 #include <math.h>
 
+const int m_fence = 0; //only one fence
 double fences[1][10][2] = {{{17.529188, 78.361845},
                               {17.529840, 78.361919},
                               {17.529934, 78.362197},
@@ -32,9 +33,19 @@ void GPSDPlugin::handleLocation(const double& lat, const double& lon, const bool
     this->m_latitude = lat;
     this->m_longitude = lon;
     this->m_inFence = inFence;
+
     emit latitudeUpdated();
     emit longitudeUpdated();
     emit inFenceUpdated();
+
+    QList<double> location;
+    location.append(lat);
+    location.append(lon);
+    QVariant variant;
+    variant.setValue<QList<double>>(location);
+
+    emit action("SYSTEM::GPSInFence", inFence);
+    emit action("SYSTEM::GPSLocation", variant);
 }
 
 QObject *GPSDPlugin::getContextProperty(){
@@ -57,14 +68,13 @@ void GPSDPlugin::stopWorker() {
 void GPSDPlugin::startWorker() {
     m_host  = m_settings.value("host").toString();
     m_port  = m_settings.value("port").toUInt();
-    m_fence = m_settings.value("fence").toInt();
 
     if (m_fence >= 0) {
         //Get Fence Points
         int fenceSize = sizeof(fences[m_fence])/sizeof(fences[m_fence][0]);
         char buffer[11];
         for(int i = 0; i < fenceSize; i++) {
-            snprintf(buffer, 11, "fence0pt%d", i);
+            snprintf(buffer, 11, "fence1pt%d", i + 1);
             QString pt = m_settings.value(buffer).toString();
             QStringList pieces = pt.split(",");
             if(pieces.length() == 2) {
@@ -168,9 +178,8 @@ void GPSDWorker::getData(std::string host, uint32_t port) {
     }
 }
 
-void GPSDWorker::connect(QString host, quint32 port, int fence) {
+void GPSDWorker::connect(QString host, quint32 port) {
     stopClient = false;
-    this->m_fence = fence;
     getData(host.toStdString(), port);
 }
 
