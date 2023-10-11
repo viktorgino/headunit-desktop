@@ -3,17 +3,7 @@
 #include <math.h>
 
 const int m_fence = 0; //only one fence
-double fences[1][10][2] = {{{17.529188, 78.361845},
-                              {17.529840, 78.361919},
-                              {17.529934, 78.362197},
-                              {17.530624, 78.362507},
-                              {17.530832, 78.363043},
-                              {17.530999, 78.363451},
-                              {17.530924, 78.363976},
-                              {17.529248, 78.363288},
-                              {17.529101, 78.362858},
-                              {17.529040, 78.362489}}};
-
+double fences[1][4][2]; // 1 Fence, 4 Points = 2 Measurements (Lat/Lon)
 
 GPSDPlugin::GPSDPlugin(QObject *parent) : QObject (parent)
 {
@@ -41,11 +31,11 @@ void GPSDPlugin::handleLocation(const double& lat, const double& lon, const bool
     QList<double> location;
     location.append(lat);
     location.append(lon);
-    QVariant variant;
-    variant.setValue<QList<double>>(location);
+    QVariant locationVariant;
+    locationVariant.setValue<QList<double>>(location);
 
     emit action("SYSTEM::GPSInFence", inFence);
-    emit action("SYSTEM::GPSLocation", variant);
+    emit action("SYSTEM::GPSLocation", locationVariant);
 }
 
 QObject *GPSDPlugin::getContextProperty(){
@@ -74,15 +64,15 @@ void GPSDPlugin::startWorker() {
         int fenceSize = sizeof(fences[m_fence])/sizeof(fences[m_fence][0]);
         char buffer[11];
         for(int i = 0; i < fenceSize; i++) {
-            snprintf(buffer, 11, "fence1pt%d", i + 1);
+            snprintf(buffer, 11, "fence%dpt%d", m_fence + 1, i + 1);
             QString pt = m_settings.value(buffer).toString();
             QStringList pieces = pt.split(",");
             if(pieces.length() == 2) {
-                fences[0][i][0] = pieces.value(0).toDouble();
-                fences[0][i][1] = pieces.value(1).toDouble();
+                fences[m_fence][i][0] = pieces.value(0).toDouble();
+                fences[m_fence][i][1] = pieces.value(1).toDouble();
             } else {
-                fences[0][i][0] = 0;
-                fences[0][i][1] = 0;
+                fences[m_fence][i][0] = -91; //invalid latitude
+                fences[m_fence][i][1] = -181; //invalid longitude
             }
         }
     }
@@ -119,7 +109,7 @@ bool GPSDWorker::pointInPolygon(double lat, double lon) {
     double vectors[fenceSize][2];
 
     for(int i = 0; i < fenceSize; i++){
-        if(fences[m_fence][i][0] == 0 || fences[m_fence][i][1] == 0) {
+        if(fences[m_fence][i][0] < -90 || fences[m_fence][i][1] < -180) {
             fenceSize = i;
             break;
         }
