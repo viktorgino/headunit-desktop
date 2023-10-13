@@ -102,7 +102,7 @@ int Headunit::init(){
         #else
                                  "avdec_h264 ! "
         #endif
-                "appsink emit-signals=true sync=false name=vid_sink";
+                "appsink caps=\"video/x-raw,format=I420\" emit-signals=true sync=false name=vid_sink";
 
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
 
