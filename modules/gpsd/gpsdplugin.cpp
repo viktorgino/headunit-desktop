@@ -15,25 +15,31 @@ void GPSDPlugin::init() {
 }
 
 void GPSDPlugin::handleMode(const int& result) {
-    this->m_mode = result;
-    emit modeUpdated();
+    if(this->m_mode != result) {
+        this->m_mode = result;
+        emit modeUpdated();
+        emit message("Mode", this->m_mode);
+    }
 }
 
 void GPSDPlugin::handleLocation(const double& lat, const double& lon, const bool& inFence) {
-    this->m_latitude = lat;
-    this->m_longitude = lon;
-    this->m_inFence = inFence;
+    if(this->m_latitude != lat || this->m_longitude != lon) {
+        this->m_latitude = lat;
+        this->m_longitude = lon;
+        emit latitudeUpdated();
+        emit longitudeUpdated();
 
-    emit latitudeUpdated();
-    emit longitudeUpdated();
-    emit inFenceUpdated();
+        QVariantMap location;
+        location.insert("latitude", this->m_latitude);
+        location.insert("longitude", this->m_longitude);
+        emit message("Location", location);
 
-    QVariantMap location;
-    location.insert("latitude", lat);
-    location.insert("longitude", lon);
-
-    emit action("SYSTEM::GPSInFence", inFence);
-    emit action("SYSTEM::GPSLocation", location);
+        if(this->m_inFence != inFence) {
+            this->m_inFence = inFence;
+            emit inFenceUpdated();
+            emit message("InFence", inFence);
+        }
+    }
 }
 
 QObject *GPSDPlugin::getContextProperty(){
@@ -130,7 +136,7 @@ bool GPSDWorker::pointInPolygon(double lat, double lon) {
 void GPSDWorker::procData(struct gps_data_t * gps) {
     if (gps->set & MODE_SET) {
         emit mode(gps->fix.mode);
-        if(gps->fix.mode > MODE_2D) {
+        if(gps->fix.mode >= MODE_2D) {
             if(gps->set & LATLON_SET)
                 emit location(gps->fix.latitude, gps->fix.longitude, pointInPolygon(gps->fix.latitude, gps->fix.longitude));
         }

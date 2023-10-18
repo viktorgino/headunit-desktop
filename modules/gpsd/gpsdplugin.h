@@ -55,8 +55,8 @@ private:
     quint32 m_port = 0;
     QThread workerThread;
     int m_mode = 0;
-    double m_latitude = 0;
-    double m_longitude = 0;
+    double m_latitude = -91;
+    double m_longitude = -181;
     bool m_inFence = false;
     void stopWorker();
     void startWorker();
