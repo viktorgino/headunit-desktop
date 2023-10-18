@@ -28,14 +28,12 @@ void GPSDPlugin::handleLocation(const double& lat, const double& lon, const bool
     emit longitudeUpdated();
     emit inFenceUpdated();
 
-    QList<double> location;
-    location.append(lat);
-    location.append(lon);
-    QVariant locationVariant;
-    locationVariant.setValue<QList<double>>(location);
+    QVariantMap location;
+    location.insert("latitude", lat);
+    location.insert("longitude", lon);
 
     emit action("SYSTEM::GPSInFence", inFence);
-    emit action("SYSTEM::GPSLocation", locationVariant);
+    emit action("SYSTEM::GPSLocation", location);
 }
 
 QObject *GPSDPlugin::getContextProperty(){
