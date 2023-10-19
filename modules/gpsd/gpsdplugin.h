@@ -27,7 +27,9 @@ class GPSDPlugin : public QObject, PluginInterface
     Q_PROPERTY(double track MEMBER m_track NOTIFY trackUpdated)
     Q_PROPERTY(double speed MEMBER m_speed NOTIFY speedUpdated)
     Q_PROPERTY(double altitude MEMBER m_altitude NOTIFY altitudeUpdated)
-    Q_PROPERTY(double herr MEMBER m_latitude NOTIFY herrUpdated)
+    Q_PROPERTY(double epx MEMBER m_epx NOTIFY epxUpdated)
+    Q_PROPERTY(double epy MEMBER m_epy NOTIFY epyUpdated)
+    Q_PROPERTY(double eph MEMBER m_eph NOTIFY ephUpdated)
 
 public:
     explicit GPSDPlugin(QObject *parent = nullptr);
@@ -44,7 +46,7 @@ public slots:
     void handleTrack(const double& track);
     void handleSpeed(const double& speed);
     void handleAltitude(const double& altitude);
-    void handleHERR(const double& herr);
+    void handleHERR(const double& epx, const double& epy, const double& eph);
 
 signals:
     void message(QString id, QVariant message);
@@ -57,7 +59,9 @@ signals:
     void trackUpdated();
     void speedUpdated();
     void altitudeUpdated();
-    void herrUpdated();
+    void epxUpdated();
+    void epyUpdated();
+    void ephUpdated();
 
 private slots:
     void settingsChanged(const QString &key, const QVariant &value);
@@ -73,7 +77,9 @@ private:
     double m_track = 0;
     double m_speed = 0;
     double m_altitude = 0;
-    double m_herr = 0;
+    double m_epx = 0;
+    double m_epy = 0;
+    double m_eph = 0;
     void stopWorker();
     void startWorker();
 
@@ -99,7 +105,7 @@ signals:
     void track(const double& track);
     void speed(const double& speed);
     void altitude(const double& altitude);
-    void herr(const double& herr);
+    void herr(const double& epx, const double& epy, const double& eph);
 };
 
 

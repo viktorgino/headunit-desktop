@@ -35,7 +35,9 @@ void GPSDPlugin::handleLocation(const double& lat, const double& lon, const bool
         location.insert("track", this->m_track);
         location.insert("speed", this->m_speed);
         location.insert("altitude", this->m_altitude);
-        location.insert("herr", this->m_herr);
+        location.insert("epx", this->m_epx);
+        location.insert("epy", this->m_epy);
+        location.insert("eph", this->m_eph);
         emit message("Location", location);
 
         if(this->m_inFence != inFence) {
@@ -43,6 +45,21 @@ void GPSDPlugin::handleLocation(const double& lat, const double& lon, const bool
             emit inFenceUpdated();
             emit message("InFence", inFence);
         }
+    }
+}
+
+void GPSDPlugin::handleHERR(const double& epx, const double &epy, const double &eph) {
+    if(this->m_epx != epx) {
+        this->m_epx = epx;
+        emit epxUpdated();
+    }
+    if(this->m_epy != epy) {
+        this->m_epy = epy;
+        emit epyUpdated();
+    }
+    if(this->m_eph != eph) {
+        this->m_eph = eph;
+        emit ephUpdated();
     }
 }
 
@@ -64,13 +81,6 @@ void GPSDPlugin::handleAltitude(const double& altitude) {
     if(this->m_altitude != altitude) {
         this->m_altitude = altitude;
         emit altitudeUpdated();
-    }
-}
-
-void GPSDPlugin::handleHERR(const double& herr) {
-    if(this->m_herr != herr) {
-        this->m_herr = herr;
-        emit herrUpdated();
     }
 }
 
@@ -170,11 +180,6 @@ bool GPSDWorker::pointInPolygon(double lat, double lon) {
 }
 
 void GPSDWorker::procData(struct gps_data_t * gps) {
-//TRACK_SET //bearing
-//SPEED_SET//speed
-//ALTITUDE_SET//atltitude
-//HERR_SET//accuracy
-
     if (gps->set & MODE_SET) {
         emit mode(gps->fix.mode);
         if(gps->fix.mode >= MODE_2D && gps->set & LATLON_SET)
@@ -191,7 +196,7 @@ void GPSDWorker::procData(struct gps_data_t * gps) {
         emit speed(gps->fix.speed);
 
     if(gps->set & HERR_SET)
-        emit herr(gps->fix.eph);
+        emit herr(gps->fix.epx, gps->fix.epy, gps->fix.eph);
 
 }
 
