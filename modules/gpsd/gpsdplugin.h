@@ -24,6 +24,10 @@ class GPSDPlugin : public QObject, PluginInterface
     Q_PROPERTY(double longitude MEMBER m_longitude NOTIFY longitudeUpdated)
     Q_PROPERTY(double latitude MEMBER m_latitude NOTIFY latitudeUpdated)
     Q_PROPERTY(bool inFence MEMBER m_inFence NOTIFY inFenceUpdated)
+    Q_PROPERTY(double track MEMBER m_track NOTIFY trackUpdated)
+    Q_PROPERTY(double speed MEMBER m_speed NOTIFY speedUpdated)
+    Q_PROPERTY(double altitude MEMBER m_altitude NOTIFY altitudeUpdated)
+    Q_PROPERTY(double herr MEMBER m_latitude NOTIFY herrUpdated)
 
 public:
     explicit GPSDPlugin(QObject *parent = nullptr);
@@ -37,6 +41,10 @@ public slots:
     void eventMessage(QString id, QVariant message) override;
     void handleMode(const int& result);
     void handleLocation(const double& lat, const double& lon, const bool& inFence);
+    void handleTrack(const double& track);
+    void handleSpeed(const double& speed);
+    void handleAltitude(const double& altitude);
+    void handleHERR(const double& herr);
 
 signals:
     void message(QString id, QVariant message);
@@ -46,6 +54,10 @@ signals:
     void longitudeUpdated();
     void latitudeUpdated();
     void inFenceUpdated();
+    void trackUpdated();
+    void speedUpdated();
+    void altitudeUpdated();
+    void herrUpdated();
 
 private slots:
     void settingsChanged(const QString &key, const QVariant &value);
@@ -58,6 +70,10 @@ private:
     double m_latitude = -91;
     double m_longitude = -181;
     bool m_inFence = false;
+    double m_track = 0;
+    double m_speed = 0;
+    double m_altitude = 0;
+    double m_herr = 0;
     void stopWorker();
     void startWorker();
 
@@ -80,6 +96,10 @@ public slots:
 signals:
     void mode(const int& result);
     void location(const double& latitude, const double& longitude, const bool& inFence);
+    void track(const double& track);
+    void speed(const double& speed);
+    void altitude(const double& altitude);
+    void herr(const double& herr);
 };
 
 

@@ -23,7 +23,7 @@ void GPSDPlugin::handleMode(const int& result) {
 }
 
 void GPSDPlugin::handleLocation(const double& lat, const double& lon, const bool& inFence) {
-    if(this->m_latitude != lat || this->m_longitude != lon) {
+    if((this->m_latitude != lat || this->m_longitude != lon) && this->m_mode >= MODE_2D) {
         this->m_latitude = lat;
         this->m_longitude = lon;
         emit latitudeUpdated();
@@ -32,6 +32,10 @@ void GPSDPlugin::handleLocation(const double& lat, const double& lon, const bool
         QVariantMap location;
         location.insert("latitude", this->m_latitude);
         location.insert("longitude", this->m_longitude);
+        location.insert("track", this->m_track);
+        location.insert("speed", this->m_speed);
+        location.insert("altitude", this->m_altitude);
+        location.insert("herr", this->m_herr);
         emit message("Location", location);
 
         if(this->m_inFence != inFence) {
@@ -39,6 +43,34 @@ void GPSDPlugin::handleLocation(const double& lat, const double& lon, const bool
             emit inFenceUpdated();
             emit message("InFence", inFence);
         }
+    }
+}
+
+void GPSDPlugin::handleTrack(const double& track) {
+    if(this->m_track != track) {
+        this->m_track = track;
+        emit trackUpdated();
+    }
+}
+
+void GPSDPlugin::handleSpeed(const double& speed) {
+    if(this->m_speed != speed) {
+        this->m_speed = speed;
+        emit speedUpdated();
+    }
+}
+
+void GPSDPlugin::handleAltitude(const double& altitude) {
+    if(this->m_altitude != altitude) {
+        this->m_altitude = altitude;
+        emit altitudeUpdated();
+    }
+}
+
+void GPSDPlugin::handleHERR(const double& herr) {
+    if(this->m_herr != herr) {
+        this->m_herr = herr;
+        emit herrUpdated();
     }
 }
 
@@ -88,6 +120,10 @@ void GPSDPlugin::startWorker() {
     connect(this, &GPSDPlugin::operate, worker, &GPSDWorker::connect);
     connect(worker, &GPSDWorker::mode, this, &GPSDPlugin::handleMode);
     connect(worker, &GPSDWorker::location, this, &GPSDPlugin::handleLocation);
+    connect(worker, &GPSDWorker::track, this, &GPSDPlugin::handleTrack);
+    connect(worker, &GPSDWorker::speed, this, &GPSDPlugin::handleSpeed);
+    connect(worker, &GPSDWorker::altitude, this, &GPSDPlugin::handleAltitude);
+    connect(worker, &GPSDWorker::herr, this, &GPSDPlugin::handleHERR);
     workerThread.start();
     operate(m_host, m_port, m_fence);
     qDebug() << "GPSD: Started worker thread: " << workerThread.isRunning();
@@ -134,13 +170,29 @@ bool GPSDWorker::pointInPolygon(double lat, double lon) {
 }
 
 void GPSDWorker::procData(struct gps_data_t * gps) {
+//TRACK_SET //bearing
+//SPEED_SET//speed
+//ALTITUDE_SET//atltitude
+//HERR_SET//accuracy
+
     if (gps->set & MODE_SET) {
         emit mode(gps->fix.mode);
-        if(gps->fix.mode >= MODE_2D) {
-            if(gps->set & LATLON_SET)
-                emit location(gps->fix.latitude, gps->fix.longitude, pointInPolygon(gps->fix.latitude, gps->fix.longitude));
-        }
+        if(gps->fix.mode >= MODE_2D && gps->set & LATLON_SET)
+            emit location(gps->fix.latitude, gps->fix.longitude, pointInPolygon(gps->fix.latitude, gps->fix.longitude));
     }
+
+    if(gps->set & TRACK_SET)
+        emit track(gps->fix.track);
+
+    if(gps->set & ALTITUDE_SET)
+        emit altitude(gps->fix.altitude);
+
+     if(gps->set & SPEED_SET)
+        emit speed(gps->fix.speed);
+
+    if(gps->set & HERR_SET)
+        emit herr(gps->fix.eph);
+
 }
 
 void GPSDWorker::getData(std::string host, uint32_t port) {
@@ -154,7 +206,7 @@ void GPSDWorker::getData(std::string host, uint32_t port) {
 
     if (gps_rec.stream(WATCH_ENABLE|WATCH_JSON) == NULL) {
         qDebug() << "GPSD: No GPSD running.\n";
-        QThread::sleep(1);
+        return;
     }
 
     while(stopClient == false && QThread::currentThread()->isInterruptionRequested() == false) {
