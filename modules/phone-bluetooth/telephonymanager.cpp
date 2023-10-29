@@ -26,6 +26,7 @@ TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent),
 }
 TelephonyManager::~TelephonyManager(){
     //    delete m_activeDevice;
+    m_mediaTrackTimer.stop();
 }
 
 QObject *TelephonyManager::getContextProperty(){
@@ -255,10 +256,10 @@ void TelephonyManager::deviceRemoved(BluezQt::DevicePtr device){
 }
 
 void TelephonyManager::mediaPositionChanged(quint32 position) {
-    //TODO: This only gets triggered sporadically or when the track changes or status changes
+    //TODO: Investigate why this only gets triggered sporadically or when the track changes or status changes
     // Have implemented a 2Hz timer instead to get around this
     m_mediaTrackPosition = position;
-    emit message("MediaPosition", position);
+    emit message("mediaPosition", position);
     m_mediaTrackGotPosition = true;
     m_mediaTrackTimer.start(500);
 }
@@ -267,12 +268,13 @@ void TelephonyManager::mediaTrackTimerElapsed() {
     if(m_activeDevice) {
         if(m_mediaTrackGotPosition) {
             m_mediaTrackPosition += 500;
-            emit message("MediaPosition", m_mediaTrackPosition);
+            emit message("mediaPosition", m_mediaTrackPosition);
         }
     } else {
         m_mediaTrackPosition = 0;
         m_mediaTrackGotPosition = false;
         m_mediaTrackTimer.stop();
+        emit message("mediaPosition", m_mediaTrackPosition);
     }
 }
 
@@ -290,7 +292,6 @@ void TelephonyManager::mediaStatusChanged(BluezQt::MediaPlayer::Status status) {
 
 void TelephonyManager::mediaTrackChanged(BluezQt::MediaPlayerTrack track) {
     qCDebug(BLUEZ) << "Media player track: #" << track.trackNumber() << " | " << track.artist() << track.title();
-    m_mediaTrackPosition = 0;
     m_mediaTrackGotPosition = false;
 
     QVariantMap vTrack;
@@ -298,7 +299,7 @@ void TelephonyManager::mediaTrackChanged(BluezQt::MediaPlayerTrack track) {
     vTrack.insert("artist",track.artist());
     vTrack.insert("title",track.title());
     vTrack.insert("duration",track.duration());
-    emit message("MediaTrack", vTrack);
+    emit message("mediaTrack", vTrack);
 }
 
 void TelephonyManager::mediaPlayerChanged(BluezQt::MediaPlayerPtr mediaPlayer) {
