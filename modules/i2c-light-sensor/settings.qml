@@ -40,7 +40,7 @@ ThemeRoot {
                 value : pluginSettings.i2c_port
             }
 
-			SettingsPageItemTextfield {
+            SettingsPageItemTextfield {
                 id: refresh_interval
                 width: parent.width
                 label: "Refresh Interval (0 to disable)"
@@ -51,7 +51,7 @@ ThemeRoot {
                 value : pluginSettings.refresh_interval
             }
 
-			SettingsPageItemTextfield {
+            SettingsPageItemTextfield {
                 id: day_threshold
                 width: parent.width
                 label: "Day Threshold"
@@ -61,7 +61,7 @@ ThemeRoot {
                 value : pluginSettings.day_threshold
             }
 
-			SettingsPageItemTextfield {
+            SettingsPageItemTextfield {
                 id: night_threshold
                 width: parent.width
                 label: "Night Threshold"
@@ -71,7 +71,7 @@ ThemeRoot {
                 value : pluginSettings.night_threshold
             }
 
-			SettingsPageItemTextfield {
+            SettingsPageItemTextfield {
                 id: current_light
                 width: parent.width
                 label: "Current Light Level"
