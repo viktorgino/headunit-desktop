@@ -20,6 +20,7 @@ TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent),
 
     qDBusRegisterMetaType<ObjectPathProperties>();
     qDBusRegisterMetaType<ObjectPathPropertiesList>();
+
     connect(&m_mediaTrackTimer, &QTimer::timeout, this, &TelephonyManager::mediaTrackTimerElapsed);
 
 }
@@ -254,28 +255,19 @@ void TelephonyManager::deviceRemoved(BluezQt::DevicePtr device){
 }
 
 void TelephonyManager::mediaPositionChanged(quint32 position) {
-    //TODO: This only happens once every 10 seconds or when the track changes or status changes
-    // Have implemented a 1s timer instead to get around this
-
-    //m_mediaTrackPosition = position;
-    //qCDebug(BLUEZ) << "PB Position: " << position;
+    //TODO: This only gets triggered sporadically or when the track changes or status changes
+    // Have implemented a 2Hz timer instead to get around this
+    m_mediaTrackPosition = position;
+    emit message("MediaPosition", position);
+    m_mediaTrackGotPosition = true;
+    m_mediaTrackTimer.start(500);
 }
 
 void TelephonyManager::mediaTrackTimerElapsed() {
     if(m_activeDevice) {
-        BluezQt::MediaPlayerPtr mediaPlayer = m_activeDevice->mediaPlayer();
-        if(!mediaPlayer.isNull()) {
-            if(m_mediaTrackGotPosition) {
-                m_mediaTrackPosition += 1000;
-            } else {
-                m_mediaTrackPosition = mediaPlayer->position();
-                m_mediaTrackGotPosition = true;
-            }
-            qCDebug(BLUEZ) << "PB Position: " << m_mediaTrackPosition;
-        } else {
-            m_mediaTrackPosition = 0;
-            m_mediaTrackGotPosition = false;
-            m_mediaTrackTimer.stop();
+        if(m_mediaTrackGotPosition) {
+            m_mediaTrackPosition += 500;
+            emit message("MediaPosition", m_mediaTrackPosition);
         }
     } else {
         m_mediaTrackPosition = 0;
@@ -285,10 +277,9 @@ void TelephonyManager::mediaTrackTimerElapsed() {
 }
 
 void TelephonyManager::mediaStatusChanged(BluezQt::MediaPlayer::Status status) {
-    qCDebug(BLUEZ) << "Status: " << status;
+    qCDebug(BLUEZ) << "Media player status: " << status;
     switch(status) {
         case BluezQt::MediaPlayer::Playing:
-            m_mediaTrackTimer.start(1000);
             break;
         default:
             m_mediaTrackTimer.stop();
@@ -298,9 +289,16 @@ void TelephonyManager::mediaStatusChanged(BluezQt::MediaPlayer::Status status) {
 }
 
 void TelephonyManager::mediaTrackChanged(BluezQt::MediaPlayerTrack track) {
-    qCDebug(BLUEZ) << "PB Track: " << " " << track.artist() << " " << track.title() << " " << track.trackNumber();
+    qCDebug(BLUEZ) << "Media player track: #" << track.trackNumber() << " | " << track.artist() << track.title();
     m_mediaTrackPosition = 0;
     m_mediaTrackGotPosition = false;
+
+    QVariantMap vTrack;
+    vTrack.insert("number",track.trackNumber());
+    vTrack.insert("artist",track.artist());
+    vTrack.insert("title",track.title());
+    vTrack.insert("duration",track.duration());
+    emit message("MediaTrack", vTrack);
 }
 
 void TelephonyManager::mediaPlayerChanged(BluezQt::MediaPlayerPtr mediaPlayer) {
@@ -315,14 +313,12 @@ void TelephonyManager::initMediaPlayer() {
     if(m_activeDevice) {
         connect(m_activeDevice, &BluezQt::Device::mediaPlayerChanged, this, &TelephonyManager::mediaPlayerChanged);
         BluezQt::MediaPlayerPtr mediaPlayer = m_activeDevice->mediaPlayer();
-        mediaPlayerChanged(mediaPlayer);
-
-        //qCDebug(BLUEZ) << mediaPlayer->status();
-        //qCDebug(BLUEZ) << mediaPlayer->position();
-        qCDebug(BLUEZ) << mediaPlayer->track().artist();
-        qCDebug(BLUEZ) << mediaPlayer->track().title();
-        qCDebug(BLUEZ) << mediaPlayer->track().trackNumber();
-        mediaStatusChanged(mediaPlayer->status());
+        if(!mediaPlayer.isNull()) {
+            mediaPlayerChanged(mediaPlayer);
+            mediaTrackChanged(mediaPlayer->track());
+            mediaPositionChanged(mediaPlayer->position());
+            mediaStatusChanged(mediaPlayer->status());
+        }
     }
 }
 

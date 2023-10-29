@@ -85,6 +85,7 @@ signals:
     void activeDeviceChanged();
     void pairedDevicesChanged();
 
+    void message(QString id, QVariant message);
     void action(QString id, QVariant message);
 
     void start() override;
