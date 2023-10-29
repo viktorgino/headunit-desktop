@@ -38,7 +38,6 @@ public:
 
     void init() override;
     QObject *getContextProperty() override;
-    
 
 public slots:
     void eventMessage(QString id, QVariant message) override;
@@ -78,7 +77,6 @@ private:
     void startTimer();
     void stopTimer();
 
-    void PrintString(char * message, int length);
     void readI2C();
     void analyseResults();
 

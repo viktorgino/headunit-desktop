@@ -3,18 +3,10 @@
 I2CLightSensorPlugin::I2CLightSensorPlugin(QObject *parent) : QObject(parent), m_refreshTimer(this)
 {
     m_pluginSettings.eventListeners = QStringList() << "AndroidAuto::connected";
-    //m_pluginSettings.events = QStringList() << "Brightness";
-    //m_pluginSettings.actions = QStringList() << "GetBrightness";
 }
 
 QObject *I2CLightSensorPlugin::getContextProperty() {
     return this;
-}
-
-void I2CLightSensorPlugin::PrintString(char *message, int length) {
-    if (length > 0) {
-        qDebug() << "I2CLightSensor: " << message;
-    }
 }
 
 void I2CLightSensorPlugin::init() {
@@ -33,7 +25,7 @@ void I2CLightSensorPlugin::init() {
 
 void I2CLightSensorPlugin::updatePorts() {
     m_ports.clear();
-    
+
     QDir dir("/dev");
     dir.setFilter(QDir::System);
     dir.setSorting(QDir::Name);
@@ -100,7 +92,7 @@ void I2CLightSensorPlugin::loadSensorSettings(QString fileName) {
     }
 
     QJsonObject json = doc.object();
-    
+
     m_sensorSettings.clear();
 
     for (auto it = json.constBegin(); it != json.constEnd(); it++) {
@@ -128,20 +120,19 @@ void I2CLightSensorPlugin::stopTimer() {
 }
 
 void I2CLightSensorPlugin::eventMessage(QString id, QVariant message) {
-    //qDebug() << "I2CLightSensor: event from " << id;
-
+    //When the phone connects send the current night mode status
     if (id == "AndroidAuto::connected") {
-        emit action("SYSTEM::SetNightMode", nightMode);
+        if(message.toBool())
+            emit action("SYSTEM::SetNightMode", nightMode);
     }
 }
 
 void I2CLightSensorPlugin::actionMessage(QString id, QVariant message) {
-
 }
 
 void I2CLightSensorPlugin::settingsChanged(const QString &key, const QVariant &) {
     if (key == "i2c_port") {
-        
+        //Will take effect next time the timer elapses
     }
     else if (key == "refresh_interval") {
         startTimer();
@@ -179,7 +170,7 @@ void I2CLightSensorPlugin::readI2C() {
         qDebug() << "I2CLightSensor: Failed opening " << m_settings["i2c_port"].toString();
     }
     else {
-        
+
         if (ioctl(file, I2C_SLAVE, deviceAddr) < 0) {
             qDebug() << "I2CLightSensor: Failed setting slave address " << deviceAddr;
         }
