@@ -124,8 +124,19 @@ private slots:
 
     void contactsFolderChanged(const QString &path);
     void contactsChanged(const QString &path);
+
+    void mediaPositionChanged(quint32 position);
+    void mediaTrackChanged(BluezQt::MediaPlayerTrack track);
+    void mediaPlayerChanged(BluezQt::MediaPlayerPtr mediaPlayer);
+    void mediaStatusChanged(BluezQt::MediaPlayer::Status status);
+    void mediaTrackTimerElapsed();
+
 private:
     QString m_contactsFolder = "contacts/";
+    QTimer m_mediaTrackTimer;
+
+    quint32 m_mediaTrackPosition = 0;
+    bool m_mediaTrackGotPosition = false;
 
     BluezQt::Manager m_bluez_manager;
     BluezQt::Device* m_activeDevice = nullptr;
@@ -141,7 +152,7 @@ private:
     void setBluezDevice(BluezQt::Device* device);
     void initAdapter(BluezQt::AdapterPtr adapter);
     void pullPhonebook (QString path, QString type, QString output);
-
+    void initMediaPlayer();
     QVariantMap m_pairedDevices;
     QStringList m_adapters;
     void updateAdapters();

@@ -6,7 +6,7 @@ Q_LOGGING_CATEGORY(HEADUNIT, "telephony")
 Q_LOGGING_CATEGORY(OFONO, "telephony [qoFono]")
 Q_LOGGING_CATEGORY(BLUEZ, "telephony [BluezQt]")
 TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent),
-      m_bluez_manager(this), m_obexManager(this), m_ofonoManagerClass(this), m_phonebookModel(this), m_callHistoryModel(this)
+      m_bluez_manager(this), m_obexManager(this), m_ofonoManagerClass(this), m_phonebookModel(this), m_callHistoryModel(this), m_mediaTrackTimer(this)
 {
     m_contactsFolder = QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + "/contacts";
 
@@ -20,6 +20,8 @@ TelephonyManager::TelephonyManager(QObject *parent) : QObject(parent),
 
     qDBusRegisterMetaType<ObjectPathProperties>();
     qDBusRegisterMetaType<ObjectPathPropertiesList>();
+    connect(&m_mediaTrackTimer, &QTimer::timeout, this, &TelephonyManager::mediaTrackTimerElapsed);
+
 }
 TelephonyManager::~TelephonyManager(){
     //    delete m_activeDevice;
@@ -224,6 +226,7 @@ void TelephonyManager::setBluezDevice(BluezQt::Device *device) {
         qCDebug(BLUEZ)  << "Device set : NULL";
     }
     m_activeDevice = device;
+    initMediaPlayer();
     emit activeDeviceChanged();
     emit pairedDevicesChanged();
 }
@@ -250,6 +253,79 @@ void TelephonyManager::deviceRemoved(BluezQt::DevicePtr device){
     emit pairedDevicesChanged();
 }
 
+void TelephonyManager::mediaPositionChanged(quint32 position) {
+    //TODO: This only happens once every 10 seconds or when the track changes or status changes
+    // Have implemented a 1s timer instead to get around this
+
+    //m_mediaTrackPosition = position;
+    //qCDebug(BLUEZ) << "PB Position: " << position;
+}
+
+void TelephonyManager::mediaTrackTimerElapsed() {
+    if(m_activeDevice) {
+        BluezQt::MediaPlayerPtr mediaPlayer = m_activeDevice->mediaPlayer();
+        if(!mediaPlayer.isNull()) {
+            if(m_mediaTrackGotPosition) {
+                m_mediaTrackPosition += 1000;
+            } else {
+                m_mediaTrackPosition = mediaPlayer->position();
+                m_mediaTrackGotPosition = true;
+            }
+            qCDebug(BLUEZ) << "PB Position: " << m_mediaTrackPosition;
+        } else {
+            m_mediaTrackPosition = 0;
+            m_mediaTrackGotPosition = false;
+            m_mediaTrackTimer.stop();
+        }
+    } else {
+        m_mediaTrackPosition = 0;
+        m_mediaTrackGotPosition = false;
+        m_mediaTrackTimer.stop();
+    }
+}
+
+void TelephonyManager::mediaStatusChanged(BluezQt::MediaPlayer::Status status) {
+    qCDebug(BLUEZ) << "Status: " << status;
+    switch(status) {
+        case BluezQt::MediaPlayer::Playing:
+            m_mediaTrackTimer.start(1000);
+            break;
+        default:
+            m_mediaTrackTimer.stop();
+            m_mediaTrackGotPosition = false;
+            break;
+    }
+}
+
+void TelephonyManager::mediaTrackChanged(BluezQt::MediaPlayerTrack track) {
+    qCDebug(BLUEZ) << "PB Track: " << " " << track.artist() << " " << track.title() << " " << track.trackNumber();
+    m_mediaTrackPosition = 0;
+    m_mediaTrackGotPosition = false;
+}
+
+void TelephonyManager::mediaPlayerChanged(BluezQt::MediaPlayerPtr mediaPlayer) {
+    if(!mediaPlayer.isNull()) {
+        connect(mediaPlayer.get(), &BluezQt::MediaPlayer::positionChanged, this, &TelephonyManager::mediaPositionChanged);
+        connect(mediaPlayer.get(), &BluezQt::MediaPlayer::trackChanged, this, &TelephonyManager::mediaTrackChanged);
+        connect(mediaPlayer.get(), &BluezQt::MediaPlayer::statusChanged, this, &TelephonyManager::mediaStatusChanged);
+    }
+}
+
+void TelephonyManager::initMediaPlayer() {
+    if(m_activeDevice) {
+        connect(m_activeDevice, &BluezQt::Device::mediaPlayerChanged, this, &TelephonyManager::mediaPlayerChanged);
+        BluezQt::MediaPlayerPtr mediaPlayer = m_activeDevice->mediaPlayer();
+        mediaPlayerChanged(mediaPlayer);
+
+        //qCDebug(BLUEZ) << mediaPlayer->status();
+        //qCDebug(BLUEZ) << mediaPlayer->position();
+        qCDebug(BLUEZ) << mediaPlayer->track().artist();
+        qCDebug(BLUEZ) << mediaPlayer->track().title();
+        qCDebug(BLUEZ) << mediaPlayer->track().trackNumber();
+        mediaStatusChanged(mediaPlayer->status());
+    }
+}
+
 void TelephonyManager::deviceConnectionChanged(bool connected){
     BluezQt::Device* device = dynamic_cast<BluezQt::Device*>(QObject::sender());
     if(connected){
@@ -265,7 +341,9 @@ void TelephonyManager::deviceConnectionChanged(bool connected){
         }
         setBluezDevice(device);
 
+        initMediaPlayer();
         getPhonebooks(m_activeDevice->address());
+
     } else {
         qCDebug(BLUEZ) << "Device disconnected : " << device->name();
         if(m_activeDevice == device){
