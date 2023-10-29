@@ -18,5 +18,6 @@ SUBDIRS = \
           modules/hud-serial-test \
           modules/audio-processor \
           modules/reversing-camera \
-          themes/default-theme
+          modules/i2c-light-sensor \
+         themes/default-theme
 

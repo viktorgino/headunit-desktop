@@ -88,7 +88,7 @@ int Headunit::startHU(){
 
 int Headunit::init(){
     GstBus *bus;
-    GError *error = NULL;    
+    GError *error = NULL;
 
 
     /*
@@ -98,11 +98,11 @@ int Headunit::init(){
     const char* vid_launch_str = "appsrc name=vid_src is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=false format=3 ! "
                                  "h264parse ! "
         #ifdef RPI
-                                 "omxh264dec ! "
+                                 "v4l2h264dec ! "
         #else
                                  "avdec_h264 ! "
         #endif
-                "appsink emit-signals=true sync=false name=vid_sink";
+                "appsink caps=\"video/x-raw,format=I420\" emit-signals=true sync=false name=vid_sink";
 
     vid_pipeline = gst_parse_launch(vid_launch_str, &error);
 
@@ -127,7 +127,7 @@ int Headunit::init(){
     aud_pipeline = gst_parse_launch("appsrc name=audsrc is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=false format=3 ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=48000, channels=2, format=S16LE ! "
                                 #ifdef RPI
-                                    "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Music\""
+                                    "alsasink buffer-time=400000 sync=false"
                                 #else
                                     "pulsesink name=mediasink sync=true client-name=\"Android Auto Music\" "
                                     "stream-properties=\"props,media.name=AndroidAutoMusic,media.role=music\""
@@ -146,7 +146,7 @@ int Headunit::init(){
     au1_pipeline = gst_parse_launch("appsrc name=au1src is-live=true block=false min-latency=0 max-latency=-1 do-timestamp=false format=3 ! "
                                     "audio/x-raw, signed=true, endianness=1234, depth=16, width=16, rate=16000, channels=1, format=S16LE  !"
                                 #ifdef RPI
-                                    "alsasink buffer-time=400000 sync=false device-name=\"Android Auto Voice\""
+                                    "alsasink buffer-time=400000 sync=false"
                                 #else
                                     "volume volume=0.5 !"
                                     "pulsesink name=voicesink sync=true client-name=\"Android Auto Voice\""
@@ -166,7 +166,7 @@ int Headunit::init(){
 
     mic_pipeline = gst_parse_launch(
             #ifdef RPI
-                "alsasrc name=micsrc device-name=\"Android Auto Voice\" ! audioconvert ! "
+                "alsasrc name=micsrc ! audioconvert ! "
             #else
                 "pulsesrc name=micsrc client-name=\"Android Auto Voice\" ! audioconvert ! "
             #endif
