@@ -2,6 +2,8 @@ import QtQuick 2.5
 import QtQuick.Window 2.2
 import Qt.labs.settings 1.0
 
+import HUDLoader 1.0
+
 Window {
 
     id: window
@@ -10,12 +12,11 @@ Window {
     width: 800
     height: 480
 
-    FontLoader{id:ralewayRegular; source:"qrc:/qml/fonts/Raleway-Regular.ttf"}
+    required property HUDLoader appLoader
 
     Rectangle {
         color: "#000000"
         anchors.fill: parent
-
     }
 
     Image {
@@ -25,8 +26,14 @@ Window {
     }
 
     Loader {
+        id: themeLoader
         anchors.fill: parent
-        source: ThemeManager.themeSource
+    }
+    Connections {
+        target: appLoader
+        onThemeSourceChanged: {
+            themeLoader.setSource(source)
+        }
     }
 
     Shortcut {
@@ -41,7 +48,7 @@ Window {
         }
     }
     Component.onCompleted: {
-        console.log("Loader loading");
-        loader.load()
+        console.log("Loading app");
+        appLoader.load()
     }
 }

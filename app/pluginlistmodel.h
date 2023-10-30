@@ -40,7 +40,7 @@ private:
 class PluginListProxyModel : public QSortFilterProxyModel
 {
     Q_OBJECT
-    Q_PROPERTY(PluginList * plugins WRITE setPlugins)
+    Q_PROPERTY(PluginList * plugins WRITE setPlugins REQUIRED)
     Q_PROPERTY(QString listType WRITE setType)
 public:
 
