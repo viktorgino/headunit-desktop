@@ -53,11 +53,11 @@ void MediaManager::addInterface(QString name, QObject *object){
 }
 
 void MediaManager::onTrackChanged(QVariantMap track) {
-    emit message("MediaManager", "track", track);
+    emit message("MediaInput", "track", track);
 }
 
 void MediaManager::onMediaPositionChanged(quint32 position) {
-    emit message("MediaManager", "position", position);
+    emit message("MediaInput", "position", position);
 }
 
 void MediaManager::playbackStartedHandler(){
