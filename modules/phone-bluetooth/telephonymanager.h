@@ -85,7 +85,6 @@ signals:
     void activeDeviceChanged();
     void pairedDevicesChanged();
 
-    void message(QString id, QVariant message);
     void action(QString id, QVariant message);
 
     void start() override;
@@ -93,8 +92,9 @@ signals:
     void prevTrack() override;
     void nextTrack() override;
     void setMediaVolume(uint8_t volume) override;
-
     void playbackStarted() override;
+    void trackChanged(QVariantMap track) override;
+    void mediaPositionChanged(quint32 position) override;
 
 public slots:
     void enablePairing();
@@ -126,10 +126,10 @@ private slots:
     void contactsFolderChanged(const QString &path);
     void contactsChanged(const QString &path);
 
-    void mediaPositionChanged(quint32 position);
-    void mediaTrackChanged(BluezQt::MediaPlayerTrack track);
-    void mediaPlayerChanged(BluezQt::MediaPlayerPtr mediaPlayer);
-    void mediaStatusChanged(BluezQt::MediaPlayer::Status status);
+    void onMediaPosition(quint32 position);
+    void onMediaTrack(BluezQt::MediaPlayerTrack track);
+    void onMediaPlayer(BluezQt::MediaPlayerPtr mediaPlayer);
+    void onMediaStatus(BluezQt::MediaPlayer::Status status);
     void mediaTrackTimerElapsed();
 
 private:

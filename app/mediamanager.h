@@ -29,6 +29,8 @@ public:
 signals:
     void intefacesChanged();
     void activeMediaPlayerChanged();
+    void message(QString sender, QString message, QVariant parameter);
+
 public slots:
     void setActiveMediaPlayer(QString name);
     void start();
@@ -36,6 +38,8 @@ public slots:
     void prevTrack();
     void nextTrack();
     void setVolume(uint8_t volume);
+    void onMediaPositionChanged(quint32 position);
+    void onTrackChanged(QVariantMap track);
 
 private slots:
     void setVoiceVolume(QString interface, QVariant value);

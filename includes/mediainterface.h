@@ -16,7 +16,8 @@ public:
     virtual void nextTrack() = 0;
     virtual void setMediaVolume(uint8_t volume) {};
     virtual void setVoiceVolume(uint8_t volume) {};
-
+    virtual void mediaPositionChanged(quint32 position) {};
+    virtual void trackChanged(QVariantMap track) {};
     virtual void playbackStarted() = 0;
 
     MediaInterfaceSettings getSettings() {

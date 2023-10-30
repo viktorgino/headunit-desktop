@@ -43,9 +43,21 @@ void MediaManager::addInterface(QString name, QObject *object){
         for(int i = pluginMeta->methodOffset(); i < pluginMeta->methodCount(); ++i){
             if(pluginMeta->method(i).methodSignature() == "playbackStarted()"){
                 connect(object, SIGNAL(playbackStarted()), this, SLOT(playbackStartedHandler()));
+            } else if(pluginMeta->method(i).methodSignature() == "trackChanged(QVariantMap)") {
+                connect(object, SIGNAL(trackChanged(QVariantMap)), this, SLOT(onTrackChanged(QVariantMap)));
+            } else if(pluginMeta->method(i).methodSignature() == "mediaPositionChanged(uint)") {
+                connect(object, SIGNAL(mediaPositionChanged(uint)), this, SLOT(onMediaPositionChanged(uint)));
             }
         }
     }
+}
+
+void MediaManager::onTrackChanged(QVariantMap track) {
+    emit message("MediaManager", "mediaTrack", track);
+}
+
+void MediaManager::onMediaPositionChanged(quint32 position) {
+    emit message("MediaManager", "mediaPosition", position);
 }
 
 void MediaManager::playbackStartedHandler(){
