@@ -1,0 +1,34 @@
+// For format details, see https://aka.ms/vscode-remote/devcontainer.json
+{
+    "name": "headunit-docker",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "runArgs": [
+        "--privileged",
+        "-v",
+        "/tmp/.X11-unix:/tmp/.X11-unix"
+    ],
+    "mounts": [
+        "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/headunit/.ssh,type=bind,consistency=cached"
+    ],
+    "overrideCommand": true,
+    "settings": {
+        "terminal.integrated.profiles.linux": {
+            "bash": {
+              "path": "/bin/bash",
+              "args": ["-l"]
+            }
+        },
+        "terminal.integrated.defaultProfile.linux": "bash",
+        "gitlens.advanced.repositorySearchDepth": 4
+    },
+    "remoteUser": "headunit",
+    "remoteEnv": {
+        "DISPLAY": ":0"
+    },
+    "extensions": [
+        "ms-vscode.cpptools",
+        "eamodio.gitlens"
+    ]
+}
