@@ -1,12 +1,14 @@
 #ifndef ANDROIDAUTO_H
 #define ANDROIDAUTO_H
 
+#include "headunitbluetoothserver.h"
+#include "headunitbluetoothservice.h"
+#include "headunitvideosource.h"
+#include <QDebug>
 #include <QObject>
 #include <QThreadPool>
-#include <QDebug>
-#include <plugininterface.h>
 #include <mediainterface.h>
-#include "headunit.h"
+#include <plugininterface.h>
 
 class AndroidAutoPlugin : public QObject, PluginInterface, public MediaInterface
 {
@@ -34,7 +36,9 @@ private slots:
     void huStatusChanged();
 
 private:
-    Headunit *headunit = nullptr;
+    HeadunitVideoSource m_headunit = nullptr;
+    HeadunitBluetoothServer m_bluetoothServer;
+    HeadunitBluetoothService m_bluetoothService;
 };
 
 #endif // ANDROIDAUTO_H

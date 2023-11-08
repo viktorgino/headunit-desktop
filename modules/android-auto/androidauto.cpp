@@ -1,57 +1,60 @@
 #include "androidauto.h"
 
-
-AndroidAutoPlugin::AndroidAutoPlugin(QObject *parent) : QObject (parent)
+AndroidAutoPlugin::AndroidAutoPlugin(QObject* parent)
+    : QObject(parent)
+    , m_headunit(this)
+    , m_bluetoothServer(this)
+    , m_bluetoothService(this)
 {
     m_pluginSettings.eventListeners = QStringList() << "UsbConnectionListenerPlugin::UsbDeviceAdded" << "SYSTEM::SetNightMode";
     m_pluginSettings.events = QStringList() << "connected";
     gst_init(NULL, NULL);
-    headunit = new Headunit();
+
     m_interfaceSettings.mediaStream = true;
     m_interfaceSettings.voiceStream = true;
 
-    connect(headunit, &Headunit::playbackStarted, this, &AndroidAutoPlugin::playbackStarted);
-    connect(headunit, &Headunit::statusChanged, this, &AndroidAutoPlugin::huStatusChanged);
+    connect(&m_headunit, &HeadunitVideoSource::playbackStarted, this, &AndroidAutoPlugin::playbackStarted);
+    connect(&m_headunit, &HeadunitVideoSource::statusChanged, this, &AndroidAutoPlugin::huStatusChanged);
 }
 
 QObject *AndroidAutoPlugin::getContextProperty(){
-    return qobject_cast<QObject *>(headunit);
+    return qobject_cast<QObject*>(&m_headunit);
 }
 
 void AndroidAutoPlugin::eventMessage(QString id, QVariant message){
     if(id == "UsbConnectionListenerPlugin::UsbDeviceAdded"){
-        if(headunit->status() != Headunit::RUNNING){
-            headunit->startHU();
+        if (m_headunit.status() != HeadunitVideoSource::RUNNING) {
+            m_headunit.startHU();
         }
     } else if(id == "UsbConnectionListenerPlugin::UsbDeviceRemoved"){
     } else if(id == "SYSTEM::SetNightMode"){
-        headunit->setNigthmode(message.toBool());
+        m_headunit.setNigthmode(message.toBool());
     }
 }
 void AndroidAutoPlugin::init(){
-    headunit->init();
-    headunit->startHU();
+    m_headunit.init();
+    m_headunit.startHU();
 }
 
 void AndroidAutoPlugin::start() {
-    headunit->startMedia();
+    m_headunit.startMedia();
 }
 void AndroidAutoPlugin::stop() {
-    headunit->stopMedia();
+    m_headunit.stopMedia();
 }
 void AndroidAutoPlugin::prevTrack() {
-    headunit->prevTrack();
+    m_headunit.prevTrack();
 }
 void AndroidAutoPlugin::nextTrack() {
-    headunit->nextTrack();
+    m_headunit.nextTrack();
 }
 void AndroidAutoPlugin::setMediaVolume(uint8_t volume) {
-    headunit->setMediaVolume(volume);
+    m_headunit.setMediaVolume(volume);
 }
 void AndroidAutoPlugin::setVoiceVolume(uint8_t volume) {
-    headunit->setVoiceVolume(volume);
+    m_headunit.setVoiceVolume(volume);
 }
 
 void AndroidAutoPlugin::huStatusChanged(){
-    emit message("connected", (headunit->status() > Headunit::NO_CONNECTION));
+    emit message("connected", (m_headunit.status() > HeadunitVideoSource::NO_CONNECTION));
 }
