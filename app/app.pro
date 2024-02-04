@@ -4,6 +4,7 @@ QT += gui widgets qml quick
 CONFIG += c++11 link_pkgconfig welleio
 QMAKE_CXXFLAGS += -Wno-unused-parameter
 INCLUDEPATH += $${PWD}/includes
+LIBS += -lsystemd
 
 include("../config.pri")
 
