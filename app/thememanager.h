@@ -49,17 +49,16 @@ private:
     QVariantList m_bottomBarItems;
     PluginList * m_pluginList;
 
-    PluginObject *m_settingsMenu;
     PluginObject *m_themeSettings;
 
     QQmlPropertyMap m_colorsMap;
     QQmlPropertyMap m_sizesMap;
 signals:
     void themeSourceChanged();
+    void themeLoaded();
 public slots:
     void onEvent(QString sender, QString event, QVariant eventData);
     void initFinished();
-private slots:
     QString getThemeSource()
     {
         return m_themeSource;

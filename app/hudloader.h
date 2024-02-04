@@ -24,11 +24,11 @@ class HUDLoader : public QObject
 {
     Q_OBJECT
 public:
-    explicit HUDLoader(QQmlApplicationEngine *engine, bool lazyLoading, QStringList plugins, QObject *parent = nullptr);
+    explicit HUDLoader(QQmlApplicationEngine *engine, bool lazyLoading, QStringList pluginWhitelist, QObject *parent = nullptr);
     void init();
 
 signals:
-    void themeLoaded();
+    void themeSourceChanged(QString source);
 
 public slots:
     void load();
@@ -44,7 +44,7 @@ private:
     PluginManager *m_pluginManager;
     MediaManager *m_mediaManager;
     InitThread m_initThread;
-    QStringList m_plugins;
+    QStringList m_pluginWhitelist;
     bool m_lazyLoading;
 
 };

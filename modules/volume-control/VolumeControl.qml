@@ -2,6 +2,7 @@ import QtQuick 2.11
 import QtQuick.Controls 2.4
 
 import HUDTheme 1.0
+import HUDPlugins 1.0
 import HUDVolume 1.0
 import QtQuick.Layouts 1.3
 
@@ -100,13 +101,13 @@ ThemeRoot {
 
 
                 Repeater {
-                    model: HUDMediaManager.VoiceVolumes.keys()
+                    model: MediaManager.VoiceVolumes.keys()
                     delegate: ModuleListItem {
                         x :20
                         width: parent.width - 20                       
-                        value : HUDMediaManager.VoiceVolumes[modelData]
+                        value : MediaManager.VoiceVolumes[modelData]
                         onValueChanged: {
-                            HUDMediaManager.VoiceVolumes[modelData] = value
+                            MediaManager.VoiceVolumes[modelData] = value
                         }
                     }
                 }
@@ -145,13 +146,13 @@ ThemeRoot {
 
 
                 Repeater{
-                    model: HUDMediaManager.MediaVolumes.keys()
+                    model: MediaManager.MediaVolumes.keys()
                     delegate: ModuleListItem {
                         x :20
                         width: parent.width - 20
-                        value : HUDMediaManager.MediaVolumes[modelData]
+                        value : MediaManager.MediaVolumes[modelData]
                         onValueChanged: {
-                            HUDMediaManager.MediaVolumes[modelData] = value
+                            MediaManager.MediaVolumes[modelData] = value
                         }
                     }
                 }

@@ -37,7 +37,7 @@ private slots:
     void closeOverlay();
 private :
     int m_i2cDevNumber = 0;
-    AudioProcessorInterface *m_audioBackend;
+    AudioProcessorInterface *m_audioBackend = nullptr;
     void settingsChanged(const QString &key, const QVariant &value);
     enum SoundSettingsState{
         DefaultState,
