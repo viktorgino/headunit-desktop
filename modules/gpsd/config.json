@@ -1,0 +1,41 @@
+{
+  "name":"GPSD",
+  "label": "GPS",
+  "icon": "qrc:/GPSD/icons/icons8-satellite-100.png",
+  "config": {
+    "type": "loader",
+    "source": "qrc:/GPSD/settings.qml",
+    "settings": [
+      {
+        "name": "host",
+        "type": "string",
+        "defaultValue": "127.0.0.1"
+      },
+      {
+        "name": "port",
+        "type": "uint",
+        "defaultValue": 0
+      },
+      {
+        "name": "fence1pt1",
+        "type": "string",
+        "defaultValue": "-37.81377659455088, 144.9573499708269"
+      },
+      {
+        "name": "fence1pt2",
+        "type": "string",
+        "defaultValue": "-37.81959883100442, 144.9600354951891"
+      },
+      {
+        "name": "fence1pt3",
+        "type": "string",
+        "defaultValue": "-37.817398930901135, 144.96748872616857"
+      },
+      {
+        "name": "fence1pt4",
+        "type": "string",
+        "defaultValue": "-37.81167088347648, 144.96478490480058"
+      }
+    ]
+  }
+}
