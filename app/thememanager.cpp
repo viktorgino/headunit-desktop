@@ -50,6 +50,7 @@ void ThemeManager::initTheme(QString themeName) {
     m_themeObject = m_themeLoader.instance();
 
     m_themePlugin = static_cast<QQmlExtensionPlugin *>(m_themeObject);
+    m_themePlugin->setParent(this);
 
     if(!m_themePlugin){
         qCDebug(THEMEMANAGER) << "Error loading theme : " << m_themeLoader.metaData().value("name") << ", root component is not a valid instance of QQmlExtensionPlugin";
@@ -69,12 +70,11 @@ void ThemeManager::initTheme(QString themeName) {
     themeSettingsItems["type"] = "loader";
     themeSettingsItems["source"] = themeSettings.value("settingsPageSource").toString();
     m_themeSettings = new PluginObject("ThemeSettings", "Theme", nullptr, "",  "", themeSettingsItems, HUDStyle, m_bottomBarItems);
-    m_settingsMenu = new PluginObject("Settings", "Settings", nullptr, "icons/svg/gear-a.svg", "qrc:/qml/HUDSettingsPage/SettingsPage.qml");
 
-    m_pluginList->addPlugin(m_settingsMenu);
     m_pluginList->addPlugin(m_themeSettings);
 
     qCDebug(THEMEMANAGER) << "Theme loaded : " << fileName;
+    emit themeLoaded();
 }
 
 void ThemeManager::onEvent(QString sender, QString event, QVariant eventData) {
