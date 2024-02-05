@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
     QLoggingCategory::setFilterRules("");
     QLoggingCategory::setFilterRules("qt.qml.connections.warning=false");
 
-    QQmlApplicationEngine *engine = new QQmlApplicationEngine();
+    QQmlApplicationEngine engine;
 
     QCommandLineParser parser;
     parser.setApplicationDescription("viktorgino's HeadUnit Desktop");
@@ -56,20 +56,22 @@ int main(int argc, char *argv[])
 
     QString p = parser.value(pluginsOption);
     bool whitelist = parser.isSet(pluginsOption);
-    QStringList plugins;
+    QStringList pluginWhitelist;
     if (whitelist) {
-        plugins = p.split(" ",QString::SkipEmptyParts);
+        pluginWhitelist = p.split(" ",QString::SkipEmptyParts);
     }
 
     bool lazyLoading = parser.isSet(lazyLoadingOption);
 
-    HUDLoader loader(engine, lazyLoading, plugins, &app);
-    engine->rootContext()->setContextProperty("loader", &loader);
+    HUDLoader *loader = new HUDLoader(&engine, lazyLoading, pluginWhitelist, &engine);
+
+    engine.setInitialProperties({
+        {"appLoader", QVariant::fromValue(loader)}
+    });
     qDebug("%lld ms : Loading theme loader", time.elapsed());
-    engine->load(QUrl(QStringLiteral("qrc:/loader.qml")));
+    engine.load(QUrl(QStringLiteral("qrc:/loader.qml")));
 
     qDebug("%lld ms : Starting main loop", time.elapsed());
     int ret = app.exec();
-
     return ret;
 }

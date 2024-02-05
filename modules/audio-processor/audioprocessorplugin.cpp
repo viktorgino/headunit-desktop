@@ -2,14 +2,15 @@
 
 AudioProcessorPlugin::AudioProcessorPlugin(QObject *parent) : QObject(parent), m_overlayTimeout(this)
 {
-    m_audioBackend = new TDA7418();
-    connect(&m_settings, &QQmlPropertyMap::valueChanged, this, &AudioProcessorPlugin::settingsChanged);
-    connect(&m_overlayTimeout, &QTimer::timeout, this, &AudioProcessorPlugin::closeOverlay);
-    m_overlayTimeout.setSingleShot(true);
 }
 
 void AudioProcessorPlugin::init()
 {
+    m_audioBackend = new TDA7418();
+    connect(&m_settings, &QQmlPropertyMap::valueChanged, this, &AudioProcessorPlugin::settingsChanged);
+    connect(&m_overlayTimeout, &QTimer::timeout, this, &AudioProcessorPlugin::closeOverlay);
+    m_overlayTimeout.setSingleShot(true);
+
     m_pluginSettings.actions = QStringList() << "Sound" << "TuneUp" << "TuneDown" << "VolumeUp" << "VolumeDown";
     QStringList audioParameters = QStringList() << "volume" << "sub" << "bass" << "middle" << "treble" << "balance";
     for(QString audioParameter : audioParameters){
@@ -102,6 +103,11 @@ void AudioProcessorPlugin::openOverlay()
 
 void AudioProcessorPlugin::setAudioParameter(QString parameter, int value)
 {
+    if(!m_audioBackend){
+        qWarning() << "Audio processor doesn't exist";
+        return;
+    }
+
     if(parameter == "volume"){
         if(value > 50 || value < 0){
             return;
