@@ -80,11 +80,6 @@ public slots:
     bool keyEvent(QString key);
 
     void videoFrameHandler(const QVideoFrame& frame);
-    // private slots:
-    //     void onNewBuffer(const AndroidAuto::ServiceChannels chan, GstBuffer * buffer);
-    //     int onMediaStart(const AndroidAuto::ServiceChannels chan);
-    //     int onMediaStop(const AndroidAuto::ServiceChannels chan);
-    //     void onQueueCommand(const AndroidAuto::IHUAnyThreadInterface::HUThreadCommand command);
     void onPhoneDisconnected();
     void onPipelineStatusChanged(const Headunit::Pipeline& pipeline, const Headunit::PipelineStatus& status);
 

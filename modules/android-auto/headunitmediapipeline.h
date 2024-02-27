@@ -46,7 +46,7 @@ private:
 
     HeadunitMicrophoneDataHandlerInterface* m_microphoneDataHandler = nullptr;
 
-    static GstFlowReturn readMicrophoneData(GstElement* appsink, HeadunitMediaPipeline* _this);
+    static GstFlowReturn newMicrophoneSample(GstElement* appsink, HeadunitMediaPipeline* _this);
     static int bus_callback(GstBus* bus, GstMessage* message, gpointer* ptr);
 
     static GstFlowReturn newVideoSample(GstElement *appsink, HeadunitMediaPipeline *_this);

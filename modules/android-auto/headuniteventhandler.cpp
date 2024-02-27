@@ -45,25 +45,23 @@ void HeadunitEventHandler::handleMicrophoneData(uint64_t timestamp, const unsign
     });
 }
 
-int HeadunitEventHandler::MediaPacket(AndroidAuto::ServiceChannels chan, uint64_t timestamp, const byte * buf, int len) {
-    Headunit::Pipeline pipeline;
-
-    if (chan == AndroidAuto::VideoChannel) {
-        pipeline = Headunit::VideoPipeline;
-    } else if (chan == AndroidAuto::MediaAudioChannel) {
-        pipeline = Headunit::AudioPipeline;
-    } else if (chan == AndroidAuto::Audio1Channel) {
-        pipeline = Headunit::VoicePipeline;
-    } else {
+int HeadunitEventHandler::MediaPacket(AndroidAuto::ServiceChannels chan, uint64_t timestamp, const byte* buf, int len)
+{
+    Headunit::Pipeline pipeline = Headunit::mediaChannelToPipeline(chan);
+    if (pipeline == Headunit::InvalidPipeline) {
         qDebug() << "Unknown channel : " << chan;
         return -1;
     }
     m_mediaDataHandler->handleMediaData(pipeline, timestamp, buf, len);
     return 0;
 }
-
-int HeadunitEventHandler::MediaStart(AndroidAuto::ServiceChannels chan){
+int HeadunitEventHandler::MediaStart(AndroidAuto::ServiceChannels chan)
+{
     Headunit::Pipeline pipeline = Headunit::mediaChannelToPipeline(chan);
+    if (pipeline == Headunit::InvalidPipeline) {
+        qDebug() << "Unknown channel : " << chan;
+        return -1;
+    }
     m_mediaDataHandler->mediaStart(pipeline);
     return 0;
 }
@@ -71,38 +69,46 @@ int HeadunitEventHandler::MediaStart(AndroidAuto::ServiceChannels chan){
 int HeadunitEventHandler::MediaStop(AndroidAuto::ServiceChannels chan)
 {
     Headunit::Pipeline pipeline = Headunit::mediaChannelToPipeline(chan);
+    if (pipeline == Headunit::InvalidPipeline) {
+        qDebug() << "Unknown channel : " << chan;
+        return -1;
+    }
     m_mediaDataHandler->mediaStop(pipeline);
     return 0;
 }
 
-void HeadunitEventHandler::DisconnectionOrError() {
+void HeadunitEventHandler::DisconnectionOrError()
+{
     qDebug("Android Device disconnected, pausing gstreamer");
     emit phoneDisconnected();
 }
 
-void HeadunitEventHandler::CustomizeOutputChannel(AndroidAuto::ServiceChannels /* unused */, HU::ChannelDescriptor::OutputStreamChannel& /* unused */) {
-
+void HeadunitEventHandler::CustomizeOutputChannel(AndroidAuto::ServiceChannels /* unused */, HU::ChannelDescriptor::OutputStreamChannel& /* unused */)
+{
 }
-void HeadunitEventHandler::MediaSetupComplete(AndroidAuto::ServiceChannels chan) {
+void HeadunitEventHandler::MediaSetupComplete(AndroidAuto::ServiceChannels chan)
+{
     if (chan == AndroidAuto::VideoChannel) {
         emit VideoFocusHappened(true, true);
     }
 }
 
-void HeadunitEventHandler::VideoFocusRequest(AndroidAuto::ServiceChannels /* unused */, const HU::VideoFocusRequest &request) {
+void HeadunitEventHandler::VideoFocusRequest(AndroidAuto::ServiceChannels /* unused */, const HU::VideoFocusRequest& request)
+{
     emit VideoFocusHappened(request.mode() == HU::VIDEO_FOCUS_MODE_FOCUSED, false);
 }
 
-
-std::string HeadunitEventHandler::GetCarBluetoothAddress(){
+std::string HeadunitEventHandler::GetCarBluetoothAddress()
+{
     QList<QBluetoothHostInfo> localAdapters = QBluetoothLocalDevice::allDevices();
-    if(localAdapters.size() > 0){
+    if (localAdapters.size() > 0) {
         return localAdapters.at(0).address().toString().toStdString();
     }
     return std::string();
 }
 
-void HeadunitEventHandler::PhoneBluetoothReceived(std::string address){
+void HeadunitEventHandler::PhoneBluetoothReceived(std::string address)
+{
     emit bluetoothConnectionRequest(QString::fromStdString(address));
 }
 
@@ -119,7 +125,8 @@ void HeadunitEventHandler::HandleNaviTurnDistance(AndroidAuto::IHUConnectionThre
 {
 }
 
-uint64_t HeadunitEventHandler::get_cur_timestamp() {
+uint64_t HeadunitEventHandler::get_cur_timestamp()
+{
     struct timespec tp;
     /* Fetch the time stamp */
     clock_gettime(CLOCK_REALTIME, &tp);
@@ -127,7 +134,8 @@ uint64_t HeadunitEventHandler::get_cur_timestamp() {
     return tp.tv_sec * 1000000 + tp.tv_nsec / 1000;
 }
 
-void HeadunitEventHandler::onAudioFocusRequest(AndroidAuto::ServiceChannels chan, const HU::AudioFocusRequest &request)  {
+void HeadunitEventHandler::onAudioFocusRequest(AndroidAuto::ServiceChannels chan, const HU::AudioFocusRequest& request)
+{
     HU::AudioFocusResponse response;
     if (request.focus_type() == HU::AudioFocusRequest::AUDIO_FOCUS_RELEASE) {
         response.set_focus_type(HU::AudioFocusResponse::AUDIO_FOCUS_STATE_LOSS);
@@ -159,7 +167,7 @@ void HeadunitEventHandler::onVideoFocusHappened(bool hasFocus, bool unrequested)
         s.sendEncodedMessage(0, AndroidAuto::VideoChannel, AndroidAuto::HU_MEDIA_CHANNEL_MESSAGE::VideoFocus, videoFocusGained);
     });
 
-    //Set speed to 0
+    // Set speed to 0
     HU::SensorEvent sensorEvent;
     sensorEvent.add_location_data()->set_speed(0);
     m_huThreadInterface->queueCommand([sensorEvent](AndroidAuto::IHUConnectionThreadInterface& s) {
@@ -167,7 +175,8 @@ void HeadunitEventHandler::onVideoFocusHappened(bool hasFocus, bool unrequested)
     });
 }
 
-void HeadunitEventHandler::startMedia() {
+void HeadunitEventHandler::startMedia()
+{
     if (m_huThreadInterface == nullptr) {
         qWarning() << "Headunit thread interface not set!";
         return;
@@ -188,7 +197,8 @@ void HeadunitEventHandler::startMedia() {
     });
 }
 
-void HeadunitEventHandler::stopMedia() {
+void HeadunitEventHandler::stopMedia()
+{
     if (m_huThreadInterface == nullptr) {
         qWarning() << "Headunit thread interface not set!";
         return;
@@ -209,7 +219,8 @@ void HeadunitEventHandler::stopMedia() {
     });
 }
 
-void HeadunitEventHandler::prevTrack() {
+void HeadunitEventHandler::prevTrack()
+{
     if (m_huThreadInterface == nullptr) {
         qWarning() << "Headunit thread interface not set!";
         return;
@@ -230,7 +241,8 @@ void HeadunitEventHandler::prevTrack() {
     });
 }
 
-void HeadunitEventHandler::nextTrack() {
+void HeadunitEventHandler::nextTrack()
+{
     if (m_huThreadInterface == nullptr) {
         qWarning() << "Headunit thread interface not set!";
         return;
@@ -251,7 +263,8 @@ void HeadunitEventHandler::nextTrack() {
     });
 }
 
-void HeadunitEventHandler::touchEvent(HU::TouchInfo::TOUCH_ACTION action, const QPoint &point) {
+void HeadunitEventHandler::touchEvent(HU::TouchInfo::TOUCH_ACTION action, const QPoint& point)
+{
     if (m_huThreadInterface == nullptr) {
         qWarning() << "Headunit thread interface not set!";
         return;
@@ -275,4 +288,3 @@ void HeadunitEventHandler::touchEvent(HU::TouchInfo::TOUCH_ACTION action, const 
         }
     });
 }
-

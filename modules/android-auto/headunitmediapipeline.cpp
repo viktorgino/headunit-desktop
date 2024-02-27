@@ -130,7 +130,7 @@ int HeadunitMediaPipeline::init()
     }
 
     GstElement* mic_sink = gst_bin_get_by_name(GST_BIN(mic_pipeline), "micsink");
-    g_signal_connect(mic_sink, "new-sample", G_CALLBACK(&HeadunitMediaPipeline::readMicrophoneData), this);
+    g_signal_connect(mic_sink, "new-sample", G_CALLBACK(&HeadunitMediaPipeline::newMicrophoneSample), this);
     gst_object_unref(mic_sink);
 
     m_vid_src = GST_APP_SRC(gst_bin_get_by_name(GST_BIN(vid_pipeline), "vid_src"));
@@ -185,7 +185,7 @@ void HeadunitMediaPipeline::handleMicrophoneData(const uint64_t timestamp, const
     m_microphoneDataHandler->handleMicrophoneData(timestamp, bufferData, bufferSize);
 }
 
-GstFlowReturn HeadunitMediaPipeline::readMicrophoneData(GstElement* appsink, HeadunitMediaPipeline* _this)
+GstFlowReturn HeadunitMediaPipeline::newMicrophoneSample(GstElement* appsink, HeadunitMediaPipeline* _this)
 {
     GstSample* gstsample;
     GstBuffer* gstbuf;
