@@ -15,8 +15,15 @@ AndroidAutoPlugin::AndroidAutoPlugin(QObject* parent)
 
     connect(&m_headunit, &HeadunitVideoSource::playbackStarted, this, &AndroidAutoPlugin::playbackStarted);
     connect(&m_headunit, &HeadunitVideoSource::statusChanged, this, &AndroidAutoPlugin::huStatusChanged);
+    connect(&m_bluetoothServer, &HeadunitBluetoothServer::deviceConnected, this, &AndroidAutoPlugin::btDeviceConnected);
+    
 }
 
+AndroidAutoPlugin::~AndroidAutoPlugin()
+{
+    m_bluetoothService.unregisterService();
+    qDebug() << "Service unregistered";
+}
 QObject *AndroidAutoPlugin::getContextProperty(){
     return qobject_cast<QObject*>(&m_headunit);
 }
@@ -34,8 +41,40 @@ void AndroidAutoPlugin::eventMessage(QString id, QVariant message){
 void AndroidAutoPlugin::init(){
     m_headunit.init();
     m_headunit.startHU();
+
+    QBluetoothAddress address;
+    auto adapters = QBluetoothLocalDevice::allDevices();
+    if (adapters.size() > 0) {
+        address = adapters.at(0).address();
+    } else {
+        return;
+    }
+
+    QString ipAddr;
+    foreach (QHostAddress addr, QNetworkInterface::allAddresses()) {
+        if (!addr.isLoopback() && (addr.protocol() == QAbstractSocket::IPv4Protocol)) {
+            ipAddr = addr.toString();
+        }
+    }
+    HeadunitBluetoothServer::Config serverConfig {
+        address,
+        "00:00:00:00:00:00", // WLAN BSSID
+        "{NETWORK_NAME}", // WLAN network name
+        "{PASSWORD}", // WLAN password
+        "192.168.0.2" // Headunit local IP
+    };
+
+    int btPortNo = m_bluetoothServer.start(serverConfig);
+
+    qDebug() << "Listening on " << address.toString() << "port" << btPortNo;
+    if (!m_bluetoothService.registerService(serverConfig.btAddress, btPortNo)) {
+        qWarning() << "[btservice] Service registration failed.";
+    }
 }
 
+void AndroidAutoPlugin::btDeviceConnected() {
+    m_headunit.startHU();
+}
 void AndroidAutoPlugin::start() {
     m_headunit.startMedia();
 }

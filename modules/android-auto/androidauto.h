@@ -16,7 +16,8 @@ class AndroidAutoPlugin : public QObject, PluginInterface, public MediaInterface
     Q_PLUGIN_METADATA(IID "org.viktorgino.headunit.androidauto" FILE "config.json")
     Q_INTERFACES(PluginInterface)
 public:
-    explicit AndroidAutoPlugin(QObject *parent = nullptr);
+    explicit AndroidAutoPlugin(QObject* parent = nullptr);
+    ~AndroidAutoPlugin();
     QObject *getContextProperty() override;
     void init() override;
 
@@ -34,6 +35,7 @@ public slots:
     void eventMessage(QString id, QVariant message) override;
 private slots:
     void huStatusChanged();
+    void btDeviceConnected();
 
 private:
     HeadunitVideoSource m_headunit = nullptr;
