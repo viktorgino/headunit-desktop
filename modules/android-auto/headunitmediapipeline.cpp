@@ -1,6 +1,5 @@
 #include "headunitmediapipeline.h"
 
-#include "qgstvideobuffer.h"
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
@@ -9,13 +8,12 @@
 #include <QJsonObject>
 #include <QSettings>
 
-HeadunitMediaPipeline::HeadunitMediaPipeline(QObject* parent)
-    : QObject { parent }
-{
+#include "qgstvideobuffer.h"
+
+HeadunitMediaPipeline::HeadunitMediaPipeline(QObject* parent) : QObject{parent} {
 }
 
-HeadunitMediaPipeline::~HeadunitMediaPipeline()
-{
+HeadunitMediaPipeline::~HeadunitMediaPipeline() {
     stopPipelines();
 
     gst_object_unref(vid_pipeline);
@@ -28,13 +26,11 @@ HeadunitMediaPipeline::~HeadunitMediaPipeline()
     gst_object_unref(m_au1_src);
 }
 
-void HeadunitMediaPipeline::setMicrophoneDataHandler(HeadunitMicrophoneDataHandlerInterface* microphoneDataHandler)
-{
+void HeadunitMediaPipeline::setMicrophoneDataHandler(HeadunitMicrophoneDataHandlerInterface* microphoneDataHandler) {
     m_microphoneDataHandler = microphoneDataHandler;
 }
 
-int HeadunitMediaPipeline::init()
-{
+int HeadunitMediaPipeline::init() {
     GstBus* bus;
     GError* error = NULL;
 
@@ -79,8 +75,8 @@ int HeadunitMediaPipeline::init()
                                     "pulsesink name=mediasink sync=true client-name=\"Android Auto Music\" "
                                     "stream-properties=\"props,media.name=AndroidAutoMusic,media.role=music\""
 #endif
-        ,
-        &error);
+                                    ,
+                                    &error);
     if (error != NULL) {
         qDebug("Could not construct audio pipeline: %s", error->message);
         g_clear_error(&error);
@@ -100,8 +96,8 @@ int HeadunitMediaPipeline::init()
                                     "pulsesink name=voicesink sync=true client-name=\"Android Auto Voice\""
                                     "stream-properties=\"props,media.name=AndroidAutoVoice,media.role=music\""
 #endif
-        ,
-        &error);
+                                    ,
+                                    &error);
 
     if (error != NULL) {
         qDebug("Could not construct voice pipeline: %s", error->message);
@@ -120,7 +116,8 @@ int HeadunitMediaPipeline::init()
         "pulsesrc name=micsrc client-name=\"Android Auto Voice\" ! audioconvert ! "
 #endif
         "queue ! "
-        "appsink name=micsink emit-signals=true async=false caps=\"audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, rate=16000\" blocksize=8192",
+        "appsink name=micsink emit-signals=true async=false caps=\"audio/x-raw, signed=true, endianness=1234, depth=16, width=16, channels=1, "
+        "rate=16000\" blocksize=8192",
         &error);
 
     if (error != NULL) {
@@ -145,9 +142,7 @@ int HeadunitMediaPipeline::init()
     return 0;
 }
 
-GstFlowReturn HeadunitMediaPipeline::newVideoSample(GstElement* appsink, HeadunitMediaPipeline* _this)
-{
-
+GstFlowReturn HeadunitMediaPipeline::newVideoSample(GstElement* appsink, HeadunitMediaPipeline* _this) {
     GstSample* gstsample = gst_app_sink_pull_sample(GST_APP_SINK(appsink));
     if (!gstsample) {
         return GST_FLOW_ERROR;
@@ -176,8 +171,7 @@ GstFlowReturn HeadunitMediaPipeline::newVideoSample(GstElement* appsink, Headuni
     return GST_FLOW_OK;
 }
 
-void HeadunitMediaPipeline::handleMicrophoneData(const uint64_t timestamp, const unsigned char* bufferData, const int bufferSize)
-{
+void HeadunitMediaPipeline::handleMicrophoneData(const uint64_t timestamp, const unsigned char* bufferData, const int bufferSize) {
     if (m_microphoneDataHandler == nullptr) {
         qWarning() << "microphone data handler not set!";
     }
@@ -185,8 +179,7 @@ void HeadunitMediaPipeline::handleMicrophoneData(const uint64_t timestamp, const
     m_microphoneDataHandler->handleMicrophoneData(timestamp, bufferData, bufferSize);
 }
 
-GstFlowReturn HeadunitMediaPipeline::newMicrophoneSample(GstElement* appsink, HeadunitMediaPipeline* _this)
-{
+GstFlowReturn HeadunitMediaPipeline::newMicrophoneSample(GstElement* appsink, HeadunitMediaPipeline* _this) {
     GstSample* gstsample;
     GstBuffer* gstbuf;
 
@@ -216,112 +209,106 @@ GstFlowReturn HeadunitMediaPipeline::newMicrophoneSample(GstElement* appsink, He
     return GST_FLOW_OK;
 }
 
-gboolean HeadunitMediaPipeline::bus_callback(GstBus* /* unused*/, GstMessage* message, gpointer* ptr)
-{
+gboolean HeadunitMediaPipeline::bus_callback(GstBus* /* unused*/, GstMessage* message, gpointer* ptr) {
     HeadunitMediaPipeline* hu = (HeadunitMediaPipeline*)ptr;
     gchar* debug;
     GError* err;
     gchar* name;
 
     switch (GST_MESSAGE_TYPE(message)) {
+        case GST_MESSAGE_ERROR:
+            gst_message_parse_error(message, &err, &debug);
+            qDebug("Error %s", err->message);
+            g_error_free(err);
+            g_free(debug);
+            hu->stopPipelines();
+            break;
 
-    case GST_MESSAGE_ERROR:
-        gst_message_parse_error(message, &err, &debug);
-        qDebug("Error %s", err->message);
-        g_error_free(err);
-        g_free(debug);
-        hu->stopPipelines();
-        break;
+        case GST_MESSAGE_WARNING:
+            gst_message_parse_warning(message, &err, &debug);
+            qDebug("Warning %s | Debug %s", err->message, debug);
 
-    case GST_MESSAGE_WARNING:
-        gst_message_parse_warning(message, &err, &debug);
-        qDebug("Warning %s | Debug %s", err->message, debug);
+            name = (gchar*)GST_MESSAGE_SRC_NAME(message);
 
-        name = (gchar*)GST_MESSAGE_SRC_NAME(message);
+            qDebug("Name of src %s ", name ? name : "nil");
+            g_error_free(err);
+            g_free(debug);
 
-        qDebug("Name of src %s ", name ? name : "nil");
-        g_error_free(err);
-        g_free(debug);
+            break;
 
-        break;
-
-    case GST_MESSAGE_EOS:
-    case GST_MESSAGE_STATE_CHANGED:
-    default:
-        break;
+        case GST_MESSAGE_EOS:
+        case GST_MESSAGE_STATE_CHANGED:
+        default:
+            break;
     }
 
     return TRUE;
 }
 
-void HeadunitMediaPipeline::stopPipelines()
-{
+void HeadunitMediaPipeline::stopPipelines() {
     gst_element_set_state(vid_pipeline, GST_STATE_NULL);
     gst_element_set_state(aud_pipeline, GST_STATE_NULL);
     gst_element_set_state(au1_pipeline, GST_STATE_NULL);
 };
 
-void HeadunitMediaPipeline::mediaStart(const Headunit::Pipeline pipeline)
-{
+void HeadunitMediaPipeline::mediaStart(const Headunit::Pipeline pipeline) {
     switch (pipeline) {
-    case Headunit::VideoPipeline:
-        gst_element_set_state(vid_pipeline, GST_STATE_PLAYING);
-        break;
-    case Headunit::AudioPipeline:
-        gst_element_set_state(aud_pipeline, GST_STATE_PLAYING);
-        break;
-    case Headunit::VoicePipeline:
-        gst_element_set_state(au1_pipeline, GST_STATE_PLAYING);
-        break;
-    case Headunit::MicrophonePipeline:
-        gst_element_set_state(mic_pipeline, GST_STATE_PLAYING);
-        break;
-    default:
-        qDebug() << "Pipeline Start Unknown chan : " << pipeline;
+        case Headunit::VideoPipeline:
+            gst_element_set_state(vid_pipeline, GST_STATE_PLAYING);
+            break;
+        case Headunit::AudioPipeline:
+            gst_element_set_state(aud_pipeline, GST_STATE_PLAYING);
+            break;
+        case Headunit::VoicePipeline:
+            gst_element_set_state(au1_pipeline, GST_STATE_PLAYING);
+            break;
+        case Headunit::MicrophonePipeline:
+            gst_element_set_state(mic_pipeline, GST_STATE_PLAYING);
+            break;
+        default:
+            qDebug() << "Pipeline Start Unknown chan : " << pipeline;
     }
 
     emit pipelineStatusChanged(pipeline, Headunit::PipelinePlaying);
 }
 
-void HeadunitMediaPipeline::mediaStop(const Headunit::Pipeline pipeline)
-{
+void HeadunitMediaPipeline::mediaStop(const Headunit::Pipeline pipeline) {
     switch (pipeline) {
-    case Headunit::VideoPipeline:
-        gst_element_set_state(vid_pipeline, GST_STATE_PAUSED);
-        break;
-    case Headunit::AudioPipeline:
-        gst_element_set_state(aud_pipeline, GST_STATE_PAUSED);
-        break;
-    case Headunit::VoicePipeline:
-        gst_element_set_state(au1_pipeline, GST_STATE_PAUSED);
-        break;
-    case Headunit::MicrophonePipeline:
-        gst_element_set_state(mic_pipeline, GST_STATE_PAUSED);
-        break;
-    default:
-        qDebug() << "Pipeline Stop Unknown chan : " << pipeline;
+        case Headunit::VideoPipeline:
+            gst_element_set_state(vid_pipeline, GST_STATE_PAUSED);
+            break;
+        case Headunit::AudioPipeline:
+            gst_element_set_state(aud_pipeline, GST_STATE_PAUSED);
+            break;
+        case Headunit::VoicePipeline:
+            gst_element_set_state(au1_pipeline, GST_STATE_PAUSED);
+            break;
+        case Headunit::MicrophonePipeline:
+            gst_element_set_state(mic_pipeline, GST_STATE_PAUSED);
+            break;
+        default:
+            qDebug() << "Pipeline Stop Unknown chan : " << pipeline;
     }
 
     emit pipelineStatusChanged(pipeline, Headunit::PipelineStopped);
 }
 
-void HeadunitMediaPipeline::handleMediaData(const Headunit::Pipeline pipeline, uint64_t timestamp, const unsigned char* bufferData, int bufferSize)
-{
+void HeadunitMediaPipeline::handleMediaData(const Headunit::Pipeline pipeline, uint64_t timestamp, const unsigned char* bufferData, int bufferSize) {
     GstAppSrc* gst_src = nullptr;
 
     switch (pipeline) {
-    case Headunit::VideoPipeline:
-        gst_src = m_vid_src;
-        break;
-    case Headunit::AudioPipeline:
-        gst_src = m_aud_src;
-        break;
-    case Headunit::VoicePipeline:
-        gst_src = m_au1_src;
-        break;
-    default:
-        qWarning() << "Pipeline channel : " << pipeline;
-        return;
+        case Headunit::VideoPipeline:
+            gst_src = m_vid_src;
+            break;
+        case Headunit::AudioPipeline:
+            gst_src = m_aud_src;
+            break;
+        case Headunit::VoicePipeline:
+            gst_src = m_au1_src;
+            break;
+        default:
+            qWarning() << "Pipeline channel : " << pipeline;
+            return;
     }
 
     if (gst_src) {
@@ -339,8 +326,7 @@ void HeadunitMediaPipeline::handleMediaData(const Headunit::Pipeline pipeline, u
     }
 }
 
-void HeadunitMediaPipeline::setMediaVolume(uint8_t volume)
-{
+void HeadunitMediaPipeline::setMediaVolume(uint8_t volume) {
     if (aud_pipeline) {
         GstElement* media_sink = gst_bin_get_by_name(GST_BIN(aud_pipeline), "mediasink");
         g_object_set(media_sink, "volume", volume / 100.00, NULL);
@@ -348,8 +334,7 @@ void HeadunitMediaPipeline::setMediaVolume(uint8_t volume)
     }
 }
 
-void HeadunitMediaPipeline::setVoiceVolume(uint8_t volume)
-{
+void HeadunitMediaPipeline::setVoiceVolume(uint8_t volume) {
     if (au1_pipeline) {
         GstElement* voice_sink = gst_bin_get_by_name(GST_BIN(au1_pipeline), "voicesink");
         g_object_set(voice_sink, "volume", volume / 100.00, NULL);

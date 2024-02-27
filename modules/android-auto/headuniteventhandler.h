@@ -1,14 +1,14 @@
 #ifndef HEADUNITEVENTHANDLER_H
 #define HEADUNITEVENTHANDLER_H
 
+#include <gst/gstbuffer.h>
+
 #include <QObject>
 #include <QPoint>
 
-#include <gst/gstbuffer.h>
+#include "headunit_common.h"
 #include "hu_aap.h"
 #include "hu_uti.h"
-
-#include "headunit_common.h"
 
 class HeadunitEventHandler : public QObject, public HeadunitMicrophoneDataHandlerInterface, public AndroidAuto::IHUConnectionThreadEventCallbacks {
     Q_OBJECT
@@ -49,7 +49,6 @@ signals:
 
     void phoneDisconnected();
 
-
 private slots:
     void onVideoFocusHappened(bool hasFocus, bool unrequested);
     void onAudioFocusRequest(AndroidAuto::ServiceChannels chan, const HU::AudioFocusRequest& request);
@@ -61,4 +60,4 @@ private:
     static uint64_t get_cur_timestamp();
 };
 
-#endif // HEADUNITEVENTHANDLER_H
+#endif  // HEADUNITEVENTHANDLER_H

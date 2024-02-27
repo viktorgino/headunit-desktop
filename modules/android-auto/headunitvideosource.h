@@ -4,6 +4,9 @@
 #include <gst/app/gstappsink.h>
 #include <gst/app/gstappsrc.h>
 #include <gst/gst.h>
+
+#include <QAbstractVideoBuffer>
+#include <QAbstractVideoSurface>
 #include <QBluetoothLocalDevice>
 #include <QObject>
 #include <QPoint>
@@ -11,16 +14,12 @@
 #include <QSettings>
 #include <QString>
 #include <QVariant>
+#include <QVideoSurfaceFormat>
 #include <atomic>
 
-#include <QAbstractVideoBuffer>
-#include <QAbstractVideoSurface>
-#include <QVideoSurfaceFormat>
-
+#include "headuniteventhandler.h"
 #include "headunitmediapipeline.h"
 #include "hu_aap.h"
-
-#include "headuniteventhandler.h"
 
 class HeadunitVideoSource : public QObject {
     Q_OBJECT
@@ -29,17 +28,15 @@ class HeadunitVideoSource : public QObject {
     Q_PROPERTY(int videoWidth READ videoWidth NOTIFY videoResized)
     Q_PROPERTY(int videoHeight READ videoHeight NOTIFY videoResized)
     Q_PROPERTY(hu_status status READ status NOTIFY statusChanged)
-    Q_PROPERTY(QAbstractVideoSurface* videoSurface READ videoSurface WRITE setVideoSurface CONSTANT)
+    Q_PROPERTY(QAbstractVideoSurface *videoSurface READ videoSurface WRITE setVideoSurface CONSTANT)
 
 public:
-    HeadunitVideoSource(QObject* parent = nullptr);
+    HeadunitVideoSource(QObject *parent = nullptr);
     ~HeadunitVideoSource();
     void startHU();
     void init();
 
-    enum hu_status { NO_CONNECTION,
-        VIDEO_WAITING,
-        RUNNING };
+    enum hu_status { NO_CONNECTION, VIDEO_WAITING, RUNNING };
 
     Q_ENUM(hu_status)
     void setVideoWidth(const int a);
@@ -57,7 +54,9 @@ public:
     void setVoiceVolume(uint8_t volume);
     void setNigthmode(bool night);
 
-    QAbstractVideoSurface *videoSurface() const { return m_surface; }
+    QAbstractVideoSurface *videoSurface() const {
+        return m_surface;
+    }
     void setVideoSurface(QAbstractVideoSurface *surface);
 
     uint8_t m_mediaPipelineVolume = 100;
@@ -70,7 +69,6 @@ signals:
     void deviceConnected(QVariantMap notification);
     void statusChanged();
 
-
     void playbackStarted();
 
 public slots:
@@ -79,9 +77,9 @@ public slots:
     bool mouseUp(QPoint point);
     bool keyEvent(QString key);
 
-    void videoFrameHandler(const QVideoFrame& frame);
+    void videoFrameHandler(const QVideoFrame &frame);
     void onPhoneDisconnected();
-    void onPipelineStatusChanged(const Headunit::Pipeline& pipeline, const Headunit::PipelineStatus& status);
+    void onPipelineStatusChanged(const Headunit::Pipeline &pipeline, const Headunit::PipelineStatus &status);
 
 private:
     AndroidAuto::HUServer *headunit;
