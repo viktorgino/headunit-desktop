@@ -15,7 +15,7 @@ AndroidAutoPlugin::AndroidAutoPlugin(QObject* parent)
 
     connect(&m_headunit, &HeadunitVideoSource::playbackStarted, this, &AndroidAutoPlugin::playbackStarted);
     connect(&m_headunit, &HeadunitVideoSource::statusChanged, this, &AndroidAutoPlugin::huStatusChanged);
-    connect(&m_bluetoothServer, &HeadunitBluetoothServer::deviceConnected, this, &AndroidAutoPlugin::btDeviceConnected);
+    connect(&m_bluetoothServer, &BluetoothServer::deviceConnected, this, &AndroidAutoPlugin::btDeviceConnected);
     
 }
 
@@ -56,7 +56,7 @@ void AndroidAutoPlugin::init(){
             ipAddr = addr.toString();
         }
     }
-    HeadunitBluetoothServer::Config serverConfig {
+    BluetoothServer::Config serverConfig {
         address,
         "00:00:00:00:00:00", // WLAN BSSID
         "{NETWORK_NAME}", // WLAN network name

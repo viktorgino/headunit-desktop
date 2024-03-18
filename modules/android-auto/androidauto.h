@@ -1,8 +1,8 @@
 #ifndef ANDROIDAUTO_H
 #define ANDROIDAUTO_H
 
-#include "headunitbluetoothserver.h"
-#include "headunitbluetoothservice.h"
+#include "bluetoothserver.h"
+#include "bluetoothservice.h"
 #include "headunitvideosource.h"
 #include <QDebug>
 #include <QObject>
@@ -39,8 +39,8 @@ private slots:
 
 private:
     HeadunitVideoSource m_headunit = nullptr;
-    HeadunitBluetoothServer m_bluetoothServer;
-    HeadunitBluetoothService m_bluetoothService;
+    BluetoothServer m_bluetoothServer;
+    BluetoothService m_bluetoothService;
 };
 
 #endif // ANDROIDAUTO_H
