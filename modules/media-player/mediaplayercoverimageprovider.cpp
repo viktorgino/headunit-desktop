@@ -92,7 +92,7 @@ QImage MediaPlayerCoverImageProvider::getImage(QString url) {
         if(f.ID3v2Tag()) {
             TagLib::ID3v2::AttachedPictureFrame *frame
               = dynamic_cast<TagLib::ID3v2::AttachedPictureFrame*>(f.ID3v2Tag()->frameListMap()["APIC"].front());
-            if(frame && !frame->picture().isNull()) {
+            if(frame && !frame->picture().isEmpty()) {
                 QByteArray dataBuf(frame->picture().data(),frame->picture().size());
                 return QImage::fromData(dataBuf);
             }
