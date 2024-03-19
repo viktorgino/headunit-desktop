@@ -6,9 +6,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 INCLUDEPATH += $${PWD}/../../includes
 DESTDIR = $${OUT_PWD}/../../plugins
 
-PKGCONFIG += libssl libcrypto libusb-1.0 glib-2.0 gobject-2.0
+PKGCONFIG += glib-2.0 gobject-2.0
 PKGCONFIG += gstreamer-1.0 gstreamer-app-1.0 gstreamer-video-1.0
-PKGCONFIG += protobuf
 
 SOURCES += \
     androidauto.cpp \
@@ -18,11 +17,6 @@ SOURCES += \
     qgstvideobuffer.cpp
 
 RESOURCES += qml.qrc
-
-
-INCLUDEPATH +=$$PWD/headunit/hu
-INCLUDEPATH +=$$PWD/headunit/hu/generated.x64
-INCLUDEPATH +=$$PWD/headunit/common
 
 include("../../config.pri")
 
@@ -42,5 +36,4 @@ DISTFILES += \
     config.json \
     aa_settings.ini
 
-SUBDIRS = \
-          headunit
+include($${PWD}/headunit/headunit.pri)

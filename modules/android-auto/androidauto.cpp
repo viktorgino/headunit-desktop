@@ -58,10 +58,10 @@ void AndroidAutoPlugin::init(){
     }
     BluetoothServer::Config serverConfig {
         address,
-        "00:00:00:00:00:00", // WLAN BSSID
-        "{NETWORK_NAME}", // WLAN network name
-        "{PASSWORD}", // WLAN password
-        "192.168.0.2" // Headunit local IP
+        this->m_settings["wlan_bssid"].toString(),
+        this->m_settings["wlan_name"].toString(),
+        this->m_settings["wlan_password"].toString(),
+        this->m_settings["network_address"].toString()
     };
 
     int btPortNo = m_bluetoothServer.start(serverConfig);

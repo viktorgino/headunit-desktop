@@ -61,6 +61,18 @@
                 "defaultValue": "usb"
             },
             {
+                "label":"Network Settings",
+                "type":"header"
+            },
+            {
+                "label":"Enabled",
+                "name": "enabled",
+                "type":"switch",
+                "defaultValue" : false,
+                "textOff":"No",
+                "textOn": "Yes"
+            },
+            {
                 "label":"Network address",
                 "name": "network_address",
                 "type":"textfield",
@@ -68,19 +80,53 @@
                 "defaultValue" : "127.0.0.1",
                 "inputMask" : "000.000.000.000;_",
                 "conditional":true,
-                "conditionTarget": "transport_type",
-                "conditionValue":"network"
+                "conditionTarget": "enabled",
+                "conditionValue":true
             },
             {
-                "label":"WiFi direct",
+                "label":"Server mode",
                 "name": "wifi_direct",
                 "type":"switch",
                 "textOff":"Off",
                 "textOn": "On",
-                "defaultValue": false,
+                "defaultValue": true,
                 "conditional":true,
-                "conditionTarget": "transport_type",
-                "conditionValue":"network"
+                "conditionTarget": "enabled",
+                "conditionValue":true
+            },
+            {
+                "label":"Server WLAN settings",
+                "type":"header",
+                "conditional":true,
+                "conditionTarget": "wifi_direct",
+                "conditionValue":true
+            },
+            {
+                "label":"BSSID",
+                "name": "wlan_bssid",
+                "type":"textfield",
+                "textType" : "string",
+                "defaultValue" : "00:00:00:00:00:00",
+                "inputMask" : "HH:HH:HH:HH:HH:HH;_",
+                "conditional":true,
+                "conditionTarget": "wifi_direct",
+                "conditionValue":true
+            },
+            {
+                "label":"Network name",
+                "name": "wlan_name",
+                "type":"textfield",
+                "conditional":true,
+                "conditionTarget": "wifi_direct",
+                "conditionValue":true
+            },
+            {
+                "label":"Password",
+                "name": "wlan_password",
+                "type":"textfield",
+                "conditional":true,
+                "conditionTarget": "wifi_direct",
+                "conditionValue":true
             }
         ]
     }

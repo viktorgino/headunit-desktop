@@ -2,6 +2,19 @@
     "files.associations": {
         "qpluginloader": "cpp",
         "map": "cpp",
-        "qstring": "cpp"
+        "qstring": "cpp",
+        "system_error": "cpp",
+        "qabstractvideobuffer": "cpp",
+        "qvideosurfaceformat": "cpp",
+        "qvideoframe": "cpp",
+        "*.tcc": "cpp",
+        "iosfwd": "cpp",
+        "istream": "cpp",
+        "limits": "cpp",
+        "sstream": "cpp",
+        "stop_token": "cpp",
+        "streambuf": "cpp",
+        "mutex": "cpp",
+        "typeinfo": "cpp"
     }
 }

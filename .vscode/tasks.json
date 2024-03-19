@@ -35,7 +35,6 @@
         "-spec",
         "linux-g++",
         "CONFIG+=debug",
-        // "CONFIG+=qml_debug",
         "PREFIX=~/hud",
         "&&",
         "/usr/bin/make",
@@ -43,7 +42,8 @@
       ],
       "options": {
         "cwd": "${workspaceFolder}/build"
-      }
+      },
+      "problemMatcher": []
     },
     {
       "label": "Run full build",
