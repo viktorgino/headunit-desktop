@@ -44,6 +44,7 @@ bool PluginManager::loadPlugins(QStringList filterList)
 
         connect(plugin, &PluginObject::action, this, &PluginManager::actionHandler);
         connect(plugin, &PluginObject::message, this, &PluginManager::messageHandler);
+        connect(m_mediaManager, &MediaManager::message, this, &PluginManager::messageHandler);
 
     }
     //Load QML plugins
