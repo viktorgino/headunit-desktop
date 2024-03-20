@@ -15,6 +15,9 @@
         "stop_token": "cpp",
         "streambuf": "cpp",
         "mutex": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "compare": "cpp",
+        "cstdint": "cpp",
+        "qbluetoothserver": "cpp"
     }
 }

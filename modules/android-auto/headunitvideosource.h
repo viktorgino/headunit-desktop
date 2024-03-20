@@ -19,7 +19,7 @@
 
 #include "headuniteventhandler.h"
 #include "headunitmediapipeline.h"
-#include "hu_aap.h"
+#include "headunit/includes/AndroidAuto.h"
 
 class HeadunitVideoSource : public QObject {
     Q_OBJECT

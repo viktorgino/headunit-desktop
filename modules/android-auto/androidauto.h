@@ -1,8 +1,8 @@
-#ifndef ANDROIDAUTO_H
-#define ANDROIDAUTO_H
+#ifndef ANDROIDAUTOPLUGIN_H
+#define ANDROIDAUTOPLUGIN_H
 
-#include "bluetoothserver.h"
-#include "bluetoothservice.h"
+#include <headunit/includes/BluetoothServer.h>
+#include <headunit/includes/BluetoothService.h>
 #include "headunitvideosource.h"
 #include <QDebug>
 #include <QObject>
@@ -43,4 +43,4 @@ private:
     BluetoothService m_bluetoothService;
 };
 
-#endif // ANDROIDAUTO_H
+#endif // ANDROIDAUTOPLUGIN_H

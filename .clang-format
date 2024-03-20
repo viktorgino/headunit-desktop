@@ -18,7 +18,7 @@ AlwaysBreakAfterDefinitionReturnType: None
 AlwaysBreakAfterReturnType: None
 AlwaysBreakBeforeMultilineStrings: false
 AlwaysBreakTemplateDeclarations: true
-NamespaceIndentation: All
+NamespaceIndentation: Inner
 ColumnLimit: 150
 BinPackArguments: true
 BinPackParameters: true

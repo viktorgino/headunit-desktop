@@ -2,7 +2,7 @@
 #define HEADUNIT_COMMON_H
 
 #include "QObject"
-#include "hu_aap.h"
+#include "headunit/includes/AndroidAuto.h"
 #include <stdint.h>
 
 namespace Headunit {

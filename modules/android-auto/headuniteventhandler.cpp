@@ -14,8 +14,7 @@
 #include <QJsonObject>
 #include <QSettings>
 
-#include "hu_aap.h"
-#include "hu_uti.h"
+#include "headunit/includes/AndroidAuto.h"
 
 HeadunitEventHandler::HeadunitEventHandler(QObject* parent) : QObject(parent) {
     connect(this, &HeadunitEventHandler::AudioFocusRequest, this, &HeadunitEventHandler::onAudioFocusRequest);

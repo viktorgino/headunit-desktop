@@ -13,7 +13,7 @@
 #include <QJsonObject>
 #include <QSettings>
 
-#include "hu_aap.h"
+#include "headunit/includes/AndroidAuto.h"
 
 HeadunitVideoSource::HeadunitVideoSource(QObject* parent) : QObject(parent), m_eventHandler(this), m_mediaPipeline(this) {
     qRegisterMetaType<Headunit::Pipeline>();

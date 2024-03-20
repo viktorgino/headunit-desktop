@@ -7,10 +7,9 @@
 #include <QPoint>
 
 #include "headunit_common.h"
-#include "hu_aap.h"
-#include "hu_uti.h"
+#include "headunit/includes/AndroidAuto.h"
 
-class HeadunitEventHandler : public QObject, public HeadunitMicrophoneDataHandlerInterface, public AndroidAuto::IHUConnectionThreadEventCallbacks {
+class HeadunitEventHandler : public QObject, public HeadunitMicrophoneDataHandlerInterface, public AndroidAuto::HeadunitEventCallbacks {
     Q_OBJECT
 public:
     explicit HeadunitEventHandler(QObject* parent = nullptr);
