@@ -249,7 +249,7 @@ void HeadunitVideoSource::setNigthmode(bool night) {
         HU::SensorEvent sensorEvent;
         sensorEvent.add_night_mode()->set_is_night(night);
         g_hu->queueCommand([sensorEvent](AndroidAuto::IHUConnectionThreadInterface& s) {
-            s.sendEncodedMessage(0, AndroidAuto::SensorChannel, AndroidAuto::HU_SENSOR_CHANNEL_MESSAGE::SensorEvent, sensorEvent);
+            s.sendEncodedMessage(0, AndroidAuto::SensorChannel, AndroidAuto::SENSOR_CHANNEL_MESSAGE::SensorEvent, sensorEvent);
         });
     }
 }

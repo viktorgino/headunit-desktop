@@ -35,7 +35,7 @@ void HeadunitEventHandler::handleMicrophoneData(uint64_t timestamp, const unsign
     }
 
     m_huThreadInterface->queueCommand([timestamp, bufferData, bufferSize](AndroidAuto::IHUConnectionThreadInterface& s) {
-        int ret = s.sendEncodedMediaPacket(1, AndroidAuto::MicrophoneChannel, AndroidAuto::HU_PROTOCOL_MESSAGE::MediaDataWithTimestamp, timestamp,
+        int ret = s.sendEncodedMediaPacket(1, AndroidAuto::MicrophoneChannel, AndroidAuto::PROTOCOL_MESSAGE::MediaDataWithTimestamp, timestamp,
                                            bufferData, bufferSize);
         if (ret < 0) {
             qDebug("read_mic_data(): hu_aap_enc_send() failed with (%d)", ret);
@@ -133,7 +133,7 @@ void HeadunitEventHandler::onAudioFocusRequest(AndroidAuto::ServiceChannels chan
     }
 
     m_huThreadInterface->queueCommand([chan, response](AndroidAuto::IHUConnectionThreadInterface& s) {
-        s.sendEncodedMessage(0, chan, AndroidAuto::HU_PROTOCOL_MESSAGE::AudioFocusResponse, response);
+        s.sendEncodedMessage(0, chan, AndroidAuto::PROTOCOL_MESSAGE::AudioFocusResponse, response);
     });
 }
 
@@ -147,14 +147,14 @@ void HeadunitEventHandler::onVideoFocusHappened(bool hasFocus, bool unrequested)
         HU::VideoFocus videoFocusGained;
         videoFocusGained.set_mode(hasFocus ? HU::VIDEO_FOCUS_MODE_FOCUSED : HU::VIDEO_FOCUS_MODE_UNFOCUSED);
         videoFocusGained.set_unrequested(unrequested);
-        s.sendEncodedMessage(0, AndroidAuto::VideoChannel, AndroidAuto::HU_MEDIA_CHANNEL_MESSAGE::VideoFocus, videoFocusGained);
+        s.sendEncodedMessage(0, AndroidAuto::VideoChannel, AndroidAuto::MEDIA_CHANNEL_MESSAGE::VideoFocus, videoFocusGained);
     });
 
     // Set speed to 0
     HU::SensorEvent sensorEvent;
     sensorEvent.add_location_data()->set_speed(0);
     m_huThreadInterface->queueCommand([sensorEvent](AndroidAuto::IHUConnectionThreadInterface& s) {
-        s.sendEncodedMessage(0, AndroidAuto::SensorChannel, AndroidAuto::HU_SENSOR_CHANNEL_MESSAGE::SensorEvent, sensorEvent);
+        s.sendEncodedMessage(0, AndroidAuto::SensorChannel, AndroidAuto::SENSOR_CHANNEL_MESSAGE::SensorEvent, sensorEvent);
     });
 }
 
@@ -173,9 +173,9 @@ void HeadunitEventHandler::startMedia() {
         buttonInfo->set_long_press(false);
         buttonInfo->set_scan_code(AndroidAuto::HUIB_START);
 
-        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
         buttonInfo->set_is_pressed(false);
-        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
     });
 }
 
@@ -194,9 +194,9 @@ void HeadunitEventHandler::stopMedia() {
         buttonInfo->set_long_press(false);
         buttonInfo->set_scan_code(AndroidAuto::HUIB_STOP);
 
-        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
         buttonInfo->set_is_pressed(false);
-        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
     });
 }
 
@@ -215,9 +215,9 @@ void HeadunitEventHandler::prevTrack() {
         buttonInfo->set_long_press(false);
         buttonInfo->set_scan_code(AndroidAuto::HUIB_PREV);
 
-        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
         buttonInfo->set_is_pressed(false);
-        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
     });
 }
 
@@ -236,9 +236,9 @@ void HeadunitEventHandler::nextTrack() {
         buttonInfo->set_long_press(false);
         buttonInfo->set_scan_code(AndroidAuto::HUIB_NEXT);
 
-        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
         buttonInfo->set_is_pressed(false);
-        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
     });
 }
 
@@ -260,7 +260,7 @@ void HeadunitEventHandler::touchEvent(HU::TouchInfo::TOUCH_ACTION action, const 
 
         /* Send touch event */
 
-        int ret = s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::HU_INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
+        int ret = s.sendEncodedMessage(0, AndroidAuto::TouchChannel, AndroidAuto::INPUT_CHANNEL_MESSAGE::InputEvent, inputEvent);
         if (ret < 0) {
             qDebug("aa_touch_event(): hu_aap_enc_send() failed with (%d)", ret);
         }
