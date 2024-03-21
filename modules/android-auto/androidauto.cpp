@@ -4,7 +4,6 @@ AndroidAutoPlugin::AndroidAutoPlugin(QObject* parent)
     : QObject(parent)
     , m_headunit(this)
     , m_bluetoothServer(this)
-    , m_bluetoothService(this)
 {
     m_pluginSettings.eventListeners = QStringList() << "UsbConnectionListenerPlugin::UsbDeviceAdded" << "SYSTEM::SetNightMode";
     m_pluginSettings.events = QStringList() << "connected";
@@ -21,8 +20,6 @@ AndroidAutoPlugin::AndroidAutoPlugin(QObject* parent)
 
 AndroidAutoPlugin::~AndroidAutoPlugin()
 {
-    m_bluetoothService.unregisterService();
-    qDebug() << "Service unregistered";
 }
 QObject *AndroidAutoPlugin::getContextProperty(){
     return qobject_cast<QObject*>(&m_headunit);
@@ -63,13 +60,7 @@ void AndroidAutoPlugin::init(){
         this->m_settings["wlan_password"].toString(),
         this->m_settings["network_address"].toString()
     };
-
-    int btPortNo = m_bluetoothServer.start(serverConfig);
-
-    qDebug() << "Listening on " << address.toString() << "port" << btPortNo;
-    if (!m_bluetoothService.registerService(serverConfig.btAddress, btPortNo)) {
-        qWarning() << "[btservice] Service registration failed.";
-    }
+    m_bluetoothServer.start(serverConfig);
 }
 
 void AndroidAutoPlugin::btDeviceConnected() {
